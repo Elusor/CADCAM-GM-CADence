@@ -1,6 +1,6 @@
 #include "torusGenerator.h"
 
-unsigned int calculateIndexForVertex(int x, int y, int innerLoopMaxVal);
+unsigned int CalculateIndexForVertex(int x, int y, int innerLoopMaxVal);
 
 //probably move density X and density Y to some SurfaceParameters class/struct
 SurfaceVerticesDescription* GetTorusVerticesLineList(float R, float r, SurfaceParametrizationParams surfaceParams)

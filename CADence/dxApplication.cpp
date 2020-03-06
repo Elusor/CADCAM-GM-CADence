@@ -13,7 +13,8 @@ void InitImguiWindows();
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance), m_device(m_window)
 {	
-
+	// dodac jakies wartosci parametryzujace do DxApplication zeby mozna bylo je zmienic z okienka imgui i od nowa 
+	//przeliczyc vertex i buffer shader i wyswietlic
 	ID3D11Texture2D *temp;
 	dx_ptr<ID3D11Texture2D> backTexture;
 	m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
@@ -82,74 +83,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 }
 
-std::vector<VertexPositionColor> DxApplication::CreateCubeVertices()
-{
-	return {
-
-		// 2 -- 3
-		// |    |
-		// 0 -- 1
-		// position, color
-		// Front face 		
-		{ {-0.5f,-0.5f,-0.5f}, { 1.0f, 0.0f, 0.0f } },	//0
-		{ { 0.5f,-0.5f,-0.5f}, { 1.0f, 0.0f, 0.0f } },	//1
-		{ {-0.5f, 0.5f,-0.5f}, { 1.0f, 0.0f, 0.0f } },	//2
-		{ { 0.5f, 0.5f,-0.5f}, { 1.0f, 0.0f, 0.0f } },	//3
-		// Back face
-		{ { 0.5f,-0.5f, 0.5f}, { 0.5f, 0.5f, 0.0f } },	//4
-		{ {-0.5f,-0.5f, 0.5f}, { 0.5f, 0.5f, 0.0f } },	//5
-		{ { 0.5f, 0.5f, 0.5f}, { 0.5f, 0.5f, 0.0f } },	//6
-		{ {-0.5f, 0.5f, 0.5f}, { 0.5f, 0.5f, 0.0f } },	//7
-		
-		// Upper face
-		{ {-0.5f, 0.5f,-0.5f}, { 0.0f, 0.5f, 0.5f } },	//8
-		{ { 0.5f, 0.5f,-0.5f}, { 0.0f, 0.5f, 0.5f } },	//9
-		{ {-0.5f, 0.5f, 0.5f}, { 0.0f, 0.5f, 0.5f } },	//10
-		{ { 0.5f, 0.5f, 0.5f}, { 0.0f, 0.5f, 0.5f } },	//11
-		
-		// Lower Face
-		{ {-0.5f,-0.5f, 0.5f}, { 0.5f, 0.0f, 0.5f } },	//12
-		{ { 0.5f,-0.5f, 0.5f}, { 0.5f, 0.0f, 0.5f } },	//13
-		{ {-0.5f,-0.5f,-0.5f}, { 0.5f, 0.0f, 0.5f } },	//14
-		{ { 0.5f,-0.5f,-0.5f}, { 0.5f, 0.0f, 0.5f } },	//15
-		
-		// Left face
-		{ {-0.5f,-0.5f, 0.5f}, { 0.0f, 0.0f, 1.0f } },	//16
-		{ {-0.5f,-0.5f,-0.5f}, { 0.0f, 0.0f, 1.0f } },	//17
-		{ {-0.5f, 0.5f, 0.5f}, { 0.0f, 0.0f, 1.0f } },	//18
-		{ {-0.5f, 0.5f,-0.5f}, { 0.0f, 0.0f, 1.0f } },	//19
-		
-		// Right face
-		{ {0.5f,-0.5f,-0.5f}, { 0.0f, 1.0f, 0.0f } },	//20
-		{ {0.5f,-0.5f, 0.5f}, { 0.0f, 1.0f, 0.0f } },	//21
-		{ {0.5f, 0.5f,-0.5f}, { 0.0f, 1.0f, 0.0f } },	//22
-		{ {0.5f, 0.5f, 0.5f}, { 0.0f, 1.0f, 0.0f } }	//23
-	};
-}
-
-std::vector<unsigned short> DxApplication::CreateCubeIndices()
-{
-	return {
-		0,3,1,
-		0,2,3,
-
-		4,7,5,
-		4,6,7,
-
-		8,11,9,
-		8,10,11,
-
-		12,15,13,
-		12,14,15,
-
-		16,19,17,
-		16,18,19,
-
-		20,23,21,
-		20,22,23
-	};
-}
-
 int DxApplication::MainLoop()
 {
 	MSG msg;
@@ -166,19 +99,19 @@ int DxApplication::MainLoop()
 			DispatchMessage(&msg);
 		}
 		else
-		{
+		{		
 			ImGui::GetIO().WantCaptureMouse = true;
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
-
 			ImGui::NewFrame();
-			InitImguiWindows();
-			ImGui::End();
-			ImGui::Render();
-			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());			
-			m_device.m_swapChain.get()->Present(0,0);
+
 			Update();
 			Render();
+
+			InitImguiWindows();
+			ImGui::Render();
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());			
+			m_device.m_swapChain.get()->Present(0,0);			
 		}
 	} while (msg.message != WM_QUIT);
 	return msg.wParam;
@@ -193,7 +126,6 @@ void DxApplication::Update()
 	XMMATRIX mvp = XMLoadFloat4x4(&m_modelMat) * XMLoadFloat4x4(&m_viewMat) * XMLoadFloat4x4(&m_projMat);
 	memcpy(res.pData, &mvp, sizeof(XMMATRIX));
 	m_device.context()->Unmap(m_cbMVP.get(), 0);
-
 }
 
 void DxApplication::Render()
@@ -204,14 +136,14 @@ void DxApplication::Render()
 
 	//Assing all private variables to the RP
 	m_device.context()->ClearDepthStencilView(m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 	
-	//Set shaders
-	
+	//Set shaders	
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
+
 	ID3D11Buffer* cbs[] = { m_cbMVP.get() };
 	m_device.context()->VSSetConstantBuffers(0, 1, cbs);
+
 	//bind input layout and topology
 	m_device.context()->IASetInputLayout(m_layout.get());
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -235,4 +167,5 @@ void InitImguiWindows()
 	ImGui::Begin("Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 	ImGui::Text("Hello from another window!");
 	ImGui::Button("Close Me");
+	ImGui::End();
 }
