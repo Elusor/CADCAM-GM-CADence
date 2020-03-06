@@ -19,20 +19,20 @@
     <Filter Include="Source Files\ImGui">
       <UniqueIdentifier>{e053fe1d-b2b1-4d38-8985-9fee343372b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\CadSpecific">
+      <UniqueIdentifier>{93fcc72a-86b3-4b5c-9aa1-add618a514f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific">
+      <UniqueIdentifier>{e06ed4f5-02c0-46d3-854d-ab5fdbcdb140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectXWrappers">
+      <UniqueIdentifier>{a0522e84-fcd9-4d9c-a766-437a93918a6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectXWrappers">
+      <UniqueIdentifier>{240f30a2-59d2-4d2f-ba1a-6913a023ac7a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dxApplication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dxDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dxptr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dxStructures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="exceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,23 +66,29 @@
     <ClInclude Include="imstb_truetype.h">
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="torusGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mathStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cadStructures.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
+    <ClInclude Include="torusGenerator.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
+    <ClInclude Include="dxApplication.h">
+      <Filter>Header Files\DirectXWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxDevice.h">
+      <Filter>Header Files\DirectXWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxptr.h">
+      <Filter>Header Files\DirectXWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxStructures.h">
+      <Filter>Header Files\DirectXWrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dxApplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dxDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dxStructures.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="exceptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,6 +118,18 @@
     </ClCompile>
     <ClCompile Include="imgui_impl_win32.cpp">
       <Filter>Source Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="torusGenerator.cpp">
+      <Filter>Source Files\CadSpecific</Filter>
+    </ClCompile>
+    <ClCompile Include="dxApplication.cpp">
+      <Filter>Source Files\DirectXWrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="dxDevice.cpp">
+      <Filter>Source Files\DirectXWrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="dxStructures.cpp">
+      <Filter>Source Files\DirectXWrappers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

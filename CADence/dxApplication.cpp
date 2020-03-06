@@ -40,13 +40,11 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
 
 	// Generate vertices and create vertex buffer and bind it to Input Layout
-	// Also add index buffer
-	const auto vertices = GetTorusVerticesLineList(5, 3, 20, 10);
-	/*const auto vertices = CreateCubeVertices();
-	const auto indices = CreateCubeIndices();*/
+	SurfaceParametrizationParams parameters { 20, 10 };
+	SurfaceVerticesDescription* verticesDesc = GetTorusVerticesLineList(5, 3, parameters);
 
-	m_vertexBuffer = m_device.CreateVertexBuffer(vertices);
-	//m_indexBuffer = m_device.CreateIndexBuffer(indices);
+	m_vertexBuffer = m_device.CreateVertexBuffer(verticesDesc->vertices);
+	m_indexBuffer = m_device.CreateIndexBuffer(verticesDesc->indices);
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> elements{
 		{
@@ -169,9 +167,6 @@ int DxApplication::MainLoop()
 		}
 		else
 		{
-
-		
-			//m_device.swapChain()->Present(0, 0);
 			ImGui::GetIO().WantCaptureMouse = true;
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
@@ -227,10 +222,9 @@ void DxApplication::Render()
 	UINT offsets[] = { 0 };
 	
 	m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-	//m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
-	m_device.context()->Draw(3200, 0);
-	//m_device.swapChain()->Present(0,0);
-	//m_device.context()->DrawIndexed(36, 0, 0);
+	m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+
+	m_device.context()->DrawIndexed(800, 0, 0);
 }
 
 void InitImguiWindows()
