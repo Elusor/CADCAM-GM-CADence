@@ -41,7 +41,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
 
 	// Generate vertices and create vertex buffer and bind it to Input Layout
-	SurfaceParametrizationParams parameters { 20, 10 };
+	SurfaceParametrizationParams parameters { 20, 20 };
 	SurfaceVerticesDescription* verticesDesc = GetTorusVerticesLineList(5, 3, parameters);
 
 	m_vertexBuffer = m_device.CreateVertexBuffer(verticesDesc->vertices);
@@ -99,12 +99,15 @@ int DxApplication::MainLoop()
 			DispatchMessage(&msg);
 		}
 		else
-		{		
+		{	
+			
+
 			ImGui::GetIO().WantCaptureMouse = true;
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
+			Clear();
 			Update();
 			Render();
 
@@ -115,6 +118,16 @@ int DxApplication::MainLoop()
 		}
 	} while (msg.message != WM_QUIT);
 	return msg.wParam;
+}
+
+void DxApplication::Clear()
+{
+	// Clear render target
+	float clearColor[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	m_device.context()->ClearRenderTargetView(m_backBuffer.get(), clearColor);
+
+	// Clera depth stencil
+	m_device.context()->ClearDepthStencilView(m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void DxApplication::Update()
@@ -129,17 +142,12 @@ void DxApplication::Update()
 }
 
 void DxApplication::Render()
-{
-	// Clear the back buffer
-	float clearColor[] = { 0.5f, 0.5f, 1.0f, 1.0f };
-	m_device.context()->ClearRenderTargetView(m_backBuffer.get(), clearColor);
-
-	//Assing all private variables to the RP
-	m_device.context()->ClearDepthStencilView(m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	
+{		
 	//Set shaders	
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
+
+	// Displayed model dependant
 
 	ID3D11Buffer* cbs[] = { m_cbMVP.get() };
 	m_device.context()->VSSetConstantBuffers(0, 1, cbs);
@@ -147,16 +155,15 @@ void DxApplication::Render()
 	//bind input layout and topology
 	m_device.context()->IASetInputLayout(m_layout.get());
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	//set vertex buffer
+	
 	ID3D11Buffer* vbs[] = { m_vertexBuffer.get() };
 	UINT strides[] = { sizeof(VertexPositionColor) };
-	UINT offsets[] = { 0 };
-	
+	UINT offsets[] = { 0 };	
 	m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
 	m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 
-	m_device.context()->DrawIndexed(800, 0, 0);
+	m_device.context()->DrawIndexed(1600, 0, 0);
+
 }
 
 void InitImguiWindows()

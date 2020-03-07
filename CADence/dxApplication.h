@@ -11,8 +11,9 @@ public:
 
 protected:
 	int MainLoop() override;
-
+	
 private:
+	void Clear();
 	void Render();
 	void Update();
 
