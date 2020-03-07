@@ -31,21 +31,28 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	auto backBuffer = m_backBuffer.get();
 	m_device.context()->OMSetRenderTargets(1, &backBuffer, m_depthBuffer.get());
 
-	// load shaders and assign them to the device 
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
 
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
-
-	// Generate vertices and create vertex buffer and bind it to Input Layout
 	
+#pragma region set up torus surface object
+
 	m_surObj = new SurfaceObject();
 	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
 	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surDesc);	
 
 	m_surObj->m_surParams.densityX = 10;
+	m_surObj->m_surParams.minDensityX = 3;
+	m_surObj->m_surParams.maxDensityX = 30;
+
 	m_surObj->m_surParams.densityY = 10;
+	m_surObj->m_surParams.minDensityY = 3;
+	m_surObj->m_surParams.maxDensityY = 30;
+
+#pragma endregion
+
 	GetTorusVerticesLineList(5, 3, *surParams, surDesc);
 
 	m_vertexBuffer = m_device.CreateVertexBuffer(surDesc->vertices);
@@ -90,10 +97,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 int DxApplication::MainLoop()
 {
 	MSG msg;
-	//PeekMessage doesn't change MSG if there are no messages to be recieved.
-	//However unlikely the case may be, that the first call to PeekMessage
-	//doesn't find any messages, msg is zeroed out to make sure loop condition
-	//isn't reading unitialized values.
 	ZeroMemory(&msg, sizeof msg);
 	do
 	{
@@ -103,10 +106,7 @@ int DxApplication::MainLoop()
 			DispatchMessage(&msg);
 		}
 		else
-		{	
-			
-
-			ImGui::GetIO().WantCaptureMouse = true;
+		{						
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
@@ -151,23 +151,16 @@ void DxApplication::Render()
 
 	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
 	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
-	/*GetTorusVerticesLineList(5, 3, *m_surParams, m_surDesc);
 
-	m_vertexBuffer = m_device.CreateVertexBuffer(m_surDesc->vertices);
-	m_indexBuffer = m_device.CreateIndexBuffer(m_surDesc->indices);*/
-
-	//Set shaders	
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
 
-	// Displayed model dependant
-
-	ID3D11Buffer* cbs[] = { m_cbMVP.get() };
-	m_device.context()->VSSetConstantBuffers(0, 1, cbs);
-
-	//bind input layout and topology
+	// object dependant
 	m_device.context()->IASetInputLayout(m_layout.get());
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	
+	ID3D11Buffer* cbs[] = { m_cbMVP.get() };
+	m_device.context()->VSSetConstantBuffers(0, 1, cbs);
 	
 	ID3D11Buffer* vbs[] = { m_vertexBuffer.get() };
 	UINT strides[] = { sizeof(VertexPositionColor) };
@@ -181,17 +174,15 @@ void DxApplication::Render()
 
 void DxApplication::InitImguiWindows()
 {	
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
-		ImGui::Begin("Torus parameters");                          // Create a window called "Hello, world!" and append into it.
+		SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
+		ImGui::Begin("Torus parameters");
 
-		ImGui::Text("Sliders describing the density of the mesh:");               // Display some text (you can use a format strings too)		
-		ImGui::SliderInt("Density X", &(m_surObj->m_surParams.densityX), 3, 30);            
-		ImGui::SliderInt("Density Y", &(m_surObj->m_surParams.densityY), 3, 30);
-
-	
+		ImGui::Text("Sliders describing the density of the mesh:");               
+		ImGui::SliderInt("Density X", &(m_surObj->m_surParams.densityX), surParams->minDensityX, surParams->maxDensityX);
+		ImGui::SliderInt("Density Y", &(m_surObj->m_surParams.densityY), surParams->minDensityY, surParams->maxDensityY);	
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
 		ImGui::End();
 	}
 }
-

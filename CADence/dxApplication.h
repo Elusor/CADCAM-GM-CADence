@@ -21,9 +21,7 @@ private:
 
 	DxDevice m_device;
 
-	SurfaceObject* m_surObj;
-	/*SurfaceParametrizationParams* m_surParams;
-	SurfaceVerticesDescription* m_surDesc;*/
+	SurfaceObject* m_surObj;	
 
 	//Holds resources used by the pipeline
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;

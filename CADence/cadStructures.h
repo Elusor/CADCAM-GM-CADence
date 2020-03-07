@@ -3,7 +3,12 @@
 struct SurfaceParametrizationParams
 {
 	int densityX;
+	int minDensityX;
+	int maxDensityX;
+
 	int densityY;
+	int minDensityY;
+	int maxDensityY;
 };
 
 struct SurfaceVerticesDescription
