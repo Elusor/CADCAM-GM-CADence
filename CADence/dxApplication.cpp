@@ -78,9 +78,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	
 
 	m_camera = new Camera(
-		XMFLOAT3(0.0f, 0.0f, 30.0f), // camera pos 
+		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
-		XMFLOAT2(0.0f, 00.0f), // yaw, pitch
+		XMFLOAT2(0.0f, 0.0f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
 		45.0f, 2.5f, 100.0f); // fov, zNear, zFar
@@ -130,7 +130,7 @@ int DxApplication::MainLoop()
 			/*bool messageProcessed = m_camController->ProcessMessage(&msg);
 			if (messageProcessed)
 				int c = 2;*/
-			ImGui::Begin("Deltapos");
+			/*ImGui::Begin("Deltapos");
 			ImGui::Text("Delta x = %f", vec.x);
 			ImGui::Text("Delta y = %f", vec.y);
 
@@ -138,8 +138,10 @@ int DxApplication::MainLoop()
 			ImGui::Text("Cam y = %f", m_camera->m_pos.y);
 			ImGui::Text("Cam z = %f", m_camera->m_pos.z);
 			
+			ImGui::Text("Yaw = %f", m_camera->m_yaw);
+			ImGui::Text("Pitch = %f", m_camera->m_pitch);
 
-			ImGui::End();
+			ImGui::End();*/
 
 			Clear();
 			Update();
@@ -167,6 +169,7 @@ void DxApplication::Update()
 {
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
+	XMStoreFloat4x4(&m_modelMat, XMMatrixIdentity());
 
 	XMMATRIX mvp = XMLoadFloat4x4(&m_modelMat) * XMLoadFloat4x4(&m_viewMat) * XMLoadFloat4x4(&m_projMat);
 	m_device.context()->Map(m_cbMVP.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
@@ -210,7 +213,7 @@ void DxApplication::InitImguiWindows()
 	if (torusChanged)
 	{
 		GetTorusVerticesLineList(5, 3, *(surParams), &(m_surObj->m_surDesc));
-
+		//DisplayCoordinateSystem(m_surObj);
 		m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
 		m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
 	}
@@ -218,3 +221,46 @@ void DxApplication::InitImguiWindows()
 	ImGui::End();
 	
 }
+
+//void DisplayCoordinateSystem(SurfaceObject* sur)
+//{
+//	VertexPositionColor ox = VertexPositionColor{
+//			{10.0f,0.0f,0.0f},
+//			{1.0f,0.0f,0.0f}
+//	};
+//	VertexPositionColor xx = VertexPositionColor{
+//		{0.0f,0.0f,0.0f},
+//		{1.0f,0.0f,0.0f}
+//	};
+//	VertexPositionColor oy = VertexPositionColor{
+//		{0.0f,0.0f,0.0f},
+//		{0.0f,1.0f,0.0f}
+//	};
+//	VertexPositionColor yy = VertexPositionColor{
+//		{0.0f,10.0f,0.0f},
+//		{0.0f,1.0f,0.0f}
+//	};
+//	VertexPositionColor oz = VertexPositionColor{
+//		{0.0f,0.0f,0.0f},
+//		{0.0f,0.0f,0.65f}
+//	};
+//	VertexPositionColor zz = VertexPositionColor{
+//		{0.0f,0.0f,10.0f},
+//		{0.0f,0.0f,0.65f}
+//	};
+//	sur->m_surDesc.vertices.push_back(ox);
+//	sur->m_surDesc.vertices.push_back(xx);
+//	sur->m_surDesc.vertices.push_back(oy);
+//	sur->m_surDesc.vertices.push_back(yy);
+//	sur->m_surDesc.vertices.push_back(oz);
+//	sur->m_surDesc.vertices.push_back(zz);
+//
+//	int count = sur->m_surParams.densityX * sur->m_surParams.densityY;
+//
+//	sur->m_surDesc.indices.push_back(count);
+//	sur->m_surDesc.indices.push_back(count + 1);
+//	sur->m_surDesc.indices.push_back(count + 2);
+//	sur->m_surDesc.indices.push_back(count + 3);
+//	sur->m_surDesc.indices.push_back(count + 4);
+//	sur->m_surDesc.indices.push_back(count + 5);
+//}

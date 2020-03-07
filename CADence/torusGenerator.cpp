@@ -26,6 +26,7 @@ void GetTorusVerticesLineList(float R, float r, SurfaceParametrizationParams sur
 		for (int y = 0; y < densityY; y++)
 		{
 			//Add vertices 
+			//colorFrac = (float)y / (float)densityY;
 			float curX = bigRotStep * x;
 			float curY = smallRotStep * y;
 			VertexPositionColor v11 = CalculateTorusVertex(R, r, curX, curY, colorFrac);

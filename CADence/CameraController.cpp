@@ -11,11 +11,17 @@ CameraController::CameraController(Camera* camera)
 
 ImVec2 CameraController::ProcessMessage(ImGuiIO* imguiIO)
 {
+	imguiIO->ConfigDockingWithShift = true;
 	float deltaX = 0;
 	float deltaY = 0;
 
 	float dispdeltaX = 0;
 	float dispdeltaY = 0;
+
+	if (imguiIO->MouseDown[2])
+	{
+		m_camera->ResetCamera();
+	}	
 
 	bool lDown = imguiIO->MouseDown[0];
 	if (lDown)
@@ -54,7 +60,7 @@ ImVec2 CameraController::ProcessMessage(ImGuiIO* imguiIO)
 	{
 		auto pos = imguiIO->MousePos;
 		deltaX = pos.x - prevPos.x;
-		deltaY = pos.y - prevPos.y;
+		deltaY = pos.y - prevPos.y;		
 		m_camera->RotateCamera(-deltaX, deltaY);
 	}
 	if (imguiIO->MouseWheel != 0)

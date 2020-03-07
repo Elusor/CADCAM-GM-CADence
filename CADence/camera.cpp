@@ -1,4 +1,6 @@
+#define _USE_MATH_DEFINES
 #include "camera.h"
+#include <math.h>
 using namespace DirectX;
 
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2);
@@ -70,8 +72,12 @@ DirectX::XMMATRIX Camera::GetViewProjectionMatrix()
 
 void Camera::ResetCamera()
 {
-	m_pos = XMFLOAT3(0.0f, 0.0f, 10.0f);
+	m_pos = XMFLOAT3(0.0f, 0.0f, -30.0f);
 	m_target = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_yaw = 0;
+	m_pitch = 0;
+	UpdateUpVector();
+	RotateCamera(0, 0);
 }
 
 void Camera::CameraZoom(float delta)
@@ -92,34 +98,26 @@ void Camera::CameraZoom(float delta)
 
 void Camera::RotateCamera(float dx, float dy)
 {
-	float sensitivity = 0.00005f;
+	float sensitivity = 0.0055f;
 	float yawIncrement = dx * sensitivity;
-	float pitchIncrement = dy * sensitivity;
+	float pitchIncrement = -dy * sensitivity;
 
 	m_yaw += yawIncrement;
 	m_pitch += pitchIncrement;
 
-	XMFLOAT3 relativeDir;
+	XMFLOAT3 rDir;
+	rDir = SumFloat3(m_pos, Float3TimesFloat(m_target, -1.0f));	
 
-	relativeDir = SumFloat3(m_pos, Float3TimesFloat(m_target, -1.0f));
-	/*relativeDir.x = m_pos.x - m_target.x;
-	relativeDir.y = m_pos.y - m_target.y;
-	relativeDir.z = m_pos.z - m_target.z;*/
+	float len = sqrtf(rDir.x * rDir.x + rDir.y * rDir.y + rDir.z * rDir.z);
 
-	XMVECTOR relativeDirVect = XMLoadFloat3(&relativeDir);
-	relativeDirVect = XMVector3Rotate(relativeDirVect, 
-		XMQuaternionRotationRollPitchYaw(
-			XMConvertToRadians(m_pitch), 
-			XMConvertToRadians(m_yaw), 
-			0.0f));
-	
-	XMFLOAT3 relativeDirRotated;
-	XMStoreFloat3(&relativeDirRotated, relativeDirVect);
+	XMFLOAT3 direction = XMFLOAT3(
+		cosf(m_yaw) * cosf(m_pitch),
+		sinf(m_pitch),
+		sinf(m_yaw) * cosf(m_pitch)
+	);
 
-	m_pos = SumFloat3(m_target, Float3TimesFloat(relativeDirRotated, -1.0f));
-	/*m_pos.x = m_target.x - relativeDirRotated.x;
-	m_pos.y = m_target.y - relativeDirRotated.y;
-	m_pos.z = m_target.z - relativeDirRotated.z;*/
+	m_pos = SumFloat3(m_target, Float3TimesFloat(direction, -len));	
+
 	UpdateUpVector();
 }
 
@@ -131,7 +129,7 @@ void Camera::TranslateCamera(float dx, float dy)
 		sensitivity * dx * m_right.x + sensitivity * dy * m_up.x,
 		sensitivity * dx * m_right.y + sensitivity * dy * m_up.y,
 		sensitivity * dx * m_right.z + sensitivity * dy * m_up.z);
-		
+
 	m_pos = SumFloat3(m_pos,cameraDelta);
 	m_target = SumFloat3(m_target, cameraDelta);
 }
