@@ -1,4 +1,5 @@
 #pragma once
+#include "camera.h"
 #include "windowApplication.h"
 #include "dxDevice.h"
 #include "mathStructures.h"
@@ -20,7 +21,7 @@ private:
 	void Update();
 
 	DxDevice m_device;
-
+	Camera* m_camera;
 	SurfaceObject* m_surObj;	
 
 	//Holds resources used by the pipeline

@@ -6,16 +6,16 @@ public:
 	DirectX::XMMATRIX m_projMat;
 
 	Camera();
-	Camera(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 rotation, 
+	Camera(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 target, DirectX::XMFLOAT2 rotation, 
 		uint32_t width, uint32_t height, float fovAngle, float zNear, float zFar);
 
 	DirectX::XMMATRIX GetViewMatrix();
-	DirectX::XMMATRIX RecalculateProjectionMatrix();
 	DirectX::XMMATRIX GetViewProjectionMatrix();
 
 	void ResetCamera();
 	void UpdateUpVector();
 	void CameraZoom(float delta);
+	void RecalculateProjectionMatrix();
 	void RotateCamera(float dx, float dy);
 	void TranslateCamera(float dx, float dy);
 	void ResizeViewport(float width, float height);

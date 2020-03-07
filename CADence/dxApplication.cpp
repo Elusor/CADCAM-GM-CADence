@@ -5,6 +5,8 @@
 #include "imgui_impl_win32.h"
 #include "mathStructures.h"
 #include "torusGenerator.h"
+#include "camera.h"
+
 using namespace mini;
 using namespace DirectX;
 
@@ -73,16 +75,24 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	};
 	m_layout = m_device.CreateInputLayout(elements, vsBytes);
 
+	m_camera = new Camera(
+		XMFLOAT3(0.0f, 0.0f, 30.0f), // camera pos 
+		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
+		XMFLOAT2(0.0f, 00.0f), // yaw, pitch
+		viewport.Width,
+		viewport.Height,
+		45.0f, 2.5f, 100.0f); // fov, zNear, zFar
+	
 	//Add constant buffer with MVP matrix
 	XMStoreFloat4x4(&m_modelMat, XMMatrixIdentity());
-	XMStoreFloat4x4(&m_viewMat, XMMatrixRotationX(XMConvertToRadians(-30))*XMMatrixTranslation(0.0f,0.0f,30.0f));
-	XMStoreFloat4x4(&m_projMat, XMMatrixPerspectiveFovLH(
-		XMConvertToRadians(45),
-		static_cast<float> (wndSize.cx) / wndSize.cy,
-		0.1f,
-		100.0f));
+	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
+	//XMStoreFloat4x4(&m_projMat, XMMatrixPerspectiveFovLH(
+	//	XMConvertToRadians(45),
+	//	static_cast<float> (wndSize.cx) / wndSize.cy,
+	//	0.1f,
+	//	100.0f));
+	XMStoreFloat4x4(&m_projMat, m_camera->m_projMat);
 	m_cbMVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
-
 
 	//Setup imGui
 	IMGUI_CHECKVERSION();

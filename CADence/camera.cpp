@@ -4,10 +4,10 @@ using namespace DirectX;
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2);
 XMFLOAT3 Float3TimesFloat(XMFLOAT3 v1, float a);
 
-Camera::Camera() : Camera(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), 0, 0, 0, 0, 0)
+Camera::Camera() : Camera(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT2(0.0f, 0.0f), 0, 0, 0, 0, 0)
 {}
 
-Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT3 rotation, uint32_t width, uint32_t height, float fovAngle, float zNear, float zFar)
+Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT2 rotation, uint32_t width, uint32_t height, float fovAngle, float zNear, float zFar)
 {
 	m_aspectRatio = (float)width / (float)height;
 	m_fov = fovAngle;
@@ -23,6 +23,7 @@ Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT3 rotation, uint32_t w
 
 	UpdateUpVector();
 	RecalculateProjectionMatrix();
+	RotateCamera(0, 0);
 }
 
 void Camera::UpdateUpVector()
@@ -56,9 +57,9 @@ XMMATRIX Camera::GetViewMatrix()
 	return XMMatrixLookAtLH(pos, target, up);
 }
 
-XMMATRIX Camera::RecalculateProjectionMatrix()
+void Camera::RecalculateProjectionMatrix()
 {	
-	return XMMatrixPerspectiveFovLH(m_fov, m_aspectRatio, m_zNear, m_zFar);
+	m_projMat = XMMatrixPerspectiveFovLH(XMConvertToRadians(m_fov), m_aspectRatio, m_zNear, m_zFar);
 }
 
 DirectX::XMMATRIX Camera::GetViewProjectionMatrix()
@@ -104,7 +105,11 @@ void Camera::RotateCamera(float dx, float dy)
 	relativeDir.z = m_pos.z - m_target.z;*/
 
 	XMVECTOR relativeDirVect = XMLoadFloat3(&relativeDir);
-	relativeDirVect = XMVector3Rotate(relativeDirVect, XMQuaternionRotationRollPitchYaw(m_pitch, m_yaw, 0.0f));
+	relativeDirVect = XMVector3Rotate(relativeDirVect, 
+		XMQuaternionRotationRollPitchYaw(
+			XMConvertToRadians(m_pitch), 
+			XMConvertToRadians(m_yaw), 
+			0.0f));
 	
 	XMFLOAT3 relativeDirRotated;
 	XMStoreFloat3(&relativeDirRotated, relativeDirVect);
@@ -132,7 +137,7 @@ void Camera::TranslateCamera(float dx, float dy)
 void Camera::ResizeViewport(float width, float height)
 {
 	m_aspectRatio = width / height;
-	m_projMat = RecalculateProjectionMatrix();
+	RecalculateProjectionMatrix();
 }
 
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2)
