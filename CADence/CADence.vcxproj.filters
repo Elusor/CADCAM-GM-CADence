@@ -87,6 +87,9 @@
     <ClInclude Include="dxStructures.h">
       <Filter>Header Files\DirectXWrappers</Filter>
     </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="exceptions.cpp">
@@ -130,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="dxStructures.cpp">
       <Filter>Source Files\DirectXWrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cadStructures.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="dxApplication.h" />
     <ClInclude Include="dxDevice.h" />
     <ClInclude Include="dxptr.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="windowApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="dxApplication.cpp" />
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
