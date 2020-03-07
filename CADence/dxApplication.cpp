@@ -147,11 +147,6 @@ void DxApplication::Update()
 
 void DxApplication::Render()
 {		
-	GetTorusVerticesLineList(5, 3, (m_surObj->m_surParams), &(m_surObj->m_surDesc));
-
-	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
-	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
-
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
 
@@ -173,16 +168,24 @@ void DxApplication::Render()
 }
 
 void DxApplication::InitImguiWindows()
-{	
+{		
+	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
+	ImGui::Begin("Torus parameters");
+	ImGui::Text("Sliders describing the density of the mesh:");
+	// Create sliders for torus parameters
+	bool torusChanged = false;
+	torusChanged |= ImGui::SliderInt("Density X", &(surParams->densityX), surParams->minDensityX, surParams->maxDensityX);
+	torusChanged |= ImGui::SliderInt("Density Y", &(surParams->densityY), surParams->minDensityY, surParams->maxDensityY);
+
+	// Change torus if necessary
+	if (torusChanged)
 	{
-		SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
-		ImGui::Begin("Torus parameters");
+		GetTorusVerticesLineList(5, 3, *(surParams), &(m_surObj->m_surDesc));
 
-		ImGui::Text("Sliders describing the density of the mesh:");               
-		ImGui::SliderInt("Density X", &(m_surObj->m_surParams.densityX), surParams->minDensityX, surParams->maxDensityX);
-		ImGui::SliderInt("Density Y", &(m_surObj->m_surParams.densityY), surParams->minDensityY, surParams->maxDensityY);	
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-		ImGui::End();
+		m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
+		m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
 	}
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
+	
 }
