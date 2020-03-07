@@ -3,9 +3,10 @@
 unsigned int CalculateIndexForVertex(int x, int y, int innerLoopMaxVal);
 
 //probably move density X and density Y to some SurfaceParameters class/struct
-SurfaceVerticesDescription* GetTorusVerticesLineList(float R, float r, SurfaceParametrizationParams surfaceParams)
+void GetTorusVerticesLineList(float R, float r, SurfaceParametrizationParams surfaceParams, SurfaceVerticesDescription* surfaceDescription)
 {
-	SurfaceVerticesDescription* desc = new SurfaceVerticesDescription;
+	surfaceDescription->vertices.clear();
+	surfaceDescription->indices.clear();
 	// Get the points from torus parametrization
 	float maxRotMainRadius = 2.0f * M_PI;
 	float maxRotSmallRadius = 2.0f * M_PI;
@@ -28,18 +29,16 @@ SurfaceVerticesDescription* GetTorusVerticesLineList(float R, float r, SurfacePa
 			float curX = bigRotStep * x;
 			float curY = smallRotStep * y;
 			VertexPositionColor v11 = CalculateTorusVertex(R, r, curX, curY, colorFrac);
-			desc->vertices.push_back(v11);
+			surfaceDescription->vertices.push_back(v11);
 
 			//Add indices representing edges
-			desc->indices.push_back(CalculateIndexForVertex(x, y, densityY));
-			desc->indices.push_back(CalculateIndexForVertex((x + 1) % (int)densityX, y, densityY));
+			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, y, densityY));
+			surfaceDescription->indices.push_back(CalculateIndexForVertex((x + 1) % (int)densityX, y, densityY));
 
-			desc->indices.push_back(CalculateIndexForVertex(x, y, densityY));
-			desc->indices.push_back(CalculateIndexForVertex(x, (y + 1) % (int)densityY, densityY));
+			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, y, densityY));
+			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, (y + 1) % (int)densityY, densityY));
 		}
 	}
-	
-	return desc;
 }
 
 unsigned int CalculateIndexForVertex(int x, int y, int innerLoopMaxVal)

@@ -2,6 +2,7 @@
 #include "windowApplication.h"
 #include "dxDevice.h"
 #include "mathStructures.h"
+#include "cadStructures.h"
 #include <DirectXMath.h>
 
 class DxApplication : public mini::WindowApplication
@@ -15,9 +16,14 @@ protected:
 private:
 	void Clear();
 	void Render();
+	void InitImguiWindows();
 	void Update();
 
 	DxDevice m_device;
+
+	SurfaceObject* m_surObj;
+	/*SurfaceParametrizationParams* m_surParams;
+	SurfaceVerticesDescription* m_surDesc;*/
 
 	//Holds resources used by the pipeline
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;

@@ -8,13 +8,11 @@
 using namespace mini;
 using namespace DirectX;
 
-void InitImguiWindows();
-
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance), m_device(m_window)
 {	
 	// dodac jakies wartosci parametryzujace do DxApplication zeby mozna bylo je zmienic z okienka imgui i od nowa 
-	//przeliczyc vertex i buffer shader i wyswietlic
+	// przeliczyc vertex i buffer shader i wyswietlic
 	ID3D11Texture2D *temp;
 	dx_ptr<ID3D11Texture2D> backTexture;
 	m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
@@ -41,11 +39,17 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
 
 	// Generate vertices and create vertex buffer and bind it to Input Layout
-	SurfaceParametrizationParams parameters { 20, 20 };
-	SurfaceVerticesDescription* verticesDesc = GetTorusVerticesLineList(5, 3, parameters);
+	
+	m_surObj = new SurfaceObject();
+	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
+	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surDesc);	
 
-	m_vertexBuffer = m_device.CreateVertexBuffer(verticesDesc->vertices);
-	m_indexBuffer = m_device.CreateIndexBuffer(verticesDesc->indices);
+	m_surObj->m_surParams.densityX = 10;
+	m_surObj->m_surParams.densityY = 10;
+	GetTorusVerticesLineList(5, 3, *surParams, surDesc);
+
+	m_vertexBuffer = m_device.CreateVertexBuffer(surDesc->vertices);
+	m_indexBuffer = m_device.CreateIndexBuffer(surDesc->indices);
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> elements{
 		{
@@ -143,6 +147,15 @@ void DxApplication::Update()
 
 void DxApplication::Render()
 {		
+	GetTorusVerticesLineList(5, 3, (m_surObj->m_surParams), &(m_surObj->m_surDesc));
+
+	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
+	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
+	/*GetTorusVerticesLineList(5, 3, *m_surParams, m_surDesc);
+
+	m_vertexBuffer = m_device.CreateVertexBuffer(m_surDesc->vertices);
+	m_indexBuffer = m_device.CreateIndexBuffer(m_surDesc->indices);*/
+
 	//Set shaders	
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
@@ -162,17 +175,23 @@ void DxApplication::Render()
 	m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
 	m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 
-	m_device.context()->DrawIndexed(1600, 0, 0);
+	m_device.context()->DrawIndexed(m_surObj->m_surParams.densityX* m_surObj->m_surParams.densityY * 4, 0, 0);
 
 }
 
-void InitImguiWindows()
-{
-	ImGui::Begin("Test");
-	ImGui::End();
+void DxApplication::InitImguiWindows()
+{	
+	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+	{
+		ImGui::Begin("Torus parameters");                          // Create a window called "Hello, world!" and append into it.
 
-	ImGui::Begin("Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-	ImGui::Text("Hello from another window!");
-	ImGui::Button("Close Me");
-	ImGui::End();
+		ImGui::Text("Sliders describing the density of the mesh:");               // Display some text (you can use a format strings too)		
+		ImGui::SliderInt("Density X", &(m_surObj->m_surParams.densityX), 3, 30);            
+		ImGui::SliderInt("Density Y", &(m_surObj->m_surParams.densityY), 3, 30);
+
+	
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
+	}
 }
+
