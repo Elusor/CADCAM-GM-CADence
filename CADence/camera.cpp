@@ -42,7 +42,7 @@ void Camera::UpdateUpVector()
 
 	//Calculate Vector parallel to XZ plane
 	XMVECTOR cameraRightDir = XMVector3Cross(GlobalUpDir, LookAtDir);
-	XMStoreFloat3(&m_right, cameraRightDir);
+	XMStoreFloat3(&m_right, XMVector3Normalize(cameraRightDir));
 
 	//Calculate Up Vector
 	XMVECTOR upDir = XMVector3Cross(LookAtDir, cameraRightDir);
@@ -53,7 +53,8 @@ XMMATRIX Camera::GetViewMatrix()
 {	
 	XMVECTOR pos = XMLoadFloat3(&m_pos);
 	XMVECTOR target = XMLoadFloat3(&m_target);
-	XMVECTOR up = XMLoadFloat3(&m_up);
+	auto globalUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMVECTOR up = XMLoadFloat3(&globalUp);
 	return XMMatrixLookAtLH(pos, target, up);
 }
 
@@ -75,14 +76,15 @@ void Camera::ResetCamera()
 
 void Camera::CameraZoom(float delta)
 {
-	float sensitivity = 0.2f;
+	float sensitivity = 0.05f;
+	float scale = 1 + sensitivity * -delta;
 	
 	XMFLOAT3 cameraDirection;
 
 	//XMFLOAT3 negTargetDir = Float3TimesFloat(m_target, -1.0f);
-	cameraDirection.x = ((m_pos.x - m_target.x) * sensitivity * delta) + m_target.x;
-	cameraDirection.y = ((m_pos.y - m_target.y) * sensitivity * delta) + m_target.y;
-	cameraDirection.z = ((m_pos.z - m_target.z) * sensitivity * delta) + m_target.z;
+	cameraDirection.x = ((m_pos.x - m_target.x) * scale) + m_target.x;
+	cameraDirection.y = ((m_pos.y - m_target.y) * scale) + m_target.y;
+	cameraDirection.z = ((m_pos.z - m_target.z) * scale) + m_target.z;
 	
 	//Scale camera direction	
 	m_pos = cameraDirection;
@@ -90,7 +92,7 @@ void Camera::CameraZoom(float delta)
 
 void Camera::RotateCamera(float dx, float dy)
 {
-	float sensitivity = 0.005f;
+	float sensitivity = 0.00005f;
 	float yawIncrement = dx * sensitivity;
 	float pitchIncrement = dy * sensitivity;
 
@@ -124,11 +126,11 @@ void Camera::RotateCamera(float dx, float dy)
 void Camera::TranslateCamera(float dx, float dy)
 {
 	//Translate Camera in m_up m_right plane
-	float sensitivity = 0.005f;
+	float sensitivity = 0.05f;
 	XMFLOAT3 cameraDelta = XMFLOAT3(
-		dx * m_right.x + dy * m_up.x,
-		dx * m_right.y + dy * m_up.y,
-		dx * m_right.z + dy * m_up.z);
+		sensitivity * dx * m_right.x + sensitivity * dy * m_up.x,
+		sensitivity * dx * m_right.y + sensitivity * dy * m_up.y,
+		sensitivity * dx * m_right.z + sensitivity * dy * m_up.z);
 		
 	m_pos = SumFloat3(m_pos,cameraDelta);
 	m_target = SumFloat3(m_target, cameraDelta);

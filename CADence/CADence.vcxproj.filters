@@ -31,6 +31,12 @@
     <Filter Include="Source Files\DirectXWrappers">
       <UniqueIdentifier>{240f30a2-59d2-4d2f-ba1a-6913a023ac7a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Cameras">
+      <UniqueIdentifier>{28d17a9b-ae86-4804-9ff7-54edf9c8ce26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Cameras">
+      <UniqueIdentifier>{c41c185a-5b00-4c63-9b2e-2a1943fd7171}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="exceptions.h">
@@ -88,7 +94,10 @@
       <Filter>Header Files\DirectXWrappers</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>Header Files\Cameras</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +144,9 @@
       <Filter>Source Files\DirectXWrappers</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
+      <Filter>Source Files\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

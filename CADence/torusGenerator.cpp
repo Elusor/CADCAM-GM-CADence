@@ -50,8 +50,8 @@ VertexPositionColor CalculateTorusVertex(float bigR, float smallR, float bigRRot
 {
 
 	float x = (smallR * cosf(smallRRot) + bigR) * cosf(bigRRot);
-	float z = (smallR * cosf(smallRRot) + bigR) * sinf(bigRRot);
 	float y = smallR * sinf(smallRRot);
+	float z = (smallR * cosf(smallRRot) + bigR) * sinf(bigRRot);
 	VertexPositionColor v{
 		{x,y,z},
 		{colorFrac,colorFrac,colorFrac}

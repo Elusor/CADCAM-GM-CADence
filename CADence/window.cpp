@@ -6,7 +6,7 @@
 using namespace std;
 using namespace mini;
 
-wstring Window::m_windowClassName = L"DirectX 11 Window";
+wstring Window::m_windowClassName = L"Main CADence window";
 const int Window::m_defaultWindowWidth = 1280;
 const int Window::m_defaultWindowHeight = 720;
 

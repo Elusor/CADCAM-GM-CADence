@@ -75,6 +75,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	};
 	m_layout = m_device.CreateInputLayout(elements, vsBytes);
 
+	
+
 	m_camera = new Camera(
 		XMFLOAT3(0.0f, 0.0f, 30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
@@ -83,6 +85,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		viewport.Height,
 		45.0f, 2.5f, 100.0f); // fov, zNear, zFar
 	
+	m_camController = new CameraController(m_camera);
+
 	//Add constant buffer with MVP matrix
 	XMStoreFloat4x4(&m_modelMat, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
@@ -111,15 +115,31 @@ int DxApplication::MainLoop()
 	do
 	{
 		if (PeekMessage(&msg, nullptr, 0,0, PM_REMOVE))
-		{
+		{						
 			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			DispatchMessage(&msg);					
 		}
 		else
 		{						
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
+			ImGui::NewFrame();			
+			
+			
+			ImVec2 vec = m_camController->ProcessMessage(&ImGui::GetIO());
+			/*bool messageProcessed = m_camController->ProcessMessage(&msg);
+			if (messageProcessed)
+				int c = 2;*/
+			ImGui::Begin("Deltapos");
+			ImGui::Text("Delta x = %f", vec.x);
+			ImGui::Text("Delta y = %f", vec.y);
+
+			ImGui::Text("Cam x = %f", m_camera->m_pos.x);
+			ImGui::Text("Cam y = %f", m_camera->m_pos.y);
+			ImGui::Text("Cam z = %f", m_camera->m_pos.z);
+			
+
+			ImGui::End();
 
 			Clear();
 			Update();
@@ -139,18 +159,17 @@ void DxApplication::Clear()
 	// Clear render target
 	float clearColor[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	m_device.context()->ClearRenderTargetView(m_backBuffer.get(), clearColor);
-
 	// Clera depth stencil
 	m_device.context()->ClearDepthStencilView(m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void DxApplication::Update()
 {
-	XMStoreFloat4x4(&m_modelMat, XMLoadFloat4x4(&m_modelMat) * XMMatrixRotationY(0.0001f));
 	D3D11_MAPPED_SUBRESOURCE res;
+	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
 
-	m_device.context()->Map(m_cbMVP.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	XMMATRIX mvp = XMLoadFloat4x4(&m_modelMat) * XMLoadFloat4x4(&m_viewMat) * XMLoadFloat4x4(&m_projMat);
+	m_device.context()->Map(m_cbMVP.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	memcpy(res.pData, &mvp, sizeof(XMMATRIX));
 	m_device.context()->Unmap(m_cbMVP.get(), 0);
 }

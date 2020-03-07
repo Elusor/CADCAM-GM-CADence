@@ -1,5 +1,6 @@
 #pragma once
 #include "camera.h"
+#include "CameraController.h"
 #include "windowApplication.h"
 #include "dxDevice.h"
 #include "mathStructures.h"
@@ -13,7 +14,7 @@ public:
 
 protected:
 	int MainLoop() override;
-	
+
 private:
 	void Clear();
 	void Render();
@@ -22,6 +23,7 @@ private:
 
 	DxDevice m_device;
 	Camera* m_camera;
+	CameraController* m_camController;
 	SurfaceObject* m_surObj;	
 
 	//Holds resources used by the pipeline
@@ -31,7 +33,7 @@ private:
 	mini::dx_ptr<ID3D11Buffer> m_indexBuffer;
 	mini::dx_ptr<ID3D11VertexShader> m_vertexShader;
 	mini::dx_ptr<ID3D11PixelShader> m_pixelShader;
-	mini::dx_ptr<ID3D11InputLayout> m_layout;
+	mini::dx_ptr<ID3D11InputLayout> m_layout;		
 
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;
 	mini::dx_ptr<ID3D11Buffer> m_cbMVP;

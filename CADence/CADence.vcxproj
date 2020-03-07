@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="cadStructures.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="dxApplication.h" />
     <ClInclude Include="dxDevice.h" />
     <ClInclude Include="dxptr.h" />
@@ -178,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="dxApplication.cpp" />
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />

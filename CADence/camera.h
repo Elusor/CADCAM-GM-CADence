@@ -21,6 +21,7 @@ public:
 	void ResizeViewport(float width, float height);
 	
 	
+	DirectX::XMFLOAT3 m_pos;
 
 private:	
 	// Calculate view matrix based on the cmaera position and target position
@@ -32,7 +33,6 @@ private:
 	float m_yaw;
 	float m_pitch;
 
-	DirectX::XMFLOAT3 m_pos;
 	DirectX::XMFLOAT3 m_target;
 	DirectX::XMFLOAT3 m_right;
 	DirectX::XMFLOAT3 m_up;
