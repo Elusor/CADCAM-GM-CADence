@@ -87,12 +87,10 @@ void Camera::CameraZoom(float delta)
 	
 	XMFLOAT3 cameraDirection;
 
-	//XMFLOAT3 negTargetDir = Float3TimesFloat(m_target, -1.0f);
 	cameraDirection.x = ((m_pos.x - m_target.x) * scale) + m_target.x;
 	cameraDirection.y = ((m_pos.y - m_target.y) * scale) + m_target.y;
 	cameraDirection.z = ((m_pos.z - m_target.z) * scale) + m_target.z;
 	
-	//Scale camera direction	
 	m_pos = cameraDirection;
 }
 

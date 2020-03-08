@@ -12,9 +12,7 @@ using namespace DirectX;
 
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance), m_device(m_window)
-{	
-	// dodac jakies wartosci parametryzujace do DxApplication zeby mozna bylo je zmienic z okienka imgui i od nowa 
-	// przeliczyc vertex i buffer shader i wyswietlic
+{		
 	ID3D11Texture2D *temp;
 	dx_ptr<ID3D11Texture2D> backTexture;
 	m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
@@ -46,7 +44,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	t->m_smallR = 3;	
 
 	m_surObj = t;
-
 	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
 	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surDesc);	
 	
@@ -91,14 +88,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	
 	m_camController = new CameraController(m_camera);
 
-	//Add constant buffer with MVP matrix
-	XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
-	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
-	//XMStoreFloat4x4(&m_projMat, XMMatrixPerspectiveFovLH(
-	//	XMConvertToRadians(45),
-	//	static_cast<float> (wndSize.cx) / wndSize.cy,
-	//	0.1f,
-	//	100.0f));
+	//XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
+	//XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());	
 	XMStoreFloat4x4(&m_projMat, m_camera->m_projMat);
 	m_cbMVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 
@@ -203,16 +194,15 @@ void DxApplication::InitImguiWindows()
 	torusChanged |= ImGui::SliderFloat("Main radius", &(torus->m_bigR), 0.0f, 15.0f);
 	torusChanged |= ImGui::SliderFloat("Secondary radius", &(torus->m_smallR), 0.0f, 15.0f);
 
+	torusChanged |= ImGui::SliderFloat("Scale X", &(m_surObj->m_transform.m_scale.x), 0.005f, 5.0f);
 	torusChanged |= ImGui::SliderFloat("Scale Y", &(m_surObj->m_transform.m_scale.y), 0.005f, 5.0f);
 	torusChanged |= ImGui::SliderFloat("Scale Z", &(m_surObj->m_transform.m_scale.z), 0.005f, 5.0f);
-	torusChanged |= ImGui::SliderFloat("Scale X", &(m_surObj->m_transform.m_scale.x), 0.005f, 5.0f);
 
 	// Change torus if necessary
 	if (torusChanged)
 	{
 		
 		GetTorusVerticesLineList(torus->m_bigR, torus->m_smallR, *(surParams), &(m_surObj->m_surDesc));
-		//DisplayCoordinateSystem(m_surObj);
 		m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
 		m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
 	}
@@ -220,46 +210,3 @@ void DxApplication::InitImguiWindows()
 	ImGui::End();
 	
 }
-
-//void DisplayCoordinateSystem(SurfaceObject* sur)
-//{
-//	VertexPositionColor ox = VertexPositionColor{
-//			{10.0f,0.0f,0.0f},
-//			{1.0f,0.0f,0.0f}
-//	};
-//	VertexPositionColor xx = VertexPositionColor{
-//		{0.0f,0.0f,0.0f},
-//		{1.0f,0.0f,0.0f}
-//	};
-//	VertexPositionColor oy = VertexPositionColor{
-//		{0.0f,0.0f,0.0f},
-//		{0.0f,1.0f,0.0f}
-//	};
-//	VertexPositionColor yy = VertexPositionColor{
-//		{0.0f,10.0f,0.0f},
-//		{0.0f,1.0f,0.0f}
-//	};
-//	VertexPositionColor oz = VertexPositionColor{
-//		{0.0f,0.0f,0.0f},
-//		{0.0f,0.0f,0.65f}
-//	};
-//	VertexPositionColor zz = VertexPositionColor{
-//		{0.0f,0.0f,10.0f},
-//		{0.0f,0.0f,0.65f}
-//	};
-//	sur->m_surDesc.vertices.push_back(ox);
-//	sur->m_surDesc.vertices.push_back(xx);
-//	sur->m_surDesc.vertices.push_back(oy);
-//	sur->m_surDesc.vertices.push_back(yy);
-//	sur->m_surDesc.vertices.push_back(oz);
-//	sur->m_surDesc.vertices.push_back(zz);
-//
-//	int count = sur->m_surParams.densityX * sur->m_surParams.densityY;
-//
-//	sur->m_surDesc.indices.push_back(count);
-//	sur->m_surDesc.indices.push_back(count + 1);
-//	sur->m_surDesc.indices.push_back(count + 2);
-//	sur->m_surDesc.indices.push_back(count + 3);
-//	sur->m_surDesc.indices.push_back(count + 4);
-//	sur->m_surDesc.indices.push_back(count + 5);
-//}

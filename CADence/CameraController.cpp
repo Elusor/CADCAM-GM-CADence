@@ -10,35 +10,36 @@ CameraController::CameraController(Camera* camera)
 
 void CameraController::ProcessMessage(ImGuiIO* imguiIO)
 {	
-	imguiIO->ConfigDockingWithShift = true;
 	float deltaX = 0;
 	float deltaY = 0;
 
-	if (imguiIO->MouseDown[2])
+	bool lDown = imguiIO->MouseDown[0];
+	bool lUp = imguiIO->MouseReleased[0];
+	bool rDown = imguiIO->MouseDown[1];
+	bool rUp = imguiIO->MouseReleased[1];
+	bool mDown = imguiIO->MouseDown[2];
+	
+	if (mDown)
 	{
 		m_camera->ResetCamera();
 	}	
 
-	bool lDown = imguiIO->MouseDown[0];
 	if (lDown && imguiIO->WantCaptureMouse == false)
 	{
 		auto pos = imguiIO->MousePos;
 		m_captureTrans = true;
 	}
 
-	bool lUp = imguiIO->MouseReleased[0];
 	if (lUp)
 	{
 		m_captureTrans = false;
 	}
 
-	bool rDown = imguiIO->MouseDown[1];
 	if (rDown)
 	{				
 		m_captureRot = true;
 	}
 
-	bool rUp = imguiIO->MouseReleased[1];
 	if (rUp)
 	{
 		m_captureRot = false;
