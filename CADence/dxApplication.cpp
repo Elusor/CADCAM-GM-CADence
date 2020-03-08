@@ -40,11 +40,16 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
 	
 #pragma region set up torus surface object
+	
+	Torus* t = new Torus();
+	t->m_bigR = 8;
+	t->m_smallR = 3;	
 
-	m_surObj = new SurfaceObject();
+	m_surObj = t;
+
 	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
 	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surDesc);	
-
+	
 	m_surObj->m_surParams.densityX = 10;
 	m_surObj->m_surParams.minDensityX = 3;
 	m_surObj->m_surParams.maxDensityX = 30;
@@ -55,7 +60,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 #pragma endregion
 
-	GetTorusVerticesLineList(5, 3, *surParams, surDesc);
+	Torus* tor = reinterpret_cast<Torus*>(m_surObj);
+	GetTorusVerticesLineList(t->m_bigR, t->m_smallR, *surParams, surDesc);
 
 	m_vertexBuffer = m_device.CreateVertexBuffer(surDesc->vertices);
 	m_indexBuffer = m_device.CreateIndexBuffer(surDesc->indices);
@@ -73,9 +79,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 			D3D11_INPUT_PER_VERTEX_DATA, 0
 		}
 	};
-	m_layout = m_device.CreateInputLayout(elements, vsBytes);
-
-	
+	m_layout = m_device.CreateInputLayout(elements, vsBytes);	
 
 	m_camera = new Camera(
 		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
@@ -83,12 +87,12 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		XMFLOAT2(0.0f, 0.0f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
-		45.0f, 2.5f, 100.0f); // fov, zNear, zFar
+		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
 	
 	m_camController = new CameraController(m_camera);
 
 	//Add constant buffer with MVP matrix
-	XMStoreFloat4x4(&m_modelMat, XMMatrixIdentity());
+	XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
 	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
 	//XMStoreFloat4x4(&m_projMat, XMMatrixPerspectiveFovLH(
 	//	XMConvertToRadians(45),
@@ -124,24 +128,8 @@ int DxApplication::MainLoop()
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();			
-			
-			
-			ImVec2 vec = m_camController->ProcessMessage(&ImGui::GetIO());
-			/*bool messageProcessed = m_camController->ProcessMessage(&msg);
-			if (messageProcessed)
-				int c = 2;*/
-			/*ImGui::Begin("Deltapos");
-			ImGui::Text("Delta x = %f", vec.x);
-			ImGui::Text("Delta y = %f", vec.y);
-
-			ImGui::Text("Cam x = %f", m_camera->m_pos.x);
-			ImGui::Text("Cam y = %f", m_camera->m_pos.y);
-			ImGui::Text("Cam z = %f", m_camera->m_pos.z);
-			
-			ImGui::Text("Yaw = %f", m_camera->m_yaw);
-			ImGui::Text("Pitch = %f", m_camera->m_pitch);
-
-			ImGui::End();*/
+						
+			m_camController->ProcessMessage(&ImGui::GetIO());
 
 			Clear();
 			Update();
@@ -151,6 +139,7 @@ int DxApplication::MainLoop()
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());			
 			m_device.m_swapChain.get()->Present(0,0);			
+
 		}
 	} while (msg.message != WM_QUIT);
 	return msg.wParam;
@@ -161,6 +150,7 @@ void DxApplication::Clear()
 	// Clear render target
 	float clearColor[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	m_device.context()->ClearRenderTargetView(m_backBuffer.get(), clearColor);
+
 	// Clera depth stencil
 	m_device.context()->ClearDepthStencilView(m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
@@ -169,7 +159,7 @@ void DxApplication::Update()
 {
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
-	XMStoreFloat4x4(&m_modelMat, XMMatrixIdentity());
+	XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
 
 	XMMATRIX mvp = XMLoadFloat4x4(&m_modelMat) * XMLoadFloat4x4(&m_viewMat) * XMLoadFloat4x4(&m_projMat);
 	m_device.context()->Map(m_cbMVP.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
@@ -196,7 +186,6 @@ void DxApplication::Render()
 	m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 
 	m_device.context()->DrawIndexed(m_surObj->m_surParams.densityX* m_surObj->m_surParams.densityY * 4, 0, 0);
-
 }
 
 void DxApplication::InitImguiWindows()
@@ -204,15 +193,25 @@ void DxApplication::InitImguiWindows()
 	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
 	ImGui::Begin("Torus parameters");
 	ImGui::Text("Sliders describing the density of the mesh:");
-	// Create sliders for torus parameters
+	// Create sliders for torus parameters	
+	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
 	bool torusChanged = false;
+	
 	torusChanged |= ImGui::SliderInt("Density X", &(surParams->densityX), surParams->minDensityX, surParams->maxDensityX);
 	torusChanged |= ImGui::SliderInt("Density Y", &(surParams->densityY), surParams->minDensityY, surParams->maxDensityY);
+	
+	torusChanged |= ImGui::SliderFloat("Main radius", &(torus->m_bigR), 0.0f, 15.0f);
+	torusChanged |= ImGui::SliderFloat("Secondary radius", &(torus->m_smallR), 0.0f, 15.0f);
+
+	torusChanged |= ImGui::SliderFloat("Scale Y", &(m_surObj->m_transform.m_scale.y), 0.005f, 5.0f);
+	torusChanged |= ImGui::SliderFloat("Scale Z", &(m_surObj->m_transform.m_scale.z), 0.005f, 5.0f);
+	torusChanged |= ImGui::SliderFloat("Scale X", &(m_surObj->m_transform.m_scale.x), 0.005f, 5.0f);
 
 	// Change torus if necessary
 	if (torusChanged)
 	{
-		GetTorusVerticesLineList(5, 3, *(surParams), &(m_surObj->m_surDesc));
+		
+		GetTorusVerticesLineList(torus->m_bigR, torus->m_smallR, *(surParams), &(m_surObj->m_surDesc));
 		//DisplayCoordinateSystem(m_surObj);
 		m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
 		m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);

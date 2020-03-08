@@ -8,7 +8,7 @@ class CameraController
 public:
 	CameraController();
 	CameraController(Camera* camera);
-	ImVec2 ProcessMessage(ImGuiIO * imGuiIO);
+	void ProcessMessage(ImGuiIO * imGuiIO);
 
 private:
 	Camera* m_camera;

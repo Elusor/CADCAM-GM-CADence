@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Transform.h"
 struct SurfaceParametrizationParams
 {
 	int densityX;
@@ -17,8 +17,15 @@ struct SurfaceVerticesDescription
 	std::vector<unsigned short> indices;
 };
 
-struct SurfaceObject 
+struct SurfaceObject   
 {
 	SurfaceParametrizationParams m_surParams;
 	SurfaceVerticesDescription m_surDesc;
+	Transform m_transform;
+};
+
+struct Torus : SurfaceObject 
+{
+	float m_bigR;
+	float m_smallR;
 };
