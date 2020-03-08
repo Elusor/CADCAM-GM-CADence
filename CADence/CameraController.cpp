@@ -1,5 +1,4 @@
 #include "CameraController.h"
-
 CameraController::CameraController() : CameraController(nullptr)
 {}
 
@@ -10,7 +9,7 @@ CameraController::CameraController(Camera* camera)
 }
 
 ImVec2 CameraController::ProcessMessage(ImGuiIO* imguiIO)
-{
+{	
 	imguiIO->ConfigDockingWithShift = true;
 	float deltaX = 0;
 	float deltaY = 0;
@@ -24,7 +23,7 @@ ImVec2 CameraController::ProcessMessage(ImGuiIO* imguiIO)
 	}	
 
 	bool lDown = imguiIO->MouseDown[0];
-	if (lDown)
+	if (lDown && imguiIO->WantCaptureMouse == false)
 	{
 		auto pos = imguiIO->MousePos;
 		dispdeltaX = pos.x;
