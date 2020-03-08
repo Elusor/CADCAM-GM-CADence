@@ -102,9 +102,11 @@ void Camera::RotateCamera(float dx, float dy)
 	float yawIncrement = dx * sensitivity;
 	float pitchIncrement = -dy * sensitivity;
 
-	m_yaw += yawIncrement;
+	m_yaw += yawIncrement; 
 	m_pitch += pitchIncrement;
 
+	if (m_pitch >= M_PI_2) m_pitch = (M_PI_2) - 0.00001f;
+	if (m_pitch <= -M_PI_2) m_pitch = - (M_PI_2) + 0.00001f;
 	XMFLOAT3 rDir;
 	rDir = SumFloat3(m_pos, Float3TimesFloat(m_target, -1.0f));	
 
