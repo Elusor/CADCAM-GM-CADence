@@ -7,18 +7,20 @@ bool SurfaceObject::CreateObjectsImguiSection()
 	objectChanged |= ImGui::SliderInt("Density X", &(m_surParams.densityX), m_surParams.minDensityX, m_surParams.maxDensityX);
 	objectChanged |= ImGui::SliderInt("Density Y", &(m_surParams.densityY), m_surParams.minDensityY, m_surParams.maxDensityY);
 
+	float dragSpeed = 0.01f;
+
 	ImGui::Spacing();
-	objectChanged |= ImGui::SliderFloat("Position X", &(m_transform.m_pos.x), 0.005f, 5.0f);
-	objectChanged |= ImGui::SliderFloat("Position Y", &(m_transform.m_pos.y), 0.005f, 5.0f);
-	objectChanged |= ImGui::SliderFloat("Position Z", &(m_transform.m_pos.z), 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position Z", &(m_transform.m_pos.z), dragSpeed, 0.005f, 5.0f);
 	ImGui::Spacing();
-	objectChanged |= ImGui::SliderFloat("Rotation X", &(m_transform.m_rotation.x), 0.005f, 5.0f);
-	objectChanged |= ImGui::SliderFloat("Rotation Y", &(m_transform.m_rotation.y), 0.005f, 5.0f);
-	objectChanged |= ImGui::SliderFloat("Rotation Z", &(m_transform.m_rotation.z), 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation X", &(m_transform.m_rotation.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation Y", &(m_transform.m_rotation.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation Z", &(m_transform.m_rotation.z), dragSpeed, 0.005f, 5.0f);
 	ImGui::Spacing();
-	objectChanged |= ImGui::SliderFloat("Scale X", &(m_transform.m_scale.x), 0.005f, 5.0f);
-	objectChanged |= ImGui::SliderFloat("Scale Y", &(m_transform.m_scale.y), 0.005f, 5.0f);
-	objectChanged |= ImGui::SliderFloat("Scale Z", &(m_transform.m_scale.z), 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale X", &(m_transform.m_scale.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale Y", &(m_transform.m_scale.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale Z", &(m_transform.m_scale.z), dragSpeed, 0.005f, 5.0f);
 	ImGui::Spacing();
 	return objectChanged;
 }
