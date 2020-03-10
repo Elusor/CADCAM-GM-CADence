@@ -179,6 +179,7 @@
     <ClInclude Include="windowApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cadStructures.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="dxApplication.cpp" />

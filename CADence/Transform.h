@@ -11,4 +11,5 @@ public:
 	DirectX::XMFLOAT3 m_scale;
 
 	DirectX::XMMATRIX GetModelMatrix();
+
 };

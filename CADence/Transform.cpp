@@ -18,6 +18,6 @@ DirectX::XMMATRIX Transform::GetModelMatrix()
 		DirectX::XMMatrixRotationX(m_rotation.x) *
 		DirectX::XMMatrixRotationY(m_rotation.y) *
 		DirectX::XMMatrixRotationZ(m_rotation.z) *
-		DirectX::XMMatrixTranslation(m_pos.x, m_pos.x, m_pos.x);
+		DirectX::XMMatrixTranslation(m_pos.x, m_pos.y, m_pos.z);
 	return matrix;		
 }

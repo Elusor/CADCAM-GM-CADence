@@ -7,4 +7,4 @@
 #include "cadStructures.h"
 
 VertexPositionColor CalculateTorusVertex(float bigR, float smallR, float bigRRot, float smallRRot,float colorFrac);
-void GetTorusVerticesLineList(float R, float r, SurfaceParametrizationParams surfaceParams, SurfaceVerticesDescription* surfaceDescription);
+void CalculateTorusVertices(Torus* torus);

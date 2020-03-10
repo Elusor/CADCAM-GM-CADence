@@ -1,5 +1,8 @@
 #pragma once
 #include "Transform.h"
+#include <vector>
+#include "mathStructures.h"
+
 struct SurfaceParametrizationParams
 {
 	int densityX;
@@ -22,10 +25,14 @@ struct SurfaceObject
 	SurfaceParametrizationParams m_surParams;
 	SurfaceVerticesDescription m_surDesc;
 	Transform m_transform;
+
+	virtual bool CreateObjectsImguiSection();
 };
 
 struct Torus : SurfaceObject 
 {
 	float m_bigR;
 	float m_smallR;
+
+	bool CreateObjectsImguiSection() override;
 };

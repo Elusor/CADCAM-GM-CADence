@@ -57,8 +57,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 #pragma endregion
 
-	Torus* tor = reinterpret_cast<Torus*>(m_surObj);
-	GetTorusVerticesLineList(t->m_bigR, t->m_smallR, *surParams, surDesc);
+	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
+	CalculateTorusVertices(torus);
 
 	m_vertexBuffer = m_device.CreateVertexBuffer(surDesc->vertices);
 	m_indexBuffer = m_device.CreateIndexBuffer(surDesc->indices);
@@ -88,8 +88,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	
 	m_camController = new CameraController(m_camera);
 
-	//XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
-	//XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());	
 	XMStoreFloat4x4(&m_projMat, m_camera->m_projMat);
 	m_cbMVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 
@@ -181,32 +179,14 @@ void DxApplication::Render()
 
 void DxApplication::InitImguiWindows()
 {		
-	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
-	ImGui::Begin("Torus parameters");
-	ImGui::Text("Sliders describing the density of the mesh:");
-	// Create sliders for torus parameters	
-	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
-	bool torusChanged = false;
-	
-	torusChanged |= ImGui::SliderInt("Density X", &(surParams->densityX), surParams->minDensityX, surParams->maxDensityX);
-	torusChanged |= ImGui::SliderInt("Density Y", &(surParams->densityY), surParams->minDensityY, surParams->maxDensityY);
-	
-	torusChanged |= ImGui::SliderFloat("Main radius", &(torus->m_bigR), 0.0f, 15.0f);
-	torusChanged |= ImGui::SliderFloat("Secondary radius", &(torus->m_smallR), 0.0f, 15.0f);
+	bool selectedObjectModified = m_surObj->CreateObjectsImguiSection();
 
-	torusChanged |= ImGui::SliderFloat("Scale X", &(m_surObj->m_transform.m_scale.x), 0.005f, 5.0f);
-	torusChanged |= ImGui::SliderFloat("Scale Y", &(m_surObj->m_transform.m_scale.y), 0.005f, 5.0f);
-	torusChanged |= ImGui::SliderFloat("Scale Z", &(m_surObj->m_transform.m_scale.z), 0.005f, 5.0f);
-
-	// Change torus if necessary
-	if (torusChanged)
+	if (selectedObjectModified)
 	{
-		
-		GetTorusVerticesLineList(torus->m_bigR, torus->m_smallR, *(surParams), &(m_surObj->m_surDesc));
-		m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
-		m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
+		Torus* torus = reinterpret_cast<Torus*>(m_surObj);
+		CalculateTorusVertices(torus);
 	}
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::End();
-	
+
+	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
+	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
 }

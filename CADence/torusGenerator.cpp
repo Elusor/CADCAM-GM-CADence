@@ -3,16 +3,21 @@
 unsigned int CalculateIndexForVertex(int x, int y, int innerLoopMaxVal);
 
 //probably move density X and density Y to some SurfaceParameters class/struct
-void GetTorusVerticesLineList(float R, float r, SurfaceParametrizationParams surfaceParams, SurfaceVerticesDescription* surfaceDescription)
+void CalculateTorusVertices(Torus* torus)
 {
+	float R = torus->m_bigR;
+	float r = torus->m_smallR;
+	SurfaceParametrizationParams* surfaceParams = &(torus->m_surParams);
+	SurfaceVerticesDescription* surfaceDescription = &(torus->m_surDesc);
+
 	surfaceDescription->vertices.clear();
 	surfaceDescription->indices.clear();
 	// Get the points from torus parametrization
 	float maxRotMainRadius = 2.0f * M_PI;
 	float maxRotSmallRadius = 2.0f * M_PI;
 
-	float densityX = (float)surfaceParams.densityX;
-	float densityY = (float)surfaceParams.densityY;
+	float densityX = (float)surfaceParams->densityX;
+	float densityY = (float)surfaceParams->densityY;
 
 	float bigRotStep = maxRotMainRadius / densityX;
 	float smallRotStep = maxRotSmallRadius / densityY;
