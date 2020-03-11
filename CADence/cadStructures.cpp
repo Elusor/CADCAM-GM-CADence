@@ -1,5 +1,6 @@
 #include "cadStructures.h"
 #include "imgui.h"
+#include "torusGenerator.h"
 
 bool SurfaceObject::CreateObjectsImguiSection()
 {
@@ -41,4 +42,36 @@ bool Torus::CreateObjectsImguiSection()
 	ImGui::End();
 
 	return torusChanged;
+}
+
+void Torus::RenderObject()
+{
+	/*D3D11_MAPPED_SUBRESOURCE res;
+	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
+	XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
+
+	XMMATRIX mvp = XMLoadFloat4x4(&m_modelMat) * XMLoadFloat4x4(&m_viewMat) * XMLoadFloat4x4(&m_projMat);
+	m_device.context()->Map(m_cbMVP.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	memcpy(res.pData, &mvp, sizeof(XMMATRIX));
+	m_device.context()->Unmap(m_cbMVP.get(), 0);*/
+	/*ID3D11Buffer* cbs[] = { m_cbMVP.get() };
+	m_device.context()->VSSetConstantBuffers(0, 1, cbs);*/
+
+	//m_device.context()->DrawIndexed(m_surObj->m_surVerDesc.indices.size(), 0, 0);
+
+}
+
+void Torus::UpdateObject()
+{
+	GetTorusVerticesLineList(this);
+}
+
+/// Use the object information to set up vertex and index buffers and call draw
+void Object::RenderObject()
+{
+}
+
+/// Update the vertex and index info on the object if the object parameters have changed from gui or are transforming over time
+void Object::UpdateObject()
+{
 }

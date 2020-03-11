@@ -102,6 +102,9 @@
     <ClInclude Include="Transform.h">
       <Filter>Header Files\CadSpecific</Filter>
     </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="exceptions.cpp">
@@ -157,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="cadStructures.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\CadSpecific</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

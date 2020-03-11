@@ -6,6 +6,7 @@
 #include "mathStructures.h"
 #include "torusGenerator.h"
 #include "camera.h"
+#include "Scene.h"
 
 using namespace mini;
 using namespace DirectX;
@@ -45,7 +46,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 	m_surObj = t;
 	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
-	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surDesc);	
+	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surVerDesc);	
 	
 	m_surObj->m_surParams.densityX = 10;
 	m_surObj->m_surParams.minDensityX = 3;
@@ -58,7 +59,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 #pragma endregion
 
 	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
-	CalculateTorusVertices(torus);
+	GetTorusVerticesLineList(torus);
 
 	m_vertexBuffer = m_device.CreateVertexBuffer(surDesc->vertices);
 	m_indexBuffer = m_device.CreateIndexBuffer(surDesc->indices);
@@ -174,7 +175,7 @@ void DxApplication::Render()
 	m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
 	m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 
-	m_device.context()->DrawIndexed(m_surObj->m_surParams.densityX* m_surObj->m_surParams.densityY * 4, 0, 0);
+	m_device.context()->DrawIndexed(m_surObj->m_surVerDesc.indices.size(), 0, 0);
 }
 
 void DxApplication::InitImguiWindows()
@@ -184,9 +185,10 @@ void DxApplication::InitImguiWindows()
 	if (selectedObjectModified)
 	{
 		Torus* torus = reinterpret_cast<Torus*>(m_surObj);
-		CalculateTorusVertices(torus);
+		GetTorusVerticesLineList(torus);
 	}
-
-	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surDesc.vertices);
-	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surDesc.indices);
+	Scene* s = new Scene();
+	s->DrawSceneHierarchy();
+	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surVerDesc.vertices);
+	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surVerDesc.indices);
 }

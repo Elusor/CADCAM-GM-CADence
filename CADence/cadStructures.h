@@ -2,7 +2,6 @@
 #include "Transform.h"
 #include <vector>
 #include "mathStructures.h"
-
 struct SurfaceParametrizationParams
 {
 	int densityX;
@@ -20,10 +19,15 @@ struct SurfaceVerticesDescription
 	std::vector<unsigned short> indices;
 };
 
-struct SurfaceObject   
+struct Object {
+	virtual void RenderObject();
+	virtual void UpdateObject();
+};
+
+struct SurfaceObject : Object
 {
 	SurfaceParametrizationParams m_surParams;
-	SurfaceVerticesDescription m_surDesc;
+	SurfaceVerticesDescription m_surVerDesc;
 	Transform m_transform;
 
 	virtual bool CreateObjectsImguiSection();
@@ -35,4 +39,6 @@ struct Torus : SurfaceObject
 	float m_smallR;
 
 	bool CreateObjectsImguiSection() override;
+	void RenderObject() override;
+	void UpdateObject() override;
 };
