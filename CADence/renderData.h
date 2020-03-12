@@ -5,14 +5,14 @@
 // Used to pass render data to objects so they can be drawn independently
 struct RenderData
 {
-	RenderData(mini::Window& window);
+	RenderData(mini::Window& window, Camera* camera);
 	/*RenderData(DxDevice* device, Camera* camera, ID3D11Buffer* vBuffer, ID3D11Buffer* iBuffer, ID3D11Buffer* mvpBuffe);
 	DxDevice* m_device;
-	Camera* m_camera;
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_indexBuffer;
 	ID3D11Buffer* m_cbMVP;*/
 
+	Camera* m_camera;
 	DxDevice m_device;
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;
 	mini::dx_ptr<ID3D11DepthStencilView> m_depthBuffer;

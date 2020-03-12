@@ -44,23 +44,22 @@ void Torus::RenderObject(RenderData* renderData)
 	//
 	//// set up the right input layout 
 
-	//D3D11_MAPPED_SUBRESOURCE res;
+	D3D11_MAPPED_SUBRESOURCE res;
 
-	//XMMATRIX mvp = m_transform.GetModelMatrix() * d.m_camera->GetViewProjectionMatrix();
-	//auto hres = d.m_device->context()->Map(d.m_cbMVP, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
-	//memcpy(res.pData, &mvp, sizeof(XMMATRIX));
-	//d.m_device->context()->Unmap(d.m_cbMVP, 0);
-	//ID3D11Buffer* cbs[] = { d.m_cbMVP };
-	//d.m_device->context()->VSSetConstantBuffers(0, 1, cbs);
-	//d.m_vertexBuffer = (d.m_device->CreateVertexBuffer(m_surVerDesc.vertices)).get();
-	//d.m_indexBuffer = (d.m_device->CreateIndexBuffer(m_surVerDesc.indices)).get();
-	//ID3D11Buffer* vbs[] = { d.m_vertexBuffer };
-	//UINT strides[] = { sizeof(VertexPositionColor) };
-	//UINT offsets[] = { 0 };	
-	//d.m_device->context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-	//d.m_device->context()->IASetIndexBuffer(d.m_indexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-	//d.m_device->context()->DrawIndexed(m_surVerDesc.indices.size(), 0, 0);
+	XMMATRIX mvp = m_transform.GetModelMatrix() * renderData->m_camera->GetViewProjectionMatrix();
+	auto hres = renderData->m_device.context()->Map((renderData->m_cbMVP.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	memcpy(res.pData, &mvp, sizeof(XMMATRIX));
+	renderData->m_device.context()->Unmap(renderData->m_cbMVP.get(), 0);
+	ID3D11Buffer* cbs[] = { renderData->m_cbMVP.get()};
+	renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
+	renderData->m_vertexBuffer = (renderData->m_device.CreateVertexBuffer(m_surVerDesc.vertices));
+	renderData->m_indexBuffer = (renderData->m_device.CreateIndexBuffer(m_surVerDesc.indices));
+	ID3D11Buffer* vbs[] = { renderData->m_vertexBuffer.get() };
+	UINT strides[] = { sizeof(VertexPositionColor) };
+	UINT offsets[] = { 0 };	
+	renderData->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
+	renderData->m_device.context()->IASetIndexBuffer(renderData->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	renderData->m_device.context()->DrawIndexed(m_surVerDesc.indices.size(), 0, 0);
 }
 
 void Torus::UpdateObject()

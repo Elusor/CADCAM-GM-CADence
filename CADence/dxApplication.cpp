@@ -14,8 +14,18 @@ using namespace DirectX;
 
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
-{				
-	m_renderData = new RenderData(m_window);
+{	
+	SIZE wndSize = m_window.getClientSize();
+	Viewport viewport{ wndSize };
+	m_camera = new Camera(
+		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
+		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
+		XMFLOAT2(0.0f, 0.0f), // yaw, pitch
+		viewport.Width,
+		viewport.Height,
+		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
+	m_renderData = new RenderData(m_window, m_camera);
+	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
 	ID3D11Texture2D *temp;
 	dx_ptr<ID3D11Texture2D> backTexture;
 	m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
@@ -25,9 +35,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
 
 	// assign viewport to RP
-	SIZE wndSize = m_window.getClientSize();	
-	Viewport viewport{ wndSize };
-	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
+	
 
 	// assign depth buffer to RP
 	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
@@ -82,22 +90,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		}
 	};
 	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
-
-	m_camera = new Camera(
-		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
-		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
-		XMFLOAT2(0.0f, 0.0f), // yaw, pitch
-		viewport.Width,
-		viewport.Height,
-		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
-	
-
 	m_camController = new CameraController(m_camera);
 	m_renderData->m_cbMVP =  m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
-
-	
-
-	XMStoreFloat4x4(&m_renderData->m_projMat, m_camera->m_projMat); // do usuniecia
 
 	//Setup imGui
 	IMGUI_CHECKVERSION();
@@ -128,9 +122,7 @@ int DxApplication::MainLoop()
 						
 			m_camController->ProcessMessage(&ImGui::GetIO());
 
-			Clear();
-			m_renderData->m_vertexBuffer = m_renderData->m_device.CreateVertexBuffer(m_surObj->m_surVerDesc.vertices);
-			m_renderData->m_indexBuffer = m_renderData->m_device.CreateIndexBuffer(m_surObj->m_surVerDesc.indices);
+			Clear();		
 			Update();
 			Render();
 
@@ -157,15 +149,6 @@ void DxApplication::Clear()
 void DxApplication::Update()
 {
 	//m_scene->UpdateScene();
-
-	D3D11_MAPPED_SUBRESOURCE res;
-	XMStoreFloat4x4(&m_renderData->m_viewMat, m_camera->GetViewMatrix());
-	XMStoreFloat4x4(&m_renderData->m_modelMat, m_surObj->m_transform.GetModelMatrix());
-
-	XMMATRIX mvp = XMLoadFloat4x4(&m_renderData->m_modelMat) * XMLoadFloat4x4(&m_renderData->m_viewMat) * XMLoadFloat4x4(&m_renderData->m_projMat);
-	m_renderData->m_device.context()->Map(m_renderData->m_cbMVP.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
-	memcpy(res.pData, &mvp, sizeof(XMMATRIX));
-	m_renderData->m_device.context()->Unmap(m_renderData->m_cbMVP.get(), 0);
 }
 
 void DxApplication::Render()
@@ -178,18 +161,8 @@ void DxApplication::Render()
 	////// object dependant
 	m_renderData->m_device.context()->IASetInputLayout(m_renderData->m_layout.get());
 	m_renderData->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	//
-	ID3D11Buffer* cbs[] = { m_renderData->m_cbMVP.get() };
-	m_renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
 	
-	ID3D11Buffer* vbs[] = { m_renderData->m_vertexBuffer.get() };
-	UINT strides[] = { sizeof(VertexPositionColor) };
-	UINT offsets[] = { 0 };	
-	m_renderData->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-	m_renderData->m_device.context()->IASetIndexBuffer(m_renderData->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
-
-	m_renderData->m_device.context()->DrawIndexed(m_surObj->m_surVerDesc.indices.size(), 0, 0);
-	//m_scene->RenderScene(m_renderData);
+	m_scene->RenderScene(m_renderData);
 }
 
 void DxApplication::InitImguiWindows()
