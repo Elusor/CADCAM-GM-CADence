@@ -5,7 +5,7 @@
 // Used to pass render data to objects so they can be drawn independently
 struct RenderData
 {
-	RenderData(mini::Window& window, Camera* camera);
+	RenderData(mini::Window& window);
 
 	Camera* m_camera;
 	DxDevice m_device;

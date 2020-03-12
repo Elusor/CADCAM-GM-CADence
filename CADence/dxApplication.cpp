@@ -15,8 +15,13 @@ using namespace DirectX;
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
 {	
+	// init viewport
+	m_renderData = new RenderData(m_window);
 	SIZE wndSize = m_window.getClientSize();
-	Viewport viewport{ wndSize };
+	Viewport viewport { wndSize };
+	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
+
+	// init camera
 	m_camera = new Camera(
 		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
@@ -24,18 +29,16 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		viewport.Width,
 		viewport.Height,
 		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
-	m_renderData = new RenderData(m_window, m_camera);
-	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
+	m_renderData->m_camera = m_camera;
+
+	// init backbuffer
 	ID3D11Texture2D *temp;
-	dx_ptr<ID3D11Texture2D> backTexture;
 	m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
+	dx_ptr<ID3D11Texture2D> backTexture;
 	backTexture.reset(temp);
 
 	// Create render target view to be able to write on backBuffer
 	m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
-
-	// assign viewport to RP
-	
 
 	// assign depth buffer to RP
 	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
@@ -81,6 +84,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 			D3D11_INPUT_PER_VERTEX_DATA, 0
 		}
 	};
+
 	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
 	m_camController = new CameraController(m_camera);
 	m_renderData->m_cbMVP =  m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
@@ -92,7 +96,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	ImGui_ImplWin32_Init(this->m_window.getHandle());
 	ImGui_ImplDX11_Init(m_renderData->m_device.m_device.get(),  m_renderData->m_device.m_context.get());
 	ImGui::StyleColorsDark();
-
 }
 
 int DxApplication::MainLoop()
@@ -145,7 +148,6 @@ void DxApplication::Update()
 
 void DxApplication::Render()
 {		
-
 	// Lighting/display style dependant (a little bit object dependant)
 	m_renderData->m_device.context()->VSSetShader(m_renderData->m_vertexShader.get(), nullptr, 0);
 	m_renderData->m_device.context()->PSSetShader(m_renderData->m_pixelShader.get(), nullptr, 0);
