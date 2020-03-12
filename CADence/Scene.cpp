@@ -1,36 +1,29 @@
 #include "Scene.h"
 #include "imgui.h"
 
-void Node::AttachChild(Object* object)
+Node* Node::AttachChild(Object* object)
 {
-	Node newNode = Node();
-	newNode.object = object;
+	Node* newNode = new Node();
+	newNode->object = object;
 	children.push_back(newNode);
-}
-
-void Node::Update()
-{
-	object->UpdateObject();
-	for (int i = 0; i < children.size(); i++)
-	{
-		children[i].Update();
-	}
+	return newNode;
 }
 
 void Node::Render()
 {
-	object->RenderObject();
+	if (object != nullptr)
+		//object->RenderObject();
 	for (int i = 0; i < children.size(); i++)
 	{
-		children[i].Render();
+		children[i]->Render();
 	}
 }
 
 void Node::DrawHierarchyNode()
-{
+{	
 	if (children.size() == 0)
 	{
-		ImGui::TreeNodeEx("asdas", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+		ImGui::TreeNodeEx("asdas", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);		
 	}
 	else
 	{
@@ -38,9 +31,23 @@ void Node::DrawHierarchyNode()
 		if (nodeOpen) {
 			for (int i = 0; i < children.size(); i++)
 			{
-				children[i].DrawHierarchyNode();
+				children[i]->DrawHierarchyNode();
 			}
 		}
+	}
+	ImGui::TreePop();
+}
+
+void Node::Update()
+{
+	/*if (object != nullptr)
+		object->UpdateObject();*/
+
+	//Calculate tmp transform based on the differrnce between object transform and the given transform
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		children[i]->Update();
 	}
 }
 
@@ -54,20 +61,19 @@ void Scene::UpdateScene()
 	rootNode.Update();
 }
 
-void Scene::AttachObject(Object* object)
+Node* Scene::AttachObject(Object* object)
 {
-	rootNode.AttachChild(object);
+	return (rootNode.AttachChild(object));
 }
 
 void Scene::DrawSceneHierarchy()
 {
-	bool node_open = ImGui::TreeNode("Scene");
+	bool node_open = ImGui::TreeNode("Scene");	
 	if (node_open)
 	{
 		for (int i = 0; i < rootNode.children.size(); i++)
 		{
-			rootNode.children[i].DrawHierarchyNode();
+			rootNode.children[i]->DrawHierarchyNode();
 		}
-	}
-	
+	}	
 }

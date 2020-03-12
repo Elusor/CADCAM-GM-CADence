@@ -38,6 +38,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
 	
+	m_scene = new Scene();
+
 #pragma region set up torus surface object
 	
 	Torus* t = new Torus();
@@ -58,6 +60,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 #pragma endregion
 
+	auto node = m_scene->AttachObject(t);
+	Object c = Object();
+	node->AttachChild(&c);
 	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
 	GetTorusVerticesLineList(torus);
 
@@ -147,6 +152,8 @@ void DxApplication::Clear()
 
 void DxApplication::Update()
 {
+	m_scene->UpdateScene();
+
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
 	XMStoreFloat4x4(&m_modelMat, m_surObj->m_transform.GetModelMatrix());
@@ -159,6 +166,7 @@ void DxApplication::Update()
 
 void DxApplication::Render()
 {		
+	m_scene->RenderScene();
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
 
@@ -179,16 +187,23 @@ void DxApplication::Render()
 }
 
 void DxApplication::InitImguiWindows()
-{		
-	bool selectedObjectModified = m_surObj->CreateObjectsImguiSection();
+{
+	m_scene->DrawSceneHierarchy(); // Get selected Node from this somehow	
+	auto selectedNode = m_scene->m_selectedNode;
 
-	if (selectedObjectModified)
+	if (selectedNode != nullptr)
 	{
-		Torus* torus = reinterpret_cast<Torus*>(m_surObj);
-		GetTorusVerticesLineList(torus);
+		bool selectedObjectModified = selectedNode->object->CreateParamsGui();
+
+		if (selectedObjectModified)
+		{
+			// Recalculate selected node and all the children
+			selectedNode->Update();
+			/*Torus* torus = reinterpret_cast<Torus*>(m_surObj);
+			GetTorusVerticesLineList(torus);*/
+		}
 	}
-	Scene* s = new Scene();
-	s->DrawSceneHierarchy();
+	
 	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surVerDesc.vertices);
 	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surVerDesc.indices);
 }

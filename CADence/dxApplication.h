@@ -1,4 +1,5 @@
 #pragma once
+#include "Scene.h"
 #include "camera.h"
 #include "CameraController.h"
 #include "windowApplication.h"
@@ -25,6 +26,9 @@ private:
 	Camera* m_camera;
 	CameraController* m_camController;
 	SurfaceObject* m_surObj;	
+	
+	Scene* m_scene;
+	
 
 	//Holds resources used by the pipeline
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;

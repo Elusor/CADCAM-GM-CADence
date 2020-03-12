@@ -2,38 +2,23 @@
 #include "imgui.h"
 #include "torusGenerator.h"
 
-bool SurfaceObject::CreateObjectsImguiSection()
+bool SurfaceObject::CreateParamsGui()
 {
-	bool objectChanged = false;
-	objectChanged |= ImGui::SliderInt("Density X", &(m_surParams.densityX), m_surParams.minDensityX, m_surParams.maxDensityX);
-	objectChanged |= ImGui::SliderInt("Density Y", &(m_surParams.densityY), m_surParams.minDensityY, m_surParams.maxDensityY);
-
-	float dragSpeed = 0.01f;
-
-	ImGui::Spacing();
-	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Position Z", &(m_transform.m_pos.z), dragSpeed, 0.005f, 5.0f);
-	ImGui::Spacing();
-	objectChanged |= ImGui::DragFloat("Rotation X", &(m_transform.m_rotation.x), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Rotation Y", &(m_transform.m_rotation.y), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Rotation Z", &(m_transform.m_rotation.z), dragSpeed, 0.005f, 5.0f);
-	ImGui::Spacing();
-	objectChanged |= ImGui::DragFloat("Scale X", &(m_transform.m_scale.x), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Scale Y", &(m_transform.m_scale.y), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Scale Z", &(m_transform.m_scale.z), dragSpeed, 0.005f, 5.0f);
-	ImGui::Spacing();
-	return objectChanged;
+	bool objectChanged = Object::CreateParamsGui();
+	bool surfaceObjectChanged = false;
+	surfaceObjectChanged |= ImGui::SliderInt("Density X", &(m_surParams.densityX), m_surParams.minDensityX, m_surParams.maxDensityX);
+	surfaceObjectChanged |= ImGui::SliderInt("Density Y", &(m_surParams.densityY), m_surParams.minDensityY, m_surParams.maxDensityY);	
+	return surfaceObjectChanged;
 }
 
-bool Torus::CreateObjectsImguiSection()
+bool Torus::CreateParamsGui()
 {	
 	SurfaceParametrizationParams* surParams = &(this->m_surParams);
 	ImGui::Begin("Torus parameters");
 	ImGui::Text("Sliders describing the density of the mesh:");
 	// Create sliders for torus parameters	
 	Torus* torus = this;
-	bool torusChanged = SurfaceObject::CreateObjectsImguiSection();
+	bool torusChanged = SurfaceObject::CreateParamsGui();
 	
 	torusChanged |= ImGui::SliderFloat("Main radius", &(torus->m_bigR), 0.0f, 15.0f);
 	torusChanged |= ImGui::SliderFloat("Secondary radius", &(torus->m_smallR), 0.0f, 15.0f);
@@ -66,6 +51,17 @@ void Torus::UpdateObject()
 	GetTorusVerticesLineList(this);
 }
 
+//void Object::AttachNode(Node* newNode)
+//{
+//	//TODO [MG]: if this object had an assigned node, make sure to delete the old node and move all the children to this node
+//	this->m_node = newNode;
+//}
+//
+//void Object::AttachChild(Object* obj)
+//{
+//	m_node->AttachChild(obj);
+//}
+
 /// Use the object information to set up vertex and index buffers and call draw
 void Object::RenderObject()
 {
@@ -74,4 +70,26 @@ void Object::RenderObject()
 /// Update the vertex and index info on the object if the object parameters have changed from gui or are transforming over time
 void Object::UpdateObject()
 {
+}
+
+bool Object::CreateParamsGui()
+{
+	bool objectChanged = false;
+	float dragSpeed = 0.01f;
+
+	ImGui::Spacing();
+	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position Z", &(m_transform.m_pos.z), dragSpeed, 0.005f, 5.0f);
+	ImGui::Spacing();
+	objectChanged |= ImGui::DragFloat("Rotation X", &(m_transform.m_rotation.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation Y", &(m_transform.m_rotation.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation Z", &(m_transform.m_rotation.z), dragSpeed, 0.005f, 5.0f);
+	ImGui::Spacing();
+	objectChanged |= ImGui::DragFloat("Scale X", &(m_transform.m_scale.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale Y", &(m_transform.m_scale.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale Z", &(m_transform.m_scale.z), dragSpeed, 0.005f, 5.0f);
+	ImGui::Spacing();
+
+	return objectChanged;
 }
