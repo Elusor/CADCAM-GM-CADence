@@ -40,8 +40,8 @@ void Node::DrawHierarchyNode()
 
 void Node::Update()
 {
-	/*if (object != nullptr)
-		object->UpdateObject();*/
+	if(object != nullptr)
+		object->UpdateObject();
 
 	//TODO [MG] : Calculate tmp transform based on the differrnce between object transform and the given transform
 
