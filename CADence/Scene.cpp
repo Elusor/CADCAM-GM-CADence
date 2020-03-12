@@ -9,13 +9,13 @@ Node* Node::AttachChild(Object* object)
 	return newNode;
 }
 
-void Node::Render()
+void Node::Render(RenderData* renderData)
 {
 	if (object != nullptr)
-		//object->RenderObject();
+		object->RenderObject(renderData);
 	for (int i = 0; i < children.size(); i++)
 	{
-		children[i]->Render();
+		children[i]->Render(renderData);
 	}
 }
 
@@ -51,9 +51,9 @@ void Node::Update()
 	}
 }
 
-void Scene::RenderScene()
+void Scene::RenderScene(RenderData* renderData)
 {
-	rootNode.Render();
+	rootNode.Render(renderData);
 }
 
 void Scene::UpdateScene()

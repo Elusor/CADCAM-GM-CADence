@@ -22,15 +22,14 @@ private:
 	void InitImguiWindows();
 	void Update();
 
-	DxDevice m_device;
 	Camera* m_camera;
 	CameraController* m_camController;
-	SurfaceObject* m_surObj;	
-	
+	SurfaceObject* m_surObj;		
 	Scene* m_scene;
-	
+	RenderData* m_renderData;
 
 	//Holds resources used by the pipeline
+	DxDevice m_device;
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;
 	mini::dx_ptr<ID3D11DepthStencilView> m_depthBuffer;
 	mini::dx_ptr<ID3D11Buffer> m_vertexBuffer;

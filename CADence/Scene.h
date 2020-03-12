@@ -11,7 +11,7 @@ public:
 	Node* AttachChild(Object* object);
 	void DrawHierarchyNode();
 	void Update();
-	void Render();
+	void Render(RenderData* renderData);
 private:
 	bool isDirty;
 };
@@ -23,7 +23,7 @@ public:
 	Node* AttachObject(Object* object);
 	void DrawSceneHierarchy();
 	void UpdateScene();
-	void RenderScene();
+	void RenderScene(RenderData* renderData);
 private:
 	Node rootNode;
 

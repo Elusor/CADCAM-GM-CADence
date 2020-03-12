@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include <vector>
 #include "mathStructures.h"
+#include "renderData.h"
 //#include "Scene.h"
 struct SurfaceParametrizationParams
 {
@@ -23,7 +24,7 @@ struct SurfaceVerticesDescription
 struct Object {
 
 	Transform m_transform;	
-	virtual void RenderObject();
+	virtual void RenderObject(RenderData* renderData);
 	virtual void UpdateObject();
 	virtual bool CreateParamsGui();
 };
@@ -42,6 +43,6 @@ struct Torus : SurfaceObject
 	float m_smallR;
 
 	bool CreateParamsGui() override;
-	void RenderObject() override;
+	void RenderObject(RenderData* renderData) override;
 	void UpdateObject() override;
 };

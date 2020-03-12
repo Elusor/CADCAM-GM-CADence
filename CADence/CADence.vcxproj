@@ -156,6 +156,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="renderData.h" />
     <ClInclude Include="cadStructures.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CameraController.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="renderData.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="torusGenerator.cpp" />
     <ClCompile Include="Transform.cpp" />

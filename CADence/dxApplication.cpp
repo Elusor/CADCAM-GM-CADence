@@ -7,6 +7,7 @@
 #include "torusGenerator.h"
 #include "camera.h"
 #include "Scene.h"
+#include "renderData.h"
 
 using namespace mini;
 using namespace DirectX;
@@ -57,17 +58,14 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_surObj->m_surParams.densityY = 10;
 	m_surObj->m_surParams.minDensityY = 3;
 	m_surObj->m_surParams.maxDensityY = 30;
-
-#pragma endregion
-
+	
 	auto node = m_scene->AttachObject(t);
-	Object c = Object();
-	node->AttachChild(&c);
+	/*Object c = Object();
+	node->AttachChild(&c);*/
 	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
 	GetTorusVerticesLineList(torus);
 
-	m_vertexBuffer = m_device.CreateVertexBuffer(surDesc->vertices);
-	m_indexBuffer = m_device.CreateIndexBuffer(surDesc->indices);
+#pragma endregion
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> elements{
 		{
@@ -92,10 +90,19 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		viewport.Height,
 		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
 	
-	m_camController = new CameraController(m_camera);
 
-	XMStoreFloat4x4(&m_projMat, m_camera->m_projMat);
+	m_camController = new CameraController(m_camera);
 	m_cbMVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
+
+	m_renderData = new RenderData(
+		&m_device,
+		m_camera,
+		m_vertexBuffer.get(),
+		m_indexBuffer.get(),
+		m_cbMVP.get()
+	);
+
+	XMStoreFloat4x4(&m_projMat, m_camera->m_projMat); // do usuniecia
 
 	//Setup imGui
 	IMGUI_CHECKVERSION();
@@ -127,14 +134,16 @@ int DxApplication::MainLoop()
 			m_camController->ProcessMessage(&ImGui::GetIO());
 
 			Clear();
+			m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surVerDesc.vertices);
+			m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surVerDesc.indices);
 			Update();
 			Render();
 
 			InitImguiWindows();
 			ImGui::Render();
-			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());			
-			m_device.m_swapChain.get()->Present(0,0);			
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+			m_device.m_swapChain.get()->Present(0,0);			
 		}
 	} while (msg.message != WM_QUIT);
 	return msg.wParam;
@@ -152,7 +161,7 @@ void DxApplication::Clear()
 
 void DxApplication::Update()
 {
-	m_scene->UpdateScene();
+	//m_scene->UpdateScene();
 
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMStoreFloat4x4(&m_viewMat, m_camera->GetViewMatrix());
@@ -166,14 +175,15 @@ void DxApplication::Update()
 
 void DxApplication::Render()
 {		
-	m_scene->RenderScene();
+
+	//// Lighting/display style dependant (a little bit object dependant)
 	m_device.context()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_pixelShader.get(), nullptr, 0);
 
-	// object dependant
+	////// object dependant
 	m_device.context()->IASetInputLayout(m_layout.get());
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	
+	//
 	ID3D11Buffer* cbs[] = { m_cbMVP.get() };
 	m_device.context()->VSSetConstantBuffers(0, 1, cbs);
 	
@@ -184,6 +194,7 @@ void DxApplication::Render()
 	m_device.context()->IASetIndexBuffer(m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 
 	m_device.context()->DrawIndexed(m_surObj->m_surVerDesc.indices.size(), 0, 0);
+	//m_scene->RenderScene(m_renderData);
 }
 
 void DxApplication::InitImguiWindows()
@@ -203,7 +214,4 @@ void DxApplication::InitImguiWindows()
 			GetTorusVerticesLineList(torus);*/
 		}
 	}
-	
-	m_vertexBuffer = m_device.CreateVertexBuffer(m_surObj->m_surVerDesc.vertices);
-	m_indexBuffer = m_device.CreateIndexBuffer(m_surObj->m_surVerDesc.indices);
 }
