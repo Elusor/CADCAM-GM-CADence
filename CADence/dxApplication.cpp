@@ -121,12 +121,12 @@ int DxApplication::MainLoop()
 			ImGui::NewFrame();			
 						
 			m_camController->ProcessMessage(&ImGui::GetIO());
+			InitImguiWindows();
 
 			Clear();		
 			Update();
 			Render();
 
-			InitImguiWindows();
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
