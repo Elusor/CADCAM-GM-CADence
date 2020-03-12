@@ -34,15 +34,7 @@ bool Torus::CreateParamsGui()
 
 void Torus::RenderObject(RenderData* renderData)
 {	
-	// camera
-	// model matrix
-	// m_device
-	// vertex buffer 
-	// index buffer
-	// constant buffer
-	//RenderData d = *renderData;
-	//
-	//// set up the right input layout 
+	// set up the right input layout 
 
 	D3D11_MAPPED_SUBRESOURCE res;
 
@@ -67,23 +59,12 @@ void Torus::UpdateObject()
 	GetTorusVerticesLineList(this);
 }
 
-//void Object::AttachNode(Node* newNode)
-//{
-//	//TODO [MG]: if this object had an assigned node, make sure to delete the old node and move all the children to this node
-//	this->m_node = newNode;
-//}
-//
-//void Object::AttachChild(Object* obj)
-//{
-//	m_node->AttachChild(obj);
-//}
-
-/// Use the object information to set up vertex and index buffers and call draw
+//TODO [MG]: Use the object information to set up vertex and index buffers and call draw
 void Object::RenderObject(RenderData* renderdata)
 {
 }
 
-/// Update the vertex and index info on the object if the object parameters have changed from gui or are transforming over time
+//TODO [MG]: Update the vertex and index info on the object if the object parameters have changed from gui or are transforming over time
 void Object::UpdateObject()
 {
 }

@@ -56,24 +56,16 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	t->m_bigR = 8;
 	t->m_smallR = 3;	
 
-	m_surObj = t;
-	SurfaceParametrizationParams* surParams = &(m_surObj->m_surParams);
-	SurfaceVerticesDescription* surDesc= &(m_surObj->m_surVerDesc);	
-	
-	m_surObj->m_surParams.densityX = 10;
-	m_surObj->m_surParams.minDensityX = 3;
-	m_surObj->m_surParams.maxDensityX = 30;
+	t->m_surParams.densityX = 10;
+	t->m_surParams.minDensityX = 3;
+	t->m_surParams.maxDensityX = 30;
 
-	m_surObj->m_surParams.densityY = 10;
-	m_surObj->m_surParams.minDensityY = 3;
-	m_surObj->m_surParams.maxDensityY = 30;
+	t->m_surParams.densityY = 10;
+	t->m_surParams.minDensityY = 3;
+	t->m_surParams.maxDensityY = 30;
+	GetTorusVerticesLineList(t);
 	
-	auto node = m_scene->AttachObject(t);
-	/*Object c = Object();
-	node->AttachChild(&c);*/
-	Torus* torus = reinterpret_cast<Torus*>(m_surObj);
-	GetTorusVerticesLineList(torus);
-
+	auto node = m_scene->AttachObject(t);	
 #pragma endregion
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> elements{
@@ -148,17 +140,17 @@ void DxApplication::Clear()
 
 void DxApplication::Update()
 {
-	//m_scene->UpdateScene();
+	m_scene->UpdateScene();
 }
 
 void DxApplication::Render()
 {		
 
-	//// Lighting/display style dependant (a little bit object dependant)
+	// Lighting/display style dependant (a little bit object dependant)
 	m_renderData->m_device.context()->VSSetShader(m_renderData->m_vertexShader.get(), nullptr, 0);
 	m_renderData->m_device.context()->PSSetShader(m_renderData->m_pixelShader.get(), nullptr, 0);
 
-	////// object dependant
+	// object dependant
 	m_renderData->m_device.context()->IASetInputLayout(m_renderData->m_layout.get());
 	m_renderData->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	
@@ -167,7 +159,7 @@ void DxApplication::Render()
 
 void DxApplication::InitImguiWindows()
 {
-	m_scene->DrawSceneHierarchy(); // Get selected Node from this somehow	
+	m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow	
 	auto selectedNode = m_scene->m_selectedNode;
 
 	if (selectedNode != nullptr)
@@ -176,10 +168,8 @@ void DxApplication::InitImguiWindows()
 
 		if (selectedObjectModified)
 		{
-			// Recalculate selected node and all the children
+			//TODO [MG]: Recalculate selected node and all the children
 			selectedNode->Update();
-			/*Torus* torus = reinterpret_cast<Torus*>(m_surObj);
-			GetTorusVerticesLineList(torus);*/
 		}
 	}
 }

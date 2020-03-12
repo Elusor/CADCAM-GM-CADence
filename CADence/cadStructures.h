@@ -3,7 +3,6 @@
 #include <vector>
 #include "mathStructures.h"
 #include "renderData.h"
-//#include "Scene.h"
 struct SurfaceParametrizationParams
 {
 	int densityX;

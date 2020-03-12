@@ -155,20 +155,20 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
-    <ClCompile Include="CameraController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files\CadSpecific</Filter>
-    </ClCompile>
-    <ClCompile Include="cadStructures.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files\CadSpecific</Filter>
     </ClCompile>
     <ClCompile Include="renderData.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>Source Files\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="cadStructures.cpp">
+      <Filter>Source Files\CadSpecific</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

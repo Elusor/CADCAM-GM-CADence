@@ -6,11 +6,6 @@
 struct RenderData
 {
 	RenderData(mini::Window& window, Camera* camera);
-	/*RenderData(DxDevice* device, Camera* camera, ID3D11Buffer* vBuffer, ID3D11Buffer* iBuffer, ID3D11Buffer* mvpBuffe);
-	DxDevice* m_device;
-	ID3D11Buffer* m_vertexBuffer;
-	ID3D11Buffer* m_indexBuffer;
-	ID3D11Buffer* m_cbMVP;*/
 
 	Camera* m_camera;
 	DxDevice m_device;

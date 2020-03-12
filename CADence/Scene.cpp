@@ -43,7 +43,7 @@ void Node::Update()
 	/*if (object != nullptr)
 		object->UpdateObject();*/
 
-	//Calculate tmp transform based on the differrnce between object transform and the given transform
+	//TODO [MG] : Calculate tmp transform based on the differrnce between object transform and the given transform
 
 	for (int i = 0; i < children.size(); i++)
 	{
