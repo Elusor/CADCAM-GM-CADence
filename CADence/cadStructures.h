@@ -34,6 +34,7 @@ struct SurfaceObject : Object
 	SurfaceVerticesDescription m_surVerDesc;
 
 	bool CreateParamsGui() override;
+	void RenderObject(RenderData* renderData) override;
 };
 
 struct Torus : SurfaceObject 
@@ -42,6 +43,5 @@ struct Torus : SurfaceObject
 	float m_smallR;
 
 	bool CreateParamsGui() override;
-	void RenderObject(RenderData* renderData) override;
 	void UpdateObject() override;
 };

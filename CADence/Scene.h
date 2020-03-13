@@ -24,6 +24,7 @@ public:
 	void DrawSceneHierarchy();
 	void UpdateScene();
 	void RenderScene(RenderData* renderData);
+	void UpdateSelectedNode();
 private:
 	Node rootNode;
 

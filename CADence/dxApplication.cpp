@@ -30,6 +30,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		viewport.Height,
 		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
 	m_renderData->m_camera = m_camera;
+	m_camController = new CameraController(m_camera);
 
 	// init backbuffer
 	ID3D11Texture2D *temp;
@@ -69,6 +70,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	GetTorusVerticesLineList(t);
 	
 	auto node = m_scene->AttachObject(t);	
+	m_scene->m_selectedNode = node;
 #pragma endregion
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> elements{
@@ -86,7 +88,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	};
 
 	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
-	m_camController = new CameraController(m_camera);
 	m_renderData->m_cbMVP =  m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 
 	//Setup imGui
@@ -143,7 +144,7 @@ void DxApplication::Clear()
 
 void DxApplication::Update()
 {
-	m_scene->UpdateScene();
+	m_scene->UpdateSelectedNode();
 }
 
 void DxApplication::Render()
@@ -161,17 +162,5 @@ void DxApplication::Render()
 
 void DxApplication::InitImguiWindows()
 {
-	m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow	
-	auto selectedNode = m_scene->m_selectedNode;
-
-	if (selectedNode != nullptr)
-	{
-		bool selectedObjectModified = selectedNode->object->CreateParamsGui();
-
-		if (selectedObjectModified)
-		{
-			//TODO [MG]: Recalculate selected node and all the children
-			selectedNode->Update();
-		}
-	}
+	m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow		
 }
