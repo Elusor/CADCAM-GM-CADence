@@ -5,5 +5,5 @@
 struct VertexPositionColor {
 	DirectX::XMFLOAT3 position, color;
 
-	static std::vector<D3D11_INPUT_ELEMENT_DESC> GetLayoutElements();
+	static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayoutElements();
 };

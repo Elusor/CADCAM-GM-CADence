@@ -45,12 +45,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
 	auto backBuffer = m_renderData->m_backBuffer.get();
 	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
-
-	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
-	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
-
-	m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
-	m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
 	
 	m_scene = new Scene();
 
@@ -73,6 +67,11 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_scene->m_selectedNode = node;
 #pragma endregion
 	
+	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
+	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
+
+	m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
+	m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
 
 	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
@@ -143,7 +142,7 @@ void DxApplication::Render()
 
 	// object dependant
 	m_renderData->m_device.context()->IASetInputLayout(m_renderData->m_layout.get());
-	m_renderData->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	
 	
 	m_scene->RenderScene(m_renderData);
 }

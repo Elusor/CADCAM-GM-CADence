@@ -16,6 +16,7 @@ struct SurfaceParametrizationParams
 
 struct SurfaceVerticesDescription
 {
+	D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology;
 	std::vector<VertexPositionColor> vertices;
 	std::vector<unsigned short> indices;
 };

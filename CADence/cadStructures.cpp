@@ -16,10 +16,11 @@ bool SurfaceObject::CreateParamsGui()
 
 void SurfaceObject::RenderObject(RenderData* renderData)
 {
+	renderData->m_device.context()->IASetPrimitiveTopology(m_surVerDesc.m_primitiveTopology);
+
 	//Update content to fill constant buffer
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMMATRIX mvp = m_transform.GetModelMatrix() * renderData->m_camera->GetViewProjectionMatrix();
-	
 	//Set constant buffer
 	auto hres = renderData->m_device.context()->Map((renderData->m_cbMVP.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	memcpy(res.pData, &mvp, sizeof(XMMATRIX));
