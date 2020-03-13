@@ -170,6 +170,9 @@
     <ClCompile Include="cadStructures.cpp">
       <Filter>Source Files\CadSpecific</Filter>
     </ClCompile>
+    <ClCompile Include="mathStructures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="vs.hlsl" />

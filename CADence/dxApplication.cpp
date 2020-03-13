@@ -72,21 +72,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	auto node = m_scene->AttachObject(t);	
 	m_scene->m_selectedNode = node;
 #pragma endregion
+	
 
-	std::vector<D3D11_INPUT_ELEMENT_DESC> elements{
-		{
-			"POSITION", 0,
-			DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
-			D3D11_INPUT_PER_VERTEX_DATA, 0
-		},
-		{
-			"COLOR", 0,
-			DXGI_FORMAT_R32G32B32_FLOAT, 0,
-			offsetof(VertexPositionColor, color),
-			D3D11_INPUT_PER_VERTEX_DATA, 0
-		}
-	};
-
+	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
 	m_renderData->m_cbMVP =  m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 

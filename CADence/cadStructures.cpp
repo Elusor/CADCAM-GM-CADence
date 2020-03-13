@@ -1,9 +1,9 @@
 #include "cadStructures.h"
 #include "imgui.h"
 #include "torusGenerator.h"
-using namespace DirectX;
 #include <d3d11.h>
 #include "renderData.h"
+using namespace DirectX;
 
 bool SurfaceObject::CreateParamsGui()
 {
