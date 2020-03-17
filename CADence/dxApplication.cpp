@@ -58,13 +58,10 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	Torus* t2 = ObjectFactory::CreateTorus("Torus 2");
 	node->AttachChild(t2);
 
-	Torus* t3 = ObjectFactory::CreateTorus("Torus 3");
-	node->AttachChild(t3);
-
 	for (int i = 3; i < 6; i++)
 	{
 		char buff[10];
-		snprintf(buff, sizeof(buff), "%s %d", "Torus ", i);
+		snprintf(buff, sizeof(buff), "%s %d", "Torus", i);
 
 		std::string name = buff;
 		Torus* t3 = ObjectFactory::CreateTorus(name);

@@ -43,6 +43,18 @@
     <Filter Include="Header Files\CadSpecific\Objects">
       <UniqueIdentifier>{83e84a9b-6edd-452e-afac-fc57eece4385}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CadSpecific\Scene">
+      <UniqueIdentifier>{13f6de5f-9ca1-4d03-8415-ad13fd5c2160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CadSpecific\Scene">
+      <UniqueIdentifier>{36027293-0cd6-40ea-8a7a-64a7cbec1d10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CadSpecific\Rendering">
+      <UniqueIdentifier>{a787eca8-3878-4295-b431-8979b131fa45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific\Rendering">
+      <UniqueIdentifier>{1ecfc08e-bd43-4996-bc74-251402b716b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="exceptions.h">
@@ -99,15 +111,6 @@
     <ClInclude Include="CameraController.h">
       <Filter>Header Files\Cameras</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
-    <ClInclude Include="renderData.h">
-      <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectFactory.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
@@ -116,6 +119,18 @@
     </ClInclude>
     <ClInclude Include="torusGenerator.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\CadSpecific\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="renderData.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Header Files\CadSpecific\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -161,15 +176,6 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>Source Files\CadSpecific</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\CadSpecific</Filter>
-    </ClCompile>
-    <ClCompile Include="renderData.cpp">
-      <Filter>Source Files\CadSpecific</Filter>
-    </ClCompile>
     <ClCompile Include="CameraController.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
@@ -184,6 +190,18 @@
     </ClCompile>
     <ClCompile Include="torusGenerator.cpp">
       <Filter>Source Files\CadSpecific\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\CadSpecific\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="renderData.cpp">
+      <Filter>Source Files\CadSpecific\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Source Files\CadSpecific\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
