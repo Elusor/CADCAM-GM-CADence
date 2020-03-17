@@ -164,9 +164,28 @@ void DxApplication::Render()
 
 void DxApplication::InitImguiWindows()
 {
+
+
+
 	if (ImGui::CollapsingHeader("Hierarchy"))
-	{		
-		m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
+	{
+		ImGui::Text("Filter scene:");
+		static ImGuiTextFilter filter;
+		filter.Draw();
+		// jesli filter jest pusty to wysweitl liste "lisci"  a jesli nie to zrob normalne DrawSceneHierarchy
+		if (filter.InputBuf[0] != '\0')
+		{
+			//filter 
+		}
+		/*const char* lines[] = { "aaa1.c", "bbb1.c", "ccc1.c", "aaa2.cpp", "bbb2.cpp", "ccc2.cpp", "abc.h", "hello, world" };
+		for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
+			if (filter.PassFilter(lines[i]))
+				ImGui::BulletText("%s", lines[i]);*/
+		else
+		{
+			ImGui::Separator();
+			m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
+		}
 	}
 
 	if (ImGui::CollapsingHeader("Transformations"))

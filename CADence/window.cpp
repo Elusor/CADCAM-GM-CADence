@@ -53,7 +53,7 @@ void Window::CreateWindowHandle(int width, int height, const wstring& title)
 	if (!IsWindowClassRegistered(m_hInstance))
 		RegisterWindowClass(m_hInstance);
 	RECT rect = { 0, 0, width, height};
-	DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+	DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
 	if (!AdjustWindowRect(&rect, style, FALSE))
 		THROW_WINAPI;
 	m_hWnd = CreateWindowW(m_windowClassName.c_str(), title.c_str(), style, CW_USEDEFAULT, CW_USEDEFAULT,
