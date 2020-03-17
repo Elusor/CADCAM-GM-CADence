@@ -14,4 +14,5 @@ public:
 	void Render(RenderData* renderData);
 private:
 	bool isDirty;
+
 };
