@@ -22,8 +22,7 @@ private:
 	void InitImguiWindows();
 	void Update();
 
-	Scene* m_scene;
-	Camera* m_camera;
-	CameraController* m_camController;		
-	RenderData* m_renderData;
+	std::unique_ptr<Scene> m_scene;	
+	std::unique_ptr<CameraController> m_camController;		
+	std::unique_ptr<RenderData> m_renderData;
 };

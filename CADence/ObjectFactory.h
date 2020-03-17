@@ -5,7 +5,7 @@
 static class ObjectFactory
 {
 public:
-	static Torus* CreateTorus(
+	static std::unique_ptr<Torus> CreateTorus(
 		std::string name,
 		Transform transform = Transform(),
 		float bigR = 8, float smallR = 3,

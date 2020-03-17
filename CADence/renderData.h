@@ -7,7 +7,7 @@ struct RenderData
 {
 	RenderData(mini::Window& window);
 
-	Camera* m_camera;
+	std::shared_ptr<Camera> m_camera;
 	DxDevice m_device;
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;
 	mini::dx_ptr<ID3D11DepthStencilView> m_depthBuffer;

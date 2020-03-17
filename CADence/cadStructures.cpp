@@ -14,7 +14,7 @@ bool SurfaceObject::CreateParamsGui()
 	return surfaceObjectChanged;
 }
 
-void SurfaceObject::RenderObject(RenderData* renderData)
+void SurfaceObject::RenderObject(std::unique_ptr<RenderData>& renderData)
 {
 	renderData->m_device.context()->IASetPrimitiveTopology(m_surVerDesc.m_primitiveTopology);
 
@@ -68,7 +68,7 @@ void Torus::UpdateObject()
 }
 
 //TODO [MG]: Use the object information to set up vertex and index buffers and call draw
-void Object::RenderObject(RenderData* renderdata)
+void Object::RenderObject(std::unique_ptr<RenderData>& renderData)
 {
 }
 

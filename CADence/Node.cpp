@@ -1,30 +1,28 @@
 #include "Node.h"
 #include "imgui.h"
 
-Node* Node::AttachChild(Object* object)
+std::shared_ptr<Node> Node::AttachChild(std::unique_ptr<Object>& object)
 {
-	Node* newNode = new Node();
-	newNode->m_object = object;
+	std::shared_ptr<Node> newNode = std::shared_ptr<Node>(new Node());
+	newNode->m_object = std::move(object);
 	newNode->m_parent = this;
 	m_children.push_back(newNode);
 	return newNode;
 }
 
 void Node::DetachFromParent()
-{
+{	
 	if (m_parent != nullptr)
 	{	
-		// delete this node from the parent's children list
+		// dte this node from the parent's children list
 		for (int i = 0; i < m_parent->m_children.size(); i++)
 		{		
 			if (m_parent->m_children[i]->m_object == this->m_object)
-			{
+			{					
 				m_parent->m_children.erase(m_parent->m_children.begin() + i);
 			}
 		}
-		// set parent of this object to null
-		this->m_parent = nullptr;
-	}	
+	}		
 }
 
 void Node::DrawHierarchyNode()
@@ -35,12 +33,12 @@ void Node::DrawHierarchyNode()
 	{
 		ImGui::TreeNodeEx(name, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 		// Add unique popup id generator
-		DrawPopupContextItem(this);
+		DrawPopupContextItem();
 	}
 	else
 	{
 		bool nodeOpen = ImGui::TreeNodeEx(name, ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick);
-		DrawPopupContextItem(this);
+		DrawPopupContextItem();
 		if (nodeOpen) {
 			for (int i = 0; i < m_children.size(); i++)
 			{
@@ -51,9 +49,9 @@ void Node::DrawHierarchyNode()
 	}
 }
 
-void Node::DrawPopupContextItem(Node* node)
+void Node::DrawPopupContextItem()
 {
-	const char* name = node->m_object->m_name.c_str();
+	const char* name = m_object->m_name.c_str();
 	if (ImGui::BeginPopupContextItem(name))
 	{
 		if (ImGui::Selectable("Rename object"))
@@ -72,18 +70,24 @@ void Node::DrawPopupContextItem(Node* node)
 void Node::Remove()
 {
 	// clear this element from parent's children list
-	DetachFromParent();
 	// Call recursive remove
+	DetachFromParent();
 	for (int i = 0; i < m_children.size(); i++)
 	{
 		m_children[i]->Remove();
 	}	
+
+	for (int i = 0; i < m_children.size(); i++)
+	{
+		m_children[i].reset();
+	}
 	// Complete the deletion of this object	
-	delete m_object;
-	delete this; //Fix asap
+	m_object.reset();
+	
+
 }
 
-void Node::Render(RenderData* renderData)
+void Node::Render(std::unique_ptr<RenderData> & renderData)
 {
 	if (m_object != nullptr)
 		m_object->RenderObject(renderData);
@@ -91,6 +95,11 @@ void Node::Render(RenderData* renderData)
 	{
 		m_children[i]->Render(renderData);
 	}
+}
+
+std::shared_ptr<Node> Node::GetPointerToSelf()
+{
+	return std::shared_ptr<Node>(this);
 }
 
 void Node::Update()

@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "imgui.h"
 
-void Scene::RenderScene(RenderData* renderData)
+void Scene::RenderScene(std::unique_ptr<RenderData> & renderData)
 {
 	rootNode.Render(renderData);
 }
@@ -32,7 +32,7 @@ void Scene::UpdateScene()
 	rootNode.Update();
 }
 
-Node* Scene::AttachObject(Object* object)
+std::shared_ptr<Node> Scene::AttachObject(std::unique_ptr<Object> & object)
 {
 	return (rootNode.AttachChild(object));
 }

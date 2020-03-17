@@ -1,6 +1,6 @@
 #include "ObjectFactory.h"
 
-Torus* ObjectFactory::CreateTorus(
+std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	std::string name,
 	Transform transform,
 	float bigR, float smallR, 
@@ -30,5 +30,5 @@ Torus* ObjectFactory::CreateTorus(
 
 	GetTorusVerticesLineList(t);
 
-	return t;
+	return std::unique_ptr<Torus>(t);
 }

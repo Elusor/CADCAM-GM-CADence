@@ -26,7 +26,7 @@ struct Object {
 
 	std::string m_name = "";
 	Transform m_transform;	
-	virtual void RenderObject(RenderData* renderData);
+	virtual void RenderObject(std::unique_ptr<RenderData> & renderData);
 	virtual void UpdateObject();
 	virtual bool CreateParamsGui();
 };
@@ -37,7 +37,7 @@ struct SurfaceObject : Object
 	SurfaceVerticesDescription m_surVerDesc;
 
 	bool CreateParamsGui() override;
-	void RenderObject(RenderData* renderData) override;
+	void RenderObject(std::unique_ptr<RenderData> & renderData) override;
 };
 
 struct Torus : SurfaceObject 

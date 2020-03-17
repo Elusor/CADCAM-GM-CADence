@@ -12,26 +12,28 @@
 
 using namespace mini;
 using namespace DirectX;
+using namespace std;
 
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
 {
 	// init viewport
-	m_renderData = new RenderData(m_window);
+	m_renderData = unique_ptr<RenderData>(new RenderData(m_window));
 	SIZE wndSize = m_window.getClientSize();
 	Viewport viewport{ wndSize };
 	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
 
 	// init camera
-	m_camera = new Camera(
+	m_renderData->m_camera = std::shared_ptr<Camera>(
+		new Camera(
 		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
 		XMFLOAT2(0.0f, 0.0f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
-		45.0f, 2.5f, 250.0f); // fov, zNear, zFar
-	m_renderData->m_camera = m_camera;
-	m_camController = new CameraController(m_camera);
+		45.0f, 2.5f, 250.0f)); // fov, zNear, zFar
+
+	m_camController = unique_ptr<CameraController>(new CameraController(m_renderData->m_camera));
 
 	// init backbuffer
 	ID3D11Texture2D* temp;
@@ -47,14 +49,14 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	auto backBuffer = m_renderData->m_backBuffer.get();
 	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
 
-	m_scene = new Scene();
+	m_scene = std::unique_ptr<Scene>(new Scene());
 
 #pragma region set up torus surface object
 
-	Torus* t = ObjectFactory::CreateTorus("Torus 1");
+	std::unique_ptr<Object> t = ObjectFactory::CreateTorus("Torus 1");
 	auto node = m_scene->AttachObject(t);
 
-	Torus* t2 = ObjectFactory::CreateTorus("Torus 2");
+	std::unique_ptr<Object> t2 = ObjectFactory::CreateTorus("Torus 2");
 	node->AttachChild(t2);
 
 	for (int i = 3; i < 6; i++)
@@ -63,7 +65,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		snprintf(buff, sizeof(buff), "%s %d", "Torus", i);
 
 		std::string name = buff;
-		Torus* t3 = ObjectFactory::CreateTorus(name);
+		std::unique_ptr<Object> t3 = ObjectFactory::CreateTorus(name);
 		node = m_scene->AttachObject(t3);
 	}
 	m_scene->m_selectedNode = node;

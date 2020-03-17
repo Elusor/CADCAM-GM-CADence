@@ -2,7 +2,7 @@
 CameraController::CameraController() : CameraController(nullptr)
 {}
 
-CameraController::CameraController(Camera* camera)
+CameraController::CameraController(std::shared_ptr<Camera> camera)
 {
 	m_captureRot = m_captureTrans = false;
 	m_camera = camera;

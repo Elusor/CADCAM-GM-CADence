@@ -7,13 +7,14 @@
 // where grouping nodes are for storing children only and ObjectNodes hold pointers to objects
 class Scene {
 public:	
-	Node* m_selectedNode;
+	std::shared_ptr<Node> m_selectedNode;
+	std::shared_ptr<Node> AttachObject(std::unique_ptr<Object>& object);
 
-	Node* AttachObject(Object* object);
 	void DrawSceneHierarchy();
 	void UpdateScene();
-	void RenderScene(RenderData* renderData);
+	void RenderScene(std::unique_ptr<RenderData> & renderData);
 	void UpdateSelectedNode();
+
 private:
 	Node rootNode;
 
