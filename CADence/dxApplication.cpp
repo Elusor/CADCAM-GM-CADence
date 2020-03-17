@@ -8,17 +8,18 @@
 #include "camera.h"
 #include "Scene.h"
 #include "renderData.h"
+#include "ObjectFactory.h"
 
 using namespace mini;
 using namespace DirectX;
 
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
-{	
+{
 	// init viewport
 	m_renderData = new RenderData(m_window);
 	SIZE wndSize = m_window.getClientSize();
-	Viewport viewport { wndSize };
+	Viewport viewport{ wndSize };
 	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
 
 	// init camera
@@ -33,7 +34,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_camController = new CameraController(m_camera);
 
 	// init backbuffer
-	ID3D11Texture2D *temp;
+	ID3D11Texture2D* temp;
 	m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
 	dx_ptr<ID3D11Texture2D> backTexture;
 	backTexture.reset(temp);
@@ -45,41 +46,32 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
 	auto backBuffer = m_renderData->m_backBuffer.get();
 	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
-	
+
 	m_scene = new Scene();
 
 #pragma region set up torus surface object
-	
-	Torus* t = new Torus();
-	t->m_bigR = 8;
-	t->m_smallR = 3;	
 
-	t->m_surParams.densityX = 10;
-	t->m_surParams.minDensityX = 3;
-	t->m_surParams.maxDensityX = 30;
-
-	t->m_surParams.densityY = 10;
-	t->m_surParams.minDensityY = 3;
-	t->m_surParams.maxDensityY = 30;
-	GetTorusVerticesLineList(t);
-	
-	auto node = m_scene->AttachObject(t);	
+	Torus* t = ObjectFactory::CreateTorus("Torus 1");
+	auto node = m_scene->AttachObject(t);
 	m_scene->m_selectedNode = node;
 
-	Torus* t2 = new Torus();
-	t2->m_bigR = 8;
-	t2->m_smallR = 3;
+	Torus* t2 = ObjectFactory::CreateTorus("Torus 2");
+	node->AttachChild(t2);
 
-	t2->m_surParams.densityX = 10;
-	t2->m_surParams.minDensityX = 3;
-	t2->m_surParams.maxDensityX = 30;
+	Torus* t3 = ObjectFactory::CreateTorus("Torus 3");
+	node->AttachChild(t3);
 
-	t2->m_surParams.densityY = 10;
-	t2->m_surParams.minDensityY = 3;
-	t2->m_surParams.maxDensityY = 30;
-	GetTorusVerticesLineList(t2);
+	for (int i = 3; i < 6; i++)
+	{
+		char buff[10];
+		snprintf(buff, sizeof(buff), "%s %d", "Torus ", i);
 
-	node->AttachChild(t2);	
+		std::string name = buff;
+		Torus* t3 = ObjectFactory::CreateTorus(name);
+		m_scene->AttachObject(t3);
+	}
+
+
 #pragma endregion
 	
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");

@@ -21,11 +21,14 @@ void Node::Render(RenderData* renderData)
 
 void Node::DrawHierarchyNode()
 {	
+	const char* name = object->m_name.c_str();
+	
 	if (children.size() == 0)
 	{
-		ImGui::TreeNodeEx("asdas123", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);		
+			
+		ImGui::TreeNodeEx(name, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 		// Add unique popup id generator
-		if (ImGui::BeginPopupContextItem("item context menu2"))
+		if (ImGui::BeginPopupContextItem(name))
 		{
 			if (ImGui::Selectable("Rename object"))
 			{
@@ -40,8 +43,8 @@ void Node::DrawHierarchyNode()
 	}
 	else
 	{
-		bool nodeOpen = ImGui::TreeNode("asdas");
-		if (ImGui::BeginPopupContextItem("item context menu1"))
+		bool nodeOpen = ImGui::TreeNodeEx(name, ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick);
+		if (ImGui::BeginPopupContextItem(name))
 		{
 			if (ImGui::Selectable("Rename object"))
 			{
@@ -58,9 +61,9 @@ void Node::DrawHierarchyNode()
 			{
 				children[i]->DrawHierarchyNode();
 			}
+			ImGui::TreePop();
 		}
 	}
-	ImGui::TreePop();
 }
 
 void Node::Update()
@@ -134,5 +137,6 @@ void Scene::DrawSceneHierarchy()
 		{
 			rootNode.children[i]->DrawHierarchyNode();
 		}
+		ImGui::TreePop();
 	}	
 }

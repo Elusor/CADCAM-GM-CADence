@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Cameras">
       <UniqueIdentifier>{c41c185a-5b00-4c63-9b2e-2a1943fd7171}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\CadSpecific\Objects">
+      <UniqueIdentifier>{30d1a074-0afa-4c19-a212-3997076837ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific\Objects">
+      <UniqueIdentifier>{83e84a9b-6edd-452e-afac-fc57eece4385}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="exceptions.h">
@@ -75,12 +81,6 @@
     <ClInclude Include="mathStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cadStructures.h">
-      <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
-    <ClInclude Include="torusGenerator.h">
-      <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
     <ClInclude Include="dxApplication.h">
       <Filter>Header Files\DirectXWrappers</Filter>
     </ClInclude>
@@ -107,6 +107,15 @@
     </ClInclude>
     <ClInclude Include="renderData.h">
       <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectFactory.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="cadStructures.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="torusGenerator.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -140,9 +149,6 @@
     <ClCompile Include="imgui_impl_win32.cpp">
       <Filter>Source Files\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="torusGenerator.cpp">
-      <Filter>Source Files\CadSpecific</Filter>
-    </ClCompile>
     <ClCompile Include="dxApplication.cpp">
       <Filter>Source Files\DirectXWrappers</Filter>
     </ClCompile>
@@ -167,11 +173,17 @@
     <ClCompile Include="CameraController.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
-    <ClCompile Include="cadStructures.cpp">
-      <Filter>Source Files\CadSpecific</Filter>
-    </ClCompile>
     <ClCompile Include="mathStructures.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cadStructures.cpp">
+      <Filter>Source Files\CadSpecific\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectFactory.cpp">
+      <Filter>Source Files\CadSpecific\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="torusGenerator.cpp">
+      <Filter>Source Files\CadSpecific\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

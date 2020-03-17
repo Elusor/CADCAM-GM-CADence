@@ -1,8 +1,9 @@
 #pragma once
-#include "Transform.h"
 #include <vector>
+#include "Transform.h"
 #include "mathStructures.h"
 #include "renderData.h"
+#include <string>
 struct SurfaceParametrizationParams
 {
 	int densityX;
@@ -23,6 +24,7 @@ struct SurfaceVerticesDescription
 
 struct Object {
 
+	std::string m_name = "";
 	Transform m_transform;	
 	virtual void RenderObject(RenderData* renderData);
 	virtual void UpdateObject();
