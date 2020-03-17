@@ -23,11 +23,36 @@ void Node::DrawHierarchyNode()
 {	
 	if (children.size() == 0)
 	{
-		ImGui::TreeNodeEx("asdas", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);		
+		ImGui::TreeNodeEx("asdas123", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);		
+		// Add unique popup id generator
+		if (ImGui::BeginPopupContextItem("item context menu2"))
+		{
+			if (ImGui::Selectable("Rename object"))
+			{
+
+			}
+			if (ImGui::Selectable("Remove object"))
+			{
+
+			}
+			ImGui::EndPopup();
+		}
 	}
 	else
 	{
 		bool nodeOpen = ImGui::TreeNode("asdas");
+		if (ImGui::BeginPopupContextItem("item context menu1"))
+		{
+			if (ImGui::Selectable("Rename object"))
+			{
+
+			}
+			if (ImGui::Selectable("Remove object"))
+			{
+
+			}
+			ImGui::EndPopup();
+		}
 		if (nodeOpen) {
 			for (int i = 0; i < children.size(); i++)
 			{
@@ -87,6 +112,22 @@ Node* Scene::AttachObject(Object* object)
 void Scene::DrawSceneHierarchy()
 {
 	bool node_open = ImGui::TreeNode("Scene");	
+	
+	if (ImGui::BeginPopupContextItem("item context menu"))
+	{
+		if (ImGui::BeginMenu("Add child object"))
+		{
+			ImGui::MenuItem("Torus");
+			ImGui::MenuItem("Point");
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::Selectable("Clear scene"))
+		{ 
+		}
+		ImGui::EndPopup();
+	}
+
 	if (node_open)
 	{
 		for (int i = 0; i < rootNode.children.size(); i++)

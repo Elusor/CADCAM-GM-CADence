@@ -65,6 +65,21 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	
 	auto node = m_scene->AttachObject(t);	
 	m_scene->m_selectedNode = node;
+
+	Torus* t2 = new Torus();
+	t2->m_bigR = 8;
+	t2->m_smallR = 3;
+
+	t2->m_surParams.densityX = 10;
+	t2->m_surParams.minDensityX = 3;
+	t2->m_surParams.maxDensityX = 30;
+
+	t2->m_surParams.densityY = 10;
+	t2->m_surParams.minDensityY = 3;
+	t2->m_surParams.maxDensityY = 30;
+	GetTorusVerticesLineList(t2);
+
+	node->AttachChild(t2);	
 #pragma endregion
 	
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
@@ -149,5 +164,19 @@ void DxApplication::Render()
 
 void DxApplication::InitImguiWindows()
 {
-	m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow		
+	if (ImGui::CollapsingHeader("Hierarchy"))
+	{		
+		m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
+	}
+
+	if (ImGui::CollapsingHeader("Transformations"))
+	{
+		ImGui::Text("Center trasformations at:");
+		ImGui::Spacing();
+		bool isSceneCenter = true;
+		bool isObjectCenter = false;
+		ImGui::Checkbox("Object center", &isObjectCenter);
+
+		ImGui::Checkbox("Scene center", &isSceneCenter);
+	}
 }
