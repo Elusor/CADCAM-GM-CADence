@@ -53,7 +53,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 	Torus* t = ObjectFactory::CreateTorus("Torus 1");
 	auto node = m_scene->AttachObject(t);
-	m_scene->m_selectedNode = node;
 
 	Torus* t2 = ObjectFactory::CreateTorus("Torus 2");
 	node->AttachChild(t2);
@@ -65,8 +64,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 		std::string name = buff;
 		Torus* t3 = ObjectFactory::CreateTorus(name);
-		m_scene->AttachObject(t3);
+		node = m_scene->AttachObject(t3);
 	}
+	m_scene->m_selectedNode = node;
 
 
 #pragma endregion

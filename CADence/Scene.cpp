@@ -11,14 +11,17 @@ void Scene::UpdateSelectedNode()
 	auto selectedNode = this->m_selectedNode;
 	if (selectedNode != nullptr)
 	{
-		bool selectedObjectModified = selectedNode->object->CreateParamsGui();
-
-		if (selectedObjectModified)
+		if (selectedNode->m_object != nullptr)
 		{
-			//TODO [MG]: Recalculate selected node and all the children
+			bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
+
+			if (selectedObjectModified)
+			{
+				//TODO [MG]: Recalculate selected node and all the children
+				selectedNode->Update();
+			}
 			selectedNode->Update();
 		}
-		selectedNode->Update();
 	}
 }
 
@@ -55,9 +58,9 @@ void Scene::DrawSceneHierarchy()
 
 	if (node_open)
 	{
-		for (int i = 0; i < rootNode.children.size(); i++)
+		for (int i = 0; i < rootNode.m_children.size(); i++)
 		{
-			rootNode.children[i]->DrawHierarchyNode();
+			rootNode.m_children[i]->DrawHierarchyNode();
 		}
 		ImGui::TreePop();
 	}	
