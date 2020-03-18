@@ -57,12 +57,20 @@ XMMATRIX Camera::GetViewMatrix()
 	XMVECTOR target = XMLoadFloat3(&m_target);
 	auto globalUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMVECTOR up = XMLoadFloat3(&globalUp);
-	return XMMatrixLookAtLH(pos, target, up);
+	// for debug
+	XMVECTOR EyeDirection = XMVectorSubtract(pos, target);
+	if (XMVector3Equal(EyeDirection, XMVectorZero()))
+	{
+		// BUG: eyedir equals zero when switched to another monitor and switched back
+		int x = 2;		
+	}
+
+	return DirectX::XMMatrixLookAtLH(pos, target, up);
 }
 
 void Camera::RecalculateProjectionMatrix()
 {	
-	m_projMat = XMMatrixPerspectiveFovLH(XMConvertToRadians(m_fov), m_aspectRatio, m_zNear, m_zFar);
+	m_projMat = DirectX::XMMatrixPerspectiveFovLH(XMConvertToRadians(m_fov), m_aspectRatio, m_zNear, m_zFar);
 }
 
 DirectX::XMMATRIX Camera::GetViewProjectionMatrix()
