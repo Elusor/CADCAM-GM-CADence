@@ -14,10 +14,10 @@ bool SurfaceObject::CreateParamsGui()
 	return surfaceObjectChanged;
 }
 
-void SurfaceObject::RenderObject(std::unique_ptr<RenderData>& renderData)
-{
-	renderData->m_device.context()->IASetPrimitiveTopology(m_surVerDesc.m_primitiveTopology);
+void SurfaceObject::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
+{	
 
+	renderData->m_device.context()->IASetPrimitiveTopology(m_surVerDesc.m_primitiveTopology);
 	//Update content to fill constant buffer
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMMATRIX mvp = m_transform.GetModelMatrix() * renderData->m_camera->GetViewProjectionMatrix();
@@ -67,41 +67,12 @@ void Torus::UpdateObject()
 }
 
 //TODO [MG]: Use the object information to set up vertex and index buffers and call draw
-void Object::RenderObject(std::unique_ptr<RenderData>& renderData)
+void Object::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
 {
 }
 
-//TODO [MG]: Update the vertex and index info on the object if the object parameters have changed from gui or are transforming over time
-void Object::UpdateObject()
+void Object::RenderCoordinates(std::unique_ptr<RenderData>& renderData, bool selected)
 {
-}
-
-bool Object::CreateParamsGui()
-{
-	bool objectChanged = false;
-	float dragSpeed = 0.01f;
-	ImGui::Text("Name: ");
-	ImGui::SameLine(); ImGui::Text(m_name.c_str());
-	ImGui::Spacing();
-	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Position Z", &(m_transform.m_pos.z), dragSpeed, 0.005f, 5.0f);
-	ImGui::Spacing();
-	objectChanged |= ImGui::DragFloat("Rotation X", &(m_transform.m_rotation.x), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Rotation Y", &(m_transform.m_rotation.y), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Rotation Z", &(m_transform.m_rotation.z), dragSpeed, 0.005f, 5.0f);
-	ImGui::Spacing();
-	objectChanged |= ImGui::DragFloat("Scale X", &(m_transform.m_scale.x), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Scale Y", &(m_transform.m_scale.y), dragSpeed, 0.005f, 5.0f);
-	objectChanged |= ImGui::DragFloat("Scale Z", &(m_transform.m_scale.z), dragSpeed, 0.005f, 5.0f);
-	ImGui::Spacing();
-
-	return objectChanged;
-}
-
-void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData)
-{
-
 	//Update content to fill constant buffer
 	D3D11_MAPPED_SUBRESOURCE res;
 	XMMATRIX mvp = m_transform.GetModelMatrix() * renderData->m_camera->GetViewProjectionMatrix();
@@ -111,7 +82,6 @@ void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData)
 	renderData->m_device.context()->Unmap(renderData->m_cbMVP.get(), 0);
 	ID3D11Buffer* cbs[] = { renderData->m_cbMVP.get() };
 	renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
-
 
 	std::vector<VertexPositionColor> vertices{
 		{{0.0f,0.0f,0.0f},{1.0f,0.0f,0.0f}},
@@ -144,6 +114,39 @@ void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData)
 	// Watch out for meshes that cannot be covered by ushort
 	renderData->m_device.context()->IASetIndexBuffer(renderData->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 	renderData->m_device.context()->DrawIndexed(6, 0, 0);
+}
+
+//TODO [MG]: Update the vertex and index info on the object if the object parameters have changed from gui or are transforming over time
+void Object::UpdateObject()
+{
+}
+
+bool Object::CreateParamsGui()
+{
+	bool objectChanged = false;
+	float dragSpeed = 0.01f;
+	ImGui::Text("Name: ");
+	ImGui::SameLine(); ImGui::Text(m_name.c_str());
+	ImGui::Spacing();
+	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Position Z", &(m_transform.m_pos.z), dragSpeed, 0.005f, 5.0f);
+	ImGui::Spacing();
+	objectChanged |= ImGui::DragFloat("Rotation X", &(m_transform.m_rotation.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation Y", &(m_transform.m_rotation.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Rotation Z", &(m_transform.m_rotation.z), dragSpeed, 0.005f, 5.0f);
+	ImGui::Spacing();
+	objectChanged |= ImGui::DragFloat("Scale X", &(m_transform.m_scale.x), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale Y", &(m_transform.m_scale.y), dragSpeed, 0.005f, 5.0f);
+	objectChanged |= ImGui::DragFloat("Scale Z", &(m_transform.m_scale.z), dragSpeed, 0.005f, 5.0f);
+	ImGui::Spacing();
+
+	return objectChanged;
+}
+
+void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
+{
+	this->RenderCoordinates(renderData, selected);
 }
 
 bool SpawnMarker::CreateParamsGui()

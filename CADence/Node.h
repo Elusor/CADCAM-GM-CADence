@@ -10,5 +10,5 @@ public:
 	std::unique_ptr<Object> m_object;
 
 	void Update();
-	void Render(std::unique_ptr<RenderData> & renderData);	
+	void Render(std::unique_ptr<RenderData> & renderData, bool selected = false);	
 };

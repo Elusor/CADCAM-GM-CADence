@@ -130,12 +130,19 @@ void Scene::DrawSceneHierarchy()
 
 void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
 {
-	m_spawnMarker->RenderObject(renderData);
-
+	m_spawnMarker->RenderObject(renderData);	
+	
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
-		m_nodes[i]->Render(renderData);
+		// TODO [MG] : check if this item is currently selected
+		bool isSelected = false;
+		if (auto selected = m_selectedNode.lock())
+		{
+			isSelected = selected == m_nodes[i];
+		}			
+		m_nodes[i]->Render(renderData, isSelected);
 	}
+		
 }
 
 void Scene::UpdateScene()
