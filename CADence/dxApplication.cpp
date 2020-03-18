@@ -50,27 +50,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
 
 	m_scene = std::unique_ptr<Scene>(new Scene());
-
-#pragma region set up torus surface object
-
-	std::unique_ptr<Object> t = ObjectFactory::CreateTorus("Torus 1");
-	m_scene->AttachObject(t);
-
-	std::unique_ptr<Object> t2 = ObjectFactory::CreateTorus("Torus 2");	
-
-	for (int i = 3; i < 6; i++)
-	{
-		char buff[10];
-		snprintf(buff, sizeof(buff), "%s %d", "Torus", i);
-
-		std::string name = buff;
-		std::unique_ptr<Object> t3 = ObjectFactory::CreateTorus(name);
-		m_scene->AttachObject(t3);
-	}
-	m_scene->m_selectedNode = m_scene->m_nodes[0];
-
-
-#pragma endregion
+	m_scene->m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
 	
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");

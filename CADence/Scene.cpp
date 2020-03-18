@@ -75,7 +75,7 @@ void Scene::DrawSceneHierarchy()
 		{
 			if (ImGui::MenuItem("Torus"))
 			{
-				std::unique_ptr<Object> obj = ObjectFactory::CreateTorus("Trous");
+				std::unique_ptr<Object> obj = m_objectFactory->CreateTorus();
 				AttachObject(obj);
 			}
 

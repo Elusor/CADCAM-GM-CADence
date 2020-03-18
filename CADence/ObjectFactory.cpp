@@ -1,7 +1,7 @@
 #include "ObjectFactory.h"
 
 std::unique_ptr<Torus> ObjectFactory::CreateTorus(
-	std::string name = "Torus",
+	std::string name,
 	Transform transform,
 	float bigR, float smallR, 
 	float densityX, float densityY,
@@ -11,6 +11,11 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	Torus* t = new Torus();
 
 	t->m_name = name;
+
+	if (m_torusCounter > 0)
+	{
+		t->m_name = "Torus " + std::to_string(m_torusCounter);
+	}
 
 	// Move to a section general for all objects
 	t->m_transform.m_pos = transform.m_pos;
@@ -29,6 +34,7 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	t->m_surParams.maxDensityY = maxDensityY;
 
 	GetTorusVerticesLineList(t);
+	m_torusCounter++;
 
 	return std::unique_ptr<Torus>(t);
 }
