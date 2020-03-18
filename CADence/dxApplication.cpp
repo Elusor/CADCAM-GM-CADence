@@ -54,10 +54,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 #pragma region set up torus surface object
 
 	std::unique_ptr<Object> t = ObjectFactory::CreateTorus("Torus 1");
-	auto node = m_scene->AttachObject(t);
+	m_scene->AttachObject(t);
 
-	std::unique_ptr<Object> t2 = ObjectFactory::CreateTorus("Torus 2");
-	node->AttachChild(t2);
+	std::unique_ptr<Object> t2 = ObjectFactory::CreateTorus("Torus 2");	
 
 	for (int i = 3; i < 6; i++)
 	{
@@ -66,9 +65,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 		std::string name = buff;
 		std::unique_ptr<Object> t3 = ObjectFactory::CreateTorus(name);
-		node = m_scene->AttachObject(t3);
+		m_scene->AttachObject(t3);
 	}
-	m_scene->m_selectedNode = node;
+	m_scene->m_selectedNode = m_scene->m_nodes[0];
 
 
 #pragma endregion

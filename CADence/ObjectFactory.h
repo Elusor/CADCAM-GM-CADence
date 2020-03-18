@@ -12,7 +12,4 @@ public:
 		float densityX = 10, float densityY = 10,
 		float minDensityX = 3, float minDensityY = 3,
 		float maxDensityX = 30, float maxDensityY = 30);
-
-private:	
-
 };

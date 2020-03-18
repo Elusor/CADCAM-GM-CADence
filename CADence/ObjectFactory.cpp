@@ -1,7 +1,7 @@
 #include "ObjectFactory.h"
 
 std::unique_ptr<Torus> ObjectFactory::CreateTorus(
-	std::string name,
+	std::string name = "Torus",
 	Transform transform,
 	float bigR, float smallR, 
 	float densityX, float densityY,

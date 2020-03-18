@@ -1,15 +1,17 @@
 #include "Scene.h"
 #include "imgui.h"
-
+#include "ObjectFactory.h"
 void Scene::RenderScene(std::unique_ptr<RenderData> & renderData)
 {
-	rootNode.Render(renderData);
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		m_nodes[i]->Render(renderData);
+	}
 }
 
 void Scene::UpdateSelectedNode()
 {
-	auto selectedNode = this->m_selectedNode;
-	if (selectedNode != nullptr)
+	if(auto selectedNode = this->m_selectedNode.lock())
 	{
 		if (selectedNode->m_object != nullptr)
 		{
@@ -17,24 +19,50 @@ void Scene::UpdateSelectedNode()
 
 			if (selectedObjectModified)
 			{
-				//TODO [MG]: Recalculate selected node and all the children
 				selectedNode->Update();
 			}
-			selectedNode->Update();
 		}
 	}
 }
 
-void Scene::UpdateScene()
-{ 
-	// Currently not in use - if necessary implement setting active objects (i.e. rotating etc.)
-	// as dirty and run object->Update only on dirty objects
-	rootNode.Update();
+void Scene::RemoveObject(std::unique_ptr<Object>& object)
+{	
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		if (m_nodes[i]->m_object == object)
+		{			
+			m_nodes[i]->m_object.reset();
+			m_nodes[i].reset();
+			m_nodes.erase(m_nodes.begin() + i);
+			if (m_selectedNode.expired())
+			{
+				m_selectedNode.reset();
+			}
+		}
+	}
 }
 
-std::shared_ptr<Node> Scene::AttachObject(std::unique_ptr<Object> & object)
+void Scene::ClearScene()
 {
-	return (rootNode.AttachChild(object));
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		m_nodes[i]->m_object.reset();
+		m_nodes[i].reset();
+	}
+
+	m_nodes.clear();
+
+	if (m_selectedNode.expired())
+	{
+		m_selectedNode.reset();
+	}
+}
+
+void Scene::AttachObject(std::unique_ptr<Object> & object)
+{
+	Node* newNode = new Node();
+	newNode->m_object = move(object);
+	m_nodes.push_back(std::shared_ptr<Node>(newNode));
 }
 
 void Scene::DrawSceneHierarchy()
@@ -45,23 +73,62 @@ void Scene::DrawSceneHierarchy()
 	{
 		if (ImGui::BeginMenu("Add child object"))
 		{
-			ImGui::MenuItem("Torus");
-			ImGui::MenuItem("Point");
+			if (ImGui::MenuItem("Torus"))
+			{
+				std::unique_ptr<Object> obj = ObjectFactory::CreateTorus("Trous");
+				AttachObject(obj);
+			}
+
+			if (ImGui::MenuItem("Point"))
+			{
+
+			
+			}		
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::Selectable("Clear scene"))
 		{ 
+			ClearScene();
 		}
 		ImGui::EndPopup();
 	}
 
 	if (node_open)
 	{
-		for (int i = 0; i < rootNode.m_children.size(); i++)
+		for (int i = 0; i < m_nodes.size(); i++)
 		{
-			rootNode.m_children[i]->DrawHierarchyNode();
+			const char* name = m_nodes[i]->m_object->m_name.c_str();
+
+			ImGui::TreeNodeEx(name, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+			// Add unique popup id generator
+			if (ImGui::BeginPopupContextItem(name))
+			{
+				if (ImGui::Selectable("Rename object"))
+				{
+					// Trigger a popup for renaming objects - probably check if name is availible through name registry
+				}
+
+				if (ImGui::Selectable("Remove object"))
+				{
+					RemoveObject(m_nodes[i]->m_object);
+				}
+
+				ImGui::EndPopup();
+			}
 		}
+
 		ImGui::TreePop();
-	}	
+	}
+	
+}
+
+void Scene::UpdateScene()
+{
+	// Currently not in use - if necessary implement setting active objects (i.e. rotating etc.)
+	// as dirty and run object->Update only on dirty objects
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		m_nodes[i]->Update();
+	}
 }
