@@ -20,5 +20,6 @@ public:
 
 private:
 	void ClearScene();
-
+	void DrawScenePopupMenu();
+	void DrawNodePopupMenu(const std::shared_ptr<Node> node);
 };

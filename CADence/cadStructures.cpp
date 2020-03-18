@@ -47,8 +47,7 @@ void SurfaceObject::RenderObject(std::unique_ptr<RenderData>& renderData)
 bool Torus::CreateParamsGui()
 {	
 	SurfaceParametrizationParams* surParams = &(this->m_surParams);
-	ImGui::Begin("Torus parameters");
-	ImGui::Text("Sliders describing the density of the mesh:");
+	ImGui::Begin("Torus parameters");	
 	// Create sliders for torus parameters	
 	Torus* torus = this;
 	bool torusChanged = SurfaceObject::CreateParamsGui();
@@ -81,7 +80,8 @@ bool Object::CreateParamsGui()
 {
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
-
+	ImGui::Text("Name: ");
+	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Spacing();
 	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, 0.005f, 5.0f);
 	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, 0.005f, 5.0f);
