@@ -2,6 +2,12 @@
 #include "imgui.h"
 #include "ObjectFactory.h"
 
+Scene::Scene()
+{
+	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
+	m_spawnMarker = m_objectFactory->CreateSpawnMarker();
+}
+
 void Scene::AttachObject(std::unique_ptr<Object>& object)
 {
 	Node* newNode = new Node();
@@ -50,7 +56,7 @@ void Scene::DrawScenePopupMenu()
 		{
 			if (ImGui::MenuItem("Torus"))
 			{
-				std::unique_ptr<Object> obj = m_objectFactory->CreateTorus();
+				std::unique_ptr<Object> obj = m_objectFactory->CreateTorus(m_spawnMarker->m_transform);
 				AttachObject(obj);
 			}
 
@@ -124,6 +130,8 @@ void Scene::DrawSceneHierarchy()
 
 void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
 {
+	m_spawnMarker->RenderObject(renderData);
+
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		m_nodes[i]->Render(renderData);

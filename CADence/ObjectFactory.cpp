@@ -1,8 +1,8 @@
 #include "ObjectFactory.h"
 
 std::unique_ptr<Torus> ObjectFactory::CreateTorus(
-	std::string name,
 	Transform transform,
+	std::string name,
 	float bigR, float smallR, 
 	float densityX, float densityY,
 	float minDensityX, float minDensityY, 
@@ -37,4 +37,9 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	m_torusCounter++;
 
 	return std::unique_ptr<Torus>(t);
+}
+
+std::unique_ptr<SpawnMarker> ObjectFactory::CreateSpawnMarker()
+{	
+	return std::unique_ptr<SpawnMarker>(new SpawnMarker());
 }

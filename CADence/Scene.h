@@ -7,16 +7,19 @@
 // where grouping nodes are for storing children only and ObjectNodes hold pointers to objects
 class Scene {
 public:	
+	Scene();
+	std::unique_ptr<ObjectFactory> m_objectFactory;
+	std::unique_ptr<SpawnMarker> m_spawnMarker;
 	std::weak_ptr<Node> m_selectedNode;
 	std::vector<std::shared_ptr<Node>> m_nodes;
-	std::unique_ptr<ObjectFactory> m_objectFactory;
 
 	void AttachObject(std::unique_ptr<Object>& object);
-	void DrawSceneHierarchy();
-	void UpdateScene();
-	void RenderScene(std::unique_ptr<RenderData> & renderData);
-	void UpdateSelectedNode();
 	void RemoveObject(std::unique_ptr<Object>& object);
+	void DrawSceneHierarchy();
+
+	void UpdateScene();
+	void UpdateSelectedNode();
+	void RenderScene(std::unique_ptr<RenderData> & renderData);
 
 private:
 	void ClearScene();

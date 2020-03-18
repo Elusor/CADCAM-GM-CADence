@@ -49,8 +49,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	auto backBuffer = m_renderData->m_backBuffer.get();
 	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
 
-	m_scene = std::unique_ptr<Scene>(new Scene());
-	m_scene->m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
+	m_scene = std::unique_ptr<Scene>(new Scene());	
 	
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
@@ -135,8 +134,6 @@ void DxApplication::Render()
 void DxApplication::InitImguiWindows()
 {
 
-
-
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{
 		ImGui::Text("Filter scene:");
@@ -156,8 +153,12 @@ void DxApplication::InitImguiWindows()
 			ImGui::Separator();
 			m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
 		}
+		ImGui::Spacing();
 	}
-
+	if (ImGui::CollapsingHeader("Spawn Marker"))
+	{
+		m_scene->m_spawnMarker->CreateParamsGui();
+	}
 	if (ImGui::CollapsingHeader("Transformations"))
 	{
 		ImGui::Text("Center trasformations at:");

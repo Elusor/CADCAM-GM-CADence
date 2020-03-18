@@ -6,7 +6,7 @@ using namespace DirectX;
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2);
 XMFLOAT3 Float3TimesFloat(XMFLOAT3 v1, float a);
 
-Camera::Camera() : Camera(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT2(0.0f, 0.0f), 0, 0, 0, 0, 0)
+Camera::Camera() : Camera(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT2(DirectX::XM_PIDIV2, 0.0f), 0, 0, 0, 0, 0)
 {}
 
 Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT2 rotation, uint32_t width, uint32_t height, float fovAngle, float zNear, float zFar)
@@ -20,7 +20,7 @@ Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT2 rotation, uint32_t w
 	m_zNear = zNear;
 	m_zFar = zFar;
 
-	m_yaw = rotation.x;
+	m_yaw = DirectX::XM_PIDIV2 + rotation.x;
 	m_pitch = rotation.y;
 
 	UpdateUpVector();
@@ -82,7 +82,7 @@ void Camera::ResetCamera()
 {
 	m_pos = XMFLOAT3(0.0f, 0.0f, -30.0f);
 	m_target = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_yaw = 0;
+	m_yaw = DirectX::XM_PIDIV2;
 	m_pitch = 0;
 	UpdateUpVector();
 	RotateCamera(0, 0);

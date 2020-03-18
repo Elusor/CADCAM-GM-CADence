@@ -31,6 +31,12 @@ struct Object {
 	virtual bool CreateParamsGui();
 };
 
+struct SpawnMarker : Object 
+{
+	void RenderObject(std::unique_ptr<RenderData>& renderData) override;
+	bool CreateParamsGui() override;
+};
+
 struct SurfaceObject : Object
 {
 	SurfaceParametrizationParams m_surParams;
