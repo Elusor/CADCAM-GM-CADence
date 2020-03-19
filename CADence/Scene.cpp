@@ -79,23 +79,58 @@ void Scene::DrawNodePopupMenu(const std::shared_ptr<Node> node)
 	}
 
 	ImGui::TreeNodeEx(name, leaf_flags);
+
+	// Process the click of the tree node 
 	if (ImGui::IsItemClicked())
 	{	
 		// If ctrl is not pressed
+		// select only the clicked node
 		if (ImGui::GetIO().KeyCtrl == false)
 		{
+			// clear selected nodes
 			for (int i = 0; i < m_nodes.size(); i++)
 			{
 				m_nodes[i]->m_isSelected = false;
 			}
-			// clear selected nodes
 			m_selectedNodes.clear();
+			
+			// select this node
+			node->m_isSelected = true;
+			std::weak_ptr<Node> weakNode = node;
+			m_selectedNodes.push_back(weakNode);
 		}
-		node->m_isSelected = true;
-	
-		// add node to selected nodes
-		std::weak_ptr<Node> weakNode = node;
-		m_selectedNodes.push_back(weakNode);
+		else 
+		{
+			// Ctrl is pressed
+			// Add not selected node to selection or
+			// Remove selected node from selection
+			if (node->m_isSelected)
+			{
+				// deselect this node and
+				// remove this node from m_selectedNodes
+				node->m_isSelected = false;
+				auto it = m_selectedNodes.begin();
+				while (it != m_selectedNodes.end())
+				{
+					if (auto selectedNode = it->lock())
+					{
+						if (selectedNode->m_object == node->m_object)
+						{
+							it = m_selectedNodes.erase(it);
+							break;
+						}							
+					}
+				}
+			}
+			else
+			{
+				// select this node
+				node->m_isSelected = true;
+				std::weak_ptr<Node> weakNode = node;
+				m_selectedNodes.push_back(weakNode);
+			}
+
+		}
 	}
 
 	// Add unique popup id generator
