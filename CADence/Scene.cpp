@@ -54,7 +54,8 @@ void Scene::DrawScenePopupMenu()
 
 			if (ImGui::MenuItem("Point"))
 			{
-
+				std::unique_ptr<Object> obj = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
+				AttachObject(obj);
 
 			}
 			ImGui::EndMenu();
@@ -118,7 +119,11 @@ void Scene::DrawNodePopupMenu(const std::shared_ptr<Node> node)
 						{
 							it = m_selectedNodes.erase(it);
 							break;
-						}							
+						}
+						else
+						{
+							it++;
+						}
 					}
 				}
 			}
