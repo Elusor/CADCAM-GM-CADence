@@ -43,3 +43,23 @@ std::unique_ptr<SpawnMarker> ObjectFactory::CreateSpawnMarker()
 {	
 	return std::unique_ptr<SpawnMarker>(new SpawnMarker());
 }
+
+std::unique_ptr<Point> ObjectFactory::CreatePoint(Transform transform)
+{
+	Point* p = new Point();
+
+	std::string name = "Point ";
+	if (m_pointCounter > 0)
+	{
+		name =  name + std::to_string(m_pointCounter);
+	}
+
+	p->m_name = name;
+
+	p->m_transform.m_pos = transform.m_pos;
+	p->m_transform.m_rotation = transform.m_rotation;
+	p->m_transform.m_scale = transform.m_scale;
+
+	m_pointCounter++;
+	return std::unique_ptr<Point>(p);
+}

@@ -32,6 +32,12 @@ struct Object {
 	virtual bool CreateParamsGui();
 };
 
+struct Point : Object
+{
+	void RenderObject(std::unique_ptr<RenderData>& renderData, bool selected = false) override;
+	bool CreateParamsGui() override;
+};
+
 struct SpawnMarker : Object 
 {
 	void RenderObject(std::unique_ptr<RenderData>& renderData, bool selected = false) override;
