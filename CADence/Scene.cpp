@@ -23,11 +23,7 @@ void Scene::RemoveObject(std::unique_ptr<Object>& object)
 		{			
 			m_nodes[i]->m_object.reset();
 			m_nodes[i].reset();
-			m_nodes.erase(m_nodes.begin() + i);
-			if (m_selectedNode.expired())
-			{
-				m_selectedNode.reset();
-			}
+			m_nodes.erase(m_nodes.begin() + i);			
 		}
 	}
 }
@@ -41,11 +37,7 @@ void Scene::ClearScene()
 	}
 
 	m_nodes.clear();
-
-	if (m_selectedNode.expired())
-	{
-		m_selectedNode.reset();
-	}
+	m_selectedNodes.clear();
 }
 
 void Scene::DrawScenePopupMenu()
@@ -80,12 +72,32 @@ void Scene::DrawNodePopupMenu(const std::shared_ptr<Node> node)
 {
 	const char* name = node->m_object->m_name.c_str();
 
-	ImGui::TreeNodeEx(name, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+	ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+	if (node->m_isSelected)
+	{
+		leaf_flags |= ImGuiTreeNodeFlags_Selected;
+	}
+
+	ImGui::TreeNodeEx(name, leaf_flags);
 	if (ImGui::IsItemClicked())
 	{	
-		
-		m_selectedNode = node;
+		// If ctrl is not pressed
+		if (ImGui::GetIO().KeyCtrl == false)
+		{
+			for (int i = 0; i < m_nodes.size(); i++)
+			{
+				m_nodes[i]->m_isSelected = false;
+			}
+			// clear selected nodes
+			m_selectedNodes.clear();
+		}
+		node->m_isSelected = true;
+	
+		// add node to selected nodes
+		std::weak_ptr<Node> weakNode = node;
+		m_selectedNodes.push_back(weakNode);
 	}
+
 	// Add unique popup id generator
 	if (ImGui::BeginPopupContextItem(name))
 	{
@@ -124,8 +136,7 @@ void Scene::DrawSceneHierarchy()
 		}		
 
 		ImGui::TreePop();
-	}
-	
+	}	
 }
 
 void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
@@ -134,15 +145,9 @@ void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
 	
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
-		// TODO [MG] : check if this item is currently selected
-		bool isSelected = false;
-		if (auto selected = m_selectedNode.lock())
-		{
-			isSelected = selected == m_nodes[i];
-		}			
-		m_nodes[i]->Render(renderData, isSelected);
-	}
-		
+		// TODO [MG] : check if this item is currently selected		
+		m_nodes[i]->Render(renderData);
+	}		
 }
 
 void Scene::UpdateScene()
@@ -156,17 +161,30 @@ void Scene::UpdateScene()
 }
 
 void Scene::UpdateSelectedNode()
-{
-	if (auto selectedNode = this->m_selectedNode.lock())
-	{
-		if (selectedNode->m_object != nullptr)
-		{
-			bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
+{	
+	// Draw the inspector window
+	// foreach selected node
+	//    Draw section for each node
 
-			if (selectedObjectModified)
+	auto it = m_selectedNodes.begin();
+	while (it != m_selectedNodes.end())
+	{
+		// TODO [MG] : add collapsing headers
+		if (auto selectedNode = it->lock())
+		{
+			if (selectedNode->m_object)
 			{
-				selectedNode->Update();
+				bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
+
+				if (selectedObjectModified)
+				{
+					selectedNode->Update();
+				}
 			}
+			it++;
 		}
+		else {
+			it = m_selectedNodes.erase(it);
+		}		
 	}
 }

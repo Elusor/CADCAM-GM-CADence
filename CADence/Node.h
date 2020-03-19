@@ -8,7 +8,8 @@ class Node
 {
 public:
 	std::unique_ptr<Object> m_object;
+	bool m_isSelected = false;
 
 	void Update();
-	void Render(std::unique_ptr<RenderData> & renderData, bool selected = false);	
+	void Render(std::unique_ptr<RenderData> & renderData);	
 };
