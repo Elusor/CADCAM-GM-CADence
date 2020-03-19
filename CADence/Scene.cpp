@@ -70,89 +70,116 @@ void Scene::DrawScenePopupMenu()
 }
 
 void Scene::DrawNodePopupMenu(const std::shared_ptr<Node> node)
-{
-	const char* name = node->m_object->m_name.c_str();
+{	
+	std::string hashes = "##";
+	std::string labelName = node->m_object->m_name + hashes + node->m_object->m_defaultName;
 
-	ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-	if (node->m_isSelected)
+	if (node->m_isRenamed)
 	{
-		leaf_flags |= ImGuiTreeNodeFlags_Selected;
+		std::string name = "##input";
+
+		int size = 30;
+		char* text = new char[size];
+		memset(text, 0, sizeof(text));
+		node->m_object->m_name.copy(text, node->m_object->m_name.size() + 1);
+		text[node->m_object->m_name.size()] = '\0';
+		bool entered = ImGui::InputText(name.c_str(), text, sizeof(char) * size, ImGuiInputTextFlags_EnterReturnsTrue);
+		ImGui::SetItemDefaultFocus();
+		ImGui::SetKeyboardFocusHere(-1);
+		if (entered)
+		{
+			node->m_object->m_name = text;
+			node->m_isRenamed = false;
+		}	
+		delete [] text;
 	}
-
-	ImGui::TreeNodeEx(name, leaf_flags);
-
-	// Process the click of the tree node 
-	if (ImGui::IsItemClicked())
-	{	
-		// If ctrl is not pressed
-		// select only the clicked node
-		if (ImGui::GetIO().KeyCtrl == false)
+	else
+	{
+		ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		if (node->m_isSelected)
 		{
-			// clear selected nodes
-			for (int i = 0; i < m_nodes.size(); i++)
-			{
-				m_nodes[i]->m_isSelected = false;
-			}
-			m_selectedNodes.clear();
-			
-			// select this node
-			node->m_isSelected = true;
-			std::weak_ptr<Node> weakNode = node;
-			m_selectedNodes.push_back(weakNode);
+			leaf_flags |= ImGuiTreeNodeFlags_Selected;
 		}
-		else 
+		
+
+		ImGui::TreeNodeEx(labelName.c_str(), leaf_flags);
+
+		// Process the click of the tree node 
+		if (ImGui::IsItemClicked())
 		{
-			// Ctrl is pressed
-			// Add not selected node to selection or
-			// Remove selected node from selection
-			if (node->m_isSelected)
+			// If ctrl is not pressed
+			// select only the clicked node
+			if (ImGui::GetIO().KeyCtrl == false)
 			{
-				// deselect this node and
-				// remove this node from m_selectedNodes
-				node->m_isSelected = false;
-				auto it = m_selectedNodes.begin();
-				while (it != m_selectedNodes.end())
+				// clear selected nodes
+				for (int i = 0; i < m_nodes.size(); i++)
 				{
-					if (auto selectedNode = it->lock())
-					{
-						if (selectedNode->m_object == node->m_object)
-						{
-							it = m_selectedNodes.erase(it);
-							break;
-						}
-						else
-						{
-							it++;
-						}
-					}
+					m_nodes[i]->m_isSelected = false;
 				}
-			}
-			else
-			{
+				m_selectedNodes.clear();
+
 				// select this node
 				node->m_isSelected = true;
 				std::weak_ptr<Node> weakNode = node;
 				m_selectedNodes.push_back(weakNode);
 			}
+			else
+			{
+				// Ctrl is pressed
+				// Add not selected node to selection or
+				// Remove selected node from selection
+				if (node->m_isSelected)
+				{
+					// deselect this node and
+					// remove this node from m_selectedNodes
+					node->m_isSelected = false;
+					auto it = m_selectedNodes.begin();
+					while (it != m_selectedNodes.end())
+					{
+						if (auto selectedNode = it->lock())
+						{
+							if (selectedNode->m_object == node->m_object)
+							{
+								it = m_selectedNodes.erase(it);
+								break;
+							}
+							else
+							{
+								it++;
+							}
+						}
+					}
+				}
+				else
+				{
+					// select this node
+					node->m_isSelected = true;
+					std::weak_ptr<Node> weakNode = node;
+					m_selectedNodes.push_back(weakNode);
+				}
 
+			}
+		}
+
+		// Add unique popup id generator
+		if (ImGui::BeginPopupContextItem(labelName.c_str()))
+		{
+
+			if (ImGui::Selectable("Rename object"))
+			{
+				node->m_isRenamed = true;
+				// Trigger a popup for renaming objects - probably check if name is availible through name registry
+			}
+
+			if (ImGui::Selectable("Remove object"))
+			{
+				RemoveObject(node->m_object);
+			}
+
+			ImGui::EndPopup();
 		}
 	}
-
-	// Add unique popup id generator
-	if (ImGui::BeginPopupContextItem(name))
-	{
-		if (ImGui::Selectable("Rename object"))
-		{
-			// Trigger a popup for renaming objects - probably check if name is availible through name registry
-		}
-
-		if (ImGui::Selectable("Remove object"))
-		{
-			RemoveObject(node->m_object);
-		}
-
-		ImGui::EndPopup();
-	}
+	
 }
 
 void Scene::DrawSceneHierarchy()

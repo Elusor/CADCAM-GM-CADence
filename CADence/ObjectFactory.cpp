@@ -10,12 +10,17 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 {	
 	Torus* t = new Torus();
 
+#pragma region CreateObjectName
 	t->m_name = name;
 
 	if (m_torusCounter > 0)
 	{
 		t->m_name = "Torus " + std::to_string(m_torusCounter);
+
 	}
+
+	t->m_defaultName = t->m_name;
+#pragma endregion	
 
 	// Move to a section general for all objects
 	t->m_transform.m_pos = transform.m_pos;
@@ -55,6 +60,7 @@ std::unique_ptr<Point> ObjectFactory::CreatePoint(Transform transform)
 	}
 
 	p->m_name = name;
+	p->m_defaultName = p->m_name;
 
 	p->m_transform.m_pos = transform.m_pos;
 	p->m_transform.m_rotation = transform.m_rotation;

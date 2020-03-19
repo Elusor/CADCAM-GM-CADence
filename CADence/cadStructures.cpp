@@ -16,25 +16,25 @@ bool Object::CreateParamsGui()
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Spacing();
 
-	std::string posX = "Position X##" + m_name;
-	std::string posY = "Position Y##" + m_name;
-	std::string posZ = "Position Z##" + m_name;
+	std::string posX = "Position X##" + m_defaultName;
+	std::string posY = "Position Y##" + m_defaultName;
+	std::string posZ = "Position Z##" + m_defaultName;
 	objectChanged |= ImGui::DragFloat(posX.c_str(), &(m_transform.m_pos.x), dragSpeed, -maxVal, maxVal);
 	objectChanged |= ImGui::DragFloat(posY.c_str(), &(m_transform.m_pos.y), dragSpeed, -maxVal, maxVal);
 	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
 	ImGui::Spacing();
 
-	std::string rotX = "Rotation X##" + m_name;
-	std::string rotY = "Rotation Y##" + m_name;
-	std::string rotZ = "Rotation Z##" + m_name;
+	std::string rotX = "Rotation X##" + m_defaultName;
+	std::string rotY = "Rotation Y##" + m_defaultName;
+	std::string rotZ = "Rotation Z##" + m_defaultName;
 	objectChanged |= ImGui::DragFloat(rotX.c_str(), &(m_transform.m_rotation.x), dragSpeed, -maxVal, maxVal);
 	objectChanged |= ImGui::DragFloat(rotY.c_str(), &(m_transform.m_rotation.y), dragSpeed, -maxVal, maxVal);
 	objectChanged |= ImGui::DragFloat(rotZ.c_str(), &(m_transform.m_rotation.z), dragSpeed, -maxVal, maxVal);
 	ImGui::Spacing();
 
-	std::string scaleX = "Scale X##" + m_name;
-	std::string scaleY = "Scale Y##" + m_name;
-	std::string scaleZ = "Scale Z##" + m_name;
+	std::string scaleX = "Scale X##" + m_defaultName;
+	std::string scaleY = "Scale Y##" + m_defaultName;
+	std::string scaleZ = "Scale Z##" + m_defaultName;
 	objectChanged |= ImGui::DragFloat(scaleX.c_str(), &(m_transform.m_scale.x), dragSpeed, -maxVal, maxVal);
 	objectChanged |= ImGui::DragFloat(scaleY.c_str(), &(m_transform.m_scale.y), dragSpeed, -maxVal, maxVal);
 	objectChanged |= ImGui::DragFloat(scaleZ.c_str(), &(m_transform.m_scale.z), dragSpeed, -maxVal, maxVal);
@@ -48,8 +48,8 @@ bool SurfaceObject::CreateParamsGui()
 	bool objectChanged = Object::CreateParamsGui();
 	bool surfaceObjectChanged = false;
 
-	std::string mainR = "Density X##" + m_name;
-	std::string secR = "Density Y##" + m_name;
+	std::string mainR = "Density X##" + m_defaultName;
+	std::string secR = "Density Y##" + m_defaultName;
 
 	surfaceObjectChanged |= ImGui::SliderInt(mainR.c_str(), &(m_surParams.densityX), m_surParams.minDensityX, m_surParams.maxDensityX);
 	surfaceObjectChanged |= ImGui::SliderInt(secR.c_str(), &(m_surParams.densityY), m_surParams.minDensityY, m_surParams.maxDensityY);
@@ -65,13 +65,12 @@ bool Torus::CreateParamsGui()
 	Torus* torus = this;
 	bool torusChanged = SurfaceObject::CreateParamsGui();
 
-	std::string mainR = "Main radius##" + m_name;
-	std::string secR = "Secondary radius##" + m_name;
+	std::string mainR = "Main radius##" + m_defaultName;
+	std::string secR = "Secondary radius##" + m_defaultName;
 
 	torusChanged |= ImGui::SliderFloat(mainR.c_str(), &(torus->m_bigR), 0.0f, 15.0f);
 	torusChanged |= ImGui::SliderFloat(secR.c_str(), &(torus->m_smallR), 0.0f, 15.0f);
 
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 
 	return torusChanged;
@@ -176,9 +175,9 @@ bool SpawnMarker::CreateParamsGui()
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
 	float maxVal = 1000.0f;
-	objectChanged |= ImGui::DragFloat("Position X", &(m_transform.m_pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat("Position Y", &(m_transform.m_pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat("Position Z", &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat("Position X##SpawnMarker", &(m_transform.m_pos.x), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat("Position Y##SpawnMarker", &(m_transform.m_pos.y), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat("Position Z##SpawnMarker", &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
 	return objectChanged;
 }
 
@@ -235,9 +234,9 @@ bool Point::CreateParamsGui()
 	ImGui::Text("Name: ");
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Spacing();
-	std::string posX = "Position X##" + m_name;
-	std::string posY = "Position Y##" + m_name;
-	std::string posZ = "Position Z##" + m_name;
+	std::string posX = "Position X##" + m_defaultName;
+	std::string posY = "Position Y##" + m_defaultName;
+	std::string posZ = "Position Z##" + m_defaultName;
 	
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
