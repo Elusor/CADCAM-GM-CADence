@@ -7,6 +7,7 @@
 #include "mathStructures.h"
 #include "cadStructures.h"
 #include <DirectXMath.h>
+#include "PointSelector.h"
 
 class DxApplication : public mini::WindowApplication
 {
@@ -22,6 +23,7 @@ private:
 	void InitImguiWindows();
 	void Update();
 
+	std::unique_ptr<PointSelector> m_pSelector;
 	std::unique_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderData> m_renderData;

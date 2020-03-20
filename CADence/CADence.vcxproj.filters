@@ -132,6 +132,9 @@
     <ClInclude Include="Node.h">
       <Filter>Header Files\CadSpecific\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="PointSelector.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="exceptions.cpp">
@@ -201,6 +204,9 @@
       <Filter>Source Files\CadSpecific\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PointSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

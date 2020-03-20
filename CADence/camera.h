@@ -19,8 +19,6 @@ public:
 	void RotateCamera(float dx, float dy);
 	void TranslateCamera(float dx, float dy);
 	void ResizeViewport(float width, float height);
-	
-	
 
 private:	
 	// Calculate view matrix based on the cmaera position and target position

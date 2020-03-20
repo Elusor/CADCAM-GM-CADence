@@ -9,7 +9,7 @@
 #include "Scene.h"
 #include "renderData.h"
 #include "ObjectFactory.h"
-
+#include "PointSelector.h"
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -37,37 +37,39 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 	// init backbuffer
 	ID3D11Texture2D* temp;
-	m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
-	dx_ptr<ID3D11Texture2D> backTexture;
-	backTexture.reset(temp);
+m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
+dx_ptr<ID3D11Texture2D> backTexture;
+backTexture.reset(temp);
 
-	// Create render target view to be able to write on backBuffer
-	m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
+// Create render target view to be able to write on backBuffer
+m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
 
-	// assign depth buffer to RP
-	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
-	auto backBuffer = m_renderData->m_backBuffer.get();
-	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
+// assign depth buffer to RP
+m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
+auto backBuffer = m_renderData->m_backBuffer.get();
+m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
 
-	m_scene = std::unique_ptr<Scene>(new Scene());	
-	
-	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
-	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
+m_scene = std::unique_ptr<Scene>(new Scene());
 
-	m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
-	m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
+const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
+const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
 
-	auto elements = VertexPositionColor::GetInputLayoutElements();
-	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
-	m_renderData->m_cbMVP =  m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
+m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
+m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
 
-	//Setup imGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(this->m_window.getHandle());
-	ImGui_ImplDX11_Init(m_renderData->m_device.m_device.get(),  m_renderData->m_device.m_context.get());
-	ImGui::StyleColorsDark();
+auto elements = VertexPositionColor::GetInputLayoutElements();
+m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
+m_renderData->m_cbMVP = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
+
+m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
+
+//Setup imGui
+IMGUI_CHECKVERSION();
+ImGui::CreateContext();
+ImGuiIO& io = ImGui::GetIO();
+ImGui_ImplWin32_Init(this->m_window.getHandle());
+ImGui_ImplDX11_Init(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_context.get());
+ImGui::StyleColorsDark();
 }
 
 int DxApplication::MainLoop()
@@ -76,28 +78,57 @@ int DxApplication::MainLoop()
 	ZeroMemory(&msg, sizeof msg);
 	do
 	{
-		if (PeekMessage(&msg, nullptr, 0,0, PM_REMOVE))
-		{						
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
 			TranslateMessage(&msg);
-			DispatchMessage(&msg);					
+			DispatchMessage(&msg);
 		}
 		else
-		{						
+		{
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();			
-						
+			ImGui::NewFrame();
+
 			m_camController->ProcessMessage(&ImGui::GetIO());
+
+#pragma region point selection
+
+			bool lDown = ImGui::GetIO().MouseDown[0];
+
+			if (lDown && !ImGui::GetIO().WantCaptureMouse)
+			{
+				auto pos = ImGui::GetIO().MousePos;
+				auto selectedNode = m_pSelector->GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
+				if (auto node = selectedNode.lock())
+				{
+					for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
+					{
+						if (auto nod = m_scene->m_selectedNodes[i].lock())
+						{
+							nod->m_isSelected = false;
+						}
+					}
+					m_scene->m_selectedNodes.clear();
+
+					node->m_isSelected = true;
+					m_scene->m_selectedNodes.push_back(selectedNode);
+				}
+			}
+			
+#pragma endregion
+
+
+
 			InitImguiWindows();
 
-			Clear();		
+			Clear();
 			Update();
 			Render();
 
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-			m_renderData->m_device.m_swapChain.get()->Present(0,0);
+			m_renderData->m_device.m_swapChain.get()->Present(0, 0);
 		}
 	} while (msg.message != WM_QUIT);
 	return msg.wParam;
@@ -119,15 +150,15 @@ void DxApplication::Update()
 }
 
 void DxApplication::Render()
-{		
+{
 	// Lighting/display style dependant (a little bit object dependant)
 	m_renderData->m_device.context()->VSSetShader(m_renderData->m_vertexShader.get(), nullptr, 0);
 	m_renderData->m_device.context()->PSSetShader(m_renderData->m_pixelShader.get(), nullptr, 0);
 
 	// object dependant
 	m_renderData->m_device.context()->IASetInputLayout(m_renderData->m_layout.get());
-	
-	
+
+
 	m_scene->RenderScene(m_renderData);
 }
 

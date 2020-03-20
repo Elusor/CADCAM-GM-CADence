@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="Node.h" />
     <ClInclude Include="ObjectFactory.h" />
+    <ClInclude Include="PointSelector.h" />
     <ClInclude Include="renderData.h" />
     <ClInclude Include="cadStructures.h" />
     <ClInclude Include="camera.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="mathStructures.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="ObjectFactory.cpp" />
+    <ClCompile Include="PointSelector.cpp" />
     <ClCompile Include="renderData.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="torusGenerator.cpp" />
