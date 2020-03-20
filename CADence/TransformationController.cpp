@@ -147,11 +147,11 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 					m_transformer->RotateObject(node->m_object, pivotPos, vec2);
 					break;
 				case TransformationType::Scaling:	
-					if (deltaX != 0)
+					if (deltaY != 0)
 					{
 						DirectX::XMFLOAT3 scaleVector = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);					
 
-						if (deltaX > 0)
+						if (deltaY > 0)
 						{
 							switch (m_coordinate)
 							{

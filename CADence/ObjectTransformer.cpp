@@ -26,10 +26,11 @@ void ObjectTransformer::RotateObject(std::unique_ptr<Object>& object, DirectX::X
 
     // TODO check if the order is right
     auto curRotMatrix = DirectX::XMMatrixRotationRollPitchYawFromVector(curRot);
-    auto completeRot = DirectX::XMMatrixMultiply(rot, curRotMatrix);    
-
+    auto completeRot = DirectX::XMMatrixMultiply(rot, curRotMatrix);        
     //Rotation = (quat * Quaternion.FromEulerAngles(Rotation)).EulerAngles();   
-    //object->m_transform.m_rotation = (Euler)(quat * (quaternion));
+    object->m_transform.m_rotation.x += eulerAngles.x;
+    object->m_transform.m_rotation.y += eulerAngles.y;
+    object->m_transform.m_rotation.z += eulerAngles.z;
 }
 
 void ObjectTransformer::ScaleObject(std::unique_ptr<Object>& object, DirectX::XMFLOAT3 pivot, DirectX::XMFLOAT3 scale)
