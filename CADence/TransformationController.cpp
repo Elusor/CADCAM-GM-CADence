@@ -72,7 +72,7 @@ void TransformationController::SetOperationType(ImGuiIO& imguiIO)
 void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 {
 	DirectX::XMFLOAT3 vect;
-
+	DirectX::XMFLOAT3 scaleVect;
 	float deltaX = 0;
 	float deltaY = 0;
 
@@ -107,14 +107,12 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 	if (m_isCapturingMouse)
 	{
 		auto pos = imguiIO.MousePos;
-		deltaX = pos.x - prevPos.x;
-		deltaY = pos.y - prevPos.y;
+		deltaY = (pos.y - prevPos.y);
 
-		float sensitivity = 1.0f;
-	
-		vect.x *= deltaY * sensitivity;
-		vect.y *= deltaY * sensitivity;
-		vect.z *= deltaY * sensitivity;
+		float sensitivity = 0.5f;
+		float scaleSensitivity = 0.01f;
+		float rotSensitivity = 0.01f;
+		
 
 		DirectX::XMFLOAT3 pivotPos;
 
@@ -127,20 +125,66 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 			pivotPos = m_scene->m_middleMarker->m_transform.m_pos;
 		}
 
+		
+
 		for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
-		{
+		{			
+			DirectX::XMFLOAT3 vec2 = DirectX::XMFLOAT3(vect.x, vect.y, vect.z);
 			if (auto node = m_scene->m_selectedNodes[i].lock())
 			{
 				switch (m_type)
 				{
 				case TransformationType::Translation:
-					m_transformer->TranslateObject(node->m_object, pivotPos, vect);
+					vec2.x *= deltaY * sensitivity;
+					vec2.y *= deltaY * sensitivity;
+					vec2.z *= deltaY * sensitivity;
+					m_transformer->TranslateObject(node->m_object, pivotPos, vec2);
 					break;
 				case TransformationType::Rotation:
-					m_transformer->RotateObject(node->m_object, pivotPos, vect);
+					vec2.x *= deltaY * rotSensitivity;
+					vec2.y *= deltaY * rotSensitivity;
+					vec2.z *= deltaY * rotSensitivity;
+					m_transformer->RotateObject(node->m_object, pivotPos, vec2);
 					break;
-				case TransformationType::Scaling:
-					m_transformer->ScaleObject(node->m_object, pivotPos, vect);
+				case TransformationType::Scaling:	
+					if (deltaX != 0)
+					{
+						DirectX::XMFLOAT3 scaleVector = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);					
+
+						if (deltaX > 0)
+						{
+							switch (m_coordinate)
+							{
+							case AffectedCoordinate::X:
+								scaleVector.x += deltaY * scaleSensitivity;
+								break;
+							case AffectedCoordinate::Y:
+								scaleVector.y += deltaY * scaleSensitivity;
+								break;
+							case AffectedCoordinate::Z:
+								scaleVector.z += deltaY * scaleSensitivity;
+								break;
+							}				
+						}
+						else
+						{
+							switch (m_coordinate)
+							{
+							case AffectedCoordinate::X:
+								scaleVector.x -= -deltaY * scaleSensitivity;
+								break;
+							case AffectedCoordinate::Y:
+								scaleVector.y -= -deltaY * scaleSensitivity;
+								break;
+							case AffectedCoordinate::Z:
+								scaleVector.z -= -deltaY * scaleSensitivity;
+								break;
+							}				
+						}
+											
+						m_transformer->ScaleObject(node->m_object, pivotPos, scaleVector);
+					}
+					
 					break;
 				}
 			}
