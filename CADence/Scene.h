@@ -10,6 +10,7 @@ public:
 	Scene();
 	std::unique_ptr<ObjectFactory> m_objectFactory;
 	std::unique_ptr<SpawnMarker> m_spawnMarker;
+	std::unique_ptr<Object> m_middleMarker;
 	//std::weak_ptr<Node> m_selectedNode;
 	std::vector<std::weak_ptr<Node>> m_selectedNodes;
 	std::vector<std::shared_ptr<Node>> m_nodes;

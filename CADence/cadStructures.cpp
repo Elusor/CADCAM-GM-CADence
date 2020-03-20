@@ -178,12 +178,12 @@ void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData, bool sel
 	renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
 
 	std::vector<VertexPositionColor> vertices{
-		{{-3.0f,0.0f,0.0f},{0.7f,0.7f,0.7f}},
-		{{3.0f,0.0f,0.0f} ,{0.7f,0.7f,0.7f}},
-		{{0.0f,-3.0f,0.0f},{0.7f,0.7f,0.7f}},
-		{{0.0f,3.0f,0.0f}, {0.7f,0.7f,0.7f}},
-		{{0.0f,0.0f,-3.0f},{0.7f,0.7f,0.7f}},
-		{{0.0f,0.0f,3.0f}, {0.7f,0.7f,0.7f}}
+		{{-3.0f,0.0f,0.0f},{0.7f,0.2f,0.2f}},
+		{{3.0f,0.0f,0.0f} ,{0.7f,0.2f,0.2f}},
+		{{0.0f,-3.0f,0.0f},{0.7f,0.2f,0.2f}},
+		{{0.0f,3.0f,0.0f}, {0.7f,0.2f,0.2f}},
+		{{0.0f,0.0f,-3.0f},{0.7f,0.2f,0.2f}},
+		{{0.0f,0.0f,3.0f}, {0.7f,0.2f,0.2f}}
 	};
 
 	std::vector<unsigned short> indices{
@@ -233,13 +233,15 @@ void Point::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
 	ID3D11Buffer* cbs[] = { renderData->m_cbMVP.get() };
 	renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
 
+	float size = 0.2f;
+
 	std::vector<VertexPositionColor> vertices{
-		{{-0.1f,0.0f,0.0f},{1.0f,1.0f,1.0f}},
-		{{ 0.1f,0.0f,0.0f},{1.0f,1.0f,1.0f}},
-		{{0.0f,-0.1f,0.0f},{1.0f,1.0f,1.0f}},
-		{{0.0f, 0.1f,0.0f},{1.0f,1.0f,1.0f}},
-		{{0.0f,0.0f,-0.1f},{1.0f,1.0f,1.0f}},
-		{{0.0f,0.0f, 0.1f},{1.0f,1.0f,1.0f}}
+		{{-size,0.0f,0.0f},{1.0f,1.0f,1.0f}},
+		{{ size,0.0f,0.0f},{1.0f,1.0f,1.0f}},
+		{{0.0f,-size,0.0f},{1.0f,1.0f,1.0f}},
+		{{0.0f, size,0.0f},{1.0f,1.0f,1.0f}},
+		{{0.0f,0.0f,-size},{1.0f,1.0f,1.0f}},
+		{{0.0f,0.0f, size},{1.0f,1.0f,1.0f}}
 	};
 
 	std::vector<unsigned short> indices{

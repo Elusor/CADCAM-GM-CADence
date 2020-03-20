@@ -5,7 +5,8 @@
 class ObjectFactory
 {
 
-public:
+public:	
+
 	std::unique_ptr<Torus> CreateTorus(
 		Transform transform = Transform(),
 		std::string name = "Torus",

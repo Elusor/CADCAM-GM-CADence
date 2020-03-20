@@ -6,6 +6,9 @@ Scene::Scene()
 {
 	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
 	m_spawnMarker = m_objectFactory->CreateSpawnMarker();
+
+	Object* middleMarker = new Object();
+	m_middleMarker = std::unique_ptr<Object>(middleMarker);
 }
 
 void Scene::AttachObject(std::unique_ptr<Object>& object)
@@ -215,6 +218,39 @@ void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
 		// TODO [MG] : check if this item is currently selected		
 		m_nodes[i]->Render(renderData);
 	}		
+
+#pragma region RenderMiddleMarker(std::unique_ptr<RenderData>& renderData, std::vector<std::weak_ptr<Node>> m_selectedNodes)
+
+	if (m_selectedNodes.size() > 0)
+	{
+		int count = m_selectedNodes.size();
+		DirectX::XMVECTOR pos = DirectX::XMVectorZero();				
+	
+		for (int j = 0; j < m_selectedNodes.size(); j++)
+		{
+			if (auto node = m_selectedNodes[j].lock())
+			{
+				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->m_transform.m_pos));
+				pos = DirectX::XMVectorAdd(pos, posj); 
+			}			
+		}			
+
+		float countf = (float) count;
+		
+		DirectX::XMFLOAT3 newPos;
+		DirectX::XMStoreFloat3(&newPos, pos);
+
+		newPos.x /= countf;
+		newPos.y /= countf;
+		newPos.z /= countf;
+
+		m_middleMarker->m_transform.m_pos = newPos;
+		m_middleMarker->RenderCoordinates(renderData);
+	}
+
+#pragma endregion
+
+	
 }
 
 void Scene::UpdateScene()

@@ -1,4 +1,5 @@
 #pragma once
+#include "TransformationController.h"
 #include "Scene.h"
 #include "camera.h"
 #include "CameraController.h"
@@ -23,8 +24,12 @@ private:
 	void InitImguiWindows();
 	void Update();
 
+	// TODO [MG] get this out of here
+	bool m_isTransAroundCursor;
+
+	std::unique_ptr<TransformationController> m_transController;
 	std::unique_ptr<PointSelector> m_pSelector;
-	std::unique_ptr<Scene> m_scene;	
+	std::shared_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderData> m_renderData;
 };

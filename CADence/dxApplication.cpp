@@ -37,39 +37,41 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 	// init backbuffer
 	ID3D11Texture2D* temp;
-m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
-dx_ptr<ID3D11Texture2D> backTexture;
-backTexture.reset(temp);
+	m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
+	dx_ptr<ID3D11Texture2D> backTexture;
+	backTexture.reset(temp);
 
-// Create render target view to be able to write on backBuffer
-m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
+	// Create render target view to be able to write on backBuffer
+	m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
 
-// assign depth buffer to RP
-m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
-auto backBuffer = m_renderData->m_backBuffer.get();
-m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
+	// assign depth buffer to RP
+	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
+	auto backBuffer = m_renderData->m_backBuffer.get();
+	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
 
-m_scene = std::unique_ptr<Scene>(new Scene());
+	m_scene = std::shared_ptr<Scene>(new Scene());
 
-const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
-const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
+	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
+	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
 
-m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
-m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
+	m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
+	m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
 
-auto elements = VertexPositionColor::GetInputLayoutElements();
-m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
-m_renderData->m_cbMVP = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	auto elements = VertexPositionColor::GetInputLayoutElements();
+	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
+	m_renderData->m_cbMVP = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 
-m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
+	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
 
-//Setup imGui
-IMGUI_CHECKVERSION();
-ImGui::CreateContext();
-ImGuiIO& io = ImGui::GetIO();
-ImGui_ImplWin32_Init(this->m_window.getHandle());
-ImGui_ImplDX11_Init(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_context.get());
-ImGui::StyleColorsDark();
+	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
+
+	//Setup imGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(this->m_window.getHandle());
+	ImGui_ImplDX11_Init(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_context.get());
+	ImGui::StyleColorsDark();
 }
 
 int DxApplication::MainLoop()
@@ -89,7 +91,10 @@ int DxApplication::MainLoop()
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
-			m_camController->ProcessMessage(&ImGui::GetIO());
+			m_transController->ProcessInput(ImGui::GetIO());
+			if (m_transController->IsTransforming() == false) {
+				m_camController->ProcessMessage(&ImGui::GetIO());
+			}
 
 #pragma region point selection
 
@@ -167,26 +172,25 @@ void DxApplication::InitImguiWindows()
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{
-		ImGui::Text("Filter scene:");
-		static ImGuiTextFilter filter;
-		filter.Draw();
-		// jesli filter jest pusty to wysweitl liste "lisci"  a jesli nie to zrob normalne DrawSceneHierarchy
-		if (filter.InputBuf[0] != '\0')
-		{
-			//filter 
-		}
-		/*const char* lines[] = { "aaa1.c", "bbb1.c", "ccc1.c", "aaa2.cpp", "bbb2.cpp", "ccc2.cpp", "abc.h", "hello, world" };
-		for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
-			if (filter.PassFilter(lines[i]))
-				ImGui::BulletText("%s", lines[i]);*/
-		else
-		{
-			ImGui::Separator();
-			m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
-		}
+		//ImGui::Text("Filter scene:");
+		//static ImGuiTextFilter filter;
+		//filter.Draw();
+		//if (filter.InputBuf[0] != '\0')
+		//{
+		//	//filter 
+		//}
+		///*const char* lines[] = { "aaa1.c", "bbb1.c", "ccc1.c", "aaa2.cpp", "bbb2.cpp", "ccc2.cpp", "abc.h", "hello, world" };
+		//for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
+		//	if (filter.PassFilter(lines[i]))
+		//		ImGui::BulletText("%s", lines[i]);*/
+		//else
+		//{
+		//	ImGui::Separator();
+		//}
+		m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
 		ImGui::Spacing();
 	}
-	if (ImGui::CollapsingHeader("Spawn Marker"))
+	if (ImGui::CollapsingHeader("Cursor"))
 	{
 		m_scene->m_spawnMarker->CreateParamsGui();
 	}
@@ -194,11 +198,21 @@ void DxApplication::InitImguiWindows()
 	{
 		ImGui::Text("Center trasformations at:");
 		ImGui::Spacing();
-		bool isSceneCenter = true;
-		bool isObjectCenter = false;
-		ImGui::Checkbox("Object center", &isObjectCenter);
+		
+		bool abc;
+		bool notAbc;
+		
+		if (ImGui::Checkbox("Selection center", &abc))
+		{
+			notAbc = !abc;
+			m_isTransAroundCursor = false;
+		}
+		ImGui::Checkbox("Cursor", &notAbc);
+		{			
+			abc = !notAbc;
+			m_isTransAroundCursor = true;
+		}
 
-		ImGui::Checkbox("Scene center", &isSceneCenter);
 	}
 	ImGui::Separator();
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
