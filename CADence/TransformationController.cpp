@@ -12,6 +12,18 @@ TransformationController::TransformationController(std::shared_ptr<Scene> scene)
 	m_coordinate = AffectedCoordinate::NoAC;
 }
 
+void TransformationController::DrawImGUI()
+{
+	if (ImGui::CollapsingHeader("Transformations"))
+	{
+		ImGui::Text("Center trasformations at:");
+		ImGui::Spacing();
+
+		ImGui::Checkbox("Center trasformations at cursor", &(m_transAroundCursor));
+	}
+	ImGui::Separator();
+}
+
 void TransformationController::ProcessInput(ImGuiIO& imguiIO)
 {
 	bool isUsedByImgui = imguiIO.WantCaptureKeyboard || imguiIO.WantCaptureMouse;

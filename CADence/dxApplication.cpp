@@ -96,14 +96,8 @@ void DxApplication::Render()
 void DxApplication::InitImguiWindows()
 {
 	m_scene->DrawSceneGUI();
-	if (ImGui::CollapsingHeader("Transformations"))
-	{
-		ImGui::Text("Center trasformations at:");
-		ImGui::Spacing();
-
-		ImGui::Checkbox("Center trasformations at cursor", &(m_transController->m_transAroundCursor));
-	}
-	ImGui::Separator();
+	// Object Transformer GUI
+	m_transController->DrawGUI();
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
