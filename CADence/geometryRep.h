@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <vector>
+
 struct VertexPositionColor {
 	DirectX::XMFLOAT3 position, color;
 
