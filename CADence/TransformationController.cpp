@@ -12,7 +12,7 @@ TransformationController::TransformationController(std::shared_ptr<Scene> scene)
 	m_coordinate = AffectedCoordinate::NoAC;
 }
 
-void TransformationController::DrawImGUI()
+void TransformationController::DrawGUI()
 {
 	if (ImGui::CollapsingHeader("Transformations"))
 	{

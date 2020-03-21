@@ -32,7 +32,7 @@ public:
 			|| m_coordinate != AffectedCoordinate::NoAC;
 	};
 
-	void DrawImGUI();
+	void DrawGUI();
 	void ProcessInput(ImGuiIO& imguiIO);
 
 	bool m_transAroundCursor = false;

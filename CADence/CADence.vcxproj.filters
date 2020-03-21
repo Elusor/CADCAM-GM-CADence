@@ -19,62 +19,74 @@
     <Filter Include="Source Files\ImGui">
       <UniqueIdentifier>{e053fe1d-b2b1-4d38-8985-9fee343372b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\CadSpecific">
-      <UniqueIdentifier>{93fcc72a-86b3-4b5c-9aa1-add618a514f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\CadSpecific">
-      <UniqueIdentifier>{e06ed4f5-02c0-46d3-854d-ab5fdbcdb140}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\DirectXWrappers">
       <UniqueIdentifier>{a0522e84-fcd9-4d9c-a766-437a93918a6a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\DirectXWrappers">
       <UniqueIdentifier>{240f30a2-59d2-4d2f-ba1a-6913a023ac7a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Cameras">
-      <UniqueIdentifier>{28d17a9b-ae86-4804-9ff7-54edf9c8ce26}</UniqueIdentifier>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{fbda5e69-22fa-4d3e-a44e-759b2227de02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Cameras">
-      <UniqueIdentifier>{c41c185a-5b00-4c63-9b2e-2a1943fd7171}</UniqueIdentifier>
+    <Filter Include="Source Files\Window">
+      <UniqueIdentifier>{f657c6dc-34c1-40c1-a1e5-cec5f7156807}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\CadSpecific\Objects">
-      <UniqueIdentifier>{30d1a074-0afa-4c19-a212-3997076837ae}</UniqueIdentifier>
+    <Filter Include="Header Files\CADence">
+      <UniqueIdentifier>{e06ed4f5-02c0-46d3-854d-ab5fdbcdb140}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\CadSpecific\Objects">
+    <Filter Include="Header Files\CADence\Objects">
       <UniqueIdentifier>{83e84a9b-6edd-452e-afac-fc57eece4385}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\CadSpecific\Scene">
-      <UniqueIdentifier>{13f6de5f-9ca1-4d03-8415-ad13fd5c2160}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\CadSpecific\Scene">
-      <UniqueIdentifier>{36027293-0cd6-40ea-8a7a-64a7cbec1d10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\CadSpecific\Rendering">
-      <UniqueIdentifier>{a787eca8-3878-4295-b431-8979b131fa45}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\CadSpecific\Rendering">
-      <UniqueIdentifier>{1ecfc08e-bd43-4996-bc74-251402b716b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\CadSpecific\Transformations">
-      <UniqueIdentifier>{fc149d2d-c52a-4f47-8b0d-1ef523790a41}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\CadSpecific\Objects\Types">
+    <Filter Include="Header Files\CADence\Objects\Types">
       <UniqueIdentifier>{4b3e2c6d-acfc-433f-a23e-01e44dfbe762}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\CadSpecific\Objects\Concrete">
+    <Filter Include="Header Files\CADence\Objects\Concrete">
       <UniqueIdentifier>{ae029477-b695-4700-9c15-1ba83d315b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CADence\Scene">
+      <UniqueIdentifier>{13f6de5f-9ca1-4d03-8415-ad13fd5c2160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CADence\Rendering">
+      <UniqueIdentifier>{1ecfc08e-bd43-4996-bc74-251402b716b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CADence\Rendering\Concrete">
+      <UniqueIdentifier>{fef8a15d-4210-424a-a503-2be4666fbeb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CADence\Transformations">
+      <UniqueIdentifier>{fc149d2d-c52a-4f47-8b0d-1ef523790a41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence">
+      <UniqueIdentifier>{93fcc72a-86b3-4b5c-9aa1-add618a514f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Objects">
+      <UniqueIdentifier>{30d1a074-0afa-4c19-a212-3997076837ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Objects\Concrete">
+      <UniqueIdentifier>{95778f0d-9bfc-45a7-874f-223fa3fa12ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Objects\Type">
+      <UniqueIdentifier>{2e4221bf-e7bd-4211-a8a9-5290d0434918}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Scene">
+      <UniqueIdentifier>{36027293-0cd6-40ea-8a7a-64a7cbec1d10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Rendering">
+      <UniqueIdentifier>{a787eca8-3878-4295-b431-8979b131fa45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Rendering\Concrete">
+      <UniqueIdentifier>{94917cd1-236b-48c8-ace7-867119503808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Transformations">
+      <UniqueIdentifier>{cccd59b8-efba-40e0-980d-3b9b3e1c3cc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CADence\Cameras">
+      <UniqueIdentifier>{c41c185a-5b00-4c63-9b2e-2a1943fd7171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CADence\Cameras">
+      <UniqueIdentifier>{28d17a9b-ae86-4804-9ff7-54edf9c8ce26}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="exceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="windowApplication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imconfig.h">
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
@@ -99,9 +111,6 @@
     <ClInclude Include="imstb_truetype.h">
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="mathStructures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dxApplication.h">
       <Filter>Header Files\DirectXWrappers</Filter>
     </ClInclude>
@@ -115,94 +124,97 @@
       <Filter>Header Files\DirectXWrappers</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>Header Files\Cameras</Filter>
+      <Filter>Header Files\CADence\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="CameraController.h">
-      <Filter>Header Files\Cameras</Filter>
+      <Filter>Header Files\CADence\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="ObjectFactory.h">
-      <Filter>Header Files\CadSpecific\Objects</Filter>
+      <Filter>Header Files\CADence\Objects</Filter>
     </ClInclude>
     <ClInclude Include="cadStructures.h">
-      <Filter>Header Files\CadSpecific\Objects</Filter>
+      <Filter>Header Files\CADence\Objects</Filter>
     </ClInclude>
     <ClInclude Include="torusGenerator.h">
-      <Filter>Header Files\CadSpecific\Objects</Filter>
+      <Filter>Header Files\CADence\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Header Files\CadSpecific\Scene</Filter>
+      <Filter>Header Files\CADence\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>Header Files\CadSpecific\Objects</Filter>
+      <Filter>Header Files\CADence\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Node.h">
-      <Filter>Header Files\CadSpecific\Scene</Filter>
+      <Filter>Header Files\CADence\Scene</Filter>
     </ClInclude>
     <ClInclude Include="PointSelector.h">
-      <Filter>Header Files\CadSpecific</Filter>
+      <Filter>Header Files\CADence</Filter>
     </ClInclude>
     <ClInclude Include="ObjectTransformer.h">
-      <Filter>Header Files\CadSpecific\Transformations</Filter>
+      <Filter>Header Files\CADence\Transformations</Filter>
     </ClInclude>
     <ClInclude Include="TransformationController.h">
-      <Filter>Header Files\CadSpecific\Transformations</Filter>
-    </ClInclude>
-    <ClInclude Include="InputManager.h">
-      <Filter>Header Files\CadSpecific</Filter>
+      <Filter>Header Files\CADence\Transformations</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+      <Filter>Header Files\CADence\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="CameraRegistry.h">
-      <Filter>Header Files\Cameras</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PointRenderer.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="GizmoRenderer.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="GuiRenderer.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+      <Filter>Header Files\CADence\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="RenderState.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+      <Filter>Header Files\CADence\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MeshObject.h">
-      <Filter>Header Files\CadSpecific\Objects\Types</Filter>
+      <Filter>Header Files\CADence\Objects\Types</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
-      <Filter>Header Files\CadSpecific\Objects\Types</Filter>
+      <Filter>Header Files\CADence\Objects\Types</Filter>
     </ClInclude>
     <ClInclude Include="SurfaceObject.h">
-      <Filter>Header Files\CadSpecific\Objects\Types</Filter>
+      <Filter>Header Files\CADence\Objects\Types</Filter>
     </ClInclude>
     <ClInclude Include="SpawnMarker.h">
-      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+      <Filter>Header Files\CADence\Objects\Concrete</Filter>
     </ClInclude>
     <ClInclude Include="Point.h">
-      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+      <Filter>Header Files\CADence\Objects\Concrete</Filter>
     </ClInclude>
     <ClInclude Include="Torus.h">
-      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+      <Filter>Header Files\CADence\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="windowApplication.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="exceptions.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="GizmoRenderer.h">
+      <Filter>Header Files\CADence\Rendering\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiRenderer.h">
+      <Filter>Header Files\CADence\Rendering\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>Header Files\CADence\Rendering\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="PointRenderer.h">
+      <Filter>Header Files\CADence\Rendering\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryRep.h">
+      <Filter>Header Files\CADence</Filter>
+    </ClInclude>
+    <ClInclude Include="objects.h">
+      <Filter>Header Files\CADence\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="objectTypes.h">
+      <Filter>Header Files\CADence\Objects\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="exceptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windowApplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imgui.cpp">
       <Filter>Source Files\ImGui</Filter>
     </ClCompile>
@@ -231,55 +243,79 @@
       <Filter>Source Files\DirectXWrappers</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>Source Files\Cameras</Filter>
+      <Filter>Source Files\CADence\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="CameraController.cpp">
-      <Filter>Source Files\Cameras</Filter>
-    </ClCompile>
-    <ClCompile Include="mathStructures.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CADence\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="cadStructures.cpp">
-      <Filter>Source Files\CadSpecific\Objects</Filter>
+      <Filter>Source Files\CADence\Objects</Filter>
     </ClCompile>
     <ClCompile Include="ObjectFactory.cpp">
-      <Filter>Source Files\CadSpecific\Objects</Filter>
+      <Filter>Source Files\CADence\Objects</Filter>
     </ClCompile>
     <ClCompile Include="torusGenerator.cpp">
-      <Filter>Source Files\CadSpecific\Objects</Filter>
+      <Filter>Source Files\CADence\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\CadSpecific\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="renderData.cpp">
-      <Filter>Source Files\CadSpecific\Rendering</Filter>
+      <Filter>Source Files\CADence\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>Source Files\CadSpecific\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Node.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PointSelector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectTransformer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CADence\Objects</Filter>
     </ClCompile>
     <ClCompile Include="TransformationController.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CADence\Transformations</Filter>
     </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ObjectTransformer.cpp">
+      <Filter>Source Files\CADence\Transformations</Filter>
+    </ClCompile>
+    <ClCompile Include="PointSelector.cpp">
+      <Filter>Source Files\CADence</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CADence\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderState.cpp">
+      <Filter>Source Files\CADence\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="windowApplication.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="exceptions.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>Source Files\Window</Filter>
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CADence\Rendering\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="PointRenderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CADence\Rendering\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Source Files\CADence\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryRep.cpp">
+      <Filter>Source Files\CADence</Filter>
+    </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>Source Files\CADence\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="SpawnMarker.cpp">
+      <Filter>Source Files\CADence\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="Torus.cpp">
+      <Filter>Source Files\CADence\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshObject.cpp">
+      <Filter>Source Files\CADence\Objects\Type</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\CADence\Objects\Type</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
