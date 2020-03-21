@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include "cadStructures.h"
-#include "torusGenerator.h"
+#include "Torus.h"
+#include "SpawnMarker.h"
+#include "Point.h"
 class ObjectFactory
 {
 

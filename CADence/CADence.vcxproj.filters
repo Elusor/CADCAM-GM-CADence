@@ -58,6 +58,12 @@
     <Filter Include="Header Files\CadSpecific\Transformations">
       <UniqueIdentifier>{fc149d2d-c52a-4f47-8b0d-1ef523790a41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CadSpecific\Objects\Types">
+      <UniqueIdentifier>{4b3e2c6d-acfc-433f-a23e-01e44dfbe762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific\Objects\Concrete">
+      <UniqueIdentifier>{ae029477-b695-4700-9c15-1ba83d315b34}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="exceptions.h">
@@ -126,9 +132,6 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files\CadSpecific\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="renderData.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
@@ -143,6 +146,48 @@
     </ClInclude>
     <ClInclude Include="TransformationController.h">
       <Filter>Header Files\CadSpecific\Transformations</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraRegistry.h">
+      <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="PointRenderer.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="GizmoRenderer.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiRenderer.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderState.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshObject.h">
+      <Filter>Header Files\CadSpecific\Objects\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\CadSpecific\Objects\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="SurfaceObject.h">
+      <Filter>Header Files\CadSpecific\Objects\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnMarker.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="Torus.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -222,6 +267,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TransformationController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PointRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

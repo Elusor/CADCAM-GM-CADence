@@ -1,5 +1,5 @@
 #include "ObjectFactory.h"
-
+#include "torusGenerator.h"
 std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	Transform transform,
 	std::string name,
@@ -9,7 +9,6 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	float maxDensityX, float maxDensityY)
 {	
 	Torus* t = new Torus();
-
 #pragma region CreateObjectName
 	t->m_name = name;
 
@@ -22,14 +21,11 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	t->m_defaultName = t->m_name;
 #pragma endregion	
 
-	// Move to a section general for all objects
-	t->m_transform.m_pos = transform.m_pos;
-	t->m_transform.m_rotation = transform.m_rotation;
-	t->m_transform.m_scale = transform.m_scale;
-
+	// Torus obly
 	t->m_bigR = bigR;
 	t->m_smallR = smallR;
 
+	// Common for parametrized
 	t->m_surParams.densityX = densityX;
 	t->m_surParams.minDensityX = minDensityX;
 	t->m_surParams.maxDensityX = maxDensityX;
@@ -37,6 +33,11 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	t->m_surParams.densityY = densityY;
 	t->m_surParams.minDensityY = minDensityY;
 	t->m_surParams.maxDensityY = maxDensityY;
+
+	// Common for objects
+	t->m_transform.m_pos = transform.m_pos;
+	t->m_transform.m_rotation = transform.m_rotation;
+	t->m_transform.m_scale = transform.m_scale;	
 
 	GetTorusVerticesLineList(t);
 	m_torusCounter++;

@@ -31,6 +31,35 @@ void Scene::RemoveObject(std::unique_ptr<Object>& object)
 	}
 }
 
+void Scene::GetMiddleMarkerCoords()
+{
+	if (m_selectedNodes.size() > 0)
+	{
+		int count = m_selectedNodes.size();
+		DirectX::XMVECTOR pos = DirectX::XMVectorZero();
+
+		for (int j = 0; j < m_selectedNodes.size(); j++)
+		{
+			if (auto node = m_selectedNodes[j].lock())
+			{
+				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->m_transform.m_pos));
+				pos = DirectX::XMVectorAdd(pos, posj);
+			}
+		}
+
+		float countf = (float)count;
+
+		DirectX::XMFLOAT3 newPos;
+		DirectX::XMStoreFloat3(&newPos, pos);
+
+		newPos.x /= countf;
+		newPos.y /= countf;
+		newPos.z /= countf;
+
+		m_middleMarker->m_transform.m_pos = newPos;		
+	}
+}
+
 void Scene::ClearScene()
 {
 	for (int i = 0; i < m_nodes.size(); i++)
@@ -209,7 +238,24 @@ void Scene::DrawSceneHierarchy()
 	}	
 }
 
-void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
+void Scene::DrawSceneGUI()
+{
+	if (ImGui::CollapsingHeader("Hierarchy"))
+	{
+		DrawSceneHierarchy();
+		ImGui::Spacing();
+	}
+	if (ImGui::CollapsingHeader("Cursor"))
+	{
+		m_spawnMarker->CreateParamsGui();
+	}
+}
+
+void Scene::ProcessInput()
+{
+}
+
+void Scene::RenderScene(std::unique_ptr<RenderState>& renderData)
 {
 	m_spawnMarker->RenderObject(renderData);	
 	
@@ -219,38 +265,23 @@ void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
 		m_nodes[i]->Render(renderData);
 	}		
 
-#pragma region RenderMiddleMarker(std::unique_ptr<RenderData>& renderData, std::vector<std::weak_ptr<Node>> m_selectedNodes)
-
 	if (m_selectedNodes.size() > 0)
 	{
-		int count = m_selectedNodes.size();
-		DirectX::XMVECTOR pos = DirectX::XMVectorZero();				
-	
-		for (int j = 0; j < m_selectedNodes.size(); j++)
-		{
-			if (auto node = m_selectedNodes[j].lock())
-			{
-				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->m_transform.m_pos));
-				pos = DirectX::XMVectorAdd(pos, posj); 
-			}			
-		}			
-
-		float countf = (float) count;
-		
-		DirectX::XMFLOAT3 newPos;
-		DirectX::XMStoreFloat3(&newPos, pos);
-
-		newPos.x /= countf;
-		newPos.y /= countf;
-		newPos.z /= countf;
-
-		m_middleMarker->m_transform.m_pos = newPos;
 		m_middleMarker->RenderCoordinates(renderData);
+	}	
+}
+
+std::vector<std::weak_ptr<IRenderable>> Scene::GetItemsToRender()
+{
+
+	std::vector<std::weak_ptr<IRenderable>> result;
+
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		std::weak_ptr<IRenderable> node = m_nodes[i];
 	}
 
-#pragma endregion
-
-	
+	return result;
 }
 
 void Scene::UpdateScene()
@@ -263,7 +294,7 @@ void Scene::UpdateScene()
 	}
 }
 
-void Scene::UpdateSelectedNode()
+void Scene::UpdateSelectedNodes()
 {	
 	// Draw the inspector window
 	// foreach selected node

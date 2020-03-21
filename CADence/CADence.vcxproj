@@ -156,11 +156,20 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CameraRegistry.h" />
+    <ClInclude Include="GizmoRenderer.h" />
+    <ClInclude Include="GuiRenderer.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="MeshObject.h" />
+    <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectFactory.h" />
     <ClInclude Include="ObjectTransformer.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="PointRenderer.h" />
     <ClInclude Include="PointSelector.h" />
-    <ClInclude Include="renderData.h" />
+    <ClInclude Include="RenderState.h" />
     <ClInclude Include="cadStructures.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CameraController.h" />
@@ -178,7 +187,11 @@
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="mathStructures.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SpawnMarker.h" />
+    <ClInclude Include="SurfaceObject.h" />
+    <ClInclude Include="Torus.h" />
     <ClInclude Include="torusGenerator.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformationController.h" />
@@ -199,13 +212,17 @@
     <ClCompile Include="imgui_impl_dx11.cpp" />
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathStructures.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="ObjectFactory.cpp" />
     <ClCompile Include="ObjectTransformer.cpp" />
+    <ClCompile Include="PointRenderer.cpp" />
     <ClCompile Include="PointSelector.cpp" />
     <ClCompile Include="renderData.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="torusGenerator.cpp" />
     <ClCompile Include="Transform.cpp" />

@@ -1,7 +1,7 @@
 #include "Node.h"
 #include "imgui.h"
 
-void Node::Render(std::unique_ptr<RenderData> & renderData)
+void Node::Render(std::unique_ptr<RenderState> & renderData)
 {
 	if (m_object != nullptr)
 	{

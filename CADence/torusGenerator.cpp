@@ -9,7 +9,7 @@ void GetTorusVerticesLineList(Torus* torus)
 	float r = torus->m_smallR;
 
 	SurfaceParametrizationParams* surfaceParams = &(torus->m_surParams);
-	SurfaceVerticesDescription* surfaceDescription = &(torus->m_surVerDesc);
+	VerticesDescription* surfaceDescription = &(torus->m_surVerDesc);
 
 	surfaceDescription->vertices.clear();
 	surfaceDescription->indices.clear();
