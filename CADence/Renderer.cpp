@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "mathStructures.h"
+#include "geometryRep.h"
 #include "windows.h"
 #include "imgui.h"
 #include "imgui_impl_dx11.h"

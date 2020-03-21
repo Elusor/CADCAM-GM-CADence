@@ -3,11 +3,10 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
-#include "mathStructures.h"
+#include "geometryRep.h"
 #include "torusGenerator.h"
 #include "camera.h"
 #include "Scene.h"
-#include "renderData.h"
 #include "ObjectFactory.h"
 #include "PointSelector.h"
 
@@ -91,9 +90,7 @@ void DxApplication::Update()
 }
 
 void DxApplication::Render()
-{
-	auto renderedItems = m_scene->GetItemsToRender();
-	m_renderer->Render(renderedItems);
+{	
 }
 
 void DxApplication::InitImguiWindows()

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "Transform.h"
-#include "mathStructures.h"
+#include "geometryRep.h"
 #include <string>
 
 struct SurfaceParametrizationParams
