@@ -1,10 +1,8 @@
 #include "Renderer.h"
-#include "cadStructures.h"
-
+#include "objects.h"
 #pragma once
 class PointRenderer: Renderer
 {
 public:
-	void Render() override;
 	void RenderPoint(Object* object);
 };

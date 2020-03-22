@@ -2,8 +2,8 @@
 #include "camera.h"
 #include <memory>
 
-class CameraRegistry
+static class CameraRegistry
 {
 public:
-	std::shared_ptr<Camera> currentCamera;
+	static std::shared_ptr<Camera> currentCamera;
 };

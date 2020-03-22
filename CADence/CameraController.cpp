@@ -1,15 +1,15 @@
 #include "CameraController.h"
-CameraController::CameraController() : CameraController(nullptr)
-{}
-
-CameraController::CameraController(std::shared_ptr<Camera> camera)
+#include "CameraRegistry.h"
+CameraController::CameraController()
 {
 	m_captureRot = m_captureTrans = false;
-	m_camera = camera;
 }
 
 void CameraController::ProcessMessage(ImGuiIO* imguiIO)
 {	
+	//TODO: change this
+	m_camera = CameraRegistry::currentCamera;
+
 	float deltaX = 0;
 	float deltaY = 0;
 

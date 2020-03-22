@@ -2,4 +2,5 @@
 
 void SpawnMarker::RenderObject()
 {
+	m_renderer.RenderGizmo(this);
 }

@@ -9,7 +9,7 @@
 #include "Scene.h"
 #include "ObjectFactory.h"
 #include "PointSelector.h"
-
+#include "GlobalRenderState.h"
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -19,11 +19,20 @@ void NewFrame();
 DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
 {
+	CameraRegistry::currentCamera = std::shared_ptr<Camera>(
+		new Camera(
+			DirectX::XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
+			DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
+			DirectX::XMFLOAT2(0.0f, 0.0f), // yaw, pitch
+			m_window.getClientSize().cx,
+			m_window.getClientSize().cy,
+			45.0f, 2.5f, 250.0f)); // fov, zNear, zFar
+
 	m_renderer = unique_ptr<Renderer>(new Renderer(m_window));		
 	m_scene = std::shared_ptr<Scene>(new Scene());
 
-	m_camController = unique_ptr<CameraController>(new CameraController(m_renderState->m_camera));
-	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderState->m_camera));
+	m_camController = unique_ptr<CameraController>(new CameraController());
+	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector());
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
 }
 
@@ -41,6 +50,8 @@ int DxApplication::MainLoop()
 		else
 		{
 			NewFrame();
+
+
 
 #pragma region input
 			m_transController->ProcessInput(ImGui::GetIO());
@@ -77,7 +88,7 @@ int DxApplication::MainLoop()
 			Update();
 			Render();
 			
-			m_renderer->RenderImGUI();
+			GlobalRenderState::RenderImGUI();
 
 		}
 	} while (msg.message != WM_QUIT);
@@ -90,7 +101,8 @@ void DxApplication::Update()
 }
 
 void DxApplication::Render()
-{	
+{
+	m_scene->RenderScene();
 }
 
 void DxApplication::InitImguiWindows()

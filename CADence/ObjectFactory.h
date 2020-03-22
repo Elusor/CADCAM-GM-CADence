@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "cadStructures.h"
+#include "objects.h"
 #include "objects.h"
 
 class ObjectFactory

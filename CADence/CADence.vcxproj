@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="CameraRegistry.h" />
     <ClInclude Include="GizmoRenderer.h" />
+    <ClInclude Include="GlobalRenderState.h" />
     <ClInclude Include="GuiRenderer.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="MeshRenderer.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
     <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="GlobalRenderState.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />

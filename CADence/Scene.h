@@ -1,9 +1,8 @@
 #pragma once
 #include <vector>
-#include "cadStructures.h"
+#include "objects.h"
 #include "Node.h"
 #include "ObjectFactory.h"
-#include "IRenderable.h"
 using namespace std;
 // Maybe split node into GroupingNodes and Objects node, 
 // where grouping nodes are for storing children only and ObjectNodes hold pointers to objects
@@ -24,9 +23,7 @@ public:
 
 	void UpdateScene();
 	void UpdateSelectedNodes();
-	void RenderScene(std::unique_ptr<RenderState> & renderData);
-
-	std::vector<std::weak_ptr<IRenderable>> GetItemsToRender();
+	void RenderScene();
 
 private:
 

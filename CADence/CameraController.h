@@ -7,7 +7,6 @@ class CameraController
 {
 public:
 	CameraController();
-	CameraController(std::shared_ptr<Camera> camera);
 	void ProcessMessage(ImGuiIO * imGuiIO);
 
 private:

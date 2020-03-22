@@ -1,7 +1,14 @@
 #pragma once
 #include "Object.h"
-#include "cadStructures.h"
+#include "objects.h"
 #include "MeshRenderer.h"
+
+struct VerticesDescription
+{
+	D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology;
+	std::vector<VertexPositionColor> vertices;
+	std::vector<unsigned short> indices;
+};
 
 struct MeshObject : Object
 {	

@@ -251,37 +251,21 @@ void Scene::DrawSceneGUI()
 	}
 }
 
-void Scene::ProcessInput()
-{
-}
 
-void Scene::RenderScene(std::unique_ptr<RenderState>& renderData)
+void Scene::RenderScene()
 {
-	m_spawnMarker->RenderObject(renderData);	
+	m_spawnMarker->RenderObject();	
 	
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		// TODO [MG] : check if this item is currently selected		
-		m_nodes[i]->Render(renderData);
+		m_nodes[i]->Render();
 	}		
 
-	if (m_selectedNodes.size() > 0)
+	/*if (m_selectedNodes.size() > 0)
 	{
-		m_middleMarker->RenderCoordinates(renderData);
-	}	
-}
-
-std::vector<std::weak_ptr<IRenderable>> Scene::GetItemsToRender()
-{
-
-	std::vector<std::weak_ptr<IRenderable>> result;
-
-	for (int i = 0; i < m_nodes.size(); i++)
-	{
-		std::weak_ptr<IRenderable> node = m_nodes[i];
-	}
-
-	return result;
+		m_middleMarker->RenderCoordinates();
+	}*/	
 }
 
 void Scene::UpdateScene()

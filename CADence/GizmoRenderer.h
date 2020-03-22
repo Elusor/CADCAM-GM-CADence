@@ -1,10 +1,9 @@
 #pragma once
 #include "Renderer.h"
-#include "cadStructures.h"
+#include "objects.h"
 
 class GizmoRenderer: Renderer
 {
 public:
-	void Render() override;
 	void RenderGizmo(Object* object);
 };

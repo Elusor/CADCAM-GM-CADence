@@ -4,6 +4,7 @@
 
 struct Point : Object
 {
+	PointRenderer m_renderer;
 	void RenderObject() override;
 	bool CreateParamsGui() override;
 };

@@ -1,15 +1,19 @@
 #include "PointSelector.h"
+#include "CameraRegistry.h"
 #include <direct.h>
 
 using namespace DirectX;
 
-PointSelector::PointSelector(std::shared_ptr<Camera> camera)
-{
-	m_camera = camera;
+PointSelector::PointSelector()
+{	
 }
 
 std::weak_ptr<Node> PointSelector::GetNearestPoint(int mouseX, int mouseY, std::vector<std::shared_ptr<Node>> nodes, int width , int height, float radius)
 {	
+
+	//TODO remove this
+	m_camera = CameraRegistry::currentCamera;
+
 	XMMATRIX VP = m_camera->GetViewProjectionMatrix();
 	
 	float minDist = FLT_MAX;

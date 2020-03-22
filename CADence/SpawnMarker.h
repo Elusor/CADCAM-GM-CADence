@@ -4,6 +4,8 @@
 
 struct SpawnMarker : Object
 {
+	GizmoRenderer m_renderer;
+
 	void RenderObject() override;
 	bool CreateParamsGui() override;
 };

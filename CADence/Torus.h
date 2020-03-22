@@ -7,5 +7,5 @@ struct Torus : SurfaceObject
 	float m_smallR;
 
 	bool CreateParamsGui() override;
-	void UpdateObject() override;
+	void UpdateObject();
 };

@@ -6,7 +6,7 @@
 class PointSelector
 {
 public:	
-	explicit PointSelector(std::shared_ptr<Camera> camera);
+	PointSelector();
 
 	std::weak_ptr<Node> GetNearestPoint(int mouseX, int mouseY, std::vector<std::shared_ptr<Node>> nodes, int w, int h, float radius);
 private:

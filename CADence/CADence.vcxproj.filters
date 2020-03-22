@@ -213,6 +213,9 @@
     <ClInclude Include="objectTypes.h">
       <Filter>Header Files\CADence\Objects\Types</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalRenderState.h">
+      <Filter>Header Files\CADence\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -316,6 +319,9 @@
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Source Files\CADence\Objects\Type</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalRenderState.cpp">
+      <Filter>Source Files\CADence\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

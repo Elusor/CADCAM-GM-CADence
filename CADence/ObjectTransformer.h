@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
-
-#include "cadStructures.h"
+#include "objects.h"
 
 class ObjectTransformer
 {

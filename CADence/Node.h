@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include "cadStructures.h"
+#include "objects.h"
 #include <memory>
-
+#include "objects.h"
 // Represents a hierarchy node used to represent objects in the scene
 class Node
 {
