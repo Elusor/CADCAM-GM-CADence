@@ -27,21 +27,21 @@ struct Object {
 	std::string m_name = "";
 	std::string m_defaultName = "";
 	Transform m_transform;	
-	virtual void RenderObject(std::unique_ptr<RenderData> & renderData, bool selected = false);
-	virtual void RenderCoordinates(std::unique_ptr<RenderData>& renderData, bool selected = false );
+	virtual void RenderObject(std::unique_ptr<RenderData> & renderData);
+	virtual void RenderCoordinates(std::unique_ptr<RenderData>& renderData);
 	virtual void UpdateObject();
 	virtual bool CreateParamsGui();
 };
 
 struct Point : Object
 {
-	void RenderObject(std::unique_ptr<RenderData>& renderData, bool selected = false) override;
+	void RenderObject(std::unique_ptr<RenderData>& renderData) override;
 	bool CreateParamsGui() override;
 };
 
 struct SpawnMarker : Object 
 {
-	void RenderObject(std::unique_ptr<RenderData>& renderData, bool selected = false) override;
+	void RenderObject(std::unique_ptr<RenderData>& renderData) override;
 	bool CreateParamsGui() override;
 };
 
@@ -51,7 +51,7 @@ struct SurfaceObject : Object
 	SurfaceVerticesDescription m_surVerDesc;
 
 	bool CreateParamsGui() override;
-	void RenderObject(std::unique_ptr<RenderData> & renderData, bool selected = false) override;
+	void RenderObject(std::unique_ptr<RenderData> & renderData) override;
 };
 
 struct Torus : SurfaceObject 

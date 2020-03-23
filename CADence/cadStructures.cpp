@@ -15,7 +15,7 @@ bool Object::CreateParamsGui()
 	ImGui::Text("Name: ");
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Spacing();
-
+	
 	std::string posX = "Position X##" + m_defaultName;
 	std::string posY = "Position Y##" + m_defaultName;
 	std::string posZ = "Position Z##" + m_defaultName;
@@ -76,7 +76,7 @@ bool Torus::CreateParamsGui()
 	return torusChanged;
 }
 
-void Object::RenderCoordinates(std::unique_ptr<RenderData>& renderData, bool selected)
+void Object::RenderCoordinates(std::unique_ptr<RenderData>& renderData)
 {
 	//Update content to fill constant buffer
 	D3D11_MAPPED_SUBRESOURCE res;
@@ -121,11 +121,11 @@ void Object::RenderCoordinates(std::unique_ptr<RenderData>& renderData, bool sel
 	renderData->m_device.context()->DrawIndexed(6, 0, 0);
 }
 
-void Object::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
+void Object::RenderObject(std::unique_ptr<RenderData>& renderData)
 {
 }
 
-void SurfaceObject::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
+void SurfaceObject::RenderObject(std::unique_ptr<RenderData>& renderData)
 {
 
 	renderData->m_device.context()->IASetPrimitiveTopology(m_surVerDesc.m_primitiveTopology);
@@ -165,7 +165,7 @@ void Torus::UpdateObject()
 	GetTorusVerticesLineList(this);
 }
 
-void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
+void SpawnMarker::RenderObject(std::unique_ptr<RenderData>& renderData)
 {
 	//Update content to fill constant buffer
 	D3D11_MAPPED_SUBRESOURCE res;
@@ -221,7 +221,7 @@ bool SpawnMarker::CreateParamsGui()
 	return objectChanged;
 }
 
-void Point::RenderObject(std::unique_ptr<RenderData>& renderData, bool selected)
+void Point::RenderObject(std::unique_ptr<RenderData>& renderData)
 {
 	//Update content to fill constant buffer
 	D3D11_MAPPED_SUBRESOURCE res;

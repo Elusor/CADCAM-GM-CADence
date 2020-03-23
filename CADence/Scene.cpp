@@ -74,114 +74,6 @@ void Scene::DrawScenePopupMenu()
 
 void Scene::DrawNodePopupMenu(const std::shared_ptr<Node> node)
 {	
-	std::string hashes = "##";
-	std::string labelName = node->m_object->m_name + hashes + node->m_object->m_defaultName;
-
-	if (node->m_isRenamed)
-	{
-		std::string name = "##input";
-
-		int size = 30;
-		char* text = new char[size];
-		memset(text, 0, sizeof(text));
-		node->m_object->m_name.copy(text, node->m_object->m_name.size() + 1);
-		text[node->m_object->m_name.size()] = '\0';
-		bool entered = ImGui::InputText(name.c_str(), text, sizeof(char) * size, ImGuiInputTextFlags_EnterReturnsTrue);
-		ImGui::SetItemDefaultFocus();
-		ImGui::SetKeyboardFocusHere(-1);
-		if (entered)
-		{
-			node->m_object->m_name = text;
-			node->m_isRenamed = false;
-		}	
-		delete [] text;
-	}
-	else
-	{
-		ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		if (node->m_isSelected)
-		{
-			leaf_flags |= ImGuiTreeNodeFlags_Selected;
-		}
-		
-
-		ImGui::TreeNodeEx(labelName.c_str(), leaf_flags);
-
-		// Process the click of the tree node 
-		if (ImGui::IsItemClicked())
-		{
-			// If ctrl is not pressed
-			// select only the clicked node
-			if (ImGui::GetIO().KeyCtrl == false)
-			{
-				// clear selected nodes
-				for (int i = 0; i < m_nodes.size(); i++)
-				{
-					m_nodes[i]->m_isSelected = false;
-				}
-				m_selectedNodes.clear();
-
-				// select this node
-				node->m_isSelected = true;
-				std::weak_ptr<Node> weakNode = node;
-				m_selectedNodes.push_back(weakNode);
-			}
-			else
-			{
-				// Ctrl is pressed
-				// Add not selected node to selection or
-				// Remove selected node from selection
-				if (node->m_isSelected)
-				{
-					// deselect this node and
-					// remove this node from m_selectedNodes
-					node->m_isSelected = false;
-					auto it = m_selectedNodes.begin();
-					while (it != m_selectedNodes.end())
-					{
-						if (auto selectedNode = it->lock())
-						{
-							if (selectedNode->m_object == node->m_object)
-							{
-								it = m_selectedNodes.erase(it);
-								break;
-							}
-							else
-							{
-								it++;
-							}
-						}
-					}
-				}
-				else
-				{
-					// select this node
-					node->m_isSelected = true;
-					std::weak_ptr<Node> weakNode = node;
-					m_selectedNodes.push_back(weakNode);
-				}
-
-			}
-		}
-
-		// Add unique popup id generator
-		if (ImGui::BeginPopupContextItem(labelName.c_str()))
-		{
-
-			if (ImGui::Selectable("Rename object"))
-			{
-				node->m_isRenamed = true;
-				// Trigger a popup for renaming objects - probably check if name is availible through name registry
-			}
-
-			if (ImGui::Selectable("Remove object"))
-			{
-				RemoveObject(node->m_object);
-			}
-
-			ImGui::EndPopup();
-		}
-	}
 	
 }
 
@@ -197,7 +89,8 @@ void Scene::DrawSceneHierarchy()
 		{
 			for (int i = 0; i < m_nodes.size(); i++)
 			{
-				DrawNodePopupMenu(m_nodes[i]);
+				m_nodes[i]->DrawNodeGUI(*this);
+				//DrawNodePopupMenu(m_nodes[i]);
 			}
 		}
 		else 
@@ -207,6 +100,69 @@ void Scene::DrawSceneHierarchy()
 
 		ImGui::TreePop();
 	}	
+}
+
+void Scene::SelectionChanged(Node& node)
+{
+	// If ctrl is not pressed
+	// select only the clicked node
+	if (ImGui::GetIO().KeyCtrl == false)
+	{
+
+		std::weak_ptr<Node> weakNode;
+		// clear selected nodes
+		for (int i = 0; i < m_nodes.size(); i++)
+		{
+			if (m_nodes[i]->m_object == node.m_object)
+			{
+				weakNode = m_nodes[i];
+			}
+			m_nodes[i]->m_isSelected = false;
+		}
+		m_selectedNodes.clear();
+
+		
+		// select this node
+		node.m_isSelected = true;		
+		m_selectedNodes.push_back(weakNode);
+	}
+	else
+	{
+		// Ctrl is pressed
+		// Add not selected node to selection or
+		// Remove selected node from selection
+		if (node.m_isSelected)
+		{
+			// deselect this node and
+			// remove this node from m_selectedNodes
+			node.m_isSelected = false;
+			auto it = m_selectedNodes.begin();
+			while (it != m_selectedNodes.end())
+			{
+				if (auto selectedNode = it->lock())
+				{
+					if (selectedNode->m_object == node.m_object)
+					{
+						it = m_selectedNodes.erase(it);
+						break;
+					}
+					else
+					{
+						it++;
+					}
+				}
+			}
+		}
+		else
+		{
+			// select this node
+			node.m_isSelected = true;
+			std::shared_ptr<Node> sharedNode = std::shared_ptr<Node>(&node);
+			std::weak_ptr<Node> weakNode = sharedNode;
+			m_selectedNodes.push_back(weakNode);
+		}
+
+	}
 }
 
 void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)

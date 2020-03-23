@@ -19,6 +19,8 @@ public:
 	void RemoveObject(std::unique_ptr<Object>& object);
 	void DrawSceneHierarchy();
 
+	void SelectionChanged(Node& node);
+
 	void UpdateScene();
 	void UpdateSelectedNode();
 	void RenderScene(std::unique_ptr<RenderData> & renderData);
