@@ -1,5 +1,6 @@
-#include "mathStructures.h"
 #include <vector>
+#include <d3d11.h>
+#include "vertexStructures.h"
 
 std::vector<D3D11_INPUT_ELEMENT_DESC> VertexPositionColor::GetInputLayoutElements()
 {

@@ -3,9 +3,9 @@
 #include "camera.h"
 #include "window.h"
 // Used to pass render data to objects so they can be drawn independently
-struct RenderData
+struct RenderState
 {
-	RenderData(mini::Window& window);
+	RenderState(mini::Window& window);
 
 	std::shared_ptr<Camera> m_camera;
 	DxDevice m_device;

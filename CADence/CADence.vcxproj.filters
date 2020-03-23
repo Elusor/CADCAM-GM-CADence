@@ -58,17 +58,35 @@
     <Filter Include="Header Files\CadSpecific\Transformations">
       <UniqueIdentifier>{fc149d2d-c52a-4f47-8b0d-1ef523790a41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CadSpecific\Objects\Concrete">
+      <UniqueIdentifier>{bcc0128d-b049-4072-b3a6-9d856081a344}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific\Objects\Type">
+      <UniqueIdentifier>{f7b28fb0-e130-4ee9-86e1-da901c9ebd9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CadSpecific\Objects\Concrete">
+      <UniqueIdentifier>{8617ad55-22b5-45a3-b791-70bb8bf72828}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CadSpecific\Objects\Type">
+      <UniqueIdentifier>{dd8e5719-2828-45ab-bb03-2121307b64b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific\Utils">
+      <UniqueIdentifier>{ce83cfe3-6f1f-4f53-845a-c9aa45959e6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CadSpecific\Utils">
+      <UniqueIdentifier>{02257dfc-a3ad-446e-8e09-69de375396a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CadSpecific\Transformations">
+      <UniqueIdentifier>{70c12690-e663-49a3-a7de-67afcd573826}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Window">
+      <UniqueIdentifier>{03b773ca-2bc0-4127-bfb9-0b2e6517b08d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{b2e3d4f5-709d-48fc-bfe8-234f8caee353}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="exceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="windowApplication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imconfig.h">
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
@@ -93,9 +111,6 @@
     <ClInclude Include="imstb_truetype.h">
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="mathStructures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dxApplication.h">
       <Filter>Header Files\DirectXWrappers</Filter>
     </ClInclude>
@@ -117,17 +132,11 @@
     <ClInclude Include="ObjectFactory.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="cadStructures.h">
-      <Filter>Header Files\CadSpecific\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="torusGenerator.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Header Files\CadSpecific\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="renderData.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
@@ -144,20 +153,44 @@
     <ClInclude Include="TransformationController.h">
       <Filter>Header Files\CadSpecific\Transformations</Filter>
     </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\CadSpecific\Objects\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshObject.h">
+      <Filter>Header Files\CadSpecific\Objects\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="Torus.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnMarker.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="ParametrizedObject2D.h">
+      <Filter>Header Files\CadSpecific\Objects\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="renderState.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="objects.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="vertexStructures.h">
+      <Filter>Header Files\CadSpecific\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="exceptions.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="windowApplication.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="exceptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windowApplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imgui.cpp">
       <Filter>Source Files\ImGui</Filter>
     </ClCompile>
@@ -191,12 +224,6 @@
     <ClCompile Include="CameraController.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
-    <ClCompile Include="mathStructures.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cadStructures.cpp">
-      <Filter>Source Files\CadSpecific\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectFactory.cpp">
       <Filter>Source Files\CadSpecific\Objects</Filter>
     </ClCompile>
@@ -206,22 +233,55 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files\CadSpecific\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="renderData.cpp">
-      <Filter>Source Files\CadSpecific\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files\CadSpecific\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Node.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Torus.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
-    <ClCompile Include="PointSelector.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Node.cpp">
+      <Filter>Source Files\CadSpecific\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Type</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshObject.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Type</Filter>
+    </ClCompile>
+    <ClCompile Include="ParametrizedObject2D.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Type</Filter>
+    </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="SpawnMarker.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="renderState.cpp">
+      <Filter>Source Files\CadSpecific\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="vertexStructures.cpp">
+      <Filter>Source Files\CadSpecific\Utils</Filter>
     </ClCompile>
     <ClCompile Include="ObjectTransformer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Transformations</Filter>
     </ClCompile>
     <ClCompile Include="TransformationController.cpp">
+      <Filter>Source Files\CadSpecific\Transformations</Filter>
+    </ClCompile>
+    <ClCompile Include="PointSelector.cpp">
+      <Filter>Source Files\CadSpecific</Filter>
+    </ClCompile>
+    <ClCompile Include="exceptions.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="windowApplication.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

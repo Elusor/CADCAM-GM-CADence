@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include "Scene.h"
 
-void Node::Render(std::unique_ptr<RenderData> & renderData)
+void Node::Render(std::unique_ptr<RenderState> & renderData)
 {
 	if (m_object != nullptr)
 	{
@@ -67,7 +67,6 @@ void Node::DrawNodeGUI(Scene& scene)
 			ImGui::EndPopup();
 		}
 	}
-
 }
 
 void Node::Update()

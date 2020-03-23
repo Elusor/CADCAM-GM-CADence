@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
-#include "cadStructures.h"
 #include <memory>
-
+#include "objects.h"
 class Scene;
 
 // Represents a hierarchy node used to represent objects in the scene
@@ -17,5 +16,5 @@ public:
 	void DrawNodeGUI(Scene& scene);
 
 	void Update();
-	void Render(std::unique_ptr<RenderData> & renderData);	
+	void Render(std::unique_ptr<RenderState> & renderData);	
 };

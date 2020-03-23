@@ -157,22 +157,29 @@ void Scene::SelectionChanged(Node& node)
 		{
 			// select this node
 			node.m_isSelected = true;
-			std::shared_ptr<Node> sharedNode = std::shared_ptr<Node>(&node);
-			std::weak_ptr<Node> weakNode = sharedNode;
+			std::weak_ptr<Node> weakNode;
+			// clear selected nodes
+			for (int i = 0; i < m_nodes.size(); i++)
+			{
+				if (m_nodes[i]->m_object == node.m_object)
+				{
+					weakNode = m_nodes[i];
+				}
+			}
 			m_selectedNodes.push_back(weakNode);
 		}
 
 	}
 }
 
-void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
+void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 {
-	m_spawnMarker->RenderObject(renderData);	
+	m_spawnMarker->RenderObject(renderState);	
 	
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		// TODO [MG] : check if this item is currently selected		
-		m_nodes[i]->Render(renderData);
+		m_nodes[i]->Render(renderState);
 	}		
 
 #pragma region RenderMiddleMarker(std::unique_ptr<RenderData>& renderData, std::vector<std::weak_ptr<Node>> m_selectedNodes)
@@ -201,7 +208,7 @@ void Scene::RenderScene(std::unique_ptr<RenderData>& renderData)
 		newPos.z /= countf;
 
 		m_middleMarker->m_transform.m_pos = newPos;
-		m_middleMarker->RenderCoordinates(renderData);
+		m_middleMarker->RenderCoordinates(renderState);
 	}
 
 #pragma endregion

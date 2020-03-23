@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "cadStructures.h"
+#include "objects.h"
 #include "Node.h"
 #include "ObjectFactory.h"
 // Maybe split node into GroupingNodes and Objects node, 
@@ -23,7 +23,7 @@ public:
 
 	void UpdateScene();
 	void UpdateSelectedNode();
-	void RenderScene(std::unique_ptr<RenderData> & renderData);
+	void RenderScene(std::unique_ptr<RenderState> & renderData);
 
 private:
 	void ClearScene();

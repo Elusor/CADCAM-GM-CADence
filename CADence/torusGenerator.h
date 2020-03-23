@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <math.h>
-#include "mathStructures.h"
-#include "cadStructures.h"
+#include "objects.h"
+#include "vertexStructures.h"
 
 VertexPositionColor CalculateTorusVertex(float bigR, float smallR, float bigRRot, float smallRRot,float colorFrac);
 void GetTorusVerticesLineList(Torus* torus);

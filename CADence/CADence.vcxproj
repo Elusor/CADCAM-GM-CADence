@@ -156,12 +156,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectFactory.h" />
+    <ClInclude Include="objects.h" />
     <ClInclude Include="ObjectTransformer.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="PointSelector.h" />
-    <ClInclude Include="renderData.h" />
-    <ClInclude Include="cadStructures.h" />
+    <ClInclude Include="renderState.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="dxApplication.h" />
@@ -177,8 +180,11 @@
     <ClInclude Include="imstb_rectpack.h" />
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
-    <ClInclude Include="mathStructures.h" />
+    <ClInclude Include="vertexStructures.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SpawnMarker.h" />
+    <ClInclude Include="ParametrizedObject2D.h" />
+    <ClInclude Include="Torus.h" />
     <ClInclude Include="torusGenerator.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformationController.h" />
@@ -186,7 +192,6 @@
     <ClInclude Include="windowApplication.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cadStructures.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="dxApplication.cpp" />
@@ -200,13 +205,19 @@
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mathStructures.cpp" />
+    <ClCompile Include="vertexStructures.cpp" />
+    <ClCompile Include="MeshObject.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectFactory.cpp" />
     <ClCompile Include="ObjectTransformer.cpp" />
+    <ClCompile Include="ParametrizedObject2D.cpp" />
+    <ClCompile Include="Point.cpp" />
     <ClCompile Include="PointSelector.cpp" />
-    <ClCompile Include="renderData.cpp" />
+    <ClCompile Include="renderState.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SpawnMarker.cpp" />
+    <ClCompile Include="Torus.cpp" />
     <ClCompile Include="torusGenerator.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformationController.cpp" />

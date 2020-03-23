@@ -18,12 +18,10 @@ enum AffectedCoordinate
 	NoAC
 };
 
-
 class TransformationController
 {
 public:
-
-	explicit TransformationController(std::shared_ptr<Scene> scene);
+	bool m_transAroundCursor = false;
 
 	bool IsTransforming()
 	{
@@ -32,13 +30,10 @@ public:
 			|| m_coordinate != AffectedCoordinate::NoAC;
 	};
 
+	explicit TransformationController(std::shared_ptr<Scene> scene);
 	void ProcessInput(ImGuiIO& imguiIO);
 
-	bool m_transAroundCursor = false;
-
-private:
-
-	
+private:	
 	ImVec2 prevPos;
 	bool m_isCapturingMouse;
 	std::shared_ptr<Scene> m_scene;
@@ -48,10 +43,4 @@ private:
 
 	void SetOperationType(ImGuiIO& imguiIO);
 	void ProcessMouse(ImGuiIO& imguiIO);
-
-
-
-	
-
 };
-

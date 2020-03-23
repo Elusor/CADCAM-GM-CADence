@@ -8,8 +8,8 @@ void GetTorusVerticesLineList(Torus* torus)
 	float R = torus->m_bigR;
 	float r = torus->m_smallR;
 
-	SurfaceParametrizationParams* surfaceParams = &(torus->m_surParams);
-	SurfaceVerticesDescription* surfaceDescription = &(torus->m_surVerDesc);
+	Parametrization2DArguments* surfaceParams = &(torus->m_surParams);
+	MeshDescription* surfaceDescription = &(torus->m_meshDesc);
 
 	surfaceDescription->vertices.clear();
 	surfaceDescription->indices.clear();
@@ -23,7 +23,7 @@ void GetTorusVerticesLineList(Torus* torus)
 	float bigRotStep = maxRotMainRadius / densityX;
 	float smallRotStep = maxRotSmallRadius / densityY;
 
-	torus->m_surVerDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+	torus->m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
 	std::vector<VertexPositionColor> vertices;
 	

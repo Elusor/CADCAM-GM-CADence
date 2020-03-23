@@ -3,11 +3,11 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
-#include "mathStructures.h"
+#include "vertexStructures.h"
 #include "torusGenerator.h"
 #include "camera.h"
 #include "Scene.h"
-#include "renderData.h"
+#include "renderState.h"
 #include "ObjectFactory.h"
 #include "PointSelector.h"
 using namespace mini;
@@ -18,7 +18,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
 {
 	// init viewport
-	m_renderData = unique_ptr<RenderData>(new RenderData(m_window));
+	m_renderData = unique_ptr<RenderState>(new RenderState(m_window));
 	SIZE wndSize = m_window.getClientSize();
 	Viewport viewport{ wndSize };
 	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
@@ -172,23 +172,8 @@ void DxApplication::InitImguiWindows()
 {
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
-	{
-		//ImGui::Text("Filter scene:");
-		//static ImGuiTextFilter filter;
-		//filter.Draw();
-		//if (filter.InputBuf[0] != '\0')
-		//{
-		//	//filter 
-		//}
-		///*const char* lines[] = { "aaa1.c", "bbb1.c", "ccc1.c", "aaa2.cpp", "bbb2.cpp", "ccc2.cpp", "abc.h", "hello, world" };
-		//for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
-		//	if (filter.PassFilter(lines[i]))
-		//		ImGui::BulletText("%s", lines[i]);*/
-		//else
-		//{
-		//	ImGui::Separator();
-		//}
-		m_scene->DrawSceneHierarchy(); //TODO [MG]: Get selected Node from this somehow				
+	{		
+		m_scene->DrawSceneHierarchy();
 		ImGui::Spacing();
 	}
 	if (ImGui::CollapsingHeader("Cursor"))

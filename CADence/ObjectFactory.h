@@ -1,12 +1,11 @@
 #pragma once
 #include <string>
-#include "cadStructures.h"
+#include "objects.h"
 #include "torusGenerator.h"
 class ObjectFactory
 {
 
 public:	
-
 	std::unique_ptr<Torus> CreateTorus(
 		Transform transform = Transform(),
 		std::string name = "Torus",
