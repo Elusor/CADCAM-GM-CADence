@@ -158,7 +158,6 @@ void Scene::SelectionChanged(Node& node)
 			// select this node
 			node.m_isSelected = true;
 			std::weak_ptr<Node> weakNode;
-			// clear selected nodes
 			for (int i = 0; i < m_nodes.size(); i++)
 			{
 				if (m_nodes[i]->m_object == node.m_object)
