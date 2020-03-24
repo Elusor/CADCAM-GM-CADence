@@ -294,7 +294,7 @@
       <Filter>Source Files\CadSpecific\Scene</Filter>
     </ClCompile>
     <ClCompile Include="BezierCurve.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
