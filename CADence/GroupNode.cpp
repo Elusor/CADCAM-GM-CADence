@@ -7,6 +7,11 @@ GroupNode::GroupNode(std::vector<std::weak_ptr<Node>> children)
 	m_children = children;
 }
 
+void GroupNode::AddChild(std::weak_ptr<Node> child)
+{
+	m_children.push_back(child);
+}
+
 void GroupNode::DrawNodeGUI(Scene& scene)
 {
 	std::string hashes = "##";

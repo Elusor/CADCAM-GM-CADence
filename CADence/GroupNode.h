@@ -9,9 +9,10 @@ struct GroupNode : Node
 public:
 	explicit GroupNode(std::vector<std::weak_ptr<Node>> m_children);
 	// Vector Of Dummy Nodes?
-	std::vector<std::weak_ptr<Node>> m_children;
 
+	void AddChild(std::weak_ptr<Node> child);
 	void DrawNodeGUI(Scene& scene) override;
 private:
+	std::vector<std::weak_ptr<Node>> m_children;
 	void DrawChildGUI();
 };

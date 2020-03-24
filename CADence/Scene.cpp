@@ -56,12 +56,31 @@ void Scene::DrawScenePopupMenu()
 
 			if (ImGui::MenuItem("Point"))
 			{
-				AttachObject(m_objectFactory->CreatePoint(m_spawnMarker->m_transform));
+
+				std::shared_ptr<Node> newPoint = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
+				// Check if any bezier curves are selected, if so - add the point to them
+
+				for (int i = 0; i < m_selectedNodes.size(); i++)
+				{
+					if (std::shared_ptr<Node> selectedNode = m_selectedNodes[i].lock())
+					{						
+						if (typeid(*(selectedNode->m_object.get())) == typeid(BezierCurve))
+						{
+							BezierCurve* curves = dynamic_cast<BezierCurve*>(selectedNode->m_object.get());
+							auto Node = dynamic_cast<GroupNode*>(selectedNode.get());
+							Node->AddChild(newPoint);
+							curves->AttachChild(newPoint);
+						}
+					}
+				}
+
+				AttachObject(newPoint);
 
 			}
 			if (ImGui::MenuItem("Bezier Curve C0"))
 			{
-				AttachObject(m_objectFactory->CreateBezierCurve());				
+				// TODO [MG] Make sure taht only points are selected or filter the points				
+				AttachObject(m_objectFactory->CreateBezierCurve(m_selectedNodes));				
 			}
 
 			ImGui::EndMenu();
