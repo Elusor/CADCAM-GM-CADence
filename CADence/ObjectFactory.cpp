@@ -1,6 +1,27 @@
 #include "ObjectFactory.h"
 
-std::unique_ptr<Torus> ObjectFactory::CreateTorus(
+std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr<Node>> controlPoints)
+{
+	// TODO [MG] check if all nodes are Points
+
+	BezierCurve* bC = new BezierCurve(controlPoints);
+
+	std::string name = "Bezier Curve";
+	if (m_bezierCurveCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierCurveCounter);
+	}
+
+	bC->m_name = bC->m_defaultName = name;
+
+	GroupNode* node = new GroupNode(controlPoints);
+	node->m_object = std::unique_ptr<Object>(bC);;	
+
+	m_bezierCurveCounter++;
+	return std::shared_ptr<Node>(node);
+}
+
+std::shared_ptr<Node> ObjectFactory::CreateTorus(
 	Transform transform,
 	std::string name,
 	float bigR, float smallR, 
@@ -41,15 +62,20 @@ std::unique_ptr<Torus> ObjectFactory::CreateTorus(
 	GetTorusVerticesLineList(t);
 	m_torusCounter++;
 
-	return std::unique_ptr<Torus>(t);
+	Node* n = new Node();
+	n->m_object = std::unique_ptr<Torus>(t);
+
+	return std::shared_ptr<Node>(n);
 }
 
-std::unique_ptr<SpawnMarker> ObjectFactory::CreateSpawnMarker()
+std::shared_ptr<Node> ObjectFactory::CreateSpawnMarker()
 {	
-	return std::unique_ptr<SpawnMarker>(new SpawnMarker());
+	Node* n = new Node();
+	n->m_object = std::unique_ptr<SpawnMarker>(new SpawnMarker());
+	return std::shared_ptr<Node>(n);
 }
 
-std::unique_ptr<Point> ObjectFactory::CreatePoint(Transform transform)
+std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
 {
 	Point* p = new Point();
 
@@ -67,5 +93,8 @@ std::unique_ptr<Point> ObjectFactory::CreatePoint(Transform transform)
 	p->m_transform.m_scale = transform.m_scale;
 
 	m_pointCounter++;
-	return std::unique_ptr<Point>(p);
+
+	Node* n = new Node();
+	n->m_object = std::unique_ptr<Point>(p);
+	return std::shared_ptr<Node>(n);
 }

@@ -15,7 +15,7 @@ public:
 	std::vector<std::weak_ptr<Node>> m_selectedNodes;
 	std::vector<std::shared_ptr<Node>> m_nodes;
 
-	void AttachObject(std::unique_ptr<Object>& object);
+	void AttachObject(std::shared_ptr<Node>);
 	void RemoveObject(std::unique_ptr<Object>& object);
 	void DrawSceneHierarchy();
 

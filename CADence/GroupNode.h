@@ -7,7 +7,7 @@
 struct GroupNode : Node
 {
 public:
-
+	explicit GroupNode(std::vector<std::weak_ptr<Node>> m_children);
 	// Vector Of Dummy Nodes?
 	std::vector<std::weak_ptr<Node>> m_children;
 

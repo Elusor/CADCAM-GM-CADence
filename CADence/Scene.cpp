@@ -6,17 +6,16 @@
 Scene::Scene()
 {
 	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
-	m_spawnMarker = m_objectFactory->CreateSpawnMarker();
+	std::unique_ptr<Object> spawnMarker = move(m_objectFactory->CreateSpawnMarker()->m_object);
+	m_spawnMarker = std::unique_ptr<SpawnMarker>(dynamic_cast<SpawnMarker *>(spawnMarker.release()));
 
 	Object* middleMarker = new Object();
 	m_middleMarker = std::unique_ptr<Object>(middleMarker);
 }
 
-void Scene::AttachObject(std::unique_ptr<Object>& object)
+void Scene::AttachObject(std::shared_ptr<Node> node)
 {
-	Node* newNode = new Node();
-	newNode->m_object = move(object);
-	m_nodes.push_back(std::shared_ptr<Node>(newNode));
+	m_nodes.push_back(std::shared_ptr<Node>(node));
 }
 
 void Scene::RemoveObject(std::unique_ptr<Object>& object)
@@ -52,32 +51,17 @@ void Scene::DrawScenePopupMenu()
 		{
 			if (ImGui::MenuItem("Torus"))
 			{
-				std::unique_ptr<Object> obj = m_objectFactory->CreateTorus(m_spawnMarker->m_transform);
-				AttachObject(obj);
+				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->m_transform));
 			}
 
 			if (ImGui::MenuItem("Point"))
 			{
-				std::unique_ptr<Object> obj = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
-				AttachObject(obj);
+				AttachObject(m_objectFactory->CreatePoint(m_spawnMarker->m_transform));
 
 			}
-			if (ImGui::MenuItem("Gnode"))
+			if (ImGui::MenuItem("Bezier Curve C0"))
 			{
-				std::unique_ptr<Object> obj = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
-				Node* newNode = new Node();
-				newNode->m_object = move(obj);
-				std::shared_ptr<Node> nodeptr = std::shared_ptr<Node>(newNode);
-				m_nodes.push_back(nodeptr);
-
-
-
-				auto gn = new GroupNode();
-				gn->m_object = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
-				std::weak_ptr<Node> weakPtr = nodeptr;
-				gn->m_children.push_back(weakPtr);
-				std::shared_ptr<Node> node = std::shared_ptr<Node>(gn);
-				m_nodes.push_back(node);
+				AttachObject(m_objectFactory->CreateBezierCurve());				
 			}
 
 			ImGui::EndMenu();

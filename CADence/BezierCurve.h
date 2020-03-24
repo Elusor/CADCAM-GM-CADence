@@ -2,14 +2,17 @@
 #include "Object.h"
 #include "Point.h"
 
+class Node; 
+
 struct BezierCurve : Object
 {
 public:
-	explicit BezierCurve(std::vector<std::weak_ptr<Point>> initialControlPoints);
+	// TODO MG maybe just change objects to sharedptr?
+	explicit BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints);
 
-	std::vector<std::weak_ptr<Point>> m_controlPoints;
+	std::vector<std::weak_ptr<Node>> m_controlPoints;
 	
-	void AttachChild(std::weak_ptr<Point> controlPoint);
+	void AttachChild(std::weak_ptr<Node> controlPoint);
 	//void DetachPoint(std::weak_ptr<Point> controlPoint);
 
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;

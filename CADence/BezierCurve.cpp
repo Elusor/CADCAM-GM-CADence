@@ -1,12 +1,12 @@
 #include "BezierCurve.h"
-
-BezierCurve::BezierCurve(std::vector<std::weak_ptr<Point>> initialControlPoints)
+#include "Node.h"
+BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 {
 	m_renderPolygon = false;
 	m_controlPoints = initialControlPoints;
 }
 
-void BezierCurve::AttachChild(std::weak_ptr<Point> controlPoint)
+void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
 {
 	m_controlPoints.push_back(controlPoint);
 }
