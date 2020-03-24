@@ -156,6 +156,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="GroupNode.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Object.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
     <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="GroupNode.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />

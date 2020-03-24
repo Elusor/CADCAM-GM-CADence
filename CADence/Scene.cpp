@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "imgui.h"
 #include "ObjectFactory.h"
+#include "GroupNode.h"
 
 Scene::Scene()
 {
@@ -61,6 +62,24 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(obj);
 
 			}
+			if (ImGui::MenuItem("Gnode"))
+			{
+				std::unique_ptr<Object> obj = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
+				Node* newNode = new Node();
+				newNode->m_object = move(obj);
+				std::shared_ptr<Node> nodeptr = std::shared_ptr<Node>(newNode);
+				m_nodes.push_back(nodeptr);
+
+
+
+				auto gn = new GroupNode();
+				gn->m_object = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
+				std::weak_ptr<Node> weakPtr = nodeptr;
+				gn->m_children.push_back(weakPtr);
+				std::shared_ptr<Node> node = std::shared_ptr<Node>(gn);
+				m_nodes.push_back(node);
+			}
+
 			ImGui::EndMenu();
 		}
 

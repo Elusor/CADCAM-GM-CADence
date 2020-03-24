@@ -10,6 +10,25 @@ void Node::Render(std::unique_ptr<RenderState> & renderData)
 	}	
 }
 
+void Node::DrawRenameGUI()
+{
+	std::string name = "##input";
+	int size = 30;
+	char* text = new char[size];
+	memset(text, 0, sizeof(text));
+	m_object->m_name.copy(text, m_object->m_name.size() + 1);
+	text[m_object->m_name.size()] = '\0';
+	bool entered = ImGui::InputText(name.c_str(), text, sizeof(char) * size, ImGuiInputTextFlags_EnterReturnsTrue);
+	ImGui::SetItemDefaultFocus();
+	ImGui::SetKeyboardFocusHere(-1);
+	if (entered)
+	{
+		m_object->m_name = text;
+		m_isRenamed = false;
+	}
+	delete[] text;
+}
+
 void Node::DrawNodeGUI(Scene& scene)
 {
 	std::string hashes = "##";
@@ -17,21 +36,7 @@ void Node::DrawNodeGUI(Scene& scene)
 
 	if (m_isRenamed)
 	{
-		std::string name = "##input";
-		int size = 30;
-		char* text = new char[size];
-		memset(text, 0, sizeof(text));
-		m_object->m_name.copy(text, m_object->m_name.size() + 1);
-		text[m_object->m_name.size()] = '\0';
-		bool entered = ImGui::InputText(name.c_str(), text, sizeof(char) * size, ImGuiInputTextFlags_EnterReturnsTrue);
-		ImGui::SetItemDefaultFocus();
-		ImGui::SetKeyboardFocusHere(-1);
-		if (entered)
-		{
-			m_object->m_name = text;
-			m_isRenamed = false;
-		}
-		delete[] text;
+		DrawRenameGUI();
 	}
 	else
 	{

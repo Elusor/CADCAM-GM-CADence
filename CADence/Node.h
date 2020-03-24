@@ -13,8 +13,11 @@ public:
 	bool m_isSelected = false;	
 	bool m_isRenamed = false;
 
-	void DrawNodeGUI(Scene& scene);
+	virtual void DrawNodeGUI(Scene& scene);
 
 	void Update();
 	void Render(std::unique_ptr<RenderState> & renderData);	
+
+protected:
+	void DrawRenameGUI();
 };

@@ -25,9 +25,6 @@
     <Filter Include="Header Files\CadSpecific">
       <UniqueIdentifier>{e06ed4f5-02c0-46d3-854d-ab5fdbcdb140}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\DirectXWrappers">
-      <UniqueIdentifier>{a0522e84-fcd9-4d9c-a766-437a93918a6a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\DirectXWrappers">
       <UniqueIdentifier>{240f30a2-59d2-4d2f-ba1a-6913a023ac7a}</UniqueIdentifier>
     </Filter>
@@ -85,6 +82,9 @@
     <Filter Include="Header Files\Window">
       <UniqueIdentifier>{b2e3d4f5-709d-48fc-bfe8-234f8caee353}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ImGui\DirectXWrappers">
+      <UniqueIdentifier>{a0522e84-fcd9-4d9c-a766-437a93918a6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -112,16 +112,16 @@
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="dxApplication.h">
-      <Filter>Header Files\DirectXWrappers</Filter>
+      <Filter>Header Files\ImGui\DirectXWrappers</Filter>
     </ClInclude>
     <ClInclude Include="dxDevice.h">
-      <Filter>Header Files\DirectXWrappers</Filter>
+      <Filter>Header Files\ImGui\DirectXWrappers</Filter>
     </ClInclude>
     <ClInclude Include="dxptr.h">
-      <Filter>Header Files\DirectXWrappers</Filter>
+      <Filter>Header Files\ImGui\DirectXWrappers</Filter>
     </ClInclude>
     <ClInclude Include="dxStructures.h">
-      <Filter>Header Files\DirectXWrappers</Filter>
+      <Filter>Header Files\ImGui\DirectXWrappers</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
       <Filter>Header Files\Cameras</Filter>
@@ -188,6 +188,9 @@
     </ClInclude>
     <ClInclude Include="windowApplication.h">
       <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupNode.h">
+      <Filter>Header Files\CadSpecific\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -283,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupNode.cpp">
+      <Filter>Source Files\CadSpecific\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
