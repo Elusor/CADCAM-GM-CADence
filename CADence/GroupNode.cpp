@@ -65,7 +65,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 
 		std::string childLabelName;
 		// If node is open
-		if (open && m_children.size() > 0)
+		if (open)
 		{
 			// Draw each child node
 			for (int i = 0; i < m_children.size(); i++)
@@ -73,14 +73,20 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 				if (std::shared_ptr<Node> node = m_children[i].lock())
 				{
 					ImGuiTreeNodeFlags leaf_flags2 = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-					/*if (m_isSelected)
+					if (node->m_isSelected)
 					{
-						leaf_flags |= ImGuiTreeNodeFlags_Selected;
-					}*/
+						leaf_flags2 |= ImGuiTreeNodeFlags_Selected;
+					}
 
 					childLabelName = node->m_object->m_name + hashes 
 						+ node->m_object->m_defaultName + hashes + m_object->m_defaultName;
 					ImGui::TreeNodeEx(childLabelName.c_str(), leaf_flags2);
+
+					if (ImGui::IsItemClicked())
+					{
+						scene.SelectionChanged(*node);
+					}
+
 
 					if (ImGui::BeginPopupContextItem(childLabelName.c_str()))
 					{
