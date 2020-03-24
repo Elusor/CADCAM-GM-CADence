@@ -156,6 +156,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="windowApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="dxApplication.cpp" />

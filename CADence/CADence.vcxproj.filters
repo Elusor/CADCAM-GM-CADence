@@ -192,6 +192,9 @@
     <ClInclude Include="GroupNode.h">
       <Filter>Header Files\CadSpecific\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="BezierCurve.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -289,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="GroupNode.cpp">
       <Filter>Source Files\CadSpecific\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierCurve.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
