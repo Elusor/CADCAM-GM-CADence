@@ -39,7 +39,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 
 		// Draw Leaf
 		bool open = ImGui::TreeNodeEx(labelName.c_str(), leaf_flags);
-
+		if (open == false) treePushed = false;
 		// Process the click of the tree node 
 		if (ImGui::IsItemClicked())
 		{
@@ -119,6 +119,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 			}		
 			ImGui::TreePop();
 		}	
+
 		if(nodeRemoved && treePushed)
 			ImGui::TreePop();
 	}
