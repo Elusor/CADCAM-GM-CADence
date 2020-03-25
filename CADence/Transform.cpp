@@ -11,6 +11,29 @@ Transform::Transform(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Dir
 	m_scale = scale;
 }
 
+Transform& Transform::operator+(Transform&& other)
+{
+	Transform t1 = *this;
+	Transform t2 = other;
+
+	Transform res = Transform(
+		DirectX::XMFLOAT3(
+			t1.m_pos.x + t2.m_pos.x,
+			t1.m_pos.y + t2.m_pos.y,
+			t1.m_pos.z + t2.m_pos.z),
+		DirectX::XMFLOAT3(
+			t1.m_rotation.x + t2.m_rotation.x,
+			t1.m_rotation.y + t2.m_rotation.y, 
+			t1.m_rotation.z + t2.m_rotation.z),
+		DirectX::XMFLOAT3(
+			t1.m_scale.x + t2.m_scale.x,
+			t1.m_scale.y + t2.m_scale.y,
+			t1.m_scale.z + t2.m_scale.z)
+	);
+
+	return res;
+}
+
 DirectX::XMMATRIX Transform::GetModelMatrix()
 {
 	auto matrix = DirectX::XMMatrixIdentity() *

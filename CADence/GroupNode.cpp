@@ -14,6 +14,7 @@ void GroupNode::AddChild(std::weak_ptr<Node> child)
 
 void GroupNode::DrawNodeGUI(Scene& scene)
 {
+	// REWRITE THIS ASAP
 	std::string hashes = "##";
 	std::string labelName = m_object->m_name + hashes + m_object->m_defaultName;	
 

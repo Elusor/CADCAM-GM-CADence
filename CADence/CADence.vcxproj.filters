@@ -195,6 +195,9 @@
     <ClInclude Include="BezierCurve.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="bezierCalculator.h">
+      <Filter>Header Files\CadSpecific\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -295,6 +298,9 @@
     </ClCompile>
     <ClCompile Include="BezierCurve.cpp">
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="bezierCalculator.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
