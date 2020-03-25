@@ -65,6 +65,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 
 		std::string childLabelName;
 		// If node is open
+		open &= m_children.size() != 0;
 		if (open)
 		{
 			// Draw each child node
