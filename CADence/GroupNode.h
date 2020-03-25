@@ -11,6 +11,7 @@ public:
 	// Vector Of Dummy Nodes?
 
 	void AddChild(std::weak_ptr<Node> child);
+	void RemoveChild(std::weak_ptr<Node> child);
 	void DrawNodeGUI(Scene& scene) override;
 private:
 	std::vector<std::weak_ptr<Node>> m_children;

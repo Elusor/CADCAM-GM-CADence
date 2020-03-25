@@ -43,10 +43,12 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 		{
 			scene.SelectionChanged(*this);
 		}
-
+		bool nodeRemoved = false;
 		// Create a context menu
 		if (ImGui::BeginPopupContextItem(labelName.c_str()))
 		{
+
+			m_object->RenderObjectSpecificContextOptions(scene);
 
 			if (ImGui::Selectable("Rename object"))
 			{
@@ -56,22 +58,27 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 
 			if (ImGui::Selectable("Remove object"))
 			{
-				m_children.clear();
+				nodeRemoved = true;
+				m_children.clear();				
 				scene.RemoveObject(m_object);
+				
 			}
 
 			ImGui::EndPopup();
 		}
 
+		if (nodeRemoved)
+			int i = 2;
 		std::string childLabelName;
 		// If node is open
 		open &= m_children.size() != 0;
-		if (open)
+		if (open && !nodeRemoved)
 		{
-			// Draw each child node
-			for (int i = 0; i < m_children.size(); i++)
+			bool removed = false;
+			auto it = m_children.begin();
+			while (it != m_children.end())
 			{
-				if (std::shared_ptr<Node> node = m_children[i].lock())
+				if (auto node = it->lock())
 				{
 					ImGuiTreeNodeFlags leaf_flags2 = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 					if (node->m_isSelected)
@@ -79,7 +86,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 						leaf_flags2 |= ImGuiTreeNodeFlags_Selected;
 					}
 
-					childLabelName = node->m_object->m_name + hashes 
+					childLabelName = node->m_object->m_name + hashes
 						+ node->m_object->m_defaultName + hashes + m_object->m_defaultName;
 					ImGui::TreeNodeEx(childLabelName.c_str(), leaf_flags2);
 
@@ -93,15 +100,25 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 					{
 						if (ImGui::Selectable("Remove node"))
 						{
-							m_children.erase(m_children.begin() + i);
+							it = m_children.erase(it);
+							BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
+							c->RemoveChild(node);
+							removed = true;
 						}
 						ImGui::EndPopup();
 					}
 
-				}				
-			}
+					if (removed == false) it++;
+					else removed = false;
+				}
+				else {
+					it = m_children.erase(it);
+				}
+			}		
 			ImGui::TreePop();
-		}		
+		}	
+		if(nodeRemoved)
+			ImGui::TreePop();
 	}
 }
 
