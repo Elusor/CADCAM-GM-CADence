@@ -14,11 +14,11 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr
 
 	bC->m_name = bC->m_defaultName = name;
 
-	GroupNode* node = new GroupNode(controlPoints);
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(controlPoints));
 	node->m_object = std::unique_ptr<Object>(bC);;	
-
+	bC->m_parent = node;
 	m_bezierCurveCounter++;
-	return std::shared_ptr<Node>(node);
+	return node;
 }
 
 std::shared_ptr<Node> ObjectFactory::CreateTorus(
@@ -62,17 +62,18 @@ std::shared_ptr<Node> ObjectFactory::CreateTorus(
 	GetTorusVerticesLineList(t);
 	m_torusCounter++;
 
-	Node* n = new Node();
+	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<Torus>(t);
-
-	return std::shared_ptr<Node>(n);
+	t->m_parent = n;
+	return n;
 }
 
 std::shared_ptr<Node> ObjectFactory::CreateSpawnMarker()
 {	
-	Node* n = new Node();
+	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<SpawnMarker>(new SpawnMarker());
-	return std::shared_ptr<Node>(n);
+	n->m_object->m_parent = n;
+	return n;
 }
 
 std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
@@ -94,7 +95,8 @@ std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
 
 	m_pointCounter++;
 
-	Node* n = new Node();
+	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<Point>(p);
-	return std::shared_ptr<Node>(n);
+	p->m_parent = n;
+	return n;
 }

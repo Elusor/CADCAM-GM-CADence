@@ -14,6 +14,19 @@ void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
 	m_controlPoints.push_back(controlPoint);
 }
 
+bool BezierCurve::IsChild(std::weak_ptr<Node> point)
+{
+	if (std::shared_ptr<Node> candidate = point.lock())
+	{
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{
+			if (candidate == m_controlPoints[i].lock())
+				return true;
+		}
+	}
+	return false;
+}
+
 void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	// Render object using De Casteljau algorithm

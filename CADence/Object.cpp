@@ -89,6 +89,10 @@ void Object::RenderCoordinates(std::unique_ptr<RenderState>& renderData)
 	renderData->m_device.context()->DrawIndexed(6, 0, 0);
 }
 
+void Object::RenderObjectSpecificContextOptions(Scene& scene)
+{
+}
+
 void Object::UpdateObject()
 {
 }

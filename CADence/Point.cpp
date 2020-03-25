@@ -1,6 +1,8 @@
 #include "Point.h"
 #include "vertexStructures.h"
 #include "imgui.h"
+#include "Scene.h"
+#include "Node.h"
 
 using namespace DirectX;
 void Point::RenderObject(std::unique_ptr<RenderState>& renderData)
@@ -69,4 +71,50 @@ bool Point::CreateParamsGui()
 	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
 	ImGui::End();
 	return objectChanged;
+}
+
+void Point::RenderObjectSpecificContextOptions(Scene& scene)
+{	
+	// Get curves that do not containt this point
+	std::vector<BezierCurve*> curves;
+	for(int i = 0; i < scene.m_nodes.size(); i++)
+	{
+		auto currentobject = (scene.m_nodes[i]->m_object.get());
+		if (typeid(*currentobject) == typeid(BezierCurve))
+		{
+			BezierCurve* curve = dynamic_cast<BezierCurve*>(currentobject);
+			if (curve->IsChild(this->m_parent) == false)
+			{
+				curves.push_back(curve);
+			}			
+		}
+	}
+
+	// If there are aany - display them in the context menu
+	if (curves.size() > 0)
+	{
+		if (ImGui::BeginMenu("Add to Curve"))
+		{
+			for (int i = 0; i < curves.size(); i++)
+			{
+
+				if (auto parent = (curves[i]->m_parent.lock()))
+				{
+					auto node = dynamic_cast<GroupNode*>(parent.get());
+					if (ImGui::MenuItem(node->GetLabel().c_str()))
+					{
+						std::weak_ptr<Node> weakParent = this->m_parent;
+						if (std::shared_ptr<Node> nodeParent = weakParent.lock())
+						{
+							node->AddChild(nodeParent);
+							curves[i]->AttachChild(nodeParent);
+						}
+					}
+				}				
+			}			
+			ImGui::EndMenu();
+		}
+	}
+
+	
 }

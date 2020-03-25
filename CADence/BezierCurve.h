@@ -14,6 +14,7 @@ public:
 	
 	void AttachChild(std::weak_ptr<Node> controlPoint);
 	//void DetachPoint(std::weak_ptr<Point> controlPoint);
+	bool IsChild(std::weak_ptr<Node> point);
 
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	void UpdateObject() override;

@@ -14,7 +14,7 @@ public:
 	bool m_isRenamed = false;
 
 	virtual void DrawNodeGUI(Scene& scene);
-
+	std::string GetLabel();
 	void Update();
 	void Render(std::unique_ptr<RenderState> & renderData);	
 
