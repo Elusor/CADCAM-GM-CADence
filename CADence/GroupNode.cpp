@@ -23,6 +23,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 	}
 	else
 	{
+		bool treePushed = true;
 		// Set Leaf Flags
 		ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_None;
 		if (m_isSelected)
@@ -32,6 +33,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 
 		if (m_children.size() == 0)
 		{
+			treePushed = false;
 			leaf_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 		}
 
@@ -117,7 +119,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 			}		
 			ImGui::TreePop();
 		}	
-		if(nodeRemoved)
+		if(nodeRemoved && treePushed)
 			ImGui::TreePop();
 	}
 }

@@ -94,8 +94,6 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 			ImGui::EndMenu();
 		}
 	}
-
-
 }
 
 void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
@@ -104,8 +102,7 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 }
 
 bool BezierCurve::CreateParamsGui()
-{
-	
+{	
 	ImGui::Begin("Inspector");
 	// Create sliders for torus parameters	
 	ImGui::Text("Name: ");
