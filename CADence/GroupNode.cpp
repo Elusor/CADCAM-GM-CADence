@@ -74,7 +74,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 		std::string childLabelName;
 		// If node is open
 		open &= m_children.size() != 0;
-		if (open && !nodeRemoved)
+		if (open && !nodeRemoved && treePushed)
 		{
 			bool removed = false;
 			auto it = m_children.begin();
