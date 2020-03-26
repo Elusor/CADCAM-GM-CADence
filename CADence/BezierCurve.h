@@ -1,11 +1,10 @@
 #pragma once
-#include "Object.h"
 #include "Point.h"
-
+#include "MeshObject.h"
 class Node; 
 class Scene;
 
-struct BezierCurve : Object
+struct BezierCurve : MeshObject
 {
 public:
 	// TODO MG maybe just change objects to sharedptr?

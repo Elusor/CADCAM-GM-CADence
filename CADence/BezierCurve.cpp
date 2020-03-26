@@ -87,7 +87,7 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 						if (ImGui::MenuItem(node->GetLabel().c_str()))
 						{
 							gParent->AddChild(node);
-							AttachChild(node);
+							AttachChild(node);						
 						}
 					}								
 				}
@@ -102,61 +102,8 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 	// TODO [MG] DO NOT RECALCULATE EACH FRAME
 	if (m_controlPoints.size() > 0)
 	{
-		// Render object using De Casteljau algorithm
-		std::vector<Transform> knots;
-
-		for (int i = 0; i < m_controlPoints.size(); i++)
-		{
-			if (auto point = m_controlPoints[i].lock())
-			{
-				knots.push_back(point->m_object->m_transform);
-			}
-		}
-
-		// Get Bezier Curve Points
-		auto points = BezierCalculator::CalculateBezierC0Values(knots, 200);
-
-		std::vector<VertexPositionColor> vertices;
-		std::vector<unsigned short> indices;
-
-		for (int i = 0; i < points.size(); i++)
-		{
-			vertices.push_back(VertexPositionColor{
-				points[i].m_pos,
-				{1.0f,1.0f,1.0f}
-				});
-			indices.push_back(i);
-		}
-
-
-		// set render Data ------------------------------
-
-		renderData->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-		//Update content to fill constant buffer
-		D3D11_MAPPED_SUBRESOURCE res;
-		DirectX::XMMATRIX mvp = m_transform.GetModelMatrix() * renderData->m_camera->GetViewProjectionMatrix();
-		//Set constant buffer
-		auto hres = renderData->m_device.context()->Map((renderData->m_cbMVP.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
-		memcpy(res.pData, &mvp, sizeof(DirectX::XMMATRIX));
-		renderData->m_device.context()->Unmap(renderData->m_cbMVP.get(), 0);
-		ID3D11Buffer* cbs[] = { renderData->m_cbMVP.get() };
-		renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
-
-		// Update Vertex and index buffers
-		renderData->m_vertexBuffer = (renderData->m_device.CreateVertexBuffer(vertices));
-		renderData->m_indexBuffer = (renderData->m_device.CreateIndexBuffer(indices));
-		ID3D11Buffer* vbs[] = { renderData->m_vertexBuffer.get() };
-
-		//Update strides and offets based on the vertex class
-		UINT strides[] = { sizeof(VertexPositionColor) };
-		UINT offsets[] = { 0 };
-
-		renderData->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-
-		// Watch out for meshes that cannot be covered by ushort
-		renderData->m_device.context()->IASetIndexBuffer(renderData->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
-		renderData->m_device.context()->DrawIndexed(indices.size(), 0, 0);
-
+		UpdateObject();
+		MeshObject::RenderObject(renderData);	
 	}	
 }
 
@@ -176,5 +123,39 @@ bool BezierCurve::CreateParamsGui()
 
 void BezierCurve::UpdateObject()
 {
-	// Recalculate adaptive rendering??
+	int adaptiveRenderingSamples = 200;
+
+	if (m_controlPoints.size() > 0)
+	{
+		// Render object using De Casteljau algorithm
+		std::vector<Transform> knots;
+
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{
+			if (auto point = m_controlPoints[i].lock())
+			{
+				knots.push_back(point->m_object->m_transform);
+			}
+		}
+
+		// Get Bezier Curve Points
+		auto points = BezierCalculator::CalculateBezierC0Values(knots, adaptiveRenderingSamples);
+
+		std::vector<VertexPositionColor> vertices;
+		std::vector<unsigned short> indices;
+
+		for (int i = 0; i < points.size(); i++)
+		{
+			vertices.push_back(VertexPositionColor{
+				points[i].m_pos,
+				{1.0f,1.0f,1.0f}
+				});
+			indices.push_back(i);
+		}
+
+		m_meshDesc.vertices = vertices;
+		m_meshDesc.indices = indices;
+		m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+	}
+	// Recalculate adaptive rendering??	
 }
