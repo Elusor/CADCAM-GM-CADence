@@ -23,7 +23,7 @@ std::weak_ptr<Node> PointSelector::GetNearestPoint(int mouseX, int mouseY, std::
 		std::string name = nodes[i]->m_object->m_name;
 		XMFLOAT4 screenPosFl;
 		// Get point pos
-		XMVECTOR pointPos = XMLoadFloat3(&(nodes[i]->m_object->m_transform.m_pos));
+		XMVECTOR pointPos = XMLoadFloat3(&(nodes[i]->m_object->m_transform.GetPosition()));
 		// Calc screen pos
 		XMVECTOR screenPos = XMVector3Transform(pointPos, VP);
 

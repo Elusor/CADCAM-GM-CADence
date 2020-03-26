@@ -214,7 +214,7 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 		{
 			if (auto node = m_selectedNodes[j].lock())
 			{
-				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->m_transform.m_pos));
+				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->m_transform.GetPosition()));
 				pos = DirectX::XMVectorAdd(pos, posj); 
 			}			
 		}			
@@ -228,7 +228,7 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 		newPos.y /= countf;
 		newPos.z /= countf;
 
-		m_middleMarker->m_transform.m_pos = newPos;
+		m_middleMarker->m_transform.SetPosition(newPos);
 		m_middleMarker->RenderCoordinates(renderState);
 	}
 

@@ -66,9 +66,13 @@ bool Point::CreateParamsGui()
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
 	float maxVal = 1000.0f;
-	objectChanged |= ImGui::DragFloat(posX.c_str(), &(m_transform.m_pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posY.c_str(), &(m_transform.m_pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
+
+	DirectX::XMFLOAT3 pos = m_transform.GetPosition();
+	objectChanged |= ImGui::DragFloat(posX.c_str(), &(pos.x), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(posY.c_str(), &(pos.y), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(pos.z), dragSpeed, -maxVal, maxVal);
+	m_transform.SetPosition(pos);
+
 	ImGui::End();
 	return objectChanged;
 }

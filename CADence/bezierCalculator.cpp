@@ -77,9 +77,9 @@ Transform CalculateBezier4(Transform p0, Transform p1, Transform p2, Transform p
 Transform WeightedTransformAverage(Transform p0, Transform p1, float t)
 {
 	return Transform(
-		XMF3SUM(XMFloat3TimesFloat(p0.m_pos, t), XMFloat3TimesFloat(p1.m_pos, 1.0f - t)),
-		XMF3SUM(XMFloat3TimesFloat(p0.m_rotation, t), XMFloat3TimesFloat(p1.m_rotation, 1.0f - t)),
-		XMF3SUM(XMFloat3TimesFloat(p0.m_scale, t), XMFloat3TimesFloat(p1.m_scale, 1.0f - t)));
+		XMF3SUM(XMFloat3TimesFloat(p0.GetPosition(), t), XMFloat3TimesFloat(p1.GetPosition(), 1.0f - t)),
+		XMF3SUM(XMFloat3TimesFloat(p0.GetRotation(), t), XMFloat3TimesFloat(p1.GetRotation(), 1.0f - t)),
+		XMF3SUM(XMFloat3TimesFloat(p0.GetScale(), t), XMFloat3TimesFloat(p1.GetScale(), 1.0f - t)));
 }
 
 DirectX::XMFLOAT3 XMF3SUM(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)

@@ -147,7 +147,7 @@ void BezierCurve::UpdateObject()
 		for (int i = 0; i < points.size(); i++)
 		{
 			vertices.push_back(VertexPositionColor{
-				points[i].m_pos,
+				points[i].GetPosition(),
 				{1.0f,1.0f,1.0f}
 				});
 			indices.push_back(i);

@@ -16,26 +16,35 @@ bool Object::CreateParamsGui()
 	std::string posX = "Position X##" + m_defaultName;
 	std::string posY = "Position Y##" + m_defaultName;
 	std::string posZ = "Position Z##" + m_defaultName;
-	objectChanged |= ImGui::DragFloat(posX.c_str(), &(m_transform.m_pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posY.c_str(), &(m_transform.m_pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
+
+	DirectX::XMFLOAT3 pos = m_transform.GetPosition();
+	DirectX::XMFLOAT3 rot = m_transform.GetRotation();
+	DirectX::XMFLOAT3 scale = m_transform.GetScale();
+
+	objectChanged |= ImGui::DragFloat(posX.c_str(), &(pos.x), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(posY.c_str(), &(pos.y), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(pos.z), dragSpeed, -maxVal, maxVal);
 	ImGui::Spacing();
 
 	std::string rotX = "Rotation X##" + m_defaultName;
 	std::string rotY = "Rotation Y##" + m_defaultName;
 	std::string rotZ = "Rotation Z##" + m_defaultName;
-	objectChanged |= ImGui::DragFloat(rotX.c_str(), &(m_transform.m_rotation.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(rotY.c_str(), &(m_transform.m_rotation.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(rotZ.c_str(), &(m_transform.m_rotation.z), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(rotX.c_str(), &(rot.x), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(rotY.c_str(), &(rot.y), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(rotZ.c_str(), &(rot.z), dragSpeed, -maxVal, maxVal);
 	ImGui::Spacing();
 
 	std::string scaleX = "Scale X##" + m_defaultName;
 	std::string scaleY = "Scale Y##" + m_defaultName;
 	std::string scaleZ = "Scale Z##" + m_defaultName;
-	objectChanged |= ImGui::DragFloat(scaleX.c_str(), &(m_transform.m_scale.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(scaleY.c_str(), &(m_transform.m_scale.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(scaleZ.c_str(), &(m_transform.m_scale.z), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(scaleX.c_str(), &(scale.x), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(scaleY.c_str(), &(scale.y), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat(scaleZ.c_str(), &(scale.z), dragSpeed, -maxVal, maxVal);
 	ImGui::Spacing();
+	
+	m_transform.SetPosition(pos);
+	m_transform.SetRotation(rot);
+	m_transform.SetScale(scale);
 
 	return objectChanged;
 }

@@ -53,8 +53,14 @@ bool SpawnMarker::CreateParamsGui()
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
 	float maxVal = 1000.0f;
-	objectChanged |= ImGui::DragFloat("Position X##SpawnMarker", &(m_transform.m_pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat("Position Y##SpawnMarker", &(m_transform.m_pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat("Position Z##SpawnMarker", &(m_transform.m_pos.z), dragSpeed, -maxVal, maxVal);
+
+	DirectX::XMFLOAT3 pos = m_transform.GetPosition();
+
+	objectChanged |= ImGui::DragFloat("Position X##SpawnMarker", &(pos.x), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat("Position Y##SpawnMarker", &(pos.y), dragSpeed, -maxVal, maxVal);
+	objectChanged |= ImGui::DragFloat("Position Z##SpawnMarker", &(pos.z), dragSpeed, -maxVal, maxVal);
+
+	m_transform.SetPosition(pos);
+
 	return objectChanged;
 }
