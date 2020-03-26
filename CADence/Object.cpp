@@ -105,3 +105,62 @@ void Object::RenderObjectSpecificContextOptions(Scene& scene)
 void Object::UpdateObject()
 {
 }
+
+#pragma region Transform Wrappers
+
+Transform& Object::GetTransform()
+{
+	return m_transform;
+}
+
+void Object::SetTransform(Transform transform)
+{
+	m_transform = transform;
+}
+
+void Object::Translate(DirectX::XMFLOAT3 position)
+{
+	m_transform.Translate(position);
+}
+
+void Object::Rotate(DirectX::XMFLOAT3 rotation)
+{
+	m_transform.Rotate(rotation);
+}
+
+void Object::Scale(DirectX::XMFLOAT3 scale)
+{
+	m_transform.Scale(scale);
+}
+
+void Object::SetPosition(DirectX::XMFLOAT3 position)
+{
+	m_transform.SetPosition(position);
+}
+
+void Object::SetRotation(DirectX::XMFLOAT3 rotation)
+{
+	m_transform.SetRotation(rotation);
+}
+
+void Object::SetScale(DirectX::XMFLOAT3 scale)
+{
+	m_transform.SetScale(scale);
+}
+
+DirectX::XMFLOAT3 Object::GetPosition()
+{
+	return m_transform.GetPosition();
+}
+
+DirectX::XMFLOAT3 Object::GetRotation()
+{
+	return m_transform.GetRotation();
+}
+
+DirectX::XMFLOAT3 Object::GetScale()
+{
+	return m_transform.GetScale();
+}
+
+#pragma endregion

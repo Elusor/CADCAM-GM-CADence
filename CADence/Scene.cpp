@@ -51,13 +51,13 @@ void Scene::DrawScenePopupMenu()
 		{
 			if (ImGui::MenuItem("Torus"))
 			{
-				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->m_transform));
+				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->GetTransform()));
 			}
 
 			if (ImGui::MenuItem("Point"))
 			{
 
-				std::shared_ptr<Node> newPoint = m_objectFactory->CreatePoint(m_spawnMarker->m_transform);
+				std::shared_ptr<Node> newPoint = m_objectFactory->CreatePoint(m_spawnMarker->GetTransform());
 				// Check if any bezier curves are selected, if so - add the point to them
 
 				for (int i = 0; i < m_selectedNodes.size(); i++)
@@ -214,7 +214,7 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 		{
 			if (auto node = m_selectedNodes[j].lock())
 			{
-				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->m_transform.GetPosition()));
+				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->GetPosition()));
 				pos = DirectX::XMVectorAdd(pos, posj); 
 			}			
 		}			
@@ -228,7 +228,7 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 		newPos.y /= countf;
 		newPos.z /= countf;
 
-		m_middleMarker->m_transform.SetPosition(newPos);
+		m_middleMarker->SetPosition(newPos);
 		m_middleMarker->RenderCoordinates(renderState);
 	}
 

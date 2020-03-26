@@ -118,11 +118,11 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 
 		if (m_transAroundCursor)
 		{
-			pivotPos = m_scene->m_spawnMarker->m_transform.GetPosition();
+			pivotPos = m_scene->m_spawnMarker->GetPosition();
 		}
 		else
 		{
-			pivotPos = m_scene->m_middleMarker->m_transform.GetPosition();
+			pivotPos = m_scene->m_middleMarker->GetPosition();
 		}
 
 		

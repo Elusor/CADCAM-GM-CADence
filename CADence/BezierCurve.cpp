@@ -134,7 +134,7 @@ void BezierCurve::UpdateObject()
 		{
 			if (auto point = m_controlPoints[i].lock())
 			{
-				knots.push_back(point->m_object->m_transform);
+				knots.push_back(point->m_object->GetTransform());
 			}
 		}
 
@@ -159,3 +159,40 @@ void BezierCurve::UpdateObject()
 	}
 	// Recalculate adaptive rendering??	
 }
+
+#pragma region Transform Wrappers
+void BezierCurve::SetTransform(Transform transform)
+{
+	// Perhaps change transform type instead of overriding SetTransform method
+	// Ignore 
+}
+
+void BezierCurve::SetPosition(DirectX::XMFLOAT3 position)
+{
+	// Ignore 
+}
+
+void BezierCurve::SetRotation(DirectX::XMFLOAT3 rotation)
+{
+	// Ignore 
+}
+
+void BezierCurve::SetScale(DirectX::XMFLOAT3 scale)
+{
+	// Ignore 
+}
+void BezierCurve::Translate(DirectX::XMFLOAT3 position)
+{
+	// Ignore 
+
+}
+void BezierCurve::Rotate(DirectX::XMFLOAT3 rotation)
+{
+	// Ignore 
+
+}
+void BezierCurve::Scale(DirectX::XMFLOAT3 scale)
+{
+	// Ignore 
+}
+#pragma endregion

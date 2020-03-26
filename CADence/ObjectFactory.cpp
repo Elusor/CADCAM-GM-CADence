@@ -44,7 +44,7 @@ std::shared_ptr<Node> ObjectFactory::CreateTorus(
 #pragma endregion	
 
 	// Move to a section general for all objects
-	t->m_transform = transform;
+	t->SetTransform(transform);
 
 	t->m_bigR = bigR;
 	t->m_smallR = smallR;
@@ -86,7 +86,7 @@ std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
 
 	p->m_name = name;
 	p->m_defaultName = p->m_name;
-	p->m_transform = transform;
+	p->SetTransform(transform);
 
 	m_pointCounter++;
 
