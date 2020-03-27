@@ -77,7 +77,7 @@ void Node::DrawNodeGUI(Scene& scene)
 
 std::string Node::GetLabel()
 {
-	return m_object->m_name + "##" + m_object->m_defaultName;
+	return m_object->GetLabel();
 }
 
 void Node::Update()

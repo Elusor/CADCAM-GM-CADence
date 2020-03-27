@@ -58,20 +58,18 @@ bool Point::CreateParamsGui()
 	// Create sliders for torus parameters	
 	ImGui::Text("Name: ");
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());
-	ImGui::Spacing();
-	std::string posX = "Position X##" + m_defaultName;
-	std::string posY = "Position Y##" + m_defaultName;
-	std::string posZ = "Position Z##" + m_defaultName;
-
+	ImGui::Spacing();	
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
 	float maxVal = 1000.0f;
 
+	std::string posScale = "##Position" + GetIdentifier();
+	ImGui::Text("Position (x,y,z)");
 	DirectX::XMFLOAT3 pos = m_transform.GetPosition();
-	objectChanged |= ImGui::DragFloat(posX.c_str(), &(pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posY.c_str(), &(pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(pos.z), dragSpeed, -maxVal, maxVal);
-	m_transform.SetPosition(pos);
+	float posf[3] = { pos.x,pos.y,pos.z };
+	objectChanged |= ImGui::DragFloat3(posScale.c_str(), (posf), dragSpeed, -maxVal, maxVal);
+	m_transform.SetPosition(posf[0], posf[1], posf[2]);
+
 
 	ImGui::End();
 	return objectChanged;

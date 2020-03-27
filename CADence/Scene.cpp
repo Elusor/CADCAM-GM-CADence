@@ -262,11 +262,10 @@ void Scene::UpdateSelectedNode()
 			if (selectedNode->m_object)
 			{
 				bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
-
 				if (selectedObjectModified)
 				{
 					selectedNode->Update();
-				}
+				}				
 			}
 			it++;
 		}

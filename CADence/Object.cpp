@@ -9,42 +9,34 @@ bool Object::CreateParamsGui()
 	bool objectChanged = false;
 	float dragSpeed = 0.01f;
 	float maxVal = 1000.0f;
+	ImGui::Separator();
+	ImGui::Spacing();
+	ImGui::Spacing();
 	ImGui::Text("Name: ");
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Spacing();
 
-	std::string posX = "Position X##" + m_defaultName;
-	std::string posY = "Position Y##" + m_defaultName;
-	std::string posZ = "Position Z##" + m_defaultName;
 
+	std::string posScale = "##Position" + GetIdentifier();
+	ImGui::Text("Position (x,y,z)");
 	DirectX::XMFLOAT3 pos = m_transform.GetPosition();
+	float posf[3] = { pos.x,pos.y,pos.z };
+	objectChanged |= ImGui::DragFloat3(posScale.c_str(), (posf), dragSpeed, -maxVal, maxVal);
+	m_transform.SetPosition(posf[0], posf[1], posf[2]);
+
+	std::string rotScale = "##Rotation" + GetIdentifier();
+	ImGui::Text("Rotation (x,y,z)");
 	DirectX::XMFLOAT3 rot = m_transform.GetRotation();
+	float rotf[3] = { rot.x,rot.y,rot.z };
+	objectChanged |= ImGui::DragFloat3(rotScale.c_str(), (rotf), dragSpeed, -maxVal, maxVal);
+	m_transform.SetRotation(rotf[0], rotf[1], rotf[2]);
+
+	std::string labelScale = "##Scale" + GetIdentifier();
+	ImGui::Text("Scale (x,y,z)");
 	DirectX::XMFLOAT3 scale = m_transform.GetScale();
-
-	objectChanged |= ImGui::DragFloat(posX.c_str(), &(pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posY.c_str(), &(pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(posZ.c_str(), &(pos.z), dragSpeed, -maxVal, maxVal);
-	ImGui::Spacing();
-
-	std::string rotX = "Rotation X##" + m_defaultName;
-	std::string rotY = "Rotation Y##" + m_defaultName;
-	std::string rotZ = "Rotation Z##" + m_defaultName;
-	objectChanged |= ImGui::DragFloat(rotX.c_str(), &(rot.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(rotY.c_str(), &(rot.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(rotZ.c_str(), &(rot.z), dragSpeed, -maxVal, maxVal);
-	ImGui::Spacing();
-
-	std::string scaleX = "Scale X##" + m_defaultName;
-	std::string scaleY = "Scale Y##" + m_defaultName;
-	std::string scaleZ = "Scale Z##" + m_defaultName;
-	objectChanged |= ImGui::DragFloat(scaleX.c_str(), &(scale.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(scaleY.c_str(), &(scale.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat(scaleZ.c_str(), &(scale.z), dragSpeed, -maxVal, maxVal);
-	ImGui::Spacing();
-	
-	m_transform.SetPosition(pos);
-	m_transform.SetRotation(rot);
-	m_transform.SetScale(scale);
+	float scalef[3] = { scale.x,scale.y,scale.z };
+	objectChanged |= ImGui::DragFloat3(labelScale.c_str(), (scalef), dragSpeed, -maxVal, maxVal);
+	m_transform.SetScale(scalef[0], scalef[1], scalef[2]);
 
 	return objectChanged;
 }
@@ -70,8 +62,8 @@ void Object::RenderCoordinates(std::unique_ptr<RenderState>& renderData)
 		{{5.0f,0.0f,0.0f},{1.0f,0.0f,0.0f}},
 		{{0.0f,0.0f,0.0f},{0.0f,1.0f,0.0f}},
 		{{0.0f,5.0f,0.0f},{0.0f,1.0f,0.0f}},
-		{{0.0f,0.0f,0.0f},{0.0f,0.0f,1.0f}},
-		{{0.0f,0.0f,5.0f},{0.0f,0.0f,1.0f}}
+		{{0.0f,0.0f,0.0f},{0.0f,0.5f,1.0f}},
+		{{0.0f,0.0f,5.0f},{0.0f,0.5f,1.0f}}
 	};
 
 	std::vector<unsigned short> indices{
@@ -107,6 +99,16 @@ void Object::UpdateObject()
 }
 
 #pragma region Transform Wrappers
+
+std::string Object::GetLabel()
+{
+	return m_name + "##" + m_defaultName;
+}
+
+std::string Object::GetIdentifier()
+{
+	return "##" + m_defaultName;
+}
 
 Transform& Object::GetTransform()
 {

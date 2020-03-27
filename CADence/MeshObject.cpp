@@ -1,4 +1,5 @@
 #include "MeshObject.h"
+#include "imgui.h"
 using namespace DirectX;
 
 void MeshObject::RenderObject(std::unique_ptr<RenderState>& renderData)
@@ -28,4 +29,27 @@ void MeshObject::RenderObject(std::unique_ptr<RenderState>& renderData)
 	// Watch out for meshes that cannot be covered by ushort
 	renderData->m_device.context()->IASetIndexBuffer(renderData->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 	renderData->m_device.context()->DrawIndexed(m_meshDesc.indices.size(), 0, 0);
+}
+
+bool MeshObject::CreateParamsGui()
+{
+	bool meshChanged = false;
+	meshChanged |= Object::CreateParamsGui();
+	
+	//change color
+	float color[3] = {
+		m_meshDesc.m_defaultColor.x,
+		m_meshDesc.m_defaultColor.y,
+		m_meshDesc.m_defaultColor.z,
+	};
+
+	std::string text = "Default mesh color";
+	ImGui::Text(text.c_str());
+	meshChanged = ImGui::ColorEdit3(GetIdentifier().c_str(), (float*)&color);
+	
+	m_meshDesc.m_defaultColor.x = color[0];
+	m_meshDesc.m_defaultColor.y = color[1];
+	m_meshDesc.m_defaultColor.z = color[2];
+	
+	return meshChanged;
 }

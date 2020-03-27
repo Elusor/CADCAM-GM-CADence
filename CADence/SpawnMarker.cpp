@@ -16,12 +16,12 @@ void SpawnMarker::RenderObject(std::unique_ptr<RenderState>& renderData)
 	renderData->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
 
 	std::vector<VertexPositionColor> vertices{
-		{{-3.0f,0.0f,0.0f},{0.7f,0.2f,0.2f}},
-		{{3.0f,0.0f,0.0f} ,{0.7f,0.2f,0.2f}},
-		{{0.0f,-3.0f,0.0f},{0.7f,0.2f,0.2f}},
-		{{0.0f,3.0f,0.0f}, {0.7f,0.2f,0.2f}},
-		{{0.0f,0.0f,-3.0f},{0.7f,0.2f,0.2f}},
-		{{0.0f,0.0f,3.0f}, {0.7f,0.2f,0.2f}}
+		{{-3.0f,0.0f,0.0f},{m_color}},
+		{{3.0f,0.0f,0.0f} ,{m_color}},
+		{{0.0f,-3.0f,0.0f},{m_color}},
+		{{0.0f,3.0f,0.0f}, {m_color}},
+		{{0.0f,0.0f,-3.0f},{m_color}},
+		{{0.0f,0.0f,3.0f}, {m_color}}
 	};
 
 	std::vector<unsigned short> indices{
@@ -54,13 +54,27 @@ bool SpawnMarker::CreateParamsGui()
 	float dragSpeed = 0.01f;
 	float maxVal = 1000.0f;
 
+	// Edit Color
+	float color[3] = {
+		m_color.x,
+		m_color.y,
+		m_color.z,
+	};
+	std::string text = "Cursor color";
+	ImGui::Text(text.c_str());
+	objectChanged = ImGui::ColorEdit3(GetIdentifier().c_str(), (float*)&color);
+	m_color.x = color[0];
+	m_color.y = color[1];
+	m_color.z = color[2];
+
+	ImGui::Spacing();
+	
+	// Edit position
+	ImGui::Text("World position");
 	DirectX::XMFLOAT3 pos = m_transform.GetPosition();
-
-	objectChanged |= ImGui::DragFloat("Position X##SpawnMarker", &(pos.x), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat("Position Y##SpawnMarker", &(pos.y), dragSpeed, -maxVal, maxVal);
-	objectChanged |= ImGui::DragFloat("Position Z##SpawnMarker", &(pos.z), dragSpeed, -maxVal, maxVal);
-
-	m_transform.SetPosition(pos);
+	float posf[3] = { pos.x,pos.y,pos.z };
+	objectChanged |= ImGui::DragFloat3(GetIdentifier().c_str(), (posf), dragSpeed, -maxVal, maxVal);	
+	m_transform.SetPosition(posf[0],posf[1],posf[2]);
 
 	return objectChanged;
 }

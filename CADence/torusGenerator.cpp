@@ -38,6 +38,7 @@ void GetTorusVerticesLineList(Torus* torus)
 			float curX = bigRotStep * x;
 			float curY = smallRotStep * y;
 			VertexPositionColor v11 = CalculateTorusVertex(R, r, curX, curY, colorFrac);
+			v11.color = surfaceDescription->m_defaultColor;
 			surfaceDescription->vertices.push_back(v11);
 
 			//Add indices representing edges

@@ -104,7 +104,40 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 	{
 		UpdateObject();
 		MeshObject::RenderObject(renderData);	
+		if (m_renderPolygon)
+		{			
+			RenderPolygon(renderData);
+		}
 	}	
+}
+
+void BezierCurve::RenderPolygon(std::unique_ptr<RenderState>& renderState)
+{
+	renderState->m_device.context()->IASetPrimitiveTopology(m_PolygonDesc.m_primitiveTopology);
+	//Update content to fill constant buffer
+	D3D11_MAPPED_SUBRESOURCE res;
+	DirectX::XMMATRIX mvp = m_transform.GetModelMatrix() * renderState->m_camera->GetViewProjectionMatrix();
+	//Set constant buffer
+	auto hres = renderState->m_device.context()->Map((renderState->m_cbMVP.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	memcpy(res.pData, &mvp, sizeof(DirectX::XMMATRIX));
+	renderState->m_device.context()->Unmap(renderState->m_cbMVP.get(), 0);
+	ID3D11Buffer* cbs[] = { renderState->m_cbMVP.get() };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
+
+	// Update Vertex and index buffers
+	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(m_PolygonDesc.vertices));
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(m_PolygonDesc.indices));
+	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
+
+	//Update strides and offets based on the vertex class
+	UINT strides[] = { sizeof(VertexPositionColor) };
+	UINT offsets[] = { 0 };
+
+	renderState->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
+
+	// Watch out for meshes that cannot be covered by ushort
+	renderState->m_device.context()->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	renderState->m_device.context()->DrawIndexed(m_PolygonDesc.indices.size(), 0, 0);
 }
 
 bool BezierCurve::CreateParamsGui()
@@ -116,7 +149,40 @@ bool BezierCurve::CreateParamsGui()
 	ImGui::Spacing();	
 	bool objectChanged = false;	
 	// checkbox for Bernstein's polygon
+	std::string label = "Display curve polygon" + GetIdentifier();
+	objectChanged |= ImGui::Checkbox(label.c_str(), &m_renderPolygon);
 	// checkbox for deBoore points
+
+	// change colors for polygon
+	float pcolor[3] = {
+		m_PolygonDesc.m_defaultColor.x,
+		m_PolygonDesc.m_defaultColor.y,
+		m_PolygonDesc.m_defaultColor.z,
+	};
+
+	std::string ptext = "Polygon color";
+	ImGui::Text(ptext.c_str());
+	objectChanged |= ImGui::ColorEdit3(("##" + ptext + GetIdentifier()).c_str(), (float*)&pcolor);
+
+	m_PolygonDesc.m_defaultColor.x = pcolor[0];
+	m_PolygonDesc.m_defaultColor.y = pcolor[1];
+	m_PolygonDesc.m_defaultColor.z = pcolor[2];
+	
+	// change colors for the curve
+	float mcolor[3] = {
+		m_meshDesc.m_defaultColor.x,
+		m_meshDesc.m_defaultColor.y,
+		m_meshDesc.m_defaultColor.z,
+	};
+
+	std::string mtext = "Curve color";
+	ImGui::Text(mtext.c_str());
+	objectChanged |= ImGui::ColorEdit3(("##" + mtext + GetIdentifier()).c_str(), (float*)&mcolor);
+
+	m_meshDesc.m_defaultColor.x = mcolor[0];
+	m_meshDesc.m_defaultColor.y = mcolor[1];
+	m_meshDesc.m_defaultColor.z = mcolor[2];
+
 	ImGui::End();
 	return objectChanged;
 }
@@ -130,13 +196,28 @@ void BezierCurve::UpdateObject()
 		// Render object using De Casteljau algorithm
 		std::vector<Transform> knots;
 
+		std::vector<VertexPositionColor> polygonVertices;
+		std::vector<unsigned short> polygonIndices;
+
 		for (int i = 0; i < m_controlPoints.size(); i++)
 		{
 			if (auto point = m_controlPoints[i].lock())
 			{
 				knots.push_back(point->m_object->GetTransform());
 			}
+
+			//Update Bezier Polygon
+			polygonVertices.push_back(VertexPositionColor{
+				knots[i].GetPosition(),
+				 m_PolygonDesc.m_defaultColor
+				});
+			polygonIndices.push_back(i);
 		}
+
+		// Update bezier polygon vertex description
+		m_PolygonDesc.vertices = polygonVertices;
+		m_PolygonDesc.indices = polygonIndices;
+		m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
 		// Get Bezier Curve Points
 		auto points = BezierCalculator::CalculateBezierC0Values(knots, adaptiveRenderingSamples);
@@ -148,14 +229,16 @@ void BezierCurve::UpdateObject()
 		{
 			vertices.push_back(VertexPositionColor{
 				points[i].GetPosition(),
-				{1.0f,1.0f,1.0f}
+				m_meshDesc.m_defaultColor
 				});
 			indices.push_back(i);
 		}
-
 		m_meshDesc.vertices = vertices;
 		m_meshDesc.indices = indices;
 		m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+
+
+
 	}
 	// Recalculate adaptive rendering??	
 }

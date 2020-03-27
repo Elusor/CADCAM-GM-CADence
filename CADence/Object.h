@@ -11,6 +11,10 @@ struct Object {
 	std::string m_defaultName = "";
 	std::weak_ptr<Node> m_parent;
 	
+	std::string GetLabel();
+	std::string GetIdentifier();
+
+	// Transform Wrappers
 	Transform& GetTransform();
 	virtual void SetTransform(Transform transform);
 	virtual void Translate(DirectX::XMFLOAT3 position);
@@ -25,6 +29,7 @@ struct Object {
 	DirectX::XMFLOAT3 GetRotation();
 	DirectX::XMFLOAT3 GetScale();
 
+	// Rendering and updates
 	virtual void RenderObject(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderCoordinates(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderObjectSpecificContextOptions(Scene& scene);

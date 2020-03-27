@@ -10,11 +10,14 @@ bool Torus::CreateParamsGui()
 	// Create sliders for torus parameters	
 	Torus* torus = this;
 	bool torusChanged = ParametrizedObject2D::CreateParamsGui();
+	ImGui::Spacing();
 
-	std::string mainR = "Main radius##" + m_defaultName;
-	std::string secR = "Secondary radius##" + m_defaultName;
+	std::string mainR = "##Main radius" + GetIdentifier();
+	std::string secR = "##Secondary radius" + GetIdentifier();
 
+	ImGui::Text("Main radius");
 	torusChanged |= ImGui::SliderFloat(mainR.c_str(), &(torus->m_bigR), 0.0f, 15.0f);
+	ImGui::Text("Secondary radius");
 	torusChanged |= ImGui::SliderFloat(secR.c_str(), &(torus->m_smallR), 0.0f, 15.0f);
 
 	ImGui::End();
