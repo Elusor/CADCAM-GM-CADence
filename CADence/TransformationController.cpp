@@ -107,7 +107,7 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 	if (m_isCapturingMouse)
 	{
 		auto pos = imguiIO.MousePos;
-		deltaY = (pos.y - prevPos.y);
+		deltaY = -(pos.y - prevPos.y);
 
 		float sensitivity = 0.5f;
 		float scaleSensitivity = 0.01f;
