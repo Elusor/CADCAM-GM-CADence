@@ -3,6 +3,21 @@
 std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr<Node>> controlPoints)
 {
 	// TODO [MG] check if all nodes are Points
+	auto it = controlPoints.begin();
+	
+	while (it != controlPoints.end())
+	{
+		if (auto point = it->lock())
+		{
+			if ( typeid(*(point->m_object)) != typeid(Point)) //Object is not point
+			{
+				it = controlPoints.erase(it);
+			}
+			else {
+				it++;
+			}
+		}
+	}
 
 	BezierCurve* bC = new BezierCurve(controlPoints);
 
