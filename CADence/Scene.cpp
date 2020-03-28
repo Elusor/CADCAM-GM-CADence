@@ -83,6 +83,12 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(m_objectFactory->CreateBezierCurve(m_selectedNodes));				
 			}
 
+			if (ImGui::MenuItem("Bezier Curve C2"))
+			{
+				// TODO [MG] Make sure taht only points are selected or filter the points				
+				AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes));
+			}
+
 			ImGui::EndMenu();
 		}
 

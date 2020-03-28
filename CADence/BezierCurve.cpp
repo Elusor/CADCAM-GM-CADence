@@ -5,6 +5,13 @@
 //#include "imgui.cpp"
 #include "adaptiveRenderingCalculator.h"
 #include "Scene.h"
+
+BezierCurve::BezierCurve(): BezierCurve(std::vector<std::weak_ptr<Node>>())
+{
+	m_renderPolygon = false;
+
+}
+
 BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 {
 	m_renderPolygon = false;
@@ -220,7 +227,7 @@ void BezierCurve::UpdateObject()
 	if (m_controlPoints.size() > 0)
 	{
 		// Render object using De Casteljau algorithm
-		std::vector<Transform> knots;
+		std::vector<DirectX::XMFLOAT3> knots;
 
 		std::vector<VertexPositionColor> polygonVertices;
 		std::vector<unsigned short> polygonIndices;
@@ -229,12 +236,12 @@ void BezierCurve::UpdateObject()
 		{
 			if (auto point = m_controlPoints[i].lock())
 			{
-				knots.push_back(point->m_object->GetTransform());
+				knots.push_back(point->m_object->GetPosition());
 			}
 
 			//Update Bezier Polygon
 			polygonVertices.push_back(VertexPositionColor{
-				knots[i].GetPosition(),
+				knots[i],
 				 m_PolygonDesc.m_defaultColor
 				});
 			polygonIndices.push_back(i);
@@ -246,7 +253,7 @@ void BezierCurve::UpdateObject()
 		m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
 		// Get Bezier Curve Points
-		auto points = BezierCalculator::CalculateBezierC0Values(knots, m_adaptiveRenderingSamples);
+		auto points = BezierCalculator::CalculateBezierDeCasteljau(knots, adaptiveRenderingSamples);
 
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;
@@ -254,7 +261,7 @@ void BezierCurve::UpdateObject()
 		for (int i = 0; i < points.size(); i++)
 		{
 			vertices.push_back(VertexPositionColor{
-				points[i].GetPosition(),
+				points[i],
 				m_meshDesc.m_defaultColor
 				});
 			indices.push_back(i);

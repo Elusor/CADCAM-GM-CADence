@@ -9,6 +9,9 @@ class ObjectFactory
 
 public:	
 
+	std::shared_ptr<Node> CreateBezierCurveC2(
+		std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>(), BezierBasis basis = BezierBasis::BSpline);
+
 	std::shared_ptr<Node> CreateBezierCurve(
 		std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
 
@@ -24,7 +27,8 @@ public:
 
 	std::shared_ptr<Node> CreatePoint(Transform transform = Transform());
 
-private:
+private:	
+	std::vector<std::weak_ptr<Node>> FilterObjectTypes(const type_info& typeId, std::vector<std::weak_ptr<Node>> nodes);
 	int m_bezierCurveCounter = 0;
 	int m_torusCounter = 0;
 	int m_pointCounter = 0;

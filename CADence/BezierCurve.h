@@ -8,9 +8,11 @@ struct BezierCurve : MeshObject
 {
 public:
 	// TODO MG maybe just change objects to sharedptr?
+	BezierCurve();
 	explicit BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints);
 
 	std::vector<std::weak_ptr<Node>> m_controlPoints;
+	std::vector<std::unique_ptr<Point>> m_virtualControlPoints;
 
 	// Translation overrides 
 	void SetTransform(Transform transform) override;	

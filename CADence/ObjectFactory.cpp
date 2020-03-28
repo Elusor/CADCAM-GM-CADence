@@ -1,25 +1,32 @@
 #include "ObjectFactory.h"
 
+std::shared_ptr<Node> ObjectFactory::CreateBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints, BezierBasis basis)
+{
+
+	auto points = FilterObjectTypes(typeid(Point), controlPoints);
+	BezierCurveC2* bC = new BezierCurveC2(points, basis);
+	std::string name = "Bezier Curve";
+	
+	if (m_bezierCurveCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierCurveCounter);
+	}
+	bC->m_name = bC->m_defaultName = name;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
+	node->m_object = std::unique_ptr<Object>(bC);;
+	bC->m_parent = node;
+	m_bezierCurveCounter++;
+	return node;
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr<Node>> controlPoints)
 {
 	// TODO [MG] check if all nodes are Points
-	auto it = controlPoints.begin();
 	
-	while (it != controlPoints.end())
-	{
-		if (auto point = it->lock())
-		{
-			if ( typeid(*(point->m_object)) != typeid(Point)) //Object is not point
-			{
-				it = controlPoints.erase(it);
-			}
-			else {
-				it++;
-			}
-		}
-	}
+	auto points = FilterObjectTypes(typeid(Point), controlPoints);
 
-	BezierCurve* bC = new BezierCurve(controlPoints);
+	BezierCurve* bC = new BezierCurve(points);
 
 	std::string name = "Bezier Curve";
 	if (m_bezierCurveCounter > 0)
@@ -29,7 +36,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr
 
 	bC->m_name = bC->m_defaultName = name;
 
-	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(controlPoints));
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
 	node->m_object = std::unique_ptr<Object>(bC);;	
 	bC->m_parent = node;
 	m_bezierCurveCounter++;
@@ -109,4 +116,25 @@ std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
 	n->m_object = std::unique_ptr<Point>(p);
 	p->m_parent = n;
 	return n;
+}
+
+std::vector<std::weak_ptr<Node>> ObjectFactory::FilterObjectTypes(const type_info& typeId, std::vector<std::weak_ptr<Node>> nodes)
+{
+	auto it = nodes.begin();
+
+	while (it != nodes.end())
+	{
+		if (auto point = it->lock())
+		{
+			if (typeid(*(point->m_object)) != typeId) //Object is not point
+			{
+				it = nodes.erase(it);
+			}
+			else {
+				it++;
+			}
+		}
+	}
+
+	return nodes;
 }

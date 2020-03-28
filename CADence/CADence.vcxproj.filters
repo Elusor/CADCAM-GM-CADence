@@ -201,6 +201,12 @@
     <ClInclude Include="bezierCalculator.h">
       <Filter>Header Files\CadSpecific\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="BezierCurveC2.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="mathUtils.h">
+      <Filter>Header Files\CadSpecific\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="adaptiveRenderingCalculator.h">
       <Filter>Header Files\CadSpecific\Rendering</Filter>
     </ClInclude>
@@ -307,6 +313,12 @@
     </ClCompile>
     <ClCompile Include="bezierCalculator.cpp">
       <Filter>Source Files\CadSpecific\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierCurveC2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mathUtils.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="adaptiveRenderingCalculator.cpp">
       <Filter>Source Files</Filter>

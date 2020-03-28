@@ -159,7 +159,9 @@
     <ClInclude Include="adaptiveRenderingCalculator.h" />
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
+    <ClInclude Include="BezierCurveC2.h" />
     <ClInclude Include="GroupNode.h" />
+    <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Object.h" />
@@ -199,6 +201,7 @@
     <ClCompile Include="adaptiveRenderingCalculator.cpp" />
     <ClCompile Include="bezierCalculator.cpp" />
     <ClCompile Include="BezierCurve.cpp" />
+    <ClCompile Include="BezierCurveC2.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="dxApplication.cpp" />
@@ -213,6 +216,7 @@
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="vertexStructures.cpp" />
     <ClCompile Include="MeshObject.cpp" />
     <ClCompile Include="Node.cpp" />
