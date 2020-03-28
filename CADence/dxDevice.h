@@ -34,6 +34,8 @@ public:
 
 	mini::dx_ptr<ID3D11PixelShader> CreatePixelShader(std::vector<BYTE> psCode) const;
 
+	mini::dx_ptr<ID3D11GeometryShader> CreateGeometryShader(std::vector<BYTE> psCode) const;
+
 	mini::dx_ptr<ID3D11InputLayout> CreateInputLayout(const std::vector<D3D11_INPUT_ELEMENT_DESC> elements, std::vector<BYTE> vsCode) const;
 
 	mini::dx_ptr<ID3D11DepthStencilView> CreateDepthStencilView(SIZE size) const;

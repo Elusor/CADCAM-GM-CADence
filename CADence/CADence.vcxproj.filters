@@ -85,6 +85,9 @@
     <Filter Include="Header Files\ImGui\DirectXWrappers">
       <UniqueIdentifier>{a0522e84-fcd9-4d9c-a766-437a93918a6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{704bd5e8-b256-4efd-8884-bb80f8698b2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -303,17 +306,26 @@
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="bezierCalculator.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Utils</Filter>
     </ClCompile>
     <ClCompile Include="adaptiveRenderingCalculator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="vs.hlsl" />
-    <FxCompile Include="ps.hlsl" />
+    <FxCompile Include="ps.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="vs.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="bezierGs.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShaderStructs.hlsli" />
+    <None Include="ShaderStructs.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
