@@ -97,5 +97,10 @@ std::string Node::GetLabel()
 void Node::Update()
 {
 	if (m_object != nullptr)
-		m_object->UpdateObject();
+	{
+		if (m_object->GetIsModified())
+		{
+			m_object->UpdateObject();
+		}
+	}
 }

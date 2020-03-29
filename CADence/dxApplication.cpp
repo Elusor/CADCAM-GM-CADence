@@ -92,6 +92,8 @@ int DxApplication::MainLoop()
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
+			m_scene->ClearModifiedTag();
+
 
 			m_transController->ProcessInput(ImGui::GetIO());
 			if (m_transController->IsTransforming() == false) {
@@ -125,10 +127,9 @@ int DxApplication::MainLoop()
 
 
 
-
+		
 			InitImguiWindows();
 
-			m_scene->ClearModifiedTag();
 			Clear();
 			Update();
 			Render();
@@ -154,7 +155,7 @@ void DxApplication::Clear()
 
 void DxApplication::Update()
 {
-	m_scene->UpdateSelectedNode();
+	m_scene->UpdateScene();
 }
 
 void DxApplication::Render()

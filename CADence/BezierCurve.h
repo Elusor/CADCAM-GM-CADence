@@ -10,7 +10,6 @@ public:
 	BezierCurve();
 	explicit BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints);
 
-	std::vector<std::weak_ptr<Node>> m_controlPoints;
 	std::vector<std::unique_ptr<Point>> m_virtualControlPoints;
 
 	// Translation overrides 
@@ -35,6 +34,7 @@ public:
 	bool IsChild(std::weak_ptr<Node> point);	
 
 protected:
+	std::vector<std::weak_ptr<Node>> m_controlPoints;
 	int m_adaptiveRenderingSamples;
 	MeshDescription m_PolygonDesc;
 	bool m_renderPolygon;

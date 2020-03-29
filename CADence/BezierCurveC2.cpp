@@ -90,8 +90,14 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 			nullptr, 0);*/
 
 		// This should actually be in update
+		int prev = m_adaptiveRenderingSamples;
 		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderState);
-		UpdateObject();
+		if (prev != m_adaptiveRenderingSamples)
+			SetModified(true);
+		if (m_modified)
+		{
+			UpdateObject();
+		}
 		MeshObject::RenderObject(renderState);
 
 		//renderData->m_device.context()->GSSetShader(nullptr, nullptr, 0);

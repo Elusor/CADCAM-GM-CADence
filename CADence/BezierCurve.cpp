@@ -14,6 +14,7 @@ BezierCurve::BezierCurve(): BezierCurve(std::vector<std::weak_ptr<Node>>())
 
 BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 {
+	m_modified = true;
 	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = false;
 	m_controlPoints = initialControlPoints;
@@ -22,6 +23,7 @@ BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
 {
 	m_controlPoints.push_back(controlPoint);
+	SetModified(true);
 }
 
 void BezierCurve::RemoveChild(std::weak_ptr<Node> controlPoint)
@@ -46,6 +48,7 @@ void BezierCurve::RemoveChild(std::weak_ptr<Node> controlPoint)
 			}			
 		}
 	}	
+	SetModified(true);
 }
 
 bool BezierCurve::IsChild(std::weak_ptr<Node> point)
@@ -109,9 +112,16 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 	RemoveExpiredChildren();
 	// TODO [MG] DO NOT RECALCULATE EACH FRAME
 	if (m_controlPoints.size() > 1)
-	{
+	{	
+		int prev = m_adaptiveRenderingSamples;
 		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderData);
-		UpdateObject();
+		if (prev != m_adaptiveRenderingSamples) 
+			SetModified(true);
+
+		if(m_modified)
+		{			
+			UpdateObject();
+		}		
 		MeshObject::RenderObject(renderData);	
 		if (m_renderPolygon)
 		{	

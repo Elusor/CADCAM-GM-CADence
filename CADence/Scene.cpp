@@ -298,8 +298,9 @@ void Scene::ClearModifiedTag()
 
 void Scene::UpdateScene()
 {
-	// Currently not in use - if necessary implement setting active objects (i.e. rotating etc.)
-	// as dirty and run object->Update only on dirty objects
+
+	UpdateSelectedNode();
+
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		m_nodes[i]->Update();
@@ -320,16 +321,36 @@ void Scene::UpdateSelectedNode()
 		{
 			if (selectedNode->m_object)
 			{
-				bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
-				if (selectedObjectModified)
+				if (selectedNode->m_object->CreateParamsGui())
 				{
-					selectedNode->Update();
-				}				
+					selectedNode->m_object->SetModified(true);
+				}
 			}
 			it++;
 		}
 		else {
 			it = m_selectedNodes.erase(it);
-		}		
+		}
 	}
+
+	//auto it = m_selectedNodes.begin();
+	//while (it != m_selectedNodes.end())
+	//{
+	//	// TODO [MG] : add collapsing headers
+	//	if (auto selectedNode = it->lock())
+	//	{
+	//		if (selectedNode->m_object)
+	//		{
+	//			bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
+	//			if (selectedObjectModified)
+	//			{
+	//				selectedNode->Update();
+	//			}				
+	//		}
+	//		it++;
+	//	}
+	//	else {
+	//		it = m_selectedNodes.erase(it);
+	//	}		
+	//}
 }
