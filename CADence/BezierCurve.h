@@ -29,7 +29,7 @@ public:
 
 	// Child managment
 	void AttachChild(std::weak_ptr<Node> controlPoint);
-	void RemoveChild(std::weak_ptr<Node> controlPoint);
+	void RemoveChild(std::weak_ptr<Node> controlPoint);	
 	bool IsChild(std::weak_ptr<Node> point);	
 
 protected:
@@ -37,5 +37,5 @@ protected:
 	MeshDescription m_PolygonDesc;
 	bool m_renderPolygon;
 	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
-
+	void RemoveExpiredChildren();
 };

@@ -100,6 +100,7 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 
 void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 {
+	RemoveExpiredChildren();
 	// TODO [MG] DO NOT RECALCULATE EACH FRAME
 	if (m_controlPoints.size() > 1)
 	{
@@ -140,6 +141,27 @@ void BezierCurve::RenderPolygon(std::unique_ptr<RenderState>& renderState)
 	// Watch out for meshes that cannot be covered by ushort
 	renderState->m_device.context()->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 	renderState->m_device.context()->DrawIndexed(m_PolygonDesc.indices.size(), 0, 0);
+}
+
+void BezierCurve::RemoveExpiredChildren()
+{
+	auto it = m_controlPoints.begin();
+	while (it != m_controlPoints.end())
+	{
+		if (auto pt = it->lock())
+		{
+			it++;
+		}
+		else {
+			it = m_controlPoints.erase(it);
+		}		
+	}
+
+	if (auto parent = m_parent.lock())
+	{
+		auto gParent = dynamic_cast<GroupNode*>(parent.get());
+		gParent->RemoveExpiredChildren();
+	}
 }
 
 bool BezierCurve::CreateParamsGui()
