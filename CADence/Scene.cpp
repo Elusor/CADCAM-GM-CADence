@@ -64,7 +64,7 @@ void Scene::DrawScenePopupMenu()
 				{
 					if (std::shared_ptr<Node> selectedNode = m_selectedNodes[i].lock())
 					{						
-						if (typeid(*(selectedNode->m_object.get())) == typeid(BezierCurve))
+						if (dynamic_cast<BezierCurve*>(selectedNode->m_object.get()) != nullptr)
 						{
 							BezierCurve* curves = dynamic_cast<BezierCurve*>(selectedNode->m_object.get());
 							auto Node = dynamic_cast<GroupNode*>(selectedNode.get());

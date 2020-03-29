@@ -82,7 +82,7 @@ void Point::RenderObjectSpecificContextOptions(Scene& scene)
 	for(int i = 0; i < scene.m_nodes.size(); i++)
 	{
 		auto currentobject = (scene.m_nodes[i]->m_object.get());
-		if (typeid(*currentobject) == typeid(BezierCurve))
+		if (dynamic_cast<BezierCurve*>(currentobject) != nullptr)
 		{
 			BezierCurve* curve = dynamic_cast<BezierCurve*>(currentobject);
 			if (curve->IsChild(this->m_parent) == false)

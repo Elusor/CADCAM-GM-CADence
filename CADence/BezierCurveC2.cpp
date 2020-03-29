@@ -21,6 +21,9 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 
 void BezierCurveC2::UpdateObject()
 {
+	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points
+
+
 	if (m_controlPoints.size() >= 4)
 	{
 		m_virtualBernsteinPoints = CalculateBernsteinFromDeBoor();
