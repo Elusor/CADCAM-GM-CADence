@@ -12,6 +12,28 @@ void GroupNode::AddChild(std::weak_ptr<Node> child)
 	m_children.push_back(child);
 }
 
+void GroupNode::RemoveChild(std::weak_ptr<Node> child)
+{
+	auto it = m_children.begin();
+	while (it != m_children.end())
+	{
+		if (auto node = it->lock())
+		{
+			if (node == child.lock())
+			{
+				it = m_children.erase(it);
+			}
+			else {
+				it++;
+			}
+		}
+		else
+		{
+			it = m_children.erase(it);
+		}
+	}
+}
+
 void GroupNode::RemoveExpiredChildren()
 {
 	auto it = m_children.begin();

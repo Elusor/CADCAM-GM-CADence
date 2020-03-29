@@ -83,10 +83,21 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(m_objectFactory->CreateBezierCurve(m_selectedNodes));				
 			}
 
-			if (ImGui::MenuItem("Bezier Curve C2"))
+			if (ImGui::BeginMenu("Bezier Curve C2"))
 			{
-				// TODO [MG] Make sure taht only points are selected or filter the points				
-				AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes));
+				if (ImGui::MenuItem("B-Spline basis"))
+				{
+					// TODO [MG] Make sure taht only points are selected or filter the points				
+					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::BSpline));
+				}
+
+				if (ImGui::MenuItem("Bernstein basis"))
+				{
+					// TODO [MG] Make sure taht only points are selected or filter the points				
+					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::Bernstein));
+				}
+
+				ImGui::EndMenu();
 			}
 
 			ImGui::EndMenu();

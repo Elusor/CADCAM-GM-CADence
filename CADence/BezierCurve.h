@@ -7,7 +7,6 @@ class Scene;
 struct BezierCurve : MeshObject
 {
 public:
-	// TODO MG maybe just change objects to sharedptr?
 	BezierCurve();
 	explicit BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints);
 
@@ -30,8 +29,8 @@ public:
 	bool CreateParamsGui() override;
 
 	// Child managment
-	void AttachChild(std::weak_ptr<Node> controlPoint);
-	void RemoveChild(std::weak_ptr<Node> controlPoint);	
+	void virtual AttachChild(std::weak_ptr<Node> controlPoint);
+	void virtual RemoveChild(std::weak_ptr<Node> controlPoint);	
 	bool IsChild(std::weak_ptr<Node> point);	
 
 protected:

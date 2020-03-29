@@ -27,25 +27,23 @@ void BezierCurve::RemoveChild(std::weak_ptr<Node> controlPoint)
 {	
 	if (auto controlPt = controlPoint.lock())
 	{
-		auto m_copy = m_controlPoints;
-		auto it = m_copy.begin();
-		while (it != m_copy.end())
+		auto it = m_controlPoints.begin();
+		while (it != m_controlPoints.end())
 		{
 			if (auto node = it->lock())
 			{
 				if (node == controlPt)
 				{
-					it = m_copy.erase(it);
+					it = m_controlPoints.erase(it);
 				}
 				else {
 					it++;
 				}
 			}
 			else {
-				it = m_copy.erase(it);
+				it = m_controlPoints.erase(it);
 			}			
 		}
-		m_controlPoints = m_copy;
 	}	
 }
 
