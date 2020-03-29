@@ -24,6 +24,8 @@ void BezierCurveC2::UpdateObject()
 {
 	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
 
+	RecalculateBasisPoints();
+
 	if (m_controlPoints.size() >= 4)
 	{
 		m_virtualBernsteinPoints = CalculateBernsteinFromDeBoor();
@@ -212,16 +214,14 @@ bool BezierCurveC2::GetIsModified()
 			}
 		}
 	}
-	else
+
+	for (int i = 0; i < m_controlPoints.size(); i++)
 	{
-		for (int i = 0; i < m_controlPoints.size(); i++)
+		if (auto point = m_controlPoints[i].lock())
 		{
-			if (auto point = m_controlPoints[i].lock())
+			if (point->m_object->GetIsModified())
 			{
-				if (point->m_object->GetIsModified())
-				{
-					SetModified(true);
-				}
+				SetModified(true);
 			}
 		}
 	}
