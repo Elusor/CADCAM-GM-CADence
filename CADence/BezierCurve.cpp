@@ -229,6 +229,22 @@ bool BezierCurve::CreateParamsGui()
 	return objectChanged;
 }
 
+bool BezierCurve::GetIsModified()
+{
+	for (int i = 0; i < m_controlPoints.size(); i++)
+	{
+		if (auto point = m_controlPoints[i].lock())
+		{
+			if (point->m_object->GetIsModified())
+			{
+				SetModified(true);
+			}
+		}
+	}
+
+	return m_modified;
+}
+
 void BezierCurve::UpdateObject()
 {
 	if (m_controlPoints.size() > 0)

@@ -27,6 +27,7 @@ public:
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	void UpdateObject() override;
 	bool CreateParamsGui() override;
+	bool GetIsModified() override;
 
 	// Child managment
 	void virtual AttachChild(std::weak_ptr<Node> controlPoint);

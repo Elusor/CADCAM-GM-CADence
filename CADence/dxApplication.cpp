@@ -126,9 +126,9 @@ int DxApplication::MainLoop()
 
 
 
-
 			InitImguiWindows();
 
+			m_scene->ClearModifiedTag();
 			Clear();
 			Update();
 			Render();

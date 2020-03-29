@@ -233,6 +233,14 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 	{
 		// TODO [MG] : check if this item is currently selected		
 		m_nodes[i]->Render(renderState);
+		auto children = m_nodes[i]->GetChildren();
+		for (int j = 0; j < children.size(); j++)
+		{
+			if (auto child = children[j].lock())
+			{
+				child->Render(renderState);
+			}
+		}
 	}		
 
 #pragma region RenderMiddleMarker(std::unique_ptr<RenderData>& renderData, std::vector<std::weak_ptr<Node>> m_selectedNodes)
@@ -267,6 +275,25 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 #pragma endregion
 
 	
+}
+
+void Scene::ClearModifiedTag()
+{
+	auto it = m_nodes.begin();
+	while(it != m_nodes.end())
+	{ 
+		auto node = it->get();
+		auto children = node->GetChildren();
+		for (int j = 0; j < children.size(); j++)
+		{
+			if (auto child = children[j].lock())
+			{
+				child->m_object->SetModified(false);
+			}
+		}
+		node->m_object->SetModified(false);
+		it++;
+	}
 }
 
 void Scene::UpdateScene()

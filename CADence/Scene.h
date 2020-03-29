@@ -21,6 +21,7 @@ public:
 
 	void SelectionChanged(Node& node);
 
+	void ClearModifiedTag();
 	void UpdateScene();
 	void UpdateSelectedNode();
 	void RenderScene(std::unique_ptr<RenderState> & renderData);

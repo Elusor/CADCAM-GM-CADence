@@ -22,8 +22,7 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 
 void BezierCurveC2::UpdateObject()
 {
-	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points
-
+	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
 
 	if (m_controlPoints.size() >= 4)
 	{
@@ -112,6 +111,7 @@ void BezierCurveC2::AttachChild(std::weak_ptr<Node> controlPoint)
 {
 	m_controlPoints.push_back(controlPoint);
 	RecalculateBasisPoints();
+	SetModified(true);
 }
 
 void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
@@ -139,6 +139,7 @@ void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 	// This needs to be called with false not to overwrite the vector on which the calling function in iterating
 	// Rewrite both of these methods to make them implementation - agnostic
 	RecalculateBasisPoints(false);
+	SetModified(true);
 }
 
 bool BezierCurveC2::CreateParamsGui()
@@ -191,6 +192,35 @@ void BezierCurveC2::RecalculateBasisPoints(bool overwriteVertices)
 	{
 		RecalculateBSplinePoints(overwriteVertices);
 	}
+}
+
+bool BezierCurveC2::GetIsModified()
+{
+	if (m_basis == BezierBasis::Bernstein)
+	{
+		for (int i = 0; i < m_curBasisControlPoints.size(); i++)
+		{
+			if (m_curBasisControlPoints[i]->m_object->GetIsModified())
+			{
+				SetModified(true);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{
+			if (auto point = m_controlPoints[i].lock())
+			{
+				if (point->m_object->GetIsModified())
+				{
+					SetModified(true);
+				}
+			}
+		}
+	}
+
+	return m_modified;
 }
 
 void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)

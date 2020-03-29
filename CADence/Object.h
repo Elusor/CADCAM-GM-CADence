@@ -10,7 +10,7 @@ struct Object {
 	std::string m_name = "";
 	std::string m_defaultName = "";
 	std::weak_ptr<Node> m_parent;
-	
+
 	std::string GetLabel();
 	std::string GetIdentifier();
 
@@ -35,7 +35,11 @@ struct Object {
 	virtual void RenderObjectSpecificContextOptions(Scene& scene);
 	virtual void UpdateObject();
 	virtual bool CreateParamsGui();
-
+	virtual bool GetIsModified();
+	void SetModified(bool value);
 protected:
+
 	Transform m_transform;
+	bool m_modified = false;
+
 };
