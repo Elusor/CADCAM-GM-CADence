@@ -28,6 +28,18 @@ void GroupNode::RemoveExpiredChildren()
 	}
 }
 
+void GroupNode::SetChildren(std::vector<std::shared_ptr<Node>> children)
+{
+	m_children.clear();
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		std::weak_ptr<Node> child = children[i];
+		m_children.push_back(child);
+	}
+
+}
+
 void GroupNode::DrawNodeGUI(Scene& scene)
 {
 	// REWRITE THIS ASAP
@@ -139,6 +151,40 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 
 		if(nodeRemoved && treePushed)
 			ImGui::TreePop();
+	}
+}
+
+std::vector<std::weak_ptr<Node>> GroupNode::GetSelectedChildren()
+{
+	std::vector<std::weak_ptr<Node>> selectedChildren;
+
+	for (int i = 0; i < m_children.size(); i++)
+	{
+		if (auto child = m_children[i].lock())
+		{
+			if (child->m_isSelected)
+			{
+				selectedChildren.push_back(child);
+			}
+		}
+	}
+	
+	return selectedChildren;
+}
+
+std::vector<std::weak_ptr<Node>> GroupNode::GetChildren()
+{
+	return m_children;
+}
+
+void GroupNode::ClearChildrenSelection()
+{
+	for (int i = 0; i < m_children.size(); i++)
+	{
+		if (auto child = m_children[i].lock())
+		{
+			child->m_isSelected = false;
+		}
 	}
 }
 

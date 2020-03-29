@@ -314,14 +314,14 @@
     <ClCompile Include="bezierCalculator.cpp">
       <Filter>Source Files\CadSpecific\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="adaptiveRenderingCalculator.cpp">
+      <Filter>Source Files\CadSpecific\Rendering</Filter>
+    </ClCompile>
     <ClCompile Include="BezierCurveC2.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="mathUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adaptiveRenderingCalculator.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

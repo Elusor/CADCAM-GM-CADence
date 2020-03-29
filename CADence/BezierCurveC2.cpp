@@ -2,7 +2,9 @@
 #include "BezierCurveC2.h"
 #include "mathUtils.h"
 #include "Node.h"
-
+#include "adaptiveRenderingCalculator.h"
+#include "GroupNode.h"
+#include "imgui.h"
 
 BezierCurveC2::BezierCurveC2(): BezierCurveC2(std::vector<std::weak_ptr<Node>>(), BezierBasis::BSpline)
 {
@@ -15,9 +17,54 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 	m_basis = BezierBasis::BSpline;
 }
 
-void BezierCurveC2::SwitchBases(BezierBasis basis)
-{
+void BezierCurveC2::SwitchBases()
+{	
+	m_curBasisControlPoints.clear();
 
+	// Switch TO BSPLINE
+	if (m_basis == BezierBasis::Bernstein)
+	{		
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{
+			if (auto point = m_controlPoints[i].lock())
+			{
+				m_curBasisControlPoints.push_back(point);
+			}
+		}
+
+		// fill m_curBasisControlPoints with BSpline points - that is this object's control points
+		m_basis = BezierBasis::BSpline;
+	}
+	else {
+		// Switch TO BERNSTEIN
+		if (m_basis == BezierBasis::BSpline)
+		{
+			// Calculate Bernstein 
+			m_virtualBernsteinPoints = CalculateBezierFromDeBoor();
+
+			for (int i = 0; i < m_virtualBernsteinPoints.size(); i++)
+			{
+				Point* p = new Point();
+				p->m_name = "Bernstein point " + std::to_string(i);
+				p->SetPosition(m_virtualBernsteinPoints[i]);
+
+				Node* node = new Node();
+				node->m_object = std::unique_ptr<Point>(p);
+				// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints
+				m_curBasisControlPoints.push_back(std::shared_ptr<Node>(node));
+			}
+
+			// set m_curBasisControlPoints as actual children for the parent group node
+
+
+			m_basis = BezierBasis::Bernstein;
+		}
+	}
+	if (auto parent = m_parent.lock())
+	{
+		GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
+		gParent->SetChildren(m_curBasisControlPoints);
+	}
 
 }
 
@@ -28,7 +75,7 @@ void BezierCurveC2::UpdateObject()
 		m_virtualBernsteinPoints = CalculateBezierFromDeBoor();
 		std::vector<VertexPositionColor> curveVertices;
 		std::vector<unsigned short> curveIndices;
-		auto curvePoints = BezierCalculator::CalculateBezierDeCasteljau(m_virtualBernsteinPoints, 200);		
+		auto curvePoints = BezierCalculator::CalculateBezierDeCasteljau(m_virtualBernsteinPoints, m_adaptiveRenderingSamples);		
 		for (int i = 0; i < curvePoints.size(); i++)
 		{
 			curveVertices.push_back(VertexPositionColor{
@@ -61,12 +108,13 @@ void BezierCurveC2::UpdateObject()
 
 void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
+	RemoveExpiredChildren();
 	if (m_controlPoints.size() >= 4)
 	{
 		/*renderData->m_device.context()->GSSetShader(
 			renderData->m_bezierGeometryShader.get(),
 			nullptr, 0);*/
-
+		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderState);
 		UpdateObject();
 		MeshObject::RenderObject(renderState);
 
@@ -76,6 +124,22 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 			RenderPolygon(renderState);
 		}
 	}
+}
+
+bool BezierCurveC2::CreateParamsGui()
+{
+	bool objectChanged = BezierCurve::CreateParamsGui();
+	ImGui::Begin("Inspector");
+	
+	bool clicked = ImGui::Button("Change basis");
+	objectChanged |= clicked;
+
+	if (clicked)
+	{
+		SwitchBases();
+	}
+	ImGui::End();
+	return objectChanged;
 }
 
 std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBezierFromDeBoor()

@@ -13,7 +13,12 @@ public:
 	void AddChild(std::weak_ptr<Node> child);
 	void RemoveChild(std::weak_ptr<Node> child);
 	void RemoveExpiredChildren();
+	void SetChildren(std::vector<std::shared_ptr<Node>> children);
 	void DrawNodeGUI(Scene& scene) override;
+
+	std::vector<std::weak_ptr<Node>> GetSelectedChildren() override;
+	std::vector<std::weak_ptr<Node>> GetChildren() override;
+	void ClearChildrenSelection() override;
 private:
 	std::vector<std::weak_ptr<Node>> m_children;
 	void DrawChildGUI();

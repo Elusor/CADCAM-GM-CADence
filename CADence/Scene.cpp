@@ -140,16 +140,31 @@ void Scene::SelectionChanged(Node& node)
 		std::weak_ptr<Node> weakNode;
 		// clear selected nodes
 		for (int i = 0; i < m_nodes.size(); i++)
-		{
+		{		
+			// check object
 			if (m_nodes[i]->m_object == node.m_object)
 			{
 				weakNode = m_nodes[i];
 			}
+
+			// check children
+			auto children = m_nodes[i]->GetChildren();
+			for (int j = 0; j < children.size(); j++)
+			{
+				if (auto child = children[j].lock())
+				{
+					if (child->m_object == node.m_object)
+					{
+						weakNode = child;
+					}
+				}
+			}
+
+			m_nodes[i]->ClearChildrenSelection();
 			m_nodes[i]->m_isSelected = false;
 		}
 		m_selectedNodes.clear();
 
-		
 		// select this node
 		node.m_isSelected = true;		
 		m_selectedNodes.push_back(weakNode);

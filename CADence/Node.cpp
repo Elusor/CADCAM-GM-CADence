@@ -10,6 +10,20 @@ void Node::Render(std::unique_ptr<RenderState> & renderData)
 	}	
 }
 
+std::vector<std::weak_ptr<Node>> Node::GetSelectedChildren()
+{
+	return std::vector<std::weak_ptr<Node>>();
+}
+
+std::vector<std::weak_ptr<Node>> Node::GetChildren()
+{
+	return std::vector<std::weak_ptr<Node>>();
+}
+
+void Node::ClearChildrenSelection()
+{
+}
+
 void Node::DrawRenameGUI()
 {
 	std::string name = "##input";

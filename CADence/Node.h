@@ -16,7 +16,12 @@ public:
 	virtual void DrawNodeGUI(Scene& scene);
 	std::string GetLabel();
 	void Update();
-	void Render(std::unique_ptr<RenderState> & renderData);	
+	void Render(std::unique_ptr<RenderState> & renderData);		
+	
+	// Methods that coul be further used for non flat hierarchy 
+	virtual std::vector<std::weak_ptr<Node>> GetSelectedChildren();
+	virtual std::vector<std::weak_ptr<Node>> GetChildren();
+	virtual void ClearChildrenSelection();
 
 protected:
 	void DrawRenameGUI();
