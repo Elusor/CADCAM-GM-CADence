@@ -53,6 +53,26 @@ void BezierCurveC2::UpdateObject()
 		m_PolygonDesc.vertices = bernCurveVertices;
 		m_PolygonDesc.indices = bernCurveIndices;
 		m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;		
+
+		std::vector<VertexPositionColor> deBoorCurveVertices;
+		std::vector<unsigned short> deBoorCurveIndices;
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{
+			if (auto point = m_controlPoints[i].lock())
+			{
+				deBoorCurveVertices.push_back(VertexPositionColor{
+					point->m_object->GetPosition(),
+					m_PolygonDesc.m_defaultColor
+					}
+				);
+				deBoorCurveIndices.push_back(i);
+			}
+		}
+
+		m_deBoorPolyDesc.vertices = deBoorCurveVertices;
+		m_deBoorPolyDesc.indices = deBoorCurveIndices;
+		m_deBoorPolyDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+
 	}
 }
 
@@ -75,6 +95,8 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 		{
 			RenderPolygon(renderState);
 		}
+
+
 	}
 }
 
