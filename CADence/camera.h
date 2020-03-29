@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include <windows.h>
 class Camera
 {
 public:
@@ -19,6 +20,7 @@ public:
 	void RotateCamera(float dx, float dy);
 	void TranslateCamera(float dx, float dy);
 	void ResizeViewport(float width, float height);
+	SIZE GetViewportSize();	
 
 private:	
 	// Calculate view matrix based on the cmaera position and target position
@@ -31,6 +33,8 @@ private:
 	float m_zNear;
 	float m_zFar;
 
+	uint32_t m_width;
+	uint32_t m_height;
 
 	DirectX::XMFLOAT3 m_target;
 	DirectX::XMFLOAT3 m_right;

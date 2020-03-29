@@ -11,6 +11,9 @@ Camera::Camera() : Camera(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)
 
 Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT2 rotation, uint32_t width, uint32_t height, float fovAngle, float zNear, float zFar)
 {
+	m_height = height;
+	m_width = width;
+
 	m_aspectRatio = (float)width / (float)height;
 	m_fov = fovAngle;
 
@@ -146,6 +149,14 @@ void Camera::ResizeViewport(float width, float height)
 {
 	m_aspectRatio = width / height;
 	RecalculateProjectionMatrix();
+}
+
+SIZE Camera::GetViewportSize()
+{
+	SIZE size;
+	size.cx = m_width;
+	size.cy = m_height;
+	return size;
 }
 
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2)

@@ -3,6 +3,7 @@
 #include "Node.h"
 #include "imgui.h"
 //#include "imgui.cpp"
+#include "adaptiveRenderingCalculator.h"
 #include "Scene.h"
 BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 {
@@ -100,8 +101,9 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 {
 	// TODO [MG] DO NOT RECALCULATE EACH FRAME
-	if (m_controlPoints.size() > 0)
+	if (m_controlPoints.size() > 1)
 	{
+		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderData);
 		UpdateObject();
 		MeshObject::RenderObject(renderData);	
 		if (m_renderPolygon)
@@ -145,6 +147,10 @@ bool BezierCurve::CreateParamsGui()
 	ImGui::Begin("Inspector");
 	// Create sliders for torus parameters	
 	ImGui::Text("Name: ");
+
+	ImGui::Text("Samples: ");
+	ImGui::SameLine(); ImGui::Text(std::to_string(m_adaptiveRenderingSamples).c_str());
+
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Spacing();	
 	bool objectChanged = false;	
@@ -189,8 +195,6 @@ bool BezierCurve::CreateParamsGui()
 
 void BezierCurve::UpdateObject()
 {
-	int adaptiveRenderingSamples = 200;
-
 	if (m_controlPoints.size() > 0)
 	{
 		// Render object using De Casteljau algorithm
@@ -220,7 +224,7 @@ void BezierCurve::UpdateObject()
 		m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
 		// Get Bezier Curve Points
-		auto points = BezierCalculator::CalculateBezierC0Values(knots, adaptiveRenderingSamples);
+		auto points = BezierCalculator::CalculateBezierC0Values(knots, m_adaptiveRenderingSamples);
 
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;

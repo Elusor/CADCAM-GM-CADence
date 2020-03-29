@@ -156,6 +156,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="adaptiveRenderingCalculator.h" />
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="GroupNode.h" />
@@ -195,6 +196,7 @@
     <ClInclude Include="windowApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="adaptiveRenderingCalculator.cpp" />
     <ClCompile Include="bezierCalculator.cpp" />
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="camera.cpp" />

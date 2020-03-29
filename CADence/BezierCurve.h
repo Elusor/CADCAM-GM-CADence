@@ -33,6 +33,7 @@ public:
 	bool IsChild(std::weak_ptr<Node> point);	
 
 protected:
+	int m_adaptiveRenderingSamples;
 	MeshDescription m_PolygonDesc;
 	bool m_renderPolygon;
 	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
