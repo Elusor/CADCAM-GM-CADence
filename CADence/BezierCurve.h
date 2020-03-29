@@ -37,6 +37,6 @@ protected:
 	int m_adaptiveRenderingSamples;
 	MeshDescription m_PolygonDesc;
 	bool m_renderPolygon;
-	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
+	//void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 	void RemoveExpiredChildren();
 };

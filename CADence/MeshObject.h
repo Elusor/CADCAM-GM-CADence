@@ -15,6 +15,7 @@ struct MeshDescription
 struct MeshObject : Object
 {
 	MeshDescription m_meshDesc;
+	virtual void RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescription desc);
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	bool CreateParamsGui() override;
 };

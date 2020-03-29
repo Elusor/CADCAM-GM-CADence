@@ -13,6 +13,7 @@ BezierCurveC2::BezierCurveC2(): BezierCurveC2(std::vector<std::weak_ptr<Node>>()
 BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoints, BezierBasis basis)
 {
 	m_renderPolygon = false;
+	m_renderDeBoorPolygon = false;
 	m_controlPoints = initialControlPoints;
 	m_basis = basis;
 	RecalculateBasisPoints();
@@ -62,7 +63,7 @@ void BezierCurveC2::UpdateObject()
 			{
 				deBoorCurveVertices.push_back(VertexPositionColor{
 					point->m_object->GetPosition(),
-					m_PolygonDesc.m_defaultColor
+					m_deBoorPolyDesc.m_defaultColor
 					}
 				);
 				deBoorCurveIndices.push_back(i);
@@ -93,10 +94,13 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 		//renderData->m_device.context()->GSSetShader(nullptr, nullptr, 0);
 		if (m_renderPolygon)
 		{
-			RenderPolygon(renderState);
+			RenderMesh(renderState, m_PolygonDesc);
 		}
 
-
+		if (m_renderDeBoorPolygon)
+		{
+			RenderMesh(renderState, m_deBoorPolyDesc);
+		}
 	}
 }
 
@@ -128,14 +132,38 @@ void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 			}
 		}
 	}
-	RecalculateBasisPoints();
+	// This needs to be called with false not to overwrite the vector on which the calling function in iterating
+	// Rewrite both of these methods to make them implementation - agnostic
+	RecalculateBasisPoints(false);
 }
 
 bool BezierCurveC2::CreateParamsGui()
 {
 	bool objectChanged = BezierCurve::CreateParamsGui();
 	ImGui::Begin("Inspector");	
+
+	std::string label = "Display De Boor polygon" + GetIdentifier();
+	objectChanged |= ImGui::Checkbox(label.c_str(), &m_renderDeBoorPolygon);
+	ImGui::Spacing();
+
+	// change colors for polygon
+	float pcolor[3] = {
+		m_deBoorPolyDesc.m_defaultColor.x,
+		m_deBoorPolyDesc.m_defaultColor.y,
+		m_deBoorPolyDesc.m_defaultColor.z,
+	};
+
+	std::string ptext = "De Boor Polygon color";
+	ImGui::Text(ptext.c_str());
+	objectChanged |= ImGui::ColorEdit3(("##" + ptext + GetIdentifier()).c_str(), (float*)&pcolor);
+
+	m_deBoorPolyDesc.m_defaultColor.x = pcolor[0];
+	m_deBoorPolyDesc.m_defaultColor.y = pcolor[1];
+	m_deBoorPolyDesc.m_defaultColor.z = pcolor[2];
+	ImGui::Spacing();
+
 	bool clicked = ImGui::Button("Change basis");
+
 	objectChanged |= clicked;
 
 	if (clicked)
@@ -146,22 +174,22 @@ bool BezierCurveC2::CreateParamsGui()
 	return objectChanged;
 }
 
-void BezierCurveC2::RecalculateBasisPoints()
+void BezierCurveC2::RecalculateBasisPoints(bool overwriteVertices)
 {
 	m_curBasisControlPoints.clear();
 
 	if (m_basis == BezierBasis::Bernstein)
 	{
-		RecalculateBernsteinPoints();
+		RecalculateBernsteinPoints(overwriteVertices);
 	}
 
 	if (m_basis == BezierBasis::BSpline)
 	{
-		RecalculateBSplinePoints();
+		RecalculateBSplinePoints(overwriteVertices);
 	}
 }
 
-void BezierCurveC2::RecalculateBSplinePoints()
+void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
 {
 	for (int i = 0; i < m_controlPoints.size(); i++)
 	{
@@ -173,12 +201,15 @@ void BezierCurveC2::RecalculateBSplinePoints()
 
 	if (auto parent = m_parent.lock())
 	{
-		GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
-		gParent->SetChildren(m_curBasisControlPoints);
+		if (overwriteVertices)
+		{
+			GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
+			gParent->SetChildren(m_curBasisControlPoints);
+		}
 	}
 }
 
-void BezierCurveC2::RecalculateBernsteinPoints()
+void BezierCurveC2::RecalculateBernsteinPoints(bool overwriteVertices)
 {
 	m_virtualBernsteinPoints = CalculateBernsteinFromDeBoor();
 
@@ -197,8 +228,11 @@ void BezierCurveC2::RecalculateBernsteinPoints()
 
 	if (auto parent = m_parent.lock())
 	{
-		GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
-		gParent->SetChildren(m_curBasisControlPoints);
+		if (overwriteVertices)
+		{
+			GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
+			gParent->SetChildren(m_curBasisControlPoints);
+		}
 	}
 
 }
