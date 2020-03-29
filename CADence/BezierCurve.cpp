@@ -14,6 +14,7 @@ BezierCurve::BezierCurve(): BezierCurve(std::vector<std::weak_ptr<Node>>())
 
 BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 {
+	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = false;
 	m_controlPoints = initialControlPoints;
 }
@@ -175,11 +176,11 @@ bool BezierCurve::CreateParamsGui()
 	ImGui::Begin("Inspector");
 	// Create sliders for torus parameters	
 	ImGui::Text("Name: ");
-
+	ImGui::SameLine(); ImGui::Text(m_name.c_str());
 	ImGui::Text("Samples: ");
 	ImGui::SameLine(); ImGui::Text(std::to_string(m_adaptiveRenderingSamples).c_str());
 
-	ImGui::SameLine(); ImGui::Text(m_name.c_str());
+	
 	ImGui::Spacing();	
 	bool objectChanged = false;	
 

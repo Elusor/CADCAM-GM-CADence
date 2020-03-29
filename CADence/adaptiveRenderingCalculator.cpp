@@ -72,9 +72,9 @@ unsigned int AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(std::vec
 	int samples = sqrtf(hullRectWidth * hullRectWidth + hullRectHeight * hullRectHeight) / (float)(segmentLength);
 	samples *= 2;
 #pragma endregion
-	int defSamples = points.size() * 10;
+	int minSamples = points.size() * 10;
 	int maxSamples = points.size() * 150;
-	if (samples < defSamples) samples = defSamples;
+	if (samples < minSamples) samples = minSamples;
 	if (samples > maxSamples) samples = maxSamples;
 	return samples;
 }

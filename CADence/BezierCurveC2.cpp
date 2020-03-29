@@ -12,6 +12,7 @@ BezierCurveC2::BezierCurveC2(): BezierCurveC2(std::vector<std::weak_ptr<Node>>()
 
 BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoints, BezierBasis basis)
 {
+	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = false;
 	m_renderDeBoorPolygon = false;
 	m_controlPoints = initialControlPoints;
