@@ -253,7 +253,7 @@ void BezierCurve::UpdateObject()
 		m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
 		// Get Bezier Curve Points
-		auto points = BezierCalculator::CalculateBezierDeCasteljau(knots, adaptiveRenderingSamples);
+		auto points = BezierCalculator::CalculateBezierDeCasteljau(knots, m_adaptiveRenderingSamples);
 
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;
