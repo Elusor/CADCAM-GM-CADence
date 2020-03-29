@@ -18,6 +18,7 @@ public:
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	void AttachChild(std::weak_ptr<Node> controlPoint) override;
 	void RemoveChild(std::weak_ptr<Node> controlPoint) override;
+	void RecalculateBasisPoints();
 
 private:
 	BezierBasis m_basis;
@@ -27,7 +28,6 @@ private:
 	std::vector<DirectX::XMFLOAT3> m_virtualBernsteinPoints;	
 		
 	void SwitchBases();
-	void RecalculateBasisPoints();
 	void RecalculateBSplinePoints();
 	void RecalculateBernsteinPoints();
 	std::vector<DirectX::XMFLOAT3> CalculateBernsteinFromDeBoor();

@@ -9,9 +9,9 @@ class Node
 {
 public:
 	std::unique_ptr<Object> m_object;
-
 	bool m_isSelected = false;	
 	bool m_isRenamed = false;
+	bool m_isVirtual = false;
 
 	virtual void DrawNodeGUI(Scene& scene);
 	std::string GetLabel();

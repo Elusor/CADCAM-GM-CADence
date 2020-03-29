@@ -16,6 +16,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurveC2(std::vector<std::weak_p
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
 	node->m_object = std::unique_ptr<Object>(bC);;
 	bC->m_parent = node;
+	bC->RecalculateBasisPoints();
 	m_bezierCurveCounter++;
 	return node;
 }

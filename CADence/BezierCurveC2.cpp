@@ -167,6 +167,7 @@ void BezierCurveC2::RecalculateBernsteinPoints()
 		p->SetPosition(m_virtualBernsteinPoints[i]);
 
 		Node* node = new Node();
+		node->m_isVirtual = true;
 		node->m_object = std::unique_ptr<Point>(p);
 		// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints
 		m_curBasisControlPoints.push_back(std::shared_ptr<Node>(node));

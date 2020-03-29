@@ -149,18 +149,20 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 					}
 
 
-					if (ImGui::BeginPopupContextItem(childLabelName.c_str()))
-					{
-						if (ImGui::Selectable("Remove node"))
+					if (!node->m_isVirtual)
+					{					
+						if (ImGui::BeginPopupContextItem(childLabelName.c_str()))
 						{
-							it = m_children.erase(it);
-							BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
-							c->RemoveChild(node);
-							removed = true;
+							if (ImGui::Selectable("Remove node"))
+							{
+								it = m_children.erase(it);
+								BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
+								c->RemoveChild(node);
+								removed = true;
+							}
+							ImGui::EndPopup();
 						}
-						ImGui::EndPopup();
 					}
-
 					if (removed == false) it++;
 					else removed = false;
 				}
