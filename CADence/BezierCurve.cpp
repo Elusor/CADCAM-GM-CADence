@@ -110,55 +110,52 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 {
 	RemoveExpiredChildren();
-	// TODO [MG] DO NOT RECALCULATE EACH FRAME
 	if (m_controlPoints.size() > 1)
-	{	
+	{		
 		int prev = m_adaptiveRenderingSamples;
 		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderData);
-		if (prev != m_adaptiveRenderingSamples) 
+		if (prev != m_adaptiveRenderingSamples)
 			SetModified(true);
 
-		if(m_modified)
-		{			
+		if (m_modified)
+		{
 			UpdateObject();
-		}		
-		MeshObject::RenderObject(renderData);	
+		}
+
+		if (m_controlPoints.size() == 4)
+		{
+			renderData->m_device.context()->GSSetShader(
+				renderData->m_bezierGeometryShader.get(),
+				nullptr, 0);
+
+			std::vector<VertexPositionColor> vertices;
+			std::vector<unsigned short> indices;
+
+			for (int i = 0; i < 4; i++)
+			{
+				if (auto point1 = m_controlPoints[i].lock())
+				{
+					vertices.push_back(VertexPositionColor{
+							point1->m_object->GetPosition(),
+							m_meshDesc.m_defaultColor });
+				}
+			}
+
+			m_meshDesc.vertices = vertices;
+			m_meshDesc.indices = {0,1,2,3};
+			m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+		}
+
+		MeshObject::RenderObject(renderData);
+
+		renderData->m_device.context()->GSSetShader(nullptr, nullptr, 0);
+
 		if (m_renderPolygon)
-		{	
+		{
 			RenderMesh(renderData, m_PolygonDesc);
 		}
-		
 	}	
 }
-
-//void BezierCurve::RenderPolygon(std::unique_ptr<RenderState>& renderState)
-//{
-//	renderState->m_device.context()->IASetPrimitiveTopology(m_PolygonDesc.m_primitiveTopology);
-//	//Update content to fill constant buffer
-//	D3D11_MAPPED_SUBRESOURCE res;
-//	DirectX::XMMATRIX mvp = m_transform.GetModelMatrix() * renderState->m_camera->GetViewProjectionMatrix();
-//	//Set constant buffer
-//	auto hres = renderState->m_device.context()->Map((renderState->m_cbMVP.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
-//	memcpy(res.pData, &mvp, sizeof(DirectX::XMMATRIX));
-//	renderState->m_device.context()->Unmap(renderState->m_cbMVP.get(), 0);
-//	ID3D11Buffer* cbs[] = { renderState->m_cbMVP.get() };
-//	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
-//
-//	// Update Vertex and index buffers
-//	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(m_PolygonDesc.vertices));
-//	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(m_PolygonDesc.indices));
-//	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
-//
-//	//Update strides and offets based on the vertex class
-//	UINT strides[] = { sizeof(VertexPositionColor) };
-//	UINT offsets[] = { 0 };
-//
-//	renderState->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-//
-//	// Watch out for meshes that cannot be covered by ushort
-//	renderState->m_device.context()->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
-//	renderState->m_device.context()->DrawIndexed(m_PolygonDesc.indices.size(), 0, 0);
-//}
 
 void BezierCurve::RemoveExpiredChildren()
 {
