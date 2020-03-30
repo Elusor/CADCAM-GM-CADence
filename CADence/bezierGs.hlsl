@@ -44,63 +44,123 @@ void main(
 	float curStart = instanceStep * (float)InstanceID;
 	float iterStep = instanceStep / adaptiveRenderCount;
 	
-	//// check if any of the nodes are repeating and how many times
-	//if (input[3] == input[2])
-	//{
-	//	// last node repeats 3 times - linear
-	//	if (input[3] == input[2])
-	//	{
-	//		CalculateLinearPoints();
-	//	}
-	//	// last node repeart 2 time - quadratic
-	//	else 
-	//	{
-	//		CalculateQuadraticPoints();
-	//	}
-	//}
-	//else 
-	//{
-	//	// last node does not repeat - cubic
-	//	CalculateCubicPoints();
-	//}
-
-	for (uint i = 0; i < adaptiveRenderCount; i++)
+	// check if any of the nodes are repeating and how many times
+	bool b = (input[3].pos) == (input[2].pos);
+	if (b)
 	{
-		float tParam = curStart + iterStep * (float)i;
-		float nextParam = curStart + iterStep * (float)(i + 1);
-		VSOut curveVertex = Bezier3(
-			input[0],
-			input[1],
-			input[2],
-			input[3],
-			tParam);
+		// last node repeats 3 times - linear
+		bool c = (input[3].pos) == (input[1].pos);
+		if (c)
+		{
+			//CalculateLinearPoints();
+			for (uint i = 0; i <= adaptiveRenderCount; i++)
+			{
+				float tParam = curStart + iterStep * (float)i;
+				float nextParam = curStart + iterStep * (float)(i + 1);
+				VSOut curveVertex = 
+					Bezier1( input[0], input[1], tParam);
+				output.Append(curveVertex);
+			}
+		}
+		// last node repeart 2 time - quadratic
+		else 
+		{
+			//CalculateQuadraticPoints();
+			for (uint i = 0; i <= adaptiveRenderCount; i++)
+			{
+				float tParam = curStart + iterStep * (float)i;
+				float nextParam = curStart + iterStep * (float)(i + 1);
+				VSOut curveVertex = Bezier2(
+					input[0],
+					input[1],
+					input[2],
+					tParam);
 
-		VSOut nextCurveVertex = Bezier3(
-			input[0],
-			input[1],
-			input[2],
-			input[3],
-			nextParam);
-
-		output.Append(curveVertex);
-		output.Append(curveVertex);
-
-		output.Append(nextCurveVertex);
-		output.Append(nextCurveVertex);
+				output.Append(curveVertex);
+			}
+		}
 	}
+	else 
+	{
+		// last node does not repeat - cubic
+		//CalculateCubicPoints();
+		for (uint i = 0; i <= adaptiveRenderCount; i++)
+		{
+			float tParam = curStart + iterStep * (float)i;
+			float nextParam = curStart + iterStep * (float)(i + 1);
+			VSOut curveVertex = Bezier3(
+				input[0],
+				input[1],
+				input[2],
+				input[3],
+				tParam);
+
+			VSOut nextCurveVertex = Bezier3(
+				input[0],
+				input[1],
+				input[2],
+				input[3],
+				nextParam);
+
+			output.Append(curveVertex);
+		}
+	}
+
 }
-
-void CalculateCubicPoints()
-{
-
-}
-
-void CalculateQuadraticPoints()
-{
-
-}
-
-void CalculateLinearPoints()
-{
-
-}
+//
+//void CalculateCubicPoints()
+//{
+//	for (uint i = 0; i < adaptiveRenderCount; i++)
+//	{
+//		float tParam = curStart + iterStep * (float)i;
+//		float nextParam = curStart + iterStep * (float)(i + 1);
+//		VSOut curveVertex = Bezier3(
+//			input[0],
+//			input[1],
+//			input[2],
+//			input[3],
+//			tParam);
+//
+//		VSOut nextCurveVertex = Bezier3(
+//			input[0],
+//			input[1],
+//			input[2],
+//			input[3],
+//			nextParam);
+//
+//		output.Append(curveVertex);
+//		output.Append(curveVertex);
+//
+//		output.Append(nextCurveVertex);
+//		output.Append(nextCurveVertex);
+//	}
+//}
+//
+//void CalculateQuadraticPoints()
+//{
+//	for (uint i = 0; i < adaptiveRenderCount; i++)
+//	{
+//		float tParam = curStart + iterStep * (float)i;
+//		float nextParam = curStart + iterStep * (float)(i + 1);
+//		VSOut curveVertex = Bezier2(
+//			input[0],
+//			input[1],
+//			input[2],
+//			tParam);
+//
+//		output.Append(curveVertex);
+//	}
+//}
+//
+//void CalculateLinearPoints()
+//{
+//	for (uint i = 0; i < adaptiveRenderCount; i++)
+//	{
+//		float tParam = curStart + iterStep * (float)i;
+//		float nextParam = curStart + iterStep * (float)(i + 1);
+//		VSOut curveVertex = Bezier2(
+//			input[0],
+//			tParam);
+//		output.Append(curveVertex);
+//	}
+//}

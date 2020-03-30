@@ -122,8 +122,8 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 			UpdateObject();
 		}
 
-		if (m_controlPoints.size() == 4)
-		{
+		
+#pragma region calculate vertices for the Geometry shader
 			renderData->m_device.context()->GSSetShader(
 				renderData->m_bezierGeometryShader.get(),
 				nullptr, 0);
@@ -131,8 +131,9 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 			std::vector<VertexPositionColor> vertices;
 			std::vector<unsigned short> indices;
 
-			for (int i = 0; i < 4; i++)
+			for (int i = 0; i < m_controlPoints.size(); i++)
 			{
+				//add all vertices
 				if (auto point1 = m_controlPoints[i].lock())
 				{
 					vertices.push_back(VertexPositionColor{
@@ -141,10 +142,42 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 				}
 			}
 
+			for (int i = 0; i < m_controlPoints.size(); i += 3)
+			{								
+				// mage edges out of the vertices
+				// There are some elements that should be added
+				if (m_controlPoints.size() - i > 1);
+				{
+					// add next 4 points normally
+					if (m_controlPoints.size() - i >= 4)
+					{
+						indices.push_back(i);
+						indices.push_back(i+1);
+						indices.push_back(i+2);
+						indices.push_back(i+3);
+					}
+					// add the rest of the nodes and add the last node multiple times
+					else {
+						for (int j = i; j < m_controlPoints.size(); j++)
+						{							
+							indices.push_back(j);
+						}
+
+						// add the rest of the vertices as duplicates of the last one
+						int emptyVertices = 4 - (m_controlPoints.size() - i);
+						for (int k = 0; k < emptyVertices; k++)
+						{							
+							indices.push_back(m_controlPoints.size() - 1);
+						}
+					}
+
+				}
+			}
+
 			m_meshDesc.vertices = vertices;
-			m_meshDesc.indices = {0,1,2,3};
+			m_meshDesc.indices = indices;
 			m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
-		}
+#pragma endregion		
 
 		MeshObject::RenderObject(renderData);
 
