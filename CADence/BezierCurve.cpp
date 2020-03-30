@@ -16,7 +16,7 @@ BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 {
 	m_modified = true;
 	m_adaptiveRenderingSamples = 0;
-	m_renderPolygon = false;
+	m_renderPolygon = true;
 	m_controlPoints = initialControlPoints;
 }
 
