@@ -23,8 +23,40 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 void BezierCurveC2::UpdateObject()
 {
 	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
+	int modifiedIndex = -1;
+	if (m_basis == BezierBasis::Bernstein)
+	{
+		for (int i = 0; i < m_curBasisControlPoints.size(); i++)
+		{
+			if (m_curBasisControlPoints[i]->m_object->GetIsModified())
+			{
+				modifiedIndex = i;
+			}
+		}
+		if (modifiedIndex >= 0)
+		{
+			MoveBernsteinPoint(modifiedIndex);
+			RecalculateBasisPoints();
 
-	RecalculateBasisPoints();
+		}		
+	}
+
+	modifiedIndex = -1;
+	for (int i = 0; i < m_controlPoints.size(); i++)
+	{
+		if (auto point = m_controlPoints[i].lock())
+		{
+			if (point->m_object->GetIsModified())
+			{
+				modifiedIndex = i;
+			}
+		}
+	}
+	if (modifiedIndex >= 0)
+	{
+		//MoveBernsteinPoint(modifiedIndex);
+		RecalculateBasisPoints();
+	}
 
 	if (m_controlPoints.size() >= 4)
 	{
@@ -401,4 +433,50 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 	}
 
 	return bernsteinPoints;
+}
+
+void BezierCurveC2::MoveBernsteinPoint(int index)
+{
+	DirectX::XMFLOAT3 movedPoint = m_virtualBernsteinPoints[index];
+
+	int controlPointIndex = (index + 1) / 3 + 1;
+	
+	bool isMiddle = index % 3 == 0; // selected bernstein point is under the current De boor point
+	bool isAfter = index % 3 == 1; // selected bernstein point is placed on the line between curent and next de boor points
+
+	bool allValid = true;
+
+	std::shared_ptr<Node> prevDB = m_controlPoints[controlPointIndex - 1].lock();
+	std::shared_ptr<Node> curDB =  m_controlPoints[controlPointIndex].lock();
+	std::shared_ptr<Node> nextDB = m_controlPoints[controlPointIndex + 1].lock();
+
+	DirectX::XMFLOAT3 prevDBPos = prevDB->m_object->GetPosition();
+	DirectX::XMFLOAT3 curDBPos = curDB->m_object->GetPosition();
+	DirectX::XMFLOAT3 nextDBPos = nextDB->m_object->GetPosition();
+
+	DirectX::XMFLOAT3 newDBcoords = DirectX::XMFLOAT3(0.0f,0.0f,0.0f);
+
+	if (isMiddle)
+	{ // bernstein point is under the de boor point
+		DirectX::XMFLOAT3 transToLine = XMFloat3TimesFloat((nextDBPos, prevDBPos), 1.0f/6.0f);
+		DirectX::XMFLOAT3 posOnLine = XMF3SUM(movedPoint, transToLine); // position of moved de boor and 1/6 of the diff between DBnext and DB[rev
+		DirectX::XMFLOAT3 diff = XMF3SUB(posOnLine, nextDBPos); // dif between pos on line and next De Boor
+		newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));		
+	}
+	else 
+	{
+		if (isAfter)
+		{ // bernstein point is after the de boor point
+			DirectX::XMFLOAT3 diff = XMF3SUB(movedPoint, nextDBPos); // dif between pos on line and next De Boor
+			newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+		}
+		else 
+		{ // bernstein point is before the de boor point
+			DirectX::XMFLOAT3 diff = XMF3SUB(movedPoint, prevDBPos); // dif between pos on line and next De Boor
+			newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+		}
+	}
+
+	curDB->m_object->SetPosition(newDBcoords);
+
 }

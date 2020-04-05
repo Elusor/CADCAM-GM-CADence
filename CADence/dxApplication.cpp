@@ -191,6 +191,6 @@ void DxApplication::InitImguiWindows()
 		ImGui::Checkbox("Center trasformations at cursor", &(m_transController->m_transAroundCursor));
 	}
 	ImGui::Separator();
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 }

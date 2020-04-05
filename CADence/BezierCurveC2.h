@@ -37,4 +37,6 @@ private:
 	void RecalculateBSplinePoints(bool overwriteVertices = true);
 	void RecalculateBernsteinPoints(bool overwriteVertices = true);
 	std::vector<DirectX::XMFLOAT3> CalculateBernsteinFromDeBoor();
+
+	void MoveBernsteinPoint(int index);
 };
