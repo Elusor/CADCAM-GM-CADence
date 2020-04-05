@@ -127,6 +127,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 		open &= m_children.size() != 0;
 		if (open && !nodeRemoved && treePushed)
 		{
+			// display children
 			bool removed = false;
 			auto it = m_children.begin();
 			while (it != m_children.end())

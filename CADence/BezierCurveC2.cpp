@@ -218,6 +218,7 @@ void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 	}
 	// This needs to be called with false not to overwrite the vector on which the calling function in iterating
 	// Rewrite both of these methods to make them implementation - agnostic
+
 	RecalculateBasisPoints(false);
 	SetModified(true);
 }
