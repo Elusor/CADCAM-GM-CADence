@@ -23,7 +23,8 @@ void Scene::RemoveObject(std::unique_ptr<Object>& object)
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		if (m_nodes[i]->m_object == object)
-		{						
+		{
+
 			m_nodes[i].reset();
 			m_nodes.erase(m_nodes.begin() + i);			
 		}

@@ -22,7 +22,12 @@ public:
 
 	bool GetIsModified() override;
 
+protected:
+	bool RemoveExpiredChildren() override;
+
 private:
+
+
 	// Basis in which the curve is represented
 	BezierBasis m_basis;
 	// Data concerning the De Boor polygon
@@ -30,10 +35,10 @@ private:
 	MeshDescription m_deBoorPolyDesc;
 
 	// Holds nodes displayed in the group node
-	std::vector<std::shared_ptr<Node>> m_curBasisControlPoints;
+	std::vector<std::weak_ptr<Node>> m_curBasisControlPoints;
+	std::vector<std::shared_ptr<Node>> m_virtualBernsteinPoints;
 	// Holds the positions for Bernstein points calculated from DeBoore
-	std::vector<DirectX::XMFLOAT3> m_virtualBernsteinPoints;	
-		
+	std::vector<DirectX::XMFLOAT3> m_virtualBernsteinPos;	
 	void SwitchBases();
 	void RecalculateBSplinePoints(bool overwriteVertices = true);
 	void RecalculateBernsteinPoints(bool overwriteVertices = true);

@@ -23,10 +23,9 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 void BezierCurveC2::UpdateObject()
 {
 	if (RemoveExpiredChildren())
-	{
+	{		
 		RecalculateBasisPoints();
 	}
-
 
 	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
 	int modifiedIndex = -1;
@@ -34,7 +33,7 @@ void BezierCurveC2::UpdateObject()
 	{
 		for (int i = 0; i < m_curBasisControlPoints.size(); i++)
 		{
-			if (m_curBasisControlPoints[i]->m_object->GetIsModified())
+			if (m_curBasisControlPoints[i].lock()->m_object->GetIsModified())
 			{
 				modifiedIndex = i;
 			}
@@ -66,28 +65,28 @@ void BezierCurveC2::UpdateObject()
 	if (m_controlPoints.size() >= 4)
 	{
 
-		m_virtualBernsteinPoints = CalculateBernsteinFromDeBoor();
+		m_virtualBernsteinPos = CalculateBernsteinFromDeBoor();
 #pragma region gs format
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;
 
-		for (int i = 0; i < m_virtualBernsteinPoints.size(); i++)
+		for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
 		{
 			//add all vertices
-			auto pos = m_virtualBernsteinPoints[i];
+			auto pos = m_virtualBernsteinPos[i];
 			vertices.push_back(VertexPositionColor{
 						pos,
 						m_meshDesc.m_defaultColor });
 		}
 
-		for (int i = 0; i < m_virtualBernsteinPoints.size(); i += 3)
+		for (int i = 0; i < m_virtualBernsteinPos.size(); i += 3)
 		{
 			// mage edges out of the vertices
 			// There are some elements that should be added
-			if (m_virtualBernsteinPoints.size() - i > 1);
+			if (m_virtualBernsteinPos.size() - i > 1);
 			{
 				// add next 4 points normally
-				if (m_virtualBernsteinPoints.size() - i >= 4)
+				if (m_virtualBernsteinPos.size() - i >= 4)
 				{
 					indices.push_back(i);
 					indices.push_back(i + 1);
@@ -96,16 +95,16 @@ void BezierCurveC2::UpdateObject()
 				}
 				// add the rest of the nodes and add the last node multiple times
 				else {
-					for (int j = i; j < m_virtualBernsteinPoints.size(); j++)
+					for (int j = i; j < m_virtualBernsteinPos.size(); j++)
 					{
 						indices.push_back(j);
 					}
 
 					// add the rest of the vertices as duplicates of the last one
-					int emptyVertices = 4 - (m_virtualBernsteinPoints.size() - i);
+					int emptyVertices = 4 - (m_virtualBernsteinPos.size() - i);
 					for (int k = 0; k < emptyVertices; k++)
 					{
-						indices.push_back(m_virtualBernsteinPoints.size() - 1);
+						indices.push_back(m_virtualBernsteinPos.size() - 1);
 					}
 				}
 
@@ -119,10 +118,10 @@ void BezierCurveC2::UpdateObject()
 
 		std::vector<VertexPositionColor> bernCurveVertices;
 		std::vector<unsigned short> bernCurveIndices;
-		for (int i = 0; i < m_virtualBernsteinPoints.size(); i++)
+		for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
 		{
 			bernCurveVertices.push_back(VertexPositionColor{
-				m_virtualBernsteinPoints[i],
+				m_virtualBernsteinPos[i],
 				m_PolygonDesc.m_defaultColor
 				}
 			);
@@ -157,6 +156,7 @@ void BezierCurveC2::UpdateObject()
 void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	RemoveExpiredChildren();
+
 	if (m_controlPoints.size() >= 4)
 	{
 		
@@ -220,6 +220,18 @@ void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 			else {
 				it = m_controlPoints.erase(it);
 			}
+		}
+
+		auto it2 = m_curBasisControlPoints.begin();
+		while (it2 != m_curBasisControlPoints.end())
+		{			
+			if (controlPoint.lock() == it2->lock())
+			{
+				it2 = m_curBasisControlPoints.erase(it2);
+			}
+			else {
+				it2++;
+			}			
 		}
 	}
 	// This needs to be called with false not to overwrite the vector on which the calling function in iterating
@@ -288,10 +300,13 @@ bool BezierCurveC2::GetIsModified()
 	{
 		for (int i = 0; i < m_curBasisControlPoints.size(); i++)
 		{
-			if (m_curBasisControlPoints[i]->m_object->GetIsModified())
+			if (auto curCtrlPoint = m_curBasisControlPoints[i].lock())
 			{
-				SetModified(true);
-			}
+				if (curCtrlPoint->m_object->GetIsModified())
+				{
+					SetModified(true);
+				}
+			}			
 		}
 	}
 
@@ -312,52 +327,109 @@ bool BezierCurveC2::GetIsModified()
 		}
 	}
 
+	if (RemoveExpiredChildren())
+		SetModified(true);
+
 	return m_modified;
 }
 
-void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
+bool BezierCurveC2::RemoveExpiredChildren()
 {
-	for (int i = 0; i < m_controlPoints.size(); i++)
+	bool removed = false;
+	auto it = m_controlPoints.begin();
+	while (it != m_controlPoints.end())
 	{
-		if (auto point = m_controlPoints[i].lock())
+		if (auto pt = it->lock())
 		{
-			m_curBasisControlPoints.push_back(point);
+			it++;
+		}
+		else {
+			it = m_controlPoints.erase(it);
+			removed = true;
 		}
 	}
 
 	if (auto parent = m_parent.lock())
 	{
-		if (overwriteVertices)
+		auto gParent = dynamic_cast<GroupNode*>(parent.get());
+		gParent->RemoveExpiredChildren();
+	}
+
+	auto it2 = m_curBasisControlPoints.begin();
+	while (it2 != m_curBasisControlPoints.end())
+	{
+		if (it2->expired())
+		{
+			it2 = m_curBasisControlPoints.erase(it2);
+			removed = true;
+		}
+		else {
+			it2++;
+		}
+	}
+
+	if(removed)
+		RecalculateBasisPoints();
+
+	return removed;
+}
+
+void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
+{
+	if (overwriteVertices)
+	{
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{			
+			m_curBasisControlPoints.push_back(m_controlPoints[i]);
+		}
+
+		if (auto parent = m_parent.lock())
 		{
 			GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
 			gParent->SetChildren(m_curBasisControlPoints);
 		}
 	}
+	else {
+
+		for (int i = 0; i < m_controlPoints.size(); i++)
+		{		
+			if (auto point = m_controlPoints[i].lock())
+			{
+				if (auto ctrlPoint = m_curBasisControlPoints[i].lock())
+				{
+					ctrlPoint->m_object->SetPosition(point->m_object->GetPosition());
+				}				
+			}			
+		}
+	}		
 }
 
 void BezierCurveC2::RecalculateBernsteinPoints(bool overwriteVertices)
 {
-	m_virtualBernsteinPoints = CalculateBernsteinFromDeBoor();
+	m_virtualBernsteinPos = CalculateBernsteinFromDeBoor();
 	
 	if (overwriteVertices)
 	{
-		for (int i = 0; i < m_virtualBernsteinPoints.size(); i++)
+		for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
 		{
 			Point* p = new Point();
 			p->m_defaultName = p->m_name = "Bernstein point " + std::to_string(i);
-			p->SetPosition(m_virtualBernsteinPoints[i]);
+			p->SetPosition(m_virtualBernsteinPos[i]);
 
 			Node* node = new Node();
 			node->m_isVirtual = true;
 			node->m_object = std::unique_ptr<Point>(p);
-			// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints
-			m_curBasisControlPoints.push_back(std::shared_ptr<Node>(node));
+			// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints	
+			std::shared_ptr<Node> nodeptr = std::shared_ptr<Node>(node);
+			m_virtualBernsteinPoints.push_back(nodeptr);
+			std::weak_ptr<Node> weaknode = nodeptr;
+			m_curBasisControlPoints.push_back(weaknode);
 		}
 
 		if (auto parent = m_parent.lock())
 		{
 				GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
-				gParent->SetChildren(m_curBasisControlPoints);			
+				gParent->SetChildren(m_curBasisControlPoints);
 		}
 	}	
 	else
@@ -371,7 +443,7 @@ void BezierCurveC2::RecalculateBernsteinPoints(bool overwriteVertices)
 				auto child = children[i];
 				if (auto childLock = child.lock())
 				{
-					childLock->m_object->SetPosition(m_virtualBernsteinPoints[i]);
+					childLock->m_object->SetPosition(m_virtualBernsteinPos[i]);
 				}
 			}
 		}
@@ -465,46 +537,50 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 
 void BezierCurveC2::MoveBernsteinPoint(int index)
 {
-	DirectX::XMFLOAT3 movedPoint = m_curBasisControlPoints[index]->m_object->GetPosition();
-
-	int controlPointIndex = (index + 1) / 3 + 1;
-	
-	bool isMiddle = index % 3 == 0; // selected bernstein point is under the current De boor point
-	bool isAfter = index % 3 == 1; // selected bernstein point is placed on the line between curent and next de boor points
-
-	bool allValid = true;
-
-	std::shared_ptr<Node> prevDB = m_controlPoints[controlPointIndex - 1].lock();
-	std::shared_ptr<Node> curDB =  m_controlPoints[controlPointIndex].lock();
-	std::shared_ptr<Node> nextDB = m_controlPoints[controlPointIndex + 1].lock();
-
-	DirectX::XMFLOAT3 prevDBPos = prevDB->m_object->GetPosition();
-	DirectX::XMFLOAT3 curDBPos = curDB->m_object->GetPosition();
-	DirectX::XMFLOAT3 nextDBPos = nextDB->m_object->GetPosition();
-
-	DirectX::XMFLOAT3 newDBcoords = DirectX::XMFLOAT3(0.0f,0.0f,0.0f);
-
-	if (isMiddle)
-	{ // bernstein point is under the de boor point
-		DirectX::XMFLOAT3 transToLine = XMFloat3TimesFloat(XMF3SUB(nextDBPos, prevDBPos), 1.0f/6.0f);
-		DirectX::XMFLOAT3 posOnLine = XMF3SUM(movedPoint, transToLine); // position of moved de boor and 1/6 of the diff between DBnext and DB[rev
-		DirectX::XMFLOAT3 diff = XMF3SUB(posOnLine, nextDBPos); // dif between pos on line and next De Boor
-		newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));		
-	}
-	else 
+	if (auto movedPt = m_curBasisControlPoints[index].lock())
 	{
-		if (isAfter)
-		{ // bernstein point is after the de boor point
-			DirectX::XMFLOAT3 diff = XMF3SUB(movedPoint, nextDBPos); // dif between pos on line and next De Boor
+		DirectX::XMFLOAT3 movedPtPos = movedPt->m_object->GetPosition();
+
+		int controlPointIndex = (index + 1) / 3 + 1;
+
+		bool isMiddle = index % 3 == 0; // selected bernstein point is under the current De boor point
+		bool isAfter = index % 3 == 1; // selected bernstein point is placed on the line between curent and next de boor points
+
+		bool allValid = true;
+
+		std::shared_ptr<Node> prevDB = m_controlPoints[controlPointIndex - 1].lock();
+		std::shared_ptr<Node> curDB = m_controlPoints[controlPointIndex].lock();
+		std::shared_ptr<Node> nextDB = m_controlPoints[controlPointIndex + 1].lock();
+
+		DirectX::XMFLOAT3 prevDBPos = prevDB->m_object->GetPosition();
+		DirectX::XMFLOAT3 curDBPos = curDB->m_object->GetPosition();
+		DirectX::XMFLOAT3 nextDBPos = nextDB->m_object->GetPosition();
+
+		DirectX::XMFLOAT3 newDBcoords = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+		if (isMiddle)
+		{ // bernstein point is under the de boor point
+			DirectX::XMFLOAT3 transToLine = XMFloat3TimesFloat(XMF3SUB(nextDBPos, prevDBPos), 1.0f / 6.0f);
+			DirectX::XMFLOAT3 posOnLine = XMF3SUM(movedPtPos, transToLine); // position of moved de boor and 1/6 of the diff between DBnext and DB[rev
+			DirectX::XMFLOAT3 diff = XMF3SUB(posOnLine, nextDBPos); // dif between pos on line and next De Boor
 			newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
 		}
-		else 
-		{ // bernstein point is before the de boor point
-			DirectX::XMFLOAT3 diff = XMF3SUB(movedPoint, prevDBPos); // dif between pos on line and next De Boor
-			newDBcoords = XMF3SUM(prevDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+		else
+		{
+			if (isAfter)
+			{ // bernstein point is after the de boor point
+				DirectX::XMFLOAT3 diff = XMF3SUB(movedPtPos, nextDBPos); // dif between pos on line and next De Boor
+				newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+			}
+			else
+			{ // bernstein point is before the de boor point
+				DirectX::XMFLOAT3 diff = XMF3SUB(movedPtPos, prevDBPos); // dif between pos on line and next De Boor
+				newDBcoords = XMF3SUM(prevDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+			}
 		}
+
+		curDB->m_object->SetPosition(newDBcoords);
+
 	}
-
-	curDB->m_object->SetPosition(newDBcoords);
-
+	
 }

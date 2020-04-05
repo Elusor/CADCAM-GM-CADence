@@ -50,7 +50,7 @@ void GroupNode::RemoveExpiredChildren()
 	}
 }
 
-void GroupNode::SetChildren(std::vector<std::shared_ptr<Node>> children)
+void GroupNode::SetChildren(std::vector<std::weak_ptr<Node>> children)
 {
 	m_children.clear();
 
@@ -181,9 +181,21 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 			{
 				BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
 				c->RemoveChild(nodesToDelete[i]);
-				removed = true;
+				removed = true;			
+			
+				auto it = m_children.begin();
+				while (it != m_children.end())
+				{
+					if (it->lock() == nodesToDelete[i].lock())
+					{
+						it = m_children.erase(it);
+					}
+					else
+					{
+						it++;
+					}
+				}
 			}
-
 			nodesToDelete.clear();			
 
 		}	

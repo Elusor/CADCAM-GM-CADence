@@ -233,6 +233,11 @@ bool BezierCurve::GetIsModified()
 		}
 	}
 
+	if (RemoveExpiredChildren())
+	{
+		SetModified(true);
+	}
+
 	return m_modified;
 }
 
