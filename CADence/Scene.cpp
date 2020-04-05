@@ -145,7 +145,11 @@ void Scene::SelectionChanged(Node& node)
 {
 	// If ctrl is not pressed
 	// select only the clicked node
-	if (ImGui::GetIO().KeyCtrl == false)
+
+	bool uniqueSelection = ImGui::GetIO().KeyCtrl == false;
+	uniqueSelection |= node.m_isVirtual;
+
+	if (uniqueSelection)
 	{
 
 		std::weak_ptr<Node> weakNode;
