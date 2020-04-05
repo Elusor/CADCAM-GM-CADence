@@ -128,43 +128,36 @@ Transform& Object::GetTransform()
 void Object::SetTransform(Transform transform)
 {
 	m_transform = transform;
-	SetModified(true);
 }
 
 void Object::Translate(DirectX::XMFLOAT3 position)
 {
 	m_transform.Translate(position);
-	SetModified(true);
 }
 
 void Object::Rotate(DirectX::XMFLOAT3 rotation)
 {
 	m_transform.Rotate(rotation);
-	SetModified(true);
 }
 
 void Object::Scale(DirectX::XMFLOAT3 scale)
 {
 	m_transform.Scale(scale);
-	SetModified(true);
 }
 
 void Object::SetPosition(DirectX::XMFLOAT3 position)
 {
 	m_transform.SetPosition(position);
-	SetModified(true);
 }
 
 void Object::SetRotation(DirectX::XMFLOAT3 rotation)
 {
 	m_transform.SetRotation(rotation);
-	SetModified(true);
 }
 
 void Object::SetScale(DirectX::XMFLOAT3 scale)
 {
 	m_transform.SetScale(scale);
-	SetModified(true);
 }
 
 DirectX::XMFLOAT3 Object::GetPosition()

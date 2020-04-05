@@ -10,9 +10,9 @@ public:
 	BezierCurve();
 	explicit BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints);
 
-	std::vector<std::unique_ptr<Point>> m_virtualControlPoints;
+	std::vector<std::weak_ptr<Node>> m_virtualControlPoints;
 
-	// Translation overrides 
+	// Translation overrides
 	void SetTransform(Transform transform) override;	
 	void SetPosition(DirectX::XMFLOAT3 position) override;
 	void SetRotation(DirectX::XMFLOAT3 rotation) override;

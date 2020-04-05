@@ -36,8 +36,7 @@ void BezierCurveC2::UpdateObject()
 		if (modifiedIndex >= 0)
 		{
 			MoveBernsteinPoint(modifiedIndex);
-			RecalculateBasisPoints();
-
+			RecalculateBasisPoints(false);
 		}		
 	}
 
@@ -55,7 +54,7 @@ void BezierCurveC2::UpdateObject()
 	if (modifiedIndex >= 0)
 	{
 		//MoveBernsteinPoint(modifiedIndex);
-		RecalculateBasisPoints();
+		RecalculateBasisPoints(false);
 	}
 
 	if (m_controlPoints.size() >= 4)
@@ -262,7 +261,8 @@ bool BezierCurveC2::CreateParamsGui()
 
 void BezierCurveC2::RecalculateBasisPoints(bool overwriteVertices)
 {
-	m_curBasisControlPoints.clear();
+	if(overwriteVertices)
+		m_curBasisControlPoints.clear();
 
 	if (m_basis == BezierBasis::Bernstein)
 	{
@@ -325,29 +325,44 @@ void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
 void BezierCurveC2::RecalculateBernsteinPoints(bool overwriteVertices)
 {
 	m_virtualBernsteinPoints = CalculateBernsteinFromDeBoor();
-
-	for (int i = 0; i < m_virtualBernsteinPoints.size(); i++)
+	
+	if (overwriteVertices)
 	{
-		Point* p = new Point();
-		p->m_defaultName = p->m_name = "Bernstein point " + std::to_string(i);
-		p->SetPosition(m_virtualBernsteinPoints[i]);
+		for (int i = 0; i < m_virtualBernsteinPoints.size(); i++)
+		{
+			Point* p = new Point();
+			p->m_defaultName = p->m_name = "Bernstein point " + std::to_string(i);
+			p->SetPosition(m_virtualBernsteinPoints[i]);
 
-		Node* node = new Node();
-		node->m_isVirtual = true;
-		node->m_object = std::unique_ptr<Point>(p);
-		// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints
-		m_curBasisControlPoints.push_back(std::shared_ptr<Node>(node));
-	}
+			Node* node = new Node();
+			node->m_isVirtual = true;
+			node->m_object = std::unique_ptr<Point>(p);
+			// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints
+			m_curBasisControlPoints.push_back(std::shared_ptr<Node>(node));
+		}
 
-	if (auto parent = m_parent.lock())
+		if (auto parent = m_parent.lock())
+		{
+				GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
+				gParent->SetChildren(m_curBasisControlPoints);			
+		}
+	}	
+	else
 	{
-		if (overwriteVertices)
+		if (auto parent = m_parent.lock())
 		{
 			GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
-			gParent->SetChildren(m_curBasisControlPoints);
+			auto children = gParent->GetChildren();
+			for (int i = 0; i < children.size(); i++)
+			{
+				auto child = children[i];
+				if (auto childLock = child.lock())
+				{
+					childLock->m_object->SetPosition(m_virtualBernsteinPoints[i]);
+				}
+			}
 		}
 	}
-
 }
 
 void BezierCurveC2::SwitchBases()
@@ -437,7 +452,7 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 
 void BezierCurveC2::MoveBernsteinPoint(int index)
 {
-	DirectX::XMFLOAT3 movedPoint = m_virtualBernsteinPoints[index];
+	DirectX::XMFLOAT3 movedPoint = m_curBasisControlPoints[index]->m_object->GetPosition();
 
 	int controlPointIndex = (index + 1) / 3 + 1;
 	
@@ -458,7 +473,7 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 
 	if (isMiddle)
 	{ // bernstein point is under the de boor point
-		DirectX::XMFLOAT3 transToLine = XMFloat3TimesFloat((nextDBPos, prevDBPos), 1.0f/6.0f);
+		DirectX::XMFLOAT3 transToLine = XMFloat3TimesFloat(XMF3SUB(nextDBPos, prevDBPos), 1.0f/6.0f);
 		DirectX::XMFLOAT3 posOnLine = XMF3SUM(movedPoint, transToLine); // position of moved de boor and 1/6 of the diff between DBnext and DB[rev
 		DirectX::XMFLOAT3 diff = XMF3SUB(posOnLine, nextDBPos); // dif between pos on line and next De Boor
 		newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));		
@@ -473,7 +488,7 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 		else 
 		{ // bernstein point is before the de boor point
 			DirectX::XMFLOAT3 diff = XMF3SUB(movedPoint, prevDBPos); // dif between pos on line and next De Boor
-			newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+			newDBcoords = XMF3SUM(prevDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
 		}
 	}
 

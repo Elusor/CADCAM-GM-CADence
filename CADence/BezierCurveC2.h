@@ -19,6 +19,7 @@ public:
 	void AttachChild(std::weak_ptr<Node> controlPoint) override;
 	void RemoveChild(std::weak_ptr<Node> controlPoint) override;
 	void RecalculateBasisPoints(bool overwriteVertices = true);
+
 	bool GetIsModified() override;
 
 private:

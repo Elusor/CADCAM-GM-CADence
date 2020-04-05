@@ -35,6 +35,7 @@ void ObjectTransformer::RotateObject(std::unique_ptr<Object>& object, DirectX::X
     auto curRotMatrix = DirectX::XMMatrixRotationRollPitchYawFromVector(curRot);
     auto completeRot = DirectX::XMMatrixMultiply(rot, curRotMatrix);        
     //Rotation = (quat * Quaternion.FromEulerAngles(Rotation)).EulerAngles();   
+	object->SetModified(true);
 	object->Rotate(
 		DirectX::XMFLOAT3(
 		eulerAngles.x,
@@ -67,7 +68,7 @@ void ObjectTransformer::ScaleObject(std::unique_ptr<Object>& object, DirectX::XM
 		pivot.x + diff.x,
 		pivot.y + diff.y,
 		pivot.z + diff.z));
-
+	object->SetModified(true);
 	object->Scale(scale);
 	/*.x *= scale.x;
     object->m_transform.m_scale.y *= scale.y;
@@ -76,6 +77,7 @@ void ObjectTransformer::ScaleObject(std::unique_ptr<Object>& object, DirectX::XM
 
 void ObjectTransformer::TranslateObject(std::unique_ptr<Object>& object, DirectX::XMFLOAT3 pivot, DirectX::XMFLOAT3 translation)
 {
+	object->SetModified(true);
 	object->Translate(
 		DirectX::XMFLOAT3(
 		translation.x,
