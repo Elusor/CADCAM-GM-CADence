@@ -138,8 +138,9 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 	}	
 }
 
-void BezierCurve::RemoveExpiredChildren()
+bool BezierCurve::RemoveExpiredChildren()
 {
+	bool removed = false;
 	auto it = m_controlPoints.begin();
 	while (it != m_controlPoints.end())
 	{
@@ -149,6 +150,7 @@ void BezierCurve::RemoveExpiredChildren()
 		}
 		else {
 			it = m_controlPoints.erase(it);
+			removed = true;
 		}		
 	}
 
@@ -157,6 +159,7 @@ void BezierCurve::RemoveExpiredChildren()
 		auto gParent = dynamic_cast<GroupNode*>(parent.get());
 		gParent->RemoveExpiredChildren();
 	}
+	return removed;
 }
 
 bool BezierCurve::CreateParamsGui()

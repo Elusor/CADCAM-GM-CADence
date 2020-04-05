@@ -128,6 +128,8 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 		if (open && !nodeRemoved && treePushed)
 		{
 			// display children
+			std::vector<std::weak_ptr<Node>> nodesToDelete;
+
 			bool removed = false;
 			auto it = m_children.begin();
 			while (it != m_children.end())
@@ -156,10 +158,12 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 						{
 							if (ImGui::Selectable("Remove node"))
 							{
-								it = m_children.erase(it);
-								BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
+								std::weak_ptr<Node> deletedNode = *it;
+								nodesToDelete.push_back(deletedNode);
+								//it = m_children.erase(it);
+								/*BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
 								c->RemoveChild(node);
-								removed = true;
+								removed = true;*/
 							}
 							ImGui::EndPopup();
 						}
@@ -172,6 +176,16 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 				}
 			}		
 			ImGui::TreePop();
+
+			for (int i = 0; i < nodesToDelete.size(); i++)
+			{
+				BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
+				c->RemoveChild(nodesToDelete[i]);
+				removed = true;
+			}
+
+			nodesToDelete.clear();			
+
 		}	
 
 		if(nodeRemoved && treePushed)

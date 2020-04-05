@@ -37,5 +37,5 @@ protected:
 	MeshDescription m_PolygonDesc;
 	bool m_renderPolygon;
 	//void RenderPolygon(std::unique_ptr<RenderState>& renderState);
-	void RemoveExpiredChildren();
+	bool RemoveExpiredChildren();
 };

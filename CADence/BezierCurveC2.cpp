@@ -22,6 +22,12 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 
 void BezierCurveC2::UpdateObject()
 {
+	if (RemoveExpiredChildren())
+	{
+		RecalculateBasisPoints();
+	}
+
+
 	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
 	int modifiedIndex = -1;
 	if (m_basis == BezierBasis::Bernstein)
@@ -219,7 +225,7 @@ void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 	// This needs to be called with false not to overwrite the vector on which the calling function in iterating
 	// Rewrite both of these methods to make them implementation - agnostic
 
-	RecalculateBasisPoints(false);
+	RecalculateBasisPoints(true);
 	SetModified(true);
 }
 
@@ -293,9 +299,15 @@ bool BezierCurveC2::GetIsModified()
 	{
 		if (auto point = m_controlPoints[i].lock())
 		{
+			if (m_controlPoints[i].expired())
+				int i = 2;
+
 			if (point->m_object->GetIsModified())
 			{
 				SetModified(true);
+			}
+			else {
+
 			}
 		}
 	}
