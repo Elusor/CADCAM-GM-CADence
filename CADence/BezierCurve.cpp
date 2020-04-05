@@ -107,13 +107,13 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 	}
 }
 
-void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
+void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	RemoveExpiredChildren();
 	if (m_controlPoints.size() > 1)
 	{		
 		int prev = m_adaptiveRenderingSamples;
-		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderData);
+		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderState);
 		if (prev != m_adaptiveRenderingSamples)
 			SetModified(true);
 
@@ -122,18 +122,29 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderData)
 			UpdateObject();
 		}
 
-		
+		if (m_adaptiveRenderingSamples > 1200) m_adaptiveRenderingSamples = 1200;
+		if (m_adaptiveRenderingSamples < 20) m_adaptiveRenderingSamples = 20;
+		D3D11_MAPPED_SUBRESOURCE res;
+		DirectX::XMFLOAT4 data = DirectX::XMFLOAT4(m_adaptiveRenderingSamples / 20, m_lastVertexDuplicationCount, 0.0f, 0.0f);
+		DirectX::XMVECTOR GSdata = DirectX::XMLoadFloat4(&data);
+
+		auto hres = renderState->m_device.context()->Map((renderState->m_cbGSData.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+		memcpy(res.pData, &GSdata, sizeof(DirectX::XMFLOAT4));
+		renderState->m_device.context()->Unmap(renderState->m_cbGSData.get(), 0);
+		ID3D11Buffer* cbs[] = { renderState->m_cbGSData.get() };
+		renderState->m_device.context()->GSSetConstantBuffers(0, 1, cbs);
+
 		// Turn on bezier geometry shader
-		renderData->m_device.context()->GSSetShader(
-			renderData->m_bezierGeometryShader.get(),
+		renderState->m_device.context()->GSSetShader(
+			renderState->m_bezierGeometryShader.get(),
 			nullptr, 0);
-		MeshObject::RenderObject(renderData);
+		MeshObject::RenderObject(renderState);
 		// turn off bezier geometry shader
-		renderData->m_device.context()->GSSetShader(nullptr, nullptr, 0);
+		renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
 
 		if (m_renderPolygon)
 		{
-			RenderMesh(renderData, m_PolygonDesc);
+			RenderMesh(renderState, m_PolygonDesc);
 		}
 	}	
 }
@@ -277,7 +288,7 @@ void BezierCurve::UpdateObject()
 
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;
-
+		m_lastVertexDuplicationCount = 0;
 		for (int i = 0; i < m_controlPoints.size(); i++)
 		{
 			//add all vertices
@@ -312,6 +323,7 @@ void BezierCurve::UpdateObject()
 
 					// add the rest of the vertices as duplicates of the last one
 					int emptyVertices = 4 - (m_controlPoints.size() - i);
+					//m_lastVertexDuplicationCount = emptyVertices;
 					for (int k = 0; k < emptyVertices; k++)
 					{
 						indices.push_back(m_controlPoints.size() - 1);

@@ -66,6 +66,7 @@ void BezierCurveC2::UpdateObject()
 	{
 
 		m_virtualBernsteinPos = CalculateBernsteinFromDeBoor();
+		m_lastVertexDuplicationCount = 0;
 #pragma region gs format
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;
@@ -102,6 +103,7 @@ void BezierCurveC2::UpdateObject()
 
 					// add the rest of the vertices as duplicates of the last one
 					int emptyVertices = 4 - (m_virtualBernsteinPos.size() - i);
+					//m_lastVertexDuplicationCount = emptyVertices;
 					for (int k = 0; k < emptyVertices; k++)
 					{
 						indices.push_back(m_virtualBernsteinPos.size() - 1);
@@ -171,6 +173,19 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 		{
 			UpdateObject();
 		}
+
+		if (m_adaptiveRenderingSamples > 1200) m_adaptiveRenderingSamples = 1200;
+		if (m_adaptiveRenderingSamples < 20) m_adaptiveRenderingSamples = 20;
+		// Set up GS buffer
+		D3D11_MAPPED_SUBRESOURCE res;
+		DirectX::XMFLOAT4 data = DirectX::XMFLOAT4(m_adaptiveRenderingSamples/20, m_lastVertexDuplicationCount, 0.0f, 0.0f);
+		DirectX::XMVECTOR GSdata = DirectX::XMLoadFloat4(&data);
+
+		auto hres = renderState->m_device.context()->Map((renderState->m_cbGSData.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+		memcpy(res.pData, &GSdata, sizeof(DirectX::XMFLOAT4));
+		renderState->m_device.context()->Unmap(renderState->m_cbGSData.get(), 0);
+		ID3D11Buffer* cbs[] = { renderState->m_cbGSData.get() };
+		renderState->m_device.context()->GSSetConstantBuffers(0, 1, cbs);
 
 		// Turn on bezier geometry shader
 		renderState->m_device.context()->GSSetShader(

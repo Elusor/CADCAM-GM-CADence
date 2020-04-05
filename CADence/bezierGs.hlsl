@@ -1,5 +1,9 @@
 #include "ShaderStructs.hlsli"
 
+cbuffer transformations : register(b0) {
+	float4 gsData;
+}
+
 
 VSOut Bezier1(VSOut p0, VSOut p1, float t)
 {
@@ -38,7 +42,8 @@ void main(
 	inout LineStream<VSOut> output)
 {
 
-	uint adaptiveRenderCount = 10; // What the adaptive renderer determined
+	int dummyNodesCount = (int)gsData.y;
+	int adaptiveRenderCount = (int)gsData.x; // What the adaptive renderer determined
 
 	float instanceStep = 1.0f / 20.0f;
 	float curStart = instanceStep * (float)InstanceID;
@@ -46,11 +51,11 @@ void main(
 	
 	// check if any of the nodes are repeating and how many times
 	bool b = (input[3].pos) == (input[2].pos);
-	if (b)
+	if (dummyNodesCount > 0)
 	{
 		// last node repeats 3 times - linear
-		bool c = (input[3].pos) == (input[1].pos);
-		if (c)
+		
+		if (dummyNodesCount > 1)
 		{
 			//CalculateLinearPoints();
 			for (uint i = 0; i <= adaptiveRenderCount; i++)

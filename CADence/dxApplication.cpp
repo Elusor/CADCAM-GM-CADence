@@ -62,6 +62,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
 	m_renderData->m_cbMVP = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	m_renderData->m_cbGSData = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4>();
 
 	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
 

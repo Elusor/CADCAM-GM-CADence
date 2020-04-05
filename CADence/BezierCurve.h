@@ -32,6 +32,8 @@ public:
 	bool IsChild(std::weak_ptr<Node> point);	
 
 protected:
+	int m_lastVertexDuplicationCount;
+
 	std::vector<std::weak_ptr<Node>> m_controlPoints;
 	int m_adaptiveRenderingSamples;
 	MeshDescription m_PolygonDesc;
