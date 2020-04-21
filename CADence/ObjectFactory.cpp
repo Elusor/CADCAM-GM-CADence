@@ -44,6 +44,15 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr
 	return node;
 }
 
+
+std::shared_ptr<Node> ObjectFactory::CreateSceneGrid(int gridSize)
+{
+	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
+	n->m_object = std::unique_ptr<SceneGrid>(new SceneGrid(gridSize));
+	n->m_object->m_parent = n;
+	return n;
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateTorus(
 	Transform transform,
 	std::string name,

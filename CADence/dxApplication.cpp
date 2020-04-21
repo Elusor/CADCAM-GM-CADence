@@ -28,7 +28,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		new Camera(
 		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
-		XMFLOAT2(0.0f, 0.0f), // yaw, pitch
+		XMFLOAT2(0.0f, -0.55f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
 		45.0f, 2.5f, 250.0f)); // fov, zNear, zFar
@@ -183,7 +183,11 @@ void DxApplication::InitImguiWindows()
 	}
 	if (ImGui::CollapsingHeader("Cursor"))
 	{
-		m_scene->m_spawnMarker->CreateParamsGui();
+		m_scene->m_spawnMarker->CreateParamsGui();	
+	}
+	if (ImGui::CollapsingHeader("Grid"))
+	{
+		m_scene->m_grid->CreateParamsGui();
 	}
 	if (ImGui::CollapsingHeader("Transformations"))
 	{
@@ -193,6 +197,6 @@ void DxApplication::InitImguiWindows()
 		ImGui::Checkbox("Center trasformations at cursor", &(m_transController->m_transAroundCursor));
 	}
 	ImGui::Separator();
-	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 }

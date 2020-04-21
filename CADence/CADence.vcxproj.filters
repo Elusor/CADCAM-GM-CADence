@@ -210,6 +210,12 @@
     <ClInclude Include="adaptiveRenderingCalculator.h">
       <Filter>Header Files\CadSpecific\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="generalUtils.h">
+      <Filter>Header Files\CadSpecific\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGrid.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -322,6 +328,12 @@
     </ClCompile>
     <ClCompile Include="mathUtils.cpp">
       <Filter>Source Files\CadSpecific\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="generalUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGrid.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

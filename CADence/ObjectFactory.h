@@ -15,6 +15,8 @@ public:
 	std::shared_ptr<Node> CreateBezierCurve(
 		std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
 
+	std::shared_ptr<Node> CreateSceneGrid(int gridSize);
+
 	std::shared_ptr<Node> CreateTorus(
 		Transform transform = Transform(),
 		std::string name = "Torus",

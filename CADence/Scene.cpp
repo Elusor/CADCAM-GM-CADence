@@ -2,12 +2,15 @@
 #include "imgui.h"
 #include "ObjectFactory.h"
 #include "GroupNode.h"
-
+#include "generalUtils.h"
 Scene::Scene()
 {
 	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
 	std::unique_ptr<Object> spawnMarker = move(m_objectFactory->CreateSpawnMarker()->m_object);
 	m_spawnMarker = std::unique_ptr<SpawnMarker>(dynamic_cast<SpawnMarker *>(spawnMarker.release()));
+
+	std::unique_ptr<Object> grid = move(m_objectFactory->CreateSceneGrid(50)->m_object);
+	m_grid = std::unique_ptr<SceneGrid>(dynamic_cast<SceneGrid*>(grid.release()));
 
 	Object* middleMarker = new Object();
 	m_middleMarker = std::unique_ptr<Object>(middleMarker);
@@ -79,7 +82,6 @@ void Scene::DrawScenePopupMenu()
 			}
 			if (ImGui::MenuItem("Bezier Curve C0"))
 			{
-				// TODO [MG] Make sure taht only points are selected or filter the points				
 				AttachObject(m_objectFactory->CreateBezierCurve(m_selectedNodes));				
 			}
 
@@ -87,13 +89,11 @@ void Scene::DrawScenePopupMenu()
 			{
 				if (ImGui::MenuItem("B-Spline basis"))
 				{
-					// TODO [MG] Make sure taht only points are selected or filter the points				
 					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::BSpline));
 				}
 
 				if (ImGui::MenuItem("Bernstein basis"))
 				{
-					// TODO [MG] Make sure taht only points are selected or filter the points				
 					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::Bernstein));
 				}
 
@@ -116,6 +116,36 @@ void Scene::DrawNodePopupMenu(const std::shared_ptr<Node> node)
 	
 }
 
+void Scene::RenderMiddleMarker(std::unique_ptr<RenderState>& renderState)
+{
+	if (m_selectedNodes.size() > 0)
+	{
+		int count = m_selectedNodes.size();
+		DirectX::XMVECTOR pos = DirectX::XMVectorZero();
+
+		for (int j = 0; j < m_selectedNodes.size(); j++)
+		{
+			if (auto node = m_selectedNodes[j].lock())
+			{
+				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->GetPosition()));
+				pos = DirectX::XMVectorAdd(pos, posj);
+			}
+		}
+
+		float countf = (float)count;
+
+		DirectX::XMFLOAT3 newPos;
+		DirectX::XMStoreFloat3(&newPos, pos);
+
+		newPos.x /= countf;
+		newPos.y /= countf;
+		newPos.z /= countf;
+
+		m_middleMarker->SetPosition(newPos);
+		m_middleMarker->RenderCoordinates(renderState);
+	}
+}
+
 void Scene::DrawSceneHierarchy()
 {
 	bool node_open = ImGui::TreeNode("Scene");	
@@ -128,8 +158,7 @@ void Scene::DrawSceneHierarchy()
 		{
 			for (int i = 0; i < m_nodes.size(); i++)
 			{
-				m_nodes[i]->DrawNodeGUI(*this);
-				//DrawNodePopupMenu(m_nodes[i]);
+				m_nodes[i]->DrawNodeGUI(*this);				
 			}
 		}
 		else 
@@ -153,35 +182,31 @@ void Scene::SelectionChanged(Node& node)
 	{
 
 		std::weak_ptr<Node> weakNode;
-		// clear selected nodes
 		for (int i = 0; i < m_nodes.size(); i++)
 		{		
-			// check object
+			// clear selected status
+			m_nodes[i]->m_isSelected = false;
+			m_nodes[i]->ClearChildrenSelection();
+
+			// Find weak_ptr to node
 			if (m_nodes[i]->m_object == node.m_object)
 			{
 				weakNode = m_nodes[i];
 			}
 
-			// check children
-			auto children = m_nodes[i]->GetChildren();
-			for (int j = 0; j < children.size(); j++)
+			Object& obj = *(node.m_object.get());			
+			auto vNode = FindObjectNode(m_nodes[i]->GetChildren(), obj);
+			if (vNode.expired() == false)
 			{
-				if (auto child = children[j].lock())
-				{
-					if (child->m_object == node.m_object)
-					{
-						weakNode = child;
-					}
-				}
+				weakNode = vNode;
 			}
 
-			m_nodes[i]->ClearChildrenSelection();
-			m_nodes[i]->m_isSelected = false;
 		}
+
 		m_selectedNodes.clear();
 
 		// select this node
-		node.m_isSelected = true;		
+		node.m_isSelected = true;			
 		m_selectedNodes.push_back(weakNode);
 	}
 	else
@@ -192,8 +217,8 @@ void Scene::SelectionChanged(Node& node)
 		if (node.m_isSelected)
 		{
 			// deselect this node and
-			// remove this node from m_selectedNodes
 			node.m_isSelected = false;
+			// remove this node from m_selectedNodes
 			auto it = m_selectedNodes.begin();
 			while (it != m_selectedNodes.end())
 			{
@@ -216,13 +241,13 @@ void Scene::SelectionChanged(Node& node)
 			// select this node
 			node.m_isSelected = true;
 			std::weak_ptr<Node> weakNode;
-			for (int i = 0; i < m_nodes.size(); i++)
+			Object& obj = *(node.m_object.get());
+			auto vNode = FindObjectNode(m_nodes, obj);
+			if (vNode)
 			{
-				if (m_nodes[i]->m_object == node.m_object)
-				{
-					weakNode = m_nodes[i];
-				}
+				weakNode = vNode;
 			}
+
 			m_selectedNodes.push_back(weakNode);
 		}
 
@@ -231,8 +256,8 @@ void Scene::SelectionChanged(Node& node)
 
 void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 {
+	m_grid->RenderObject(renderState);
 	m_spawnMarker->RenderObject(renderState);	
-	
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		// TODO [MG] : check if this item is currently selected		
@@ -247,38 +272,7 @@ void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 		}
 	}		
 
-#pragma region RenderMiddleMarker(std::unique_ptr<RenderData>& renderData, std::vector<std::weak_ptr<Node>> m_selectedNodes)
-
-	if (m_selectedNodes.size() > 0)
-	{
-		int count = m_selectedNodes.size();
-		DirectX::XMVECTOR pos = DirectX::XMVectorZero();				
-	
-		for (int j = 0; j < m_selectedNodes.size(); j++)
-		{
-			if (auto node = m_selectedNodes[j].lock())
-			{
-				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->GetPosition()));
-				pos = DirectX::XMVectorAdd(pos, posj); 
-			}			
-		}			
-
-		float countf = (float) count;
-		
-		DirectX::XMFLOAT3 newPos;
-		DirectX::XMStoreFloat3(&newPos, pos);
-
-		newPos.x /= countf;
-		newPos.y /= countf;
-		newPos.z /= countf;
-
-		m_middleMarker->SetPosition(newPos);
-		m_middleMarker->RenderCoordinates(renderState);
-	}
-
-#pragma endregion
-
-	
+	RenderMiddleMarker(renderState);	
 }
 
 void Scene::ClearModifiedTag()
@@ -302,7 +296,6 @@ void Scene::ClearModifiedTag()
 
 void Scene::UpdateScene()
 {
-
 	UpdateSelectedNode();
 
 	for (int i = 0; i < m_nodes.size(); i++)
@@ -315,7 +308,7 @@ void Scene::LateUpdate()
 {
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
-		m_nodes[i]->Update();
+		m_nodes[i]->LateUpdate();
 	}
 }
 
@@ -323,7 +316,7 @@ void Scene::UpdateSelectedNode()
 {	
 	// Draw the inspector window
 	// foreach selected node
-	//    Draw section for each node
+	//   Draw section for each node
 
 	auto it = m_selectedNodes.begin();
 	while (it != m_selectedNodes.end())
@@ -344,25 +337,4 @@ void Scene::UpdateSelectedNode()
 			it = m_selectedNodes.erase(it);
 		}
 	}
-
-	//auto it = m_selectedNodes.begin();
-	//while (it != m_selectedNodes.end())
-	//{
-	//	// TODO [MG] : add collapsing headers
-	//	if (auto selectedNode = it->lock())
-	//	{
-	//		if (selectedNode->m_object)
-	//		{
-	//			bool selectedObjectModified = selectedNode->m_object->CreateParamsGui();
-	//			if (selectedObjectModified)
-	//			{
-	//				selectedNode->Update();
-	//			}				
-	//		}
-	//		it++;
-	//	}
-	//	else {
-	//		it = m_selectedNodes.erase(it);
-	//	}		
-	//}
 }

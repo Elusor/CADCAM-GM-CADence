@@ -160,6 +160,7 @@
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="BezierCurveC2.h" />
+    <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="imstb_rectpack.h" />
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
+    <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="vertexStructures.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SpawnMarker.h" />
@@ -208,6 +210,7 @@
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
     <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="generalUtils.cpp" />
     <ClCompile Include="GroupNode.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
@@ -217,6 +220,7 @@
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
+    <ClCompile Include="SceneGrid.cpp" />
     <ClCompile Include="vertexStructures.cpp" />
     <ClCompile Include="MeshObject.cpp" />
     <ClCompile Include="Node.cpp" />

@@ -15,6 +15,7 @@ std::vector<std::weak_ptr<Node>> Node::GetSelectedChildren()
 	return std::vector<std::weak_ptr<Node>>();
 }
 
+// Returns children of a given node. By default returns empty std::vector. Can be overloaded.
 std::vector<std::weak_ptr<Node>> Node::GetChildren()
 {
 	return std::vector<std::weak_ptr<Node>>();
@@ -103,4 +104,9 @@ void Node::Update()
 			m_object->UpdateObject();
 		}
 	}
+}
+
+void Node::LateUpdate()
+{
+	this->Update();
 }

@@ -16,6 +16,7 @@ public:
 	virtual void DrawNodeGUI(Scene& scene);
 	std::string GetLabel();
 	void Update();
+	void LateUpdate();
 	void Render(std::unique_ptr<RenderState> & renderData);		
 	
 	// Methods that coul be further used for non flat hierarchy 

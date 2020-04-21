@@ -86,7 +86,7 @@ void Camera::ResetCamera()
 	m_pos = XMFLOAT3(0.0f, 0.0f, -30.0f);
 	m_target = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_yaw = DirectX::XM_PIDIV2;
-	m_pitch = 0;
+	m_pitch = -0.55f;
 	UpdateUpVector();
 	RotateCamera(0, 0);
 }
