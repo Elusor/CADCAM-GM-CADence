@@ -23,6 +23,7 @@ public:
 
 	void ClearModifiedTag();
 	void UpdateScene();
+	void LateUpdate();
 	void UpdateSelectedNode();
 	void RenderScene(std::unique_ptr<RenderState> & renderData);
 

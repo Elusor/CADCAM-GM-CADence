@@ -157,6 +157,7 @@ void DxApplication::Clear()
 void DxApplication::Update()
 {
 	m_scene->UpdateScene();
+	m_scene->LateUpdate();
 }
 
 void DxApplication::Render()

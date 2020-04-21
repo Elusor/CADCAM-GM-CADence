@@ -311,6 +311,14 @@ void Scene::UpdateScene()
 	}
 }
 
+void Scene::LateUpdate()
+{
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		m_nodes[i]->Update();
+	}
+}
+
 void Scene::UpdateSelectedNode()
 {	
 	// Draw the inspector window

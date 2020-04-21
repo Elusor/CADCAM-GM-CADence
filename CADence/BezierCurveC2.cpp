@@ -413,6 +413,7 @@ void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
 				if (auto ctrlPoint = m_curBasisControlPoints[i].lock())
 				{
 					ctrlPoint->m_object->SetPosition(point->m_object->GetPosition());
+					ctrlPoint->m_object->SetModified(true);
 				}				
 			}			
 		}
@@ -595,7 +596,7 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 		}
 
 		curDB->m_object->SetPosition(newDBcoords);
-
+		curDB->m_object->SetModified(true);
 	}
 	
 }
