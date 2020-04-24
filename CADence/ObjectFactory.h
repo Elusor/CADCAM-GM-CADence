@@ -9,6 +9,8 @@ class ObjectFactory
 
 public:	
 
+	std::shared_ptr<Node> CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
+
 	std::shared_ptr<Node> CreateBezierCurveC2(
 		std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>(), BezierBasis basis = BezierBasis::BSpline);
 

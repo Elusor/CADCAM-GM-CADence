@@ -26,7 +26,7 @@ std::vector<float> SolveTridiagMatrix(std::vector<float> lowerDiag, std::vector<
 
 	d[n] = (d[n] - a[n] * d[n - 1]) / (b[n] - a[n] * c[n - 1]);
 
-	for (int i = n; i > 0; i--)
+	for (int i = n -1 ; i > 0; i--)
 	{
 		d[i] -= c[i] * d[i + 1];
 	}

@@ -27,7 +27,6 @@ void BezierCurveC2::UpdateObject()
 	{
 
 		m_virtualBernsteinPos = CalculateBernsteinFromDeBoor();
-		m_lastVertexDuplicationCount = 0;
 		UpdateGSData();
 		PreparePolygonDesc();
 	}
@@ -161,10 +160,7 @@ bool BezierCurveC2::GetIsModified()
 	for (int i = 0; i < m_controlPoints.size(); i++)
 	{
 		if (auto point = m_controlPoints[i].lock())
-		{
-			if (m_controlPoints[i].expired())
-				int i = 2;
-
+		{			
 			if (point->m_object->GetIsModified())
 			{
 				SetModified(true);
@@ -436,6 +432,7 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 
 void BezierCurveC2::UpdateGSData()
 {
+	m_lastVertexDuplicationCount = 0;
 	std::vector<VertexPositionColor> vertices;
 	std::vector<unsigned short> indices;
 

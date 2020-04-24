@@ -120,7 +120,7 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 		{
 			UpdateObject();
 		}
-
+		RenderCurve(renderState);
 		RenderPolygon(renderState);
 	}	
 }

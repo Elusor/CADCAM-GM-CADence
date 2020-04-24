@@ -97,6 +97,12 @@ void Scene::DrawScenePopupMenu()
 					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::Bernstein));
 				}
 
+				if (ImGui::MenuItem("Interpolation curve"))
+				{
+					AttachObject(m_objectFactory->CreateInterpolBezierCurveC2(m_selectedNodes));
+				}
+
+
 				ImGui::EndMenu();
 			}
 

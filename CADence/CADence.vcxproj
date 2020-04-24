@@ -162,6 +162,7 @@
     <ClInclude Include="BezierCurveC2.h" />
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
+    <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="imgui_impl_dx11.cpp" />
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="InterpolationBezierCurveC2.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="SceneGrid.cpp" />

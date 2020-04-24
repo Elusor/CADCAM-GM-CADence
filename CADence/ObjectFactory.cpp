@@ -1,5 +1,24 @@
 #include "ObjectFactory.h"
 
+std::shared_ptr<Node> ObjectFactory::CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints)
+{
+	auto points = FilterObjectTypes(typeid(Point), controlPoints);
+	InterpolationBezierCurveC2* bC = new InterpolationBezierCurveC2(points);
+	std::string name = "Bezier Curve";
+
+	if (m_bezierCurveCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierCurveCounter);
+	}
+	bC->m_name = bC->m_defaultName = name;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
+	node->m_object = std::unique_ptr<Object>(bC);
+	bC->m_parent = node;
+	m_bezierCurveCounter++;
+	return node;
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints, BezierBasis basis)
 {
 
@@ -14,7 +33,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurveC2(std::vector<std::weak_p
 	bC->m_name = bC->m_defaultName = name;
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
-	node->m_object = std::unique_ptr<Object>(bC);;
+	node->m_object = std::unique_ptr<Object>(bC);
 	bC->m_parent = node;
 	bC->RecalculateBasisPoints();
 	m_bezierCurveCounter++;

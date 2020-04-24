@@ -1,8 +1,9 @@
 #pragma once
 #include "BezierCurve.h"
-#include "Node.h"
 #include "mathUtils.h"
-class InterpolationBezierCurveC2: BezierCurve
+#include "imgui.h"
+
+struct InterpolationBezierCurveC2 : BezierCurve
 {
 public:
 	InterpolationBezierCurveC2();
@@ -22,7 +23,6 @@ protected:
 	bool RemoveExpiredChildren() override;
 
 private:
-	std::vector<std::weak_ptr<Node>> m_displayedPoints;
 	std::vector<std::shared_ptr<Node>> m_virtualPoints;
 	
 	// Data concerning the De Boor polygon
@@ -33,4 +33,6 @@ private:
 	void GetInterpolationSplineBernsteinPoints(std::vector<std::weak_ptr<Node>> interpolationKnots);
 
 	std::shared_ptr<Node> CreateVirtualPoint(DirectX::XMFLOAT3 pos, int ptIdx);
+	void UpdateGSData();
+	void PreparePolygonDesc();
 };

@@ -216,6 +216,9 @@
     <ClInclude Include="SceneGrid.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="InterpolationBezierCurveC2.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -333,6 +336,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SceneGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InterpolationBezierCurveC2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
