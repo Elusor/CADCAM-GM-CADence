@@ -189,21 +189,18 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	auto pnPos = p1->m_object->GetPosition();
 	auto pnPosPrev = p0->m_object->GetPosition();
 	auto diff = XMF3SUB(pnPos, pnPosPrev);
-	xVector.push_back(3 * diff.x);
-	yVector.push_back(3 * diff.y);
-	zVector.push_back(3 * diff.z);
+	xVector.push_back(3.f * diff.x);
+	yVector.push_back(3.f * diff.y);
+	zVector.push_back(3.f * diff.z);
 
 	for (int i = 0; i < interpolationKnots.size() - 2; i++)
 	{
-		//insert 3(point[i+2] - point[i])
-		auto pi = interpolationKnots[i].lock();
-		auto pinext = interpolationKnots[i + 2].lock();
-		auto pnPos = pi->m_object->GetPosition();
-		auto pnPosNext = pinext->m_object->GetPosition();
+		auto pnPos = interpolationKnots[i].lock()->m_object->GetPosition();
+		auto pnPosNext = interpolationKnots[i + 2].lock()->m_object->GetPosition();
 		diff = XMF3SUB(pnPosNext, pnPos);
-		xVector.push_back(3 * diff.x);
-		yVector.push_back(3 * diff.y);
-		zVector.push_back(3 * diff.z);
+		xVector.push_back(3.f * diff.x);
+		yVector.push_back(3.f * diff.y);
+		zVector.push_back(3.f * diff.z);
 
 	}
 	// insert the last point
@@ -212,9 +209,9 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	pnPos = pn->m_object->GetPosition();
 	pnPosPrev = pnprev->m_object->GetPosition();
 	diff = XMF3SUB(pnPos, pnPosPrev);
-	xVector.push_back(3 * diff.x);
-	yVector.push_back(3 * diff.y);
-	zVector.push_back(3 * diff.z);
+	xVector.push_back(3.f * diff.x);
+	yVector.push_back(3.f * diff.y);
+	zVector.push_back(3.f * diff.z);
 
 
 	auto xRes = SolveTridiagMatrix(lowerDiag, diag, lowerDiag, xVector);
@@ -228,7 +225,7 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		auto pti1 = interpolationKnots[i + 1].lock();
 		auto ptiPos = pti->m_object->GetPosition();
 		//diff = (yi+1 - yi)		
-		auto diff = XMF3SUB(pti1->m_object->GetPosition(), pti->m_object->GetPosition());
+		auto diff3 = XMF3SUB(pti1->m_object->GetPosition(), pti->m_object->GetPosition());
 		auto Di = DirectX::XMFLOAT3(xRes[i], yRes[i], zRes[i]);
 		auto Di1 = DirectX::XMFLOAT3(xRes[i + 1], yRes[i + 1], zRes[i + 1]);
 		// a = y
@@ -236,13 +233,13 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		// b = Di
 		b.push_back(Di);
 		// c = 3 diff - 2Di - Di+1
-		c.push_back(XMFloat3TimesFloat(diff, 3));
-		c[i] = XMF3SUB(c[i], XMFloat3TimesFloat(Di, 2));
+		c.push_back(XMFloat3TimesFloat(diff3, 3.f));
+		c[i] = XMF3SUB(c[i], XMFloat3TimesFloat(Di, 2.f));
 		c[i] = XMF3SUB(c[i], Di1);
 		// d = -2 diff + Di + Di+1
-		d.push_back(XMFloat3TimesFloat(diff, -2));
-		d[i] = XMF3SUM(c[i], Di);
-		d[i] = XMF3SUM(c[i], Di1);
+		d.push_back(XMFloat3TimesFloat(diff3, -2.f));
+		d[i] = XMF3SUM(d[i], Di);
+		d[i] = XMF3SUM(d[i], Di1);
 	}
 
 	std::vector<DirectX::XMFLOAT3> resultPos;
@@ -274,7 +271,7 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		resultPos.push_back(k3);
 		if (i == a.size() - 1)
 		{
-			resultPos.push_back(k4);
+			resultPos.push_back(k4);			
 		}
 	}
 
