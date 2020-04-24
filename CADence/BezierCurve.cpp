@@ -111,41 +111,17 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	RemoveExpiredChildren();
 	if (m_controlPoints.size() > 1)
-	{		
-		int prev = m_adaptiveRenderingSamples;
-		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderState);
-		if (prev != m_adaptiveRenderingSamples)
-			SetModified(true);
+	{				
+		// This should actually be in update (late update?)
+		CalculateAdaptiveRendering(m_controlPoints, renderState);
 
+		// This should actually be in update (late update?)
 		if (m_modified)
 		{
 			UpdateObject();
 		}
 
-		if (m_adaptiveRenderingSamples > 1200) m_adaptiveRenderingSamples = 1200;
-		if (m_adaptiveRenderingSamples < 20) m_adaptiveRenderingSamples = 20;
-		D3D11_MAPPED_SUBRESOURCE res;
-		DirectX::XMFLOAT4 data = DirectX::XMFLOAT4(m_adaptiveRenderingSamples / 20, m_lastVertexDuplicationCount, 0.0f, 0.0f);
-		DirectX::XMVECTOR GSdata = DirectX::XMLoadFloat4(&data);
-
-		auto hres = renderState->m_device.context()->Map((renderState->m_cbGSData.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
-		memcpy(res.pData, &GSdata, sizeof(DirectX::XMFLOAT4));
-		renderState->m_device.context()->Unmap(renderState->m_cbGSData.get(), 0);
-		ID3D11Buffer* cbs[] = { renderState->m_cbGSData.get() };
-		renderState->m_device.context()->GSSetConstantBuffers(0, 1, cbs);
-
-		// Turn on bezier geometry shader
-		renderState->m_device.context()->GSSetShader(
-			renderState->m_bezierGeometryShader.get(),
-			nullptr, 0);
-		MeshObject::RenderObject(renderState);
-		// turn off bezier geometry shader
-		renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
-
-		if (m_renderPolygon)
-		{
-			RenderMesh(renderState, m_PolygonDesc);
-		}
+		RenderPolygon(renderState);
 	}	
 }
 
@@ -171,6 +147,40 @@ bool BezierCurve::RemoveExpiredChildren()
 		gParent->RemoveExpiredChildren();
 	}
 	return removed;
+}
+
+void BezierCurve::CalculateAdaptiveRendering(std::vector<std::weak_ptr<Node>> points, std::unique_ptr<RenderState>& renderState)
+{
+	int prev = m_adaptiveRenderingSamples;
+	m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(points, renderState);
+	if (prev != m_adaptiveRenderingSamples)
+		SetModified(true);
+	if (m_adaptiveRenderingSamples > 1200) m_adaptiveRenderingSamples = 1200;
+	if (m_adaptiveRenderingSamples < 20) m_adaptiveRenderingSamples = 20;
+}
+
+void BezierCurve::RenderCurve(std::unique_ptr<RenderState>& renderState)
+{
+	// Set up GS buffer
+	DirectX::XMFLOAT4 data = DirectX::XMFLOAT4(m_adaptiveRenderingSamples / 20, m_lastVertexDuplicationCount, 0.0f, 0.0f);
+	DirectX::XMVECTOR GSdata = DirectX::XMLoadFloat4(&data);
+	auto buf = renderState->SetConstantBuffer<DirectX::XMVECTOR>(renderState->m_cbGSData.get(), GSdata);
+	ID3D11Buffer* cbs[] = { buf };
+	renderState->m_device.context()->GSSetConstantBuffers(0, 1, cbs);
+
+	// Turn on bezier geometry shader
+	renderState->m_device.context()->GSSetShader(renderState->m_bezierGeometryShader.get(),nullptr, 0);
+	MeshObject::RenderObject(renderState);
+	// turn off bezier geometry shader
+	renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
+}
+
+void BezierCurve::RenderPolygon(std::unique_ptr<RenderState>& renderState)
+{
+	if (m_renderPolygon)
+	{
+		RenderMesh(renderState, m_PolygonDesc);
+	}
 }
 
 bool BezierCurve::CreateParamsGui()

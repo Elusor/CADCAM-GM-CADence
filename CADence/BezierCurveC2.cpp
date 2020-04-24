@@ -22,136 +22,14 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 
 void BezierCurveC2::UpdateObject()
 {
-	if (RemoveExpiredChildren())
-	{		
-		RecalculateBasisPoints();
-	}
-
-	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
-	int modifiedIndex = -1;
-	if (m_basis == BezierBasis::Bernstein)
-	{
-		for (int i = 0; i < m_curBasisControlPoints.size(); i++)
-		{
-			if (m_curBasisControlPoints[i].lock()->m_object->GetIsModified())
-			{
-				modifiedIndex = i;
-			}
-		}
-		if (modifiedIndex >= 0)
-		{
-			MoveBernsteinPoint(modifiedIndex);
-			RecalculateBasisPoints(false);
-		}		
-	}
-
-	modifiedIndex = -1;
-	for (int i = 0; i < m_controlPoints.size(); i++)
-	{
-		if (auto point = m_controlPoints[i].lock())
-		{
-			if (point->m_object->GetIsModified())
-			{
-				modifiedIndex = i;
-			}
-		}
-	}
-	if (modifiedIndex >= 0)
-	{
-		//MoveBernsteinPoint(modifiedIndex);
-		RecalculateBasisPoints(false);
-	}
-
+	RecalculateIfModified();
 	if (m_controlPoints.size() >= 4)
 	{
 
 		m_virtualBernsteinPos = CalculateBernsteinFromDeBoor();
 		m_lastVertexDuplicationCount = 0;
-#pragma region gs format
-		std::vector<VertexPositionColor> vertices;
-		std::vector<unsigned short> indices;
-
-		for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
-		{
-			//add all vertices
-			auto pos = m_virtualBernsteinPos[i];
-			vertices.push_back(VertexPositionColor{
-						pos,
-						m_meshDesc.m_defaultColor });
-		}
-
-		for (int i = 0; i < m_virtualBernsteinPos.size(); i += 3)
-		{
-			// mage edges out of the vertices
-			// There are some elements that should be added
-			if (m_virtualBernsteinPos.size() - i > 1);
-			{
-				// add next 4 points normally
-				if (m_virtualBernsteinPos.size() - i >= 4)
-				{
-					indices.push_back(i);
-					indices.push_back(i + 1);
-					indices.push_back(i + 2);
-					indices.push_back(i + 3);
-				}
-				// add the rest of the nodes and add the last node multiple times
-				else {
-					for (int j = i; j < m_virtualBernsteinPos.size(); j++)
-					{
-						indices.push_back(j);
-					}
-
-					// add the rest of the vertices as duplicates of the last one
-					int emptyVertices = 4 - (m_virtualBernsteinPos.size() - i);
-					//m_lastVertexDuplicationCount = emptyVertices;
-					for (int k = 0; k < emptyVertices; k++)
-					{
-						indices.push_back(m_virtualBernsteinPos.size() - 1);
-					}
-				}
-
-			}
-		}
-
-		m_meshDesc.vertices = vertices;
-		m_meshDesc.indices = indices;
-		m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
-#pragma endregion
-
-		std::vector<VertexPositionColor> bernCurveVertices;
-		std::vector<unsigned short> bernCurveIndices;
-		for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
-		{
-			bernCurveVertices.push_back(VertexPositionColor{
-				m_virtualBernsteinPos[i],
-				m_PolygonDesc.m_defaultColor
-				}
-			);
-			bernCurveIndices.push_back(i);
-		}
-		m_PolygonDesc.vertices = bernCurveVertices;
-		m_PolygonDesc.indices = bernCurveIndices;
-		m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;		
-
-		std::vector<VertexPositionColor> deBoorCurveVertices;
-		std::vector<unsigned short> deBoorCurveIndices;
-		for (int i = 0; i < m_controlPoints.size(); i++)
-		{
-			if (auto point = m_controlPoints[i].lock())
-			{
-				deBoorCurveVertices.push_back(VertexPositionColor{
-					point->m_object->GetPosition(),
-					m_deBoorPolyDesc.m_defaultColor
-					}
-				);
-				deBoorCurveIndices.push_back(i);
-			}
-		}
-
-		m_deBoorPolyDesc.vertices = deBoorCurveVertices;
-		m_deBoorPolyDesc.indices = deBoorCurveIndices;
-		m_deBoorPolyDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
-
+		UpdateGSData();
+		PreparePolygonDesc();
 	}
 }
 
@@ -160,51 +38,9 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 	RemoveExpiredChildren();
 
 	if (m_controlPoints.size() >= 4)
-	{
-		
-
-		// This should actually be in update
-		int prev = m_adaptiveRenderingSamples;
-		m_adaptiveRenderingSamples = AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(m_controlPoints, renderState);
-		if (prev != m_adaptiveRenderingSamples)
-			SetModified(true);
-
-		if (m_modified)
-		{
-			UpdateObject();
-		}
-
-		if (m_adaptiveRenderingSamples > 1200) m_adaptiveRenderingSamples = 1200;
-		if (m_adaptiveRenderingSamples < 20) m_adaptiveRenderingSamples = 20;
-		// Set up GS buffer
-		D3D11_MAPPED_SUBRESOURCE res;
-		DirectX::XMFLOAT4 data = DirectX::XMFLOAT4(m_adaptiveRenderingSamples/20, m_lastVertexDuplicationCount, 0.0f, 0.0f);
-		DirectX::XMVECTOR GSdata = DirectX::XMLoadFloat4(&data);
-
-		auto hres = renderState->m_device.context()->Map((renderState->m_cbGSData.get()), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
-		memcpy(res.pData, &GSdata, sizeof(DirectX::XMFLOAT4));
-		renderState->m_device.context()->Unmap(renderState->m_cbGSData.get(), 0);
-		ID3D11Buffer* cbs[] = { renderState->m_cbGSData.get() };
-		renderState->m_device.context()->GSSetConstantBuffers(0, 1, cbs);
-
-		// Turn on bezier geometry shader
-		renderState->m_device.context()->GSSetShader(
-			renderState->m_bezierGeometryShader.get(),
-			nullptr, 0);
-		MeshObject::RenderObject(renderState);
-		// turn off bezier geometry shader
-		renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
-
-		//renderData->m_device.context()->GSSetShader(nullptr, nullptr, 0);
-		if (m_renderPolygon)
-		{
-			RenderMesh(renderState, m_PolygonDesc);
-		}
-
-		if (m_renderDeBoorPolygon)
-		{
-			RenderMesh(renderState, m_deBoorPolyDesc);
-		}
+	{		
+		RenderCurve(renderState);
+		RenderPolygon(renderState);
 	}
 }
 
@@ -249,9 +85,6 @@ void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 			}			
 		}
 	}
-	// This needs to be called with false not to overwrite the vector on which the calling function in iterating
-	// Rewrite both of these methods to make them implementation - agnostic
-
 	RecalculateBasisPoints(true);
 	SetModified(true);
 }
@@ -599,4 +432,177 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 		curDB->m_object->SetModified(true);
 	}
 	
+}
+
+void BezierCurveC2::UpdateGSData()
+{
+	std::vector<VertexPositionColor> vertices;
+	std::vector<unsigned short> indices;
+
+	for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
+	{
+		//add all vertices
+		auto pos = m_virtualBernsteinPos[i];
+		vertices.push_back(VertexPositionColor{
+					pos,
+					m_meshDesc.m_defaultColor });
+	}
+
+	for (int i = 0; i < m_virtualBernsteinPos.size(); i += 3)
+	{
+		// mage edges out of the vertices
+		// There are some elements that should be added
+		if (m_virtualBernsteinPos.size() - i > 1);
+		{
+			// add next 4 points normally
+			if (m_virtualBernsteinPos.size() - i >= 4)
+			{
+				indices.push_back(i);
+				indices.push_back(i + 1);
+				indices.push_back(i + 2);
+				indices.push_back(i + 3);
+			}
+			// add the rest of the nodes and add the last node multiple times
+			else {
+				for (int j = i; j < m_virtualBernsteinPos.size(); j++)
+				{
+					indices.push_back(j);
+				}
+
+				// add the rest of the vertices as duplicates of the last one
+				int emptyVertices = 4 - (m_virtualBernsteinPos.size() - i);
+				//m_lastVertexDuplicationCount = emptyVertices;
+				for (int k = 0; k < emptyVertices; k++)
+				{
+					indices.push_back(m_virtualBernsteinPos.size() - 1);
+				}
+			}
+
+		}
+	}
+
+	m_meshDesc.vertices = vertices;
+	m_meshDesc.indices = indices;
+	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+}
+
+void BezierCurveC2::PreparePolygonDesc()
+{
+
+	std::vector<VertexPositionColor> bernCurveVertices;
+	std::vector<unsigned short> bernCurveIndices;
+	for (int i = 0; i < m_virtualBernsteinPos.size(); i++)
+	{
+		bernCurveVertices.push_back(VertexPositionColor{
+			m_virtualBernsteinPos[i],
+			m_PolygonDesc.m_defaultColor
+			}
+		);
+		bernCurveIndices.push_back(i);
+	}
+	m_PolygonDesc.vertices = bernCurveVertices;
+	m_PolygonDesc.indices = bernCurveIndices;
+	m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+
+
+
+	std::vector<VertexPositionColor> deBoorCurveVertices;
+	std::vector<unsigned short> deBoorCurveIndices;
+	for (int i = 0; i < m_controlPoints.size(); i++)
+	{
+		if (auto point = m_controlPoints[i].lock())
+		{
+			deBoorCurveVertices.push_back(VertexPositionColor{
+				point->m_object->GetPosition(),
+				m_deBoorPolyDesc.m_defaultColor
+				}
+			);
+			deBoorCurveIndices.push_back(i);
+		}
+	}
+
+	m_deBoorPolyDesc.vertices = deBoorCurveVertices;
+	m_deBoorPolyDesc.indices = deBoorCurveIndices;
+	m_deBoorPolyDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+}
+
+void BezierCurveC2::RecalculateIfModified()
+{
+	if (RemoveExpiredChildren())
+	{
+		RecalculateBasisPoints();
+	}
+
+	// check if any virtual Bernstein nodes have been modified and recalculate proper deBoor points	
+	int modifiedIndex = -1;
+	if (m_basis == BezierBasis::Bernstein)
+	{
+		for (int i = 0; i < m_curBasisControlPoints.size(); i++)
+		{
+			if (m_curBasisControlPoints[i].lock()->m_object->GetIsModified())
+			{
+				modifiedIndex = i;
+			}
+		}
+		if (modifiedIndex >= 0)
+		{
+			MoveBernsteinPoint(modifiedIndex);
+			RecalculateBasisPoints(false);
+		}
+	}
+
+	modifiedIndex = -1;
+	for (int i = 0; i < m_controlPoints.size(); i++)
+	{
+		if (auto point = m_controlPoints[i].lock())
+		{
+			if (point->m_object->GetIsModified())
+			{
+				modifiedIndex = i;
+			}
+		}
+	}
+	if (modifiedIndex >= 0)
+	{
+		//MoveBernsteinPoint(modifiedIndex);
+		RecalculateBasisPoints(false);
+	}
+}
+
+void BezierCurveC2::RenderCurve(std::unique_ptr<RenderState>& renderState)
+{
+	// This should actually be in update (late update?)
+	CalculateAdaptiveRendering(m_controlPoints, renderState);
+
+	if (m_modified)
+	{
+		UpdateObject();
+	}
+
+	// Set up GS buffer
+	DirectX::XMFLOAT4 data = DirectX::XMFLOAT4(m_adaptiveRenderingSamples / 20, m_lastVertexDuplicationCount, 0.0f, 0.0f);
+	DirectX::XMVECTOR GSdata = DirectX::XMLoadFloat4(&data);
+	auto buf = renderState->SetConstantBuffer<DirectX::XMVECTOR>(renderState->m_cbGSData.get(), GSdata);
+	ID3D11Buffer* cbs[] = { buf };
+	renderState->m_device.context()->GSSetConstantBuffers(0, 1, cbs);
+
+	// Turn on bezier geometry shader
+	renderState->m_device.context()->GSSetShader(renderState->m_bezierGeometryShader.get(), nullptr, 0);
+	MeshObject::RenderObject(renderState);
+	// turn off bezier geometry shader
+	renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
+
+}
+
+void BezierCurveC2::RenderPolygon(std::unique_ptr<RenderState>& renderState)
+{
+	if (m_renderPolygon)
+	{
+		RenderMesh(renderState, m_PolygonDesc);
+	}
+
+	if (m_renderDeBoorPolygon)
+	{
+		RenderMesh(renderState, m_deBoorPolyDesc);
+	}
 }

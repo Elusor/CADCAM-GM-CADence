@@ -32,12 +32,15 @@ public:
 	bool IsChild(std::weak_ptr<Node> point);	
 
 protected:
-	int m_lastVertexDuplicationCount;
-
 	std::vector<std::weak_ptr<Node>> m_controlPoints;
-	int m_adaptiveRenderingSamples;
-	MeshDescription m_PolygonDesc;
+
 	bool m_renderPolygon;
-	//void RenderPolygon(std::unique_ptr<RenderState>& renderState);
+	int m_adaptiveRenderingSamples;
+	int m_lastVertexDuplicationCount;
+	MeshDescription m_PolygonDesc;
+	
 	virtual bool RemoveExpiredChildren();
+	virtual void CalculateAdaptiveRendering(std::vector<std::weak_ptr<Node>> points, std::unique_ptr<RenderState>& renderState);
+	virtual void RenderCurve(std::unique_ptr<RenderState>& renderState);
+	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 };

@@ -1,5 +1,6 @@
 #include "mathUtils.h"
 
+
 // https://en.wikibooks.org/wiki/Algorithm_Implementation/Linear_Algebra/Tridiagonal_matrix_algorithm
 //| b0 c0 0 || x0 |  |d0|
 //|a1 b1 c1 || x1 |= |d1|

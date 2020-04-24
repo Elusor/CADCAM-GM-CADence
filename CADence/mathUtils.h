@@ -1,5 +1,7 @@
 #pragma once
 #include "Transform.h"
+#include "objects.h"
+#include <memory>
 #include <vector>
 std::vector<float> SolveTridiagMatrix(std::vector<float> a, std::vector<float> b, std::vector<float> c, std::vector<float> d);
 DirectX::XMFLOAT3 XMF3SUM(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2);

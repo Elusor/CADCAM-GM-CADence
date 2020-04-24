@@ -38,4 +38,4 @@ ID3D11Buffer* RenderState::SetConstantBuffer(ID3D11Buffer* buffer, T writeData)
 }
 
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX writeData);
-
+template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMMATRIX writeData);
