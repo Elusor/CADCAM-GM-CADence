@@ -186,8 +186,8 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	// insert the first point
 	auto p0 = interpolationKnots[0].lock();
 	auto p1 = interpolationKnots[1].lock();
-	auto pnPos = p0->m_object->GetPosition();
-	auto pnPosPrev = p1->m_object->GetPosition();
+	auto pnPos = p1->m_object->GetPosition();
+	auto pnPosPrev = p0->m_object->GetPosition();
 	auto diff = XMF3SUB(pnPos, pnPosPrev);
 	xVector.push_back(3 * diff.x);
 	yVector.push_back(3 * diff.y);
@@ -251,28 +251,30 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	for (int i = 0; i < a.size(); i++)
 	{
 		DirectX::XMFLOAT4X4 resMat;
-		DirectX::XMMATRIX vectorMat = {
+		DirectX::XMFLOAT4X4 mtx = {
 			a[i].x, b[i].x, c[i].x, d[i].x,
 			a[i].y, b[i].y, c[i].y, d[i].y,
 			a[i].z, b[i].z, c[i].z, d[i].z,
 			0.f, 0.f, 0.f, 0.f
 		};
+
+		DirectX::XMMATRIX vectorMat = DirectX::XMLoadFloat4x4(&mtx);
 	
 		auto res = vectorMat * changeBasisMtx;
 
 		DirectX::XMStoreFloat4x4(&resMat, res);
 
-		a[i] = DirectX::XMFLOAT3(resMat._11, resMat._21, resMat._31);
-		b[i] = DirectX::XMFLOAT3(resMat._12, resMat._22, resMat._32);
-		c[i] = DirectX::XMFLOAT3(resMat._13, resMat._23, resMat._33);
-		d[i] = DirectX::XMFLOAT3(resMat._14, resMat._24, resMat._34);
+		auto k1 = DirectX::XMFLOAT3(resMat._11, resMat._21, resMat._31);
+		auto k2 = DirectX::XMFLOAT3(resMat._12, resMat._22, resMat._32);
+		auto k3 = DirectX::XMFLOAT3(resMat._13, resMat._23, resMat._33);
+		auto k4 = DirectX::XMFLOAT3(resMat._14, resMat._24, resMat._34);
 
-		resultPos.push_back(a[i]);
-		resultPos.push_back(b[i]);
-		resultPos.push_back(c[i]);
-		if (i == xRes.size() - 1)
+		resultPos.push_back(k1);
+		resultPos.push_back(k2);
+		resultPos.push_back(k3);
+		if (i == a.size() - 1)
 		{
-			resultPos.push_back(d[i]);
+			resultPos.push_back(k4);
 		}
 	}
 

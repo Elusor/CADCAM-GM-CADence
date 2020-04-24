@@ -8,28 +8,31 @@
 std::vector<float> SolveTridiagMatrix(std::vector<float> lowerDiag, std::vector<float> diag, std::vector<float> upperDiag, std::vector<float> vector)
 {
 
+	int size = vector.size();
+
 	std::vector<float> a = lowerDiag;
 	std::vector<float> b = diag;
 	std::vector<float> c = upperDiag;
 	std::vector<float> d = vector;
-	int n = d.size();
-
-	n--; // since we start from x0 (not x1)
+	
 	c[0] /= b[0];
 	d[0] /= b[0];
 
-	for (int i = 1; i < n; i++)
+	for (int i = 1; i < size; i++)
 	{
-		c[i] /= b[i] - a[i] * c[i - 1];
-		d[i] = (d[i] - a[i] * d[i - 1]) / (b[i] - a[i] * c[i - 1]);
+		float m = b[i] - a[i] * c[i - 1];
+		c[i] /= m;
+		d[i] = (d[i] - a[i] * d[i - 1]) / m;
 	}
 
-	d[n] = (d[n] - a[n] * d[n - 1]) / (b[n] - a[n] * c[n - 1]);
+	//d[n] = (d[n] - a[n] * d[n - 1]) / (b[n] - a[n] * c[n - 1]);
 
-	for (int i = n -1 ; i > 0; i--)
+	for (int i = size-2 ; i > 0; i--)
 	{
 		d[i] -= c[i] * d[i + 1];
 	}
+
+	d[0] -= c[0] * d[1];
 
 	return d;
 }
