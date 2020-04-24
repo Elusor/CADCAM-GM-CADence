@@ -23,6 +23,7 @@ BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
 {
 	m_controlPoints.push_back(controlPoint);
+	
 	SetModified(true);
 }
 

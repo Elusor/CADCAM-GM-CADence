@@ -21,9 +21,11 @@ InterpolationBezierCurveC2::InterpolationBezierCurveC2(std::vector<std::weak_ptr
 
 void InterpolationBezierCurveC2::UpdateObject()
 {
-	RecalculateIfModified();
+	
 	if (m_controlPoints.size() >= 2)
 	{
+		RecalculateIfModified();
+
 		UpdateGSData();
 		PreparePolygonDesc();
 	}
@@ -148,7 +150,7 @@ void InterpolationBezierCurveC2::RecalculateIfModified()
 		GetInterpolationSplineBernsteinPoints(m_controlPoints);
 	}
 
-	bool isModified = false;
+	bool isModified = m_modified;
 	for (int i = 0; i < m_controlPoints.size(); i++)
 	{
 		isModified |= m_controlPoints[i].lock()->m_object->GetIsModified();
