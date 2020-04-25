@@ -8,64 +8,35 @@
 std::vector<float> SolveTridiagMatrix(std::vector<float> lowerDiag, std::vector<float> diag, std::vector<float> upperDiag, std::vector<float> vector)
 {
 
-	int size = vector.size();
-
 	std::vector<float> a = lowerDiag;
 	std::vector<float> b = diag;
 	std::vector<float> c = upperDiag;
 	std::vector<float> d = vector;
-	std::vector<float> res = d;
-	/*
-	// n is the number of unknowns
+	std::vector<float> x = d;
 
-	|b0 c0 0 ||x0| |d0|
-	|a1 b1 c1||x1|=|d1|
-	|0  a2 b2||x2| |d2|
+	/*std::vector<float> a = { 0, -1, -1, -1 };
+	std::vector<float> b = { 4,  4,  4,  4 };
+	std::vector<float> c = { -1, -1, -1,  0 };
+	std::vector<float> d = { 5,  5, 10, 23 };*/
+	// res = [2 ,3  ,5 ,7]
+	int X = d.size();
 
-	1st iteration: b0x0 + c0x1 = d0 -> x0 + (c0/b0)x1 = d0/b0 ->
+	c[0] = c[0] / b[0];
+	x[0] = x[0] / b[0];
 
-		x0 + g0x1 = r0               where g0 = c0/b0        , r0 = d0/b0
-
-	2nd iteration:     | a1x0 + b1x1   + c1x2 = d1
-		from 1st it.: -| a1x0 + a1g0x1        = a1r0
-					-----------------------------
-						  (b1 - a1g0)x1 + c1x2 = d1 - a1r0
-
-		x1 + g1x2 = r1               where g1=c1/(b1 - a1g0) , r1 = (d1 - a1r0)/(b1 - a1g0)
-
-	3rd iteration:      | a2x1 + b2x2   = d2
-		from 2nd it. : -| a2x1 + a2g1x2 = a2r2
-					   -----------------------
-					   (b2 - a2g1)x2 = d2 - a2r2
-		x2 = r2                      where                     r2 = (d2 - a2r2)/(b2 - a2g1)
-	Finally we have a triangular matrix:
-	|1  g0 0 ||x0| |r0|
-	|0  1  g1||x1|=|r1|
-	|0  0  1 ||x2| |r2|
-
-	Condition: ||bi|| > ||ai|| + ||ci||
-
-	in this version the c matrix reused instead of g
-	and             the d matrix reused instead of r and x matrices to report results
-	Written by Keivan Moradi, 2014
-	*/
-	int n = vector.size() - 1; // since we start from x0 (not x1)
-	c[0] /= b[0];
-	d[0] /= b[0];
-
-	for (int i = 1; i < n; i++) {
-		c[i] /= b[i] - a[i] * c[i - 1];
-		d[i] = (d[i] - a[i] * d[i - 1]) / (b[i] - a[i] * c[i - 1]);
+	/* loop from 1 to X - 1 inclusive, performing the forward sweep */
+	for (size_t ix = 1; ix < X; ix++) {
+		const float m = 1.0f / (b[ix] - a[ix] * c[ix - 1]);
+		c[ix] = c[ix] * m;
+		x[ix] = (x[ix] - a[ix] * x[ix - 1]) * m;
 	}
 
-	res[n] = d[n];
+	/* loop from X - 2 to 0 inclusive (safely testing loop condition for an unsigned integer), to perform the back substitution */
+	for (size_t ix = X - 2; ix > 0; ix--)
+		x[ix] -= c[ix] * x[ix + 1];
+	x[0] -= c[0] * x[1];
 
-	for (int i = n - 1; i >= 0; i--)
-	{
-		res[i] = d[i] - c[i] * res[i + 1];
-	}
-
-	return res;
+	return x;
 }
 
 DirectX::XMFLOAT3 XMF3SUM(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)

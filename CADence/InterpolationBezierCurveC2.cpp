@@ -197,47 +197,48 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	{
 		auto pnPos = interpolationKnots[i].lock()->m_object->GetPosition();
 		auto pnPosNext = interpolationKnots[i + 2].lock()->m_object->GetPosition();
-		diff = XMF3SUB(pnPosNext, pnPos);
-		xVector.push_back(3.f * diff.x);
-		yVector.push_back(3.f * diff.y);
-		zVector.push_back(3.f * diff.z);
+		auto diffr = XMF3SUB(pnPosNext, pnPos);
+		xVector.push_back(3.f * diffr.x);
+		yVector.push_back(3.f * diffr.y);
+		zVector.push_back(3.f * diffr.z);
 
 	}
 	// insert the last point
 	auto pnprev = interpolationKnots[interpolationKnots.size() - 2].lock();
 	auto pn = interpolationKnots[interpolationKnots.size() - 1].lock();
-	pnPos = pn->m_object->GetPosition();
-	pnPosPrev = pnprev->m_object->GetPosition();
-	diff = XMF3SUB(pnPos, pnPosPrev);
-	xVector.push_back(3.f * diff.x);
-	yVector.push_back(3.f * diff.y);
-	zVector.push_back(3.f * diff.z);
+	auto pnPos2 = pn->m_object->GetPosition();
+	auto pnPosPrev2 = pnprev->m_object->GetPosition();
+	auto diff3 = XMF3SUB(pnPos2, pnPosPrev2);
+	xVector.push_back(3.f * diff3.x);
+	yVector.push_back(3.f * diff3.y);
+	zVector.push_back(3.f * diff3.z);
 
-
-	auto xRes = SolveTridiagMatrix(lowerDiag, diag, lowerDiag, xVector);
-	auto yRes = SolveTridiagMatrix(lowerDiag, diag, lowerDiag, yVector);
-	auto zRes = SolveTridiagMatrix(lowerDiag, diag, lowerDiag, zVector);
+	auto xRes = SolveTridiagMatrix(lowerDiag, diag, upperDiag, xVector);
+	auto yRes = SolveTridiagMatrix(lowerDiag, diag, upperDiag, yVector);
+	auto zRes = SolveTridiagMatrix(lowerDiag, diag, upperDiag, zVector);
 
 	//calc a b c d for each res
-	for (int i = 0; i < interpolationKnots.size() - 1; i++)
-	{
-		auto pti = interpolationKnots[i].lock();
-		auto pti1 = interpolationKnots[i + 1].lock();
-		auto ptiPos = pti->m_object->GetPosition();
+	for (int i = 0; i < xRes.size() - 1; i++)
+	{	
+		auto yi = interpolationKnots[i].lock()->m_object->GetPosition();
+		auto yi1 = interpolationKnots[i+1].lock()->m_object->GetPosition();
+
 		//diff = (yi+1 - yi)		
-		auto diff3 = XMF3SUB(pti1->m_object->GetPosition(), pti->m_object->GetPosition());
+		auto diff4 = XMF3SUB(yi1,yi);
+		// Di
 		auto Di = DirectX::XMFLOAT3(xRes[i], yRes[i], zRes[i]);
+		// Di+1
 		auto Di1 = DirectX::XMFLOAT3(xRes[i + 1], yRes[i + 1], zRes[i + 1]);
 		// a = y
-		a.push_back(ptiPos);
+		a.push_back(yi);
 		// b = Di
 		b.push_back(Di);
 		// c = 3 diff - 2Di - Di+1
-		c.push_back(XMFloat3TimesFloat(diff3, 3.f));
+		c.push_back(XMFloat3TimesFloat(diff4, 3.f));
 		c[i] = XMF3SUB(c[i], XMFloat3TimesFloat(Di, 2.f));
 		c[i] = XMF3SUB(c[i], Di1);
 		// d = -2 diff + Di + Di+1
-		d.push_back(XMFloat3TimesFloat(diff3, -2.f));
+		d.push_back(XMFloat3TimesFloat(diff4, -2.f));
 		d[i] = XMF3SUM(d[i], Di);
 		d[i] = XMF3SUM(d[i], Di1);
 	}
@@ -270,6 +271,7 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		resultPos.push_back(k2);
 		resultPos.push_back(k3);		
 	}
+
 	resultPos.push_back(interpolationKnots[interpolationKnots.size()-1].lock()->m_object->GetPosition());
 	// Each segmenent is built from 4 points, the middle points are the same
 	int pointCount = resultPos.size();

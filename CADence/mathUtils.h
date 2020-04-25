@@ -3,7 +3,7 @@
 #include "objects.h"
 #include <memory>
 #include <vector>
-std::vector<float> SolveTridiagMatrix(std::vector<float> a, std::vector<float> b, std::vector<float> c, std::vector<float> d);
+std::vector<float> SolveTridiagMatrix(std::vector<float> lowerDiag, std::vector<float> diag, std::vector<float> upperDiag, std::vector<float> vector);
 DirectX::XMFLOAT3 XMF3SUM(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2);
 DirectX::XMFLOAT3 XMF3SUB(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2);
 DirectX::XMFLOAT3 XMFloat3TimesFloat(DirectX::XMFLOAT3 vec, float val);
