@@ -33,9 +33,36 @@ void InterpolationBezierCurveC2::UpdateObject()
 
 bool InterpolationBezierCurveC2::CreateParamsGui()
 {
-	bool objectChanged = BezierCurve::CreateParamsGui();
 	ImGui::Begin("Inspector");
+	// Create sliders for torus parameters	
+	ImGui::Text("Name: ");
+	ImGui::SameLine(); ImGui::Text(m_name.c_str());
+	ImGui::Text("Samples: ");
+	ImGui::SameLine(); ImGui::Text(std::to_string(m_adaptiveRenderingSamples).c_str());
 
+
+	ImGui::Spacing();
+	bool objectChanged = false;
+
+	// checkbox for deBoore points
+
+	// change colors for the curve
+	float mcolor[3] = {
+		m_meshDesc.m_defaultColor.x,
+		m_meshDesc.m_defaultColor.y,
+		m_meshDesc.m_defaultColor.z,
+	};
+
+	std::string mtext = "Curve color";
+	ImGui::Text(mtext.c_str());
+	objectChanged |= ImGui::ColorEdit3(("##" + mtext + GetIdentifier()).c_str(), (float*)&mcolor);
+
+	m_meshDesc.m_defaultColor.x = mcolor[0];
+	m_meshDesc.m_defaultColor.y = mcolor[1];
+	m_meshDesc.m_defaultColor.z = mcolor[2];
+	ImGui::Spacing();
+
+	// checkbox for Bernstein's polygon
 	std::string label = "Display polygon" + GetIdentifier();
 	objectChanged |= ImGui::Checkbox(label.c_str(), &m_renderPolygon);
 	ImGui::Spacing();
@@ -47,7 +74,7 @@ bool InterpolationBezierCurveC2::CreateParamsGui()
 		m_PolygonDesc.m_defaultColor.z,
 	};
 
-	std::string ptext = "De color";
+	std::string ptext = "Polygon color";
 	ImGui::Text(ptext.c_str());
 	objectChanged |= ImGui::ColorEdit3(("##" + ptext + GetIdentifier()).c_str(), (float*)&pcolor);
 
@@ -357,8 +384,8 @@ void InterpolationBezierCurveC2::UpdateGSData()
 
 		}
 	}
-
-	m_displayPoints.clear();
+#ifdef DEBUG
+	/*m_displayPoints.clear();
 
 	for (int i = 0; i < m_virtualPoints.size(); i++)
 	{
@@ -370,8 +397,8 @@ void InterpolationBezierCurveC2::UpdateGSData()
 	{
 		GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
 		gParent->SetChildren(m_displayPoints);
-	}
-
+	}*/
+#endif
 
 	m_meshDesc.vertices = vertices;
 	m_meshDesc.indices = indices;
@@ -382,9 +409,9 @@ void InterpolationBezierCurveC2::PreparePolygonDesc()
 {	
 	std::vector<VertexPositionColor> interpolationCurveVertices;
 	std::vector<unsigned short> interpolationCurveIndices;
-	for (int i = 0; i < m_virtualPoints.size(); i++)
+	for (int i = 0; i < m_controlPoints.size(); i++)
 	{
-		if (auto point = m_virtualPoints[i])
+		if (auto point = m_controlPoints[i].lock())
 		{
 			interpolationCurveVertices.push_back(VertexPositionColor{
 				point->m_object->GetPosition(),
