@@ -23,6 +23,8 @@ protected:
 	bool RemoveExpiredChildren() override;
 
 private:
+	std::vector<std::weak_ptr<Node>> m_displayPoints;
+
 	std::vector<std::shared_ptr<Node>> m_virtualPoints;
 	
 	// Data concerning the De Boor polygon

@@ -1,6 +1,6 @@
 #include "InterpolationBezierCurveC2.h"
 #include "GroupNode.h"
-DirectX::XMMATRIX changeBasisMtx = {
+DirectX::XMFLOAT4X4 changeBasisMtx = {
 		1.f, 1.f, 1.f, 1.f,
 		0.f,  1.f / 3.f, 2.f / 3.f, 1.f,
 		0.f, 0.f, 1.f / 3.f, 1.f,
@@ -257,9 +257,9 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 
 		DirectX::XMMATRIX vectorMat = DirectX::XMLoadFloat4x4(&mtx);
 	
-		auto res = vectorMat * changeBasisMtx;
+		auto res = vectorMat * DirectX::XMLoadFloat4x4(&changeBasisMtx);
 
-		DirectX::XMStoreFloat4x4(&resMat, res);
+		DirectX::XMStoreFloat4x4(&resMat, (res));
 
 		auto k1 = DirectX::XMFLOAT3(resMat._11, resMat._21, resMat._31);
 		auto k2 = DirectX::XMFLOAT3(resMat._12, resMat._22, resMat._32);
@@ -268,13 +268,9 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 
 		resultPos.push_back(k1);
 		resultPos.push_back(k2);
-		resultPos.push_back(k3);
-		if (i == a.size() - 1)
-		{
-			resultPos.push_back(k4);			
-		}
+		resultPos.push_back(k3);		
 	}
-
+	resultPos.push_back(interpolationKnots[interpolationKnots.size()-1].lock()->m_object->GetPosition());
 	// Each segmenent is built from 4 points, the middle points are the same
 	int pointCount = resultPos.size();
 
@@ -330,7 +326,8 @@ void InterpolationBezierCurveC2::UpdateGSData()
 	{
 		// mage edges out of the vertices
 		// There are some elements that should be added
-		if (m_virtualPoints.size() - i > 1);
+		int remVerts = m_virtualPoints.size() - 1 - i;
+		if (remVerts > 0)
 		{
 			// add next 4 points normally
 			if (m_virtualPoints.size() - i >= 4)
@@ -358,6 +355,21 @@ void InterpolationBezierCurveC2::UpdateGSData()
 
 		}
 	}
+
+	m_displayPoints.clear();
+
+	for (int i = 0; i < m_virtualPoints.size(); i++)
+	{
+		std::weak_ptr<Node> weaknode = m_virtualPoints[i];
+		m_displayPoints.push_back(weaknode);
+	}
+
+	if (auto parent = m_parent.lock())
+	{
+		GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
+		gParent->SetChildren(m_displayPoints);
+	}
+
 
 	m_meshDesc.vertices = vertices;
 	m_meshDesc.indices = indices;
