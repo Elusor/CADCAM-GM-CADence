@@ -405,22 +405,22 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 
 		if (isMiddle)
 		{ // bernstein point is under the de boor point
-			DirectX::XMFLOAT3 transToLine = XMFloat3TimesFloat(XMF3SUB(nextDBPos, prevDBPos), 1.0f / 6.0f);
+			DirectX::XMFLOAT3 transToLine = XMF3TimesFloat(XMF3SUB(nextDBPos, prevDBPos), 1.0f / 6.0f);
 			DirectX::XMFLOAT3 posOnLine = XMF3SUM(movedPtPos, transToLine); // position of moved de boor and 1/6 of the diff between DBnext and DB[rev
 			DirectX::XMFLOAT3 diff = XMF3SUB(posOnLine, nextDBPos); // dif between pos on line and next De Boor
-			newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+			newDBcoords = XMF3SUM(nextDBPos, XMF3TimesFloat(diff, 3.0f / 2.0f));
 		}
 		else
 		{
 			if (isAfter)
 			{ // bernstein point is after the de boor point
 				DirectX::XMFLOAT3 diff = XMF3SUB(movedPtPos, nextDBPos); // dif between pos on line and next De Boor
-				newDBcoords = XMF3SUM(nextDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+				newDBcoords = XMF3SUM(nextDBPos, XMF3TimesFloat(diff, 3.0f / 2.0f));
 			}
 			else
 			{ // bernstein point is before the de boor point
 				DirectX::XMFLOAT3 diff = XMF3SUB(movedPtPos, prevDBPos); // dif between pos on line and next De Boor
-				newDBcoords = XMF3SUM(prevDBPos, XMFloat3TimesFloat(diff, 3.0f / 2.0f));
+				newDBcoords = XMF3SUM(prevDBPos, XMF3TimesFloat(diff, 3.0f / 2.0f));
 			}
 		}
 

@@ -50,7 +50,7 @@ DirectX::XMFLOAT3 XMF3SUB(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)
 }
 
 
-DirectX::XMFLOAT3 XMFloat3TimesFloat(DirectX::XMFLOAT3 vec, float val)
+DirectX::XMFLOAT3 XMF3TimesFloat(DirectX::XMFLOAT3 vec, float val)
 {
 	DirectX::XMFLOAT3 res = DirectX::XMFLOAT3(
 		vec.x * val,
@@ -71,5 +71,10 @@ Transform WeightedTransformAverage(Transform p0, Transform p1, float t)
 
 DirectX::XMFLOAT3 WeightedXMFloat3Average(DirectX::XMFLOAT3 f1, DirectX::XMFLOAT3 f2, float t)
 {
-	return XMF3SUM(XMFloat3TimesFloat(f1, t), XMFloat3TimesFloat(f2, 1.0f - t));
+	return XMF3SUM(XMF3TimesFloat(f1, t), XMF3TimesFloat(f2, 1.0f - t));
+}
+
+float GetDistanceBetweenPoints(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
+{
+	return sqrtf((p1.x-p2.x)* (p1.x - p2.x) + (p1.y - p2.y)* (p1.y - p2.y)+ (p1.z - p2.z)* (p1.z - p2.z));
 }

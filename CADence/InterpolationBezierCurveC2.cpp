@@ -1,5 +1,7 @@
 #include "InterpolationBezierCurveC2.h"
 #include "GroupNode.h"
+
+using namespace DirectX;
 DirectX::XMFLOAT4X4 changeBasisMtx = {
 		1.f, 1.f, 1.f, 1.f,
 		0.f,  1.f / 3.f, 2.f / 3.f, 1.f,
@@ -193,16 +195,74 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 {
 	std::vector<float> upperDiag, diag, lowerDiag;
 	std::vector<float> xVector, yVector, zVector;
+	std::vector<float> distances;
 
 	std::vector<DirectX::XMFLOAT3> a, b, c, d;
 
-	diag.push_back(2.0f);
+	for (int i = 0; i < interpolationKnots.size() - 1; i++)
+	{
+		auto p1 = interpolationKnots[i].lock()->m_object->GetPosition();
+		auto p2 = interpolationKnots[i + 1].lock()->m_object->GetPosition();
+		// DISTANCES FROM d0 to dk-1, where k is knots count
+		distances.push_back(GetDistanceBetweenPoints(p2, p1));
+	}
+
+	float L = 0;
+	for (int i = 0; i < distances.size(); i++)
+	{
+		L += distances[i];
+	}
+
 	for (int i = 0; i < interpolationKnots.size() - 2; i++)
 	{
-		diag.push_back(4.0f);
+		diag.push_back(2.0f);
 	}
-	diag.push_back(2.0f);
 
+	for (int i = 1; i < interpolationKnots.size() - 1; i++)
+	{
+		float dist = distances[i];
+		float distPrev = distances[i - 1];
+		float denom = dist + distPrev;
+
+		// calculate R's alphas (lower diag) and betas (upper diag)				
+		if (i == 1)
+		{
+			lowerDiag.push_back(0.f);
+		}
+		else
+		{
+			float alphai = distances[i - 1]; //TODO
+			alphai /= denom;
+			lowerDiag.push_back(alphai);
+		}
+
+		if (i == interpolationKnots.size() - 2)
+		{
+			upperDiag.push_back(0.f);
+		}
+		else
+		{
+			float betai = distances[i]; //TODO
+			betai /= denom;
+			upperDiag.push_back(betai);
+		}
+
+		// calculate and assing Ri
+		auto P = interpolationKnots[i].lock()->m_object->GetPosition();;
+		auto Pnext = interpolationKnots[i + 1].lock()->m_object->GetPosition();;
+		auto Pprev = interpolationKnots[i - 1].lock()->m_object->GetPosition();;
+
+		auto diff = XMF3TimesFloat(XMF3SUB(Pnext, P), 1.f / dist);
+		auto diffPrev = XMF3TimesFloat(XMF3SUB(P, Pprev), 1.f / distPrev);
+		auto R = XMF3SUB(diff, diffPrev);
+		R = XMF3TimesFloat(R, 3.f / denom);
+		xVector.push_back(R.x);
+		yVector.push_back(R.y);
+		zVector.push_back(R.z);
+	}
+
+	/*
+	uniform knots
 	lowerDiag.push_back(0.f);
 	for (int i = 0; i < interpolationKnots.size() - 1; i++)
 	{
@@ -211,6 +271,8 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	}
 	upperDiag.push_back(0.f);
 	// insert the first point
+
+	// remove this
 	auto p0 = interpolationKnots[0].lock();
 	auto p1 = interpolationKnots[1].lock();
 	auto pnPos = p1->m_object->GetPosition();
@@ -239,41 +301,101 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	xVector.push_back(3.f * diff3.x);
 	yVector.push_back(3.f * diff3.y);
 	zVector.push_back(3.f * diff3.z);
+	*/
 
 	auto xRes = SolveTridiagMatrix(lowerDiag, diag, upperDiag, xVector);
 	auto yRes = SolveTridiagMatrix(lowerDiag, diag, upperDiag, yVector);
 	auto zRes = SolveTridiagMatrix(lowerDiag, diag, upperDiag, zVector);
 
-	//calc a b c d for each res
-	for (int i = 0; i < xRes.size() - 1; i++)
-	{	
-		auto yi = interpolationKnots[i].lock()->m_object->GetPosition();
-		auto yi1 = interpolationKnots[i+1].lock()->m_object->GetPosition();
+	DirectX::XMFLOAT3 zero = { 0.f, 0.f, 0.f };
 
-		//diff = (yi+1 - yi)		
-		auto diff4 = XMF3SUB(yi1,yi);
-		// Di
-		auto Di = DirectX::XMFLOAT3(xRes[i], yRes[i], zRes[i]);
-		// Di+1
-		auto Di1 = DirectX::XMFLOAT3(xRes[i + 1], yRes[i + 1], zRes[i + 1]);
-		// a = y
-		a.push_back(yi);
-		// b = Di
-		b.push_back(Di);
-		// c = 3 diff - 2Di - Di+1
-		c.push_back(XMFloat3TimesFloat(diff4, 3.f));
-		c[i] = XMF3SUB(c[i], XMFloat3TimesFloat(Di, 2.f));
-		c[i] = XMF3SUB(c[i], Di1);
-		// d = -2 diff + Di + Di+1
-		d.push_back(XMFloat3TimesFloat(diff4, -2.f));
-		d[i] = XMF3SUM(d[i], Di);
-		d[i] = XMF3SUM(d[i], Di1);
+	auto p0 = interpolationKnots[0].lock()->m_object->GetPosition();
+	auto p1 = interpolationKnots[1].lock()->m_object->GetPosition();
+
+	c.push_back(zero);
+	a.push_back(p0);
+	//Xres size is K - 2
+	for (int i = 0; i < xRes.size(); i++)
+	{
+		c.push_back(DirectX::XMFLOAT3(xRes[i], yRes[i], zRes[i]));
+		a.push_back(interpolationKnots[i + 1].lock()->m_object->GetPosition());
+		//d.push_back(interpolationKnots[i + 2].lock()->m_object->GetPosition());
 	}
+
+	auto plast = interpolationKnots[interpolationKnots.size() - 1].lock()->m_object->GetPosition();
+	c.push_back(zero);
+	a.push_back(plast);
+
+	// d can be shorter by 1 than a
+	//calculate d's
+	for (int i = 1; i < c.size(); i++)
+	{
+		float distPrev = distances[i - 1];
+		XMFLOAT3 cDiff = XMF3SUB(c[i], c[i - 1]);
+		XMFLOAT3 dmod = XMF3TimesFloat(cDiff, 1.f / (3.f * distPrev));
+		d.push_back(dmod);
+	}
+
+	for (int i = 1; i < c.size(); i++)
+	{
+		float distPrev = distances[i - 1];
+		float dpSqr = distPrev * distPrev;
+		float dpCube = dpSqr * distPrev;
+		XMFLOAT3 bmod;
+		XMFLOAT3 aDiff = XMF3SUB(a[i], a[i - 1]);
+		XMFLOAT3 dModified = XMF3TimesFloat(d[i - 1], dpCube);
+		XMFLOAT3 cModified = XMF3TimesFloat(c[i - 1], dpSqr);
+		bmod = XMF3SUB(aDiff, dModified);
+		bmod = XMF3SUB(bmod, cModified);
+		bmod = XMF3TimesFloat(bmod, 1.f / distPrev);
+		b.push_back(bmod);
+	}
+
+	for (int i = 0; i < b.size(); i++)
+	{
+		float dist= distances[i];
+		a[i] = XMF3TimesFloat(a[i], 1.f);
+		b[i] = XMF3TimesFloat(b[i], dist);
+		c[i] = XMF3TimesFloat(c[i], dist*dist);
+		d[i] = XMF3TimesFloat(d[i], dist*dist*dist);
+
+	}
+
+	//// TODO CHANGE THIS TO REPRESENT PROPER coeffs
+	////calc a b c d for each res
+	//for (int i = 0; i < xRes.size() - 1; i++)
+	//{	
+	//	/*
+	//	uniform knots coeffs
+	//	auto yi = interpolationKnots[i].lock()->m_object->GetPosition();
+	//	auto yi1 = interpolationKnots[i+1].lock()->m_object->GetPosition();
+
+	//	//diff = (yi+1 - yi)		
+	//	auto diff4 = XMF3SUB(yi1,yi);
+	//	// Di
+	//	auto Di = DirectX::XMFLOAT3(xRes[i], yRes[i], zRes[i]);
+	//	// Di+1
+	//	auto Di1 = DirectX::XMFLOAT3(xRes[i + 1], yRes[i + 1], zRes[i + 1]);
+	//	// a = y
+	//	a.push_back(yi);
+	//	// b = Di
+	//	b.push_back(Di);
+	//	// c = 3 diff - 2Di - Di+1
+	//	c.push_back(XMF3TimesFloat(diff4, 3.f));
+	//	c[i] = XMF3SUB(c[i], XMF3TimesFloat(Di, 2.f));
+	//	c[i] = XMF3SUB(c[i], Di1);
+	//	// d = -2 diff + Di + Di+1
+	//	d.push_back(XMF3TimesFloat(diff4, -2.f));
+	//	d[i] = XMF3SUM(d[i], Di);
+	//	d[i] = XMF3SUM(d[i], Di1);
+	//	*/
+	//}	
+
 
 	std::vector<DirectX::XMFLOAT3> resultPos;
 
 	// convert abcd to bernstein basis
-	for (int i = 0; i < a.size(); i++)
+	for (int i = 0; i < b.size(); i++)
 	{
 		DirectX::XMFLOAT4X4 resMat;
 		DirectX::XMFLOAT4X4 mtx = {
@@ -284,23 +406,23 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		};
 
 		DirectX::XMMATRIX vectorMat = DirectX::XMLoadFloat4x4(&mtx);
-	
+
 		auto res = vectorMat * DirectX::XMLoadFloat4x4(&changeBasisMtx);
 
 		DirectX::XMStoreFloat4x4(&resMat, (res));
-
-		auto k1 = DirectX::XMFLOAT3(resMat._11, resMat._21, resMat._31);
-		auto k2 = DirectX::XMFLOAT3(resMat._12, resMat._22, resMat._32);
-		auto k3 = DirectX::XMFLOAT3(resMat._13, resMat._23, resMat._33);
-		auto k4 = DirectX::XMFLOAT3(resMat._14, resMat._24, resMat._34);
+		auto k1 = XMFLOAT3(resMat._11, resMat._21, resMat._31);
+		auto k2 = XMFLOAT3(resMat._12, resMat._22, resMat._32);
+		auto k3 = XMFLOAT3(resMat._13, resMat._23, resMat._33);
+		auto k4 = XMFLOAT3(resMat._14, resMat._24, resMat._34);
 
 		resultPos.push_back(k1);
 		resultPos.push_back(k2);
-		resultPos.push_back(k3);		
+		resultPos.push_back(k3);
 	}
 
-	resultPos.push_back(interpolationKnots[interpolationKnots.size()-1].lock()->m_object->GetPosition());
+	resultPos.push_back(interpolationKnots[interpolationKnots.size() - 1].lock()->m_object->GetPosition());
 	// Each segmenent is built from 4 points, the middle points are the same
+
 	int pointCount = resultPos.size();
 
 	if (m_virtualPoints.size() == pointCount)
