@@ -211,7 +211,9 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		auto p1 = interpolationKnots[i].lock()->m_object->GetPosition();
 		auto p2 = interpolationKnots[i + 1].lock()->m_object->GetPosition();
 		// DISTANCES FROM d0 to dk-1, where k is knots count
-		distances.push_back(GetDistanceBetweenPoints(p2, p1));
+		float dist = GetDistanceBetweenPoints(p2, p1);
+		dist = max(dist, 0.001f);
+		distances.push_back(dist);
 	}
 
 	float L = 0;
