@@ -193,7 +193,7 @@ void InterpolationBezierCurveC2::RecalculateIfModified()
 
 void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vector<std::weak_ptr<Node>> interpolationKnots)
 {
-	if (interpolationKnots.size() == 1)
+	if (interpolationKnots.size() < 2)
 	{
 		m_virtualPoints.clear();
 		return;
@@ -214,12 +214,6 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		float dist = GetDistanceBetweenPoints(p2, p1);
 		dist = max(dist, 0.001f);
 		distances.push_back(dist);
-	}
-
-	float L = 0;
-	for (int i = 0; i < distances.size(); i++)
-	{
-		L += distances[i];
 	}
 
 	for (int i = 0; i < interpolationKnots.size() - 2; i++)

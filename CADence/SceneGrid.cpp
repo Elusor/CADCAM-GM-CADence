@@ -84,10 +84,10 @@ void SceneGrid::GenerateVertices(int gridSize)
 	int counter = 0;
 	for (int i = -gridSize ; i <= gridSize; i++)
 	{
-		VertexPositionColor v1{ {(float) gridSize, 0.f, (float)i},{m_color} };
-		VertexPositionColor v2{ {(float)-gridSize, 0.f, (float)i},{m_color} };
-		VertexPositionColor v3{ {(float)i, 0.f, (float) gridSize},{m_color} };
-		VertexPositionColor v4{ {(float)i, 0.f, (float)-gridSize},{m_color} };
+		VertexPositionColor v1{ {(float) gridSize * 5.f, 0.f, (float)i * 5.f},{m_color} };
+		VertexPositionColor v2{ {(float)-gridSize * 5.f, 0.f, (float)i * 5.f},{m_color} };
+		VertexPositionColor v3{ {(float)i * 5.f, 0.f, (float) gridSize * 5.f},{m_color} };
+		VertexPositionColor v4{ {(float)i * 5.f, 0.f, (float)-gridSize * 5.f},{m_color} };
 		// calculate horizontal line
 		m_vertices.push_back(v1);
 		m_vertices.push_back(v2);
