@@ -219,6 +219,12 @@
     <ClInclude Include="InterpolationBezierCurveC2.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="TextureRenderTarget.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="BackBufferRenderTarget.h">
+      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -339,6 +345,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InterpolationBezierCurveC2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BackBufferRenderTarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

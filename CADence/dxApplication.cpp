@@ -10,6 +10,7 @@
 #include "renderState.h"
 #include "ObjectFactory.h"
 #include "PointSelector.h"
+
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -36,18 +37,23 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_camController = unique_ptr<CameraController>(new CameraController(m_renderData->m_camera));
 
 	// init backbuffer
-	ID3D11Texture2D* temp;
-	m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
-	dx_ptr<ID3D11Texture2D> backTexture;
-	backTexture.reset(temp);
+	//ID3D11Texture2D* temp;
+	//m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
+	//dx_ptr<ID3D11Texture2D> backTexture;
+	//backTexture.reset(temp);
 
-	// Create render target view to be able to write on backBuffer
-	m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
+	//// Create render target view to be able to write on backBuffer
+	//m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
 
 	// assign depth buffer to RP
+	//auto backBuffer = m_renderData->m_backBuffer.get();
+	//m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
+
 	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
-	auto backBuffer = m_renderData->m_backBuffer.get();
-	m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
+	BackBufferRenderTarget* backTarget = new BackBufferRenderTarget();
+	backTarget->Initialize(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_swapChain.get(), m_renderData.get());
+	backTarget->SetRenderTarget(m_renderData->m_device.m_context.get(), m_renderData->m_depthBuffer.get());
+	m_target = backTarget;
 
 	m_scene = std::shared_ptr<Scene>(new Scene());
 
@@ -95,7 +101,6 @@ int DxApplication::MainLoop()
 			ImGui::NewFrame();
 			m_scene->ClearModifiedTag();
 
-
 			m_transController->ProcessInput(ImGui::GetIO());
 			if (m_transController->IsTransforming() == false) {
 				m_camController->ProcessMessage(&ImGui::GetIO());
@@ -131,9 +136,9 @@ int DxApplication::MainLoop()
 		
 			InitImguiWindows();
 
-			Clear();
 			Update();
-			Render();
+
+			RenderPass();
 
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -144,10 +149,17 @@ int DxApplication::MainLoop()
 	return msg.wParam;
 }
 
+void DxApplication::RenderPass()
+{
+	Clear();
+	Render();
+}
+
 void DxApplication::Clear()
 {
 	// Clear render target
 	float clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	m_target->ClearRenderTarget(m_renderData->m_device.m_context.get(), m_renderData->m_depthBuffer.get(), 0.2f, 0.2f, 0.2f, 1.0f);
 	m_renderData->m_device.context()->ClearRenderTargetView(m_renderData->m_backBuffer.get(), clearColor);
 
 	// Clera depth stencil

@@ -11,6 +11,9 @@
 #include "PointSelector.h"
 #include "renderState.h"
 
+#include "BackBufferRenderTarget.h"
+#include "TextureRenderTarget.h"
+
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -20,6 +23,7 @@ protected:
 	int MainLoop() override;
 
 private:
+	void RenderPass();
 	void Clear();
 	void Render();
 	void InitImguiWindows();
@@ -30,4 +34,6 @@ private:
 	std::shared_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderState> m_renderData;
+
+	BackBufferRenderTarget* m_target;
 };

@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="adaptiveRenderingCalculator.h" />
+    <ClInclude Include="BackBufferRenderTarget.h" />
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="BezierCurveC2.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="SceneGrid.h" />
+    <ClInclude Include="TextureRenderTarget.h" />
     <ClInclude Include="vertexStructures.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SpawnMarker.h" />
@@ -202,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="adaptiveRenderingCalculator.cpp" />
+    <ClCompile Include="BackBufferRenderTarget.cpp" />
     <ClCompile Include="bezierCalculator.cpp" />
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="BezierCurveC2.cpp" />
@@ -223,6 +226,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="SceneGrid.cpp" />
+    <ClCompile Include="TextureRenderTarget.cpp" />
     <ClCompile Include="vertexStructures.cpp" />
     <ClCompile Include="MeshObject.cpp" />
     <ClCompile Include="Node.cpp" />
