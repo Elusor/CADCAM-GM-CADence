@@ -12,7 +12,7 @@ void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene
 {	
 	Clear(renderState);
 
-	// update viewprojection matrix
+	// Update viewprojection matrix
 	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
 	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
 	ID3D11Buffer* cbs2[] = { VPbuffer };

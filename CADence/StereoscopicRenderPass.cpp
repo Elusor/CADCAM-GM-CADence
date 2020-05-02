@@ -18,14 +18,32 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 	Clear(renderState);
 
-	// Draw left eye
-	m_tex1->SetRenderTarget(context, depthStencil);
-	scene->RenderScene(renderState);
+#pragma region left eye	
+	// Draw Left eye
+	// Update viewprojection matrix
+	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs2[] = { VPbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
 
-	// Draw right eye
+	m_tex1->SetRenderTarget(context, depthStencil);
+	scene->RenderScene(renderState);	
+#pragma endregion
+
+	// TODO CLEAR DEPTH STENCIL VIEW
+
+#pragma region right eye	
+	// Draw Right eye
+	// Update viewprojection matrix
+	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs2[] = { VPbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
+
 	m_tex2->SetRenderTarget(context, depthStencil);
 	scene->RenderScene(renderState);
-	
+#pragma endregion
+
 	ID3D11ShaderResourceView* tex1 = m_tex1->GetShaderResourceView();
 	ID3D11ShaderResourceView* tex2 = m_tex2->GetShaderResourceView();
 	m_backTarget->SetRenderTarget(context, depthStencil);
@@ -35,7 +53,6 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 	// set an object taking up the whole screen and texture is 
 	
-
 	// draw the textured object	
 	//renderState->m_device.m_context->DrawIndexed();
 }
