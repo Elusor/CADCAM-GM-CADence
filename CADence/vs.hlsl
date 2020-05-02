@@ -10,7 +10,7 @@ cbuffer transformations : register(b1) {
 
 VSOut main(VSIn i)
 {
-	matrix MVP = mul(M,VP);
+	matrix MVP = mul(VP,M); // tranposed order
 	VSOut o;
 	o.pos = mul(MVP, float4(i.pos, 1.0f));
 	o.col = float4(i.col, 1.0f);
