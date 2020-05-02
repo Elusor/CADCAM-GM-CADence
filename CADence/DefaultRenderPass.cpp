@@ -11,6 +11,13 @@ DefaultRenderPass::DefaultRenderPass(const std::unique_ptr<RenderState>& renderS
 void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {	
 	Clear(renderState);
+
+	// update viewprojection matrix
+	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs2[] = { VPbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
+
 	Render(renderState, scene);
 }
 
@@ -27,13 +34,12 @@ void DefaultRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
 
 void DefaultRenderPass::Render(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {
-	// Render Actual scene
+	// Set default shaders
 	renderState->m_device.context()->VSSetShader(renderState->m_vertexShader.get(), nullptr, 0);
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
 
-	// object dependant
 	renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
 
-
+	// Render Actual scene
 	scene->RenderScene(renderState);
 }

@@ -8,15 +8,10 @@ using namespace DirectX;
 void Point::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	//Update content to fill constant buffer
-	D3D11_MAPPED_SUBRESOURCE res;
-	XMMATRIX mvp = m_transform.GetModelMatrix() * renderState->m_camera->GetViewProjectionMatrix();
-	//Set constant buffer
 	XMMATRIX m = m_transform.GetModelMatrix();
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
-	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
-	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
-	ID3D11Buffer* cbs[] = { Mbuffer, VPbuffer };
-	renderState->m_device.context()->VSSetConstantBuffers(0, 2, cbs);
+	ID3D11Buffer* cbs[] = { Mbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs);
 
 	float size = 0.2f;
 

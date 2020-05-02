@@ -1,11 +1,11 @@
 #include "ShaderStructs.hlsli"
 
 cbuffer transformations : register(b0) {
-	matrix M;
+	matrix VP; // view projection matrix
 }
 
 cbuffer transformations : register(b1) {
-	matrix VP;
+	matrix M; // model matrix
 }
 
 VSOut main(VSIn i)

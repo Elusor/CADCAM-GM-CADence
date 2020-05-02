@@ -9,10 +9,8 @@ void MeshObject::RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescr
 	//Set constant buffer
 	XMMATRIX m = m_transform.GetModelMatrix();
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
-	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
-	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
-	ID3D11Buffer* cbs[] = { Mbuffer, VPbuffer};
-	renderState->m_device.context()->VSSetConstantBuffers(0, 2, cbs);
+	ID3D11Buffer* cbs1[] = { Mbuffer}; //, VPbuffer
+	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);	
 
 	// Update Vertex and index buffers
 	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(desc.vertices));
