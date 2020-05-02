@@ -19,13 +19,13 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
 {
 	// init viewport
-	m_renderData = unique_ptr<RenderState>(new RenderState(m_window));
+	m_renderState = unique_ptr<RenderState>(new RenderState(m_window));
 	SIZE wndSize = m_window.getClientSize();
 	Viewport viewport{ wndSize };
-	m_renderData->m_device.context()->RSSetViewports(1, &viewport);
+	m_renderState->m_device.context()->RSSetViewports(1, &viewport);
 
 	// init camera
-	m_renderData->m_camera = std::shared_ptr<Camera>(
+	m_renderState->m_camera = std::shared_ptr<Camera>(
 		new Camera(
 		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
@@ -34,27 +34,28 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		viewport.Height,
 		45.0f, 2.5f, 250.0f)); // fov, zNear, zFar
 
-	m_camController = unique_ptr<CameraController>(new CameraController(m_renderData->m_camera));
+	m_camController = unique_ptr<CameraController>(new CameraController(m_renderState->m_camera));
 	m_scene = std::shared_ptr<Scene>(new Scene());
 
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
 	
-	m_renderData->m_vertexShader = m_renderData->m_device.CreateVertexShader(vsBytes);
-	m_renderData->m_pixelShader = m_renderData->m_device.CreatePixelShader(psBytes);
-	m_renderData->m_bezierGeometryShader = m_renderData->m_device.CreateGeometryShader(bezierGsBytes);
+	m_renderState->m_vertexShader = m_renderState->m_device.CreateVertexShader(vsBytes);
+	m_renderState->m_pixelShader = m_renderState->m_device.CreatePixelShader(psBytes);
+	m_renderState->m_bezierGeometryShader = m_renderState->m_device.CreateGeometryShader(bezierGsBytes);
 
 	auto elements = VertexPositionColor::GetInputLayoutElements();
-	m_renderData->m_layout = m_renderData->m_device.CreateInputLayout(elements, vsBytes);
-	m_renderData->m_cbMVP = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4X4>();
-	m_renderData->m_cbGSData = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4>();
+	m_renderState->m_layout = m_renderState->m_device.CreateInputLayout(elements, vsBytes);
+	m_renderState->m_cbM = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	m_renderState->m_cbVP = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	m_renderState->m_cbGSData = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4>();
 
-	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
+	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderState->m_camera));
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
 	
 	//// RENDER PASS
-	m_defaultPass = std::unique_ptr<DefaultRenderPass>(new DefaultRenderPass(m_renderData,wndSize));
+	m_defaultPass = std::unique_ptr<DefaultRenderPass>(new DefaultRenderPass(m_renderState,wndSize));
 	////
 
 	//Setup imGui
@@ -62,7 +63,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplWin32_Init(this->m_window.getHandle());
-	ImGui_ImplDX11_Init(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_context.get());
+	ImGui_ImplDX11_Init(m_renderState->m_device.m_device.get(), m_renderState->m_device.m_context.get());
 	ImGui::StyleColorsDark();
 }
 
@@ -121,13 +122,13 @@ int DxApplication::MainLoop()
 
 			Update();
 
-			m_defaultPass->Execute(m_renderData, m_scene.get());
+			m_defaultPass->Execute(m_renderState, m_scene.get());
 			//RenderPass();
 
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-			m_renderData->m_device.m_swapChain.get()->Present(0, 0);
+			m_renderState->m_device.m_swapChain.get()->Present(0, 0);
 		}
 	} while (msg.message != WM_QUIT);
 	return msg.wParam;
@@ -143,11 +144,11 @@ void DxApplication::Clear()
 {
 	// Clear render target
 	float clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	m_target->ClearRenderTarget(m_renderData->m_device.m_context.get(), m_renderData->m_depthBuffer.get(), 0.2f, 0.2f, 0.2f, 1.0f, 1.0f);
-	m_renderData->m_device.context()->ClearRenderTargetView(m_renderData->m_backBuffer.get(), clearColor);
+	m_target->ClearRenderTarget(m_renderState->m_device.m_context.get(), m_renderState->m_depthBuffer.get(), 0.2f, 0.2f, 0.2f, 1.0f, 1.0f);
+	m_renderState->m_device.context()->ClearRenderTargetView(m_renderState->m_backBuffer.get(), clearColor);
 
 	// Clera depth stencil
-	m_renderData->m_device.context()->ClearDepthStencilView(m_renderData->m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_renderState->m_device.context()->ClearDepthStencilView(m_renderState->m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void DxApplication::Update()
@@ -159,14 +160,14 @@ void DxApplication::Update()
 void DxApplication::Render()
 {
 	// Lighting/display style dependant (a little bit object dependant)
-	m_renderData->m_device.context()->VSSetShader(m_renderData->m_vertexShader.get(), nullptr, 0);
-	m_renderData->m_device.context()->PSSetShader(m_renderData->m_pixelShader.get(), nullptr, 0);
+	m_renderState->m_device.context()->VSSetShader(m_renderState->m_vertexShader.get(), nullptr, 0);
+	m_renderState->m_device.context()->PSSetShader(m_renderState->m_pixelShader.get(), nullptr, 0);
 
 	// object dependant
-	m_renderData->m_device.context()->IASetInputLayout(m_renderData->m_layout.get());
+	m_renderState->m_device.context()->IASetInputLayout(m_renderState->m_layout.get());
 
 
-	m_scene->RenderScene(m_renderData);
+	m_scene->RenderScene(m_renderState);
 }
 
 void DxApplication::InitImguiWindows()

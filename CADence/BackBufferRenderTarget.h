@@ -10,7 +10,7 @@ public:
 	BackBufferRenderTarget(const BackBufferRenderTarget&);
 	~BackBufferRenderTarget();
 
-	virtual bool Initialize(ID3D11Device* device, IDXGISwapChain* swapchain, RenderState* m_renderdata);
+	virtual bool Initialize(ID3D11Device* device, IDXGISwapChain* swapchain, RenderState* m_renderState);
 	
 	// Inherited via IRenderTarget
 	virtual void Dispose() override;

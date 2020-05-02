@@ -17,7 +17,7 @@ public:
 	std::string GetLabel();
 	void Update();
 	void LateUpdate();
-	void Render(std::unique_ptr<RenderState> & renderData);		
+	void Render(std::unique_ptr<RenderState> & renderState);		
 	
 	// Methods that coul be further used for non flat hierarchy 
 	virtual std::vector<std::weak_ptr<Node>> GetSelectedChildren();

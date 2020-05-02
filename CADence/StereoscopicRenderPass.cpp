@@ -37,7 +37,7 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	
 
 	// draw the textured object	
-	renderState->m_device.m_context->DrawIndexed();
+	//renderState->m_device.m_context->DrawIndexed();
 }
 
 void StereoscopicRenderPass::Clear(std::unique_ptr<RenderState>& renderState)

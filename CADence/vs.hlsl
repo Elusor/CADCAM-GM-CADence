@@ -1,11 +1,16 @@
 #include "ShaderStructs.hlsli"
 
 cbuffer transformations : register(b0) {
-	matrix MVP;
+	matrix M;
+}
+
+cbuffer transformations : register(b1) {
+	matrix VP;
 }
 
 VSOut main(VSIn i)
 {
+	matrix MVP = mul(M,VP);
 	VSOut o;
 	o.pos = mul(MVP, float4(i.pos, 1.0f));
 	o.col = float4(i.col, 1.0f);

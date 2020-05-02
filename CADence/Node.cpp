@@ -2,11 +2,11 @@
 #include "imgui.h"
 #include "Scene.h"
 
-void Node::Render(std::unique_ptr<RenderState> & renderData)
+void Node::Render(std::unique_ptr<RenderState> & renderState)
 {
 	if (m_object != nullptr)
 	{
-		m_object->RenderObject(renderData);
+		m_object->RenderObject(renderState);
 	}	
 }
 

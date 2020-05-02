@@ -27,7 +27,7 @@ public:
 	void UpdateScene();
 	void LateUpdate();
 	void UpdateSelectedNode();
-	void RenderScene(std::unique_ptr<RenderState> & renderData);
+	void RenderScene(std::unique_ptr<RenderState> & renderState);
 	
 private:
 	
@@ -35,5 +35,5 @@ private:
 	void ClearScene();
 	void DrawScenePopupMenu();
 	void DrawNodePopupMenu(const std::shared_ptr<Node> node);
-	void RenderMiddleMarker(std::unique_ptr<RenderState>& renderData);
+	void RenderMiddleMarker(std::unique_ptr<RenderState>& renderState);
 };

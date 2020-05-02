@@ -7,10 +7,12 @@ void MeshObject::RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescr
 	renderState->m_device.context()->IASetPrimitiveTopology(desc.m_primitiveTopology);
 
 	//Set constant buffer
-	XMMATRIX mvp = m_transform.GetModelMatrix() * renderState->m_camera->GetViewProjectionMatrix();
-	auto buffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbMVP.get(), mvp);
-	ID3D11Buffer* cbs[] = { buffer };
-	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
+	XMMATRIX m = m_transform.GetModelMatrix();
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
+	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs[] = { Mbuffer, VPbuffer};
+	renderState->m_device.context()->VSSetConstantBuffers(0, 2, cbs);
 
 	// Update Vertex and index buffers
 	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(desc.vertices));
@@ -28,9 +30,9 @@ void MeshObject::RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescr
 	renderState->m_device.context()->DrawIndexed(desc.indices.size(), 0, 0);
 }
 
-void MeshObject::RenderObject(std::unique_ptr<RenderState>& renderData)
+void MeshObject::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	RenderMesh(renderData, m_meshDesc);
+	RenderMesh(renderState, m_meshDesc);
 }
 
 bool MeshObject::CreateParamsGui()

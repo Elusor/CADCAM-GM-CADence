@@ -18,10 +18,12 @@ SceneGrid::SceneGrid(int gridSize)
 void SceneGrid::RenderObject(std::unique_ptr<RenderState>& renderState)
 {		
 	XMMATRIX mvp = m_transform.GetModelMatrix() * renderState->m_camera->GetViewProjectionMatrix();
-	auto buffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbMVP.get(), mvp);
-	ID3D11Buffer* cbs[] = { buffer };
-
-	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
+	XMMATRIX m = m_transform.GetModelMatrix();
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
+	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs[] = { Mbuffer, VPbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 2, cbs);
 
 	renderState->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 

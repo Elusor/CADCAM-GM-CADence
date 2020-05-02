@@ -6,12 +6,12 @@ using namespace DirectX;
 void SpawnMarker::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	//Set constant buffer
-	XMMATRIX mvp = m_transform.GetModelMatrix() * renderState->m_camera->GetViewProjectionMatrix();
-	auto buffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbMVP.get(), mvp);
-	ID3D11Buffer* cbs[] = {buffer};
-
-	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs);
-
+	XMMATRIX m = m_transform.GetModelMatrix();
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
+	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs[] = { Mbuffer, VPbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 2, cbs);
 	std::vector<VertexPositionColor> vertices{
 		{{-3.0f,0.0f,0.0f},{m_color}},
 		{{3.0f,0.0f,0.0f} ,{m_color}},

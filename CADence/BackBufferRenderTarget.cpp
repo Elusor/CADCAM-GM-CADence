@@ -14,7 +14,7 @@ BackBufferRenderTarget::~BackBufferRenderTarget()
 {
 }
 
-bool BackBufferRenderTarget::Initialize(ID3D11Device* device, IDXGISwapChain* swapchain, RenderState* m_renderdata)
+bool BackBufferRenderTarget::Initialize(ID3D11Device* device, IDXGISwapChain* swapchain, RenderState* m_renderState)
 {
 	//HRESULT result;	
 	//ID3D11Texture2D* temp;
@@ -22,7 +22,7 @@ bool BackBufferRenderTarget::Initialize(ID3D11Device* device, IDXGISwapChain* sw
 	//m_renderTargetTexture = temp;
 	//// Create render target view to be able to write on backBuffer
 	ID3D11Texture2D* temp;
-	HRESULT result = m_renderdata->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
+	HRESULT result = m_renderState->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
 	if (FAILED(result))
 	{
 		return false;

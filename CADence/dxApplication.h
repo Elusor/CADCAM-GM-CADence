@@ -34,7 +34,7 @@ private:
 	std::unique_ptr<PointSelector> m_pSelector;
 	std::shared_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
-	std::unique_ptr<RenderState> m_renderData;
+	std::unique_ptr<RenderState> m_renderState;
 
 	std::unique_ptr<DefaultRenderPass> m_defaultPass;
 
