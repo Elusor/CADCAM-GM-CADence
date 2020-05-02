@@ -96,7 +96,7 @@ void TextureRenderTarget::SetRenderTarget(ID3D11DeviceContext* context, ID3D11De
 	context->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
 }
 
-void TextureRenderTarget::ClearRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencil, float r, float g, float b, float alpha)
+void TextureRenderTarget::ClearRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencil, float r, float g, float b, float alpha, float depth = 1.0f)
 {
 	float color[4] = {r, g, b, alpha};
 

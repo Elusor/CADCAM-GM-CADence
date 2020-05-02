@@ -161,9 +161,11 @@
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="BezierCurveC2.h" />
+    <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
+    <ClInclude Include="IRenderTarget.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
@@ -173,6 +175,7 @@
     <ClInclude Include="ObjectTransformer.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="PointSelector.h" />
+    <ClInclude Include="IRenderPass.h" />
     <ClInclude Include="renderState.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CameraController.h" />
@@ -190,6 +193,7 @@
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="SceneGrid.h" />
+    <ClInclude Include="StereoscopicRenderPass.h" />
     <ClInclude Include="TextureRenderTarget.h" />
     <ClInclude Include="vertexStructures.h" />
     <ClInclude Include="Scene.h" />
@@ -210,6 +214,7 @@
     <ClCompile Include="BezierCurveC2.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="DefaultRenderPass.cpp" />
     <ClCompile Include="dxApplication.cpp" />
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
@@ -226,6 +231,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="SceneGrid.cpp" />
+    <ClCompile Include="StereoscopicRenderPass.cpp" />
     <ClCompile Include="TextureRenderTarget.cpp" />
     <ClCompile Include="vertexStructures.cpp" />
     <ClCompile Include="MeshObject.cpp" />

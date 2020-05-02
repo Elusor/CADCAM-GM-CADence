@@ -88,6 +88,12 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{704bd5e8-b256-4efd-8884-bb80f8698b2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CadSpecific\Rendering\RenderPass">
+      <UniqueIdentifier>{f3c905d2-49ae-4377-85cc-989708f002cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CadSpecific\Rendering\RenderTargets">
+      <UniqueIdentifier>{67bbb5f2-8a43-486e-a24d-99f34b5a9802}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -219,11 +225,23 @@
     <ClInclude Include="InterpolationBezierCurveC2.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
-    <ClInclude Include="TextureRenderTarget.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+    <ClInclude Include="DefaultRenderPass.h">
+      <Filter>Header Files\CadSpecific\Rendering\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderPass.h">
+      <Filter>Header Files\CadSpecific\Rendering\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="BackBufferRenderTarget.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+      <Filter>Header Files\CadSpecific\Rendering\RenderTargets</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRenderTarget.h">
+      <Filter>Header Files\CadSpecific\Rendering\RenderTargets</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderTarget.h">
+      <Filter>Header Files\CadSpecific\Rendering\RenderTargets</Filter>
+    </ClInclude>
+    <ClInclude Include="StereoscopicRenderPass.h">
+      <Filter>Header Files\CadSpecific\Rendering\RenderPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -351,6 +369,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BackBufferRenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultRenderPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StereoscopicRenderPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

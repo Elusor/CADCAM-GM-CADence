@@ -35,20 +35,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		45.0f, 2.5f, 250.0f)); // fov, zNear, zFar
 
 	m_camController = unique_ptr<CameraController>(new CameraController(m_renderData->m_camera));
-
-	// init backbuffer
-	//ID3D11Texture2D* temp;
-	//m_renderData->m_device.swapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&temp));
-	//dx_ptr<ID3D11Texture2D> backTexture;
-	//backTexture.reset(temp);
-
-	//// Create render target view to be able to write on backBuffer
-	//m_renderData->m_backBuffer = m_renderData->m_device.CreateRenderTargetView(backTexture);
-
-	// assign depth buffer to RP
-	//auto backBuffer = m_renderData->m_backBuffer.get();
-	//m_renderData->m_device.context()->OMSetRenderTargets(1, &backBuffer, m_renderData->m_depthBuffer.get());
-
+	// Set Render Target
 	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
 	BackBufferRenderTarget* backTarget = new BackBufferRenderTarget();
 	backTarget->Initialize(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_swapChain.get(), m_renderData.get());
@@ -73,6 +60,14 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
 
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
+	
+
+
+	//// RENDER PASS
+	m_defaultPass = std::unique_ptr<DefaultRenderPass>(new DefaultRenderPass());
+	m_defaultPass->m_renderTarget = backTarget;
+	////
+
 
 	//Setup imGui
 	IMGUI_CHECKVERSION();
@@ -138,7 +133,8 @@ int DxApplication::MainLoop()
 
 			Update();
 
-			RenderPass();
+			m_defaultPass->Execute(m_renderData, m_scene.get());
+			//RenderPass();
 
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -159,7 +155,7 @@ void DxApplication::Clear()
 {
 	// Clear render target
 	float clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	m_target->ClearRenderTarget(m_renderData->m_device.m_context.get(), m_renderData->m_depthBuffer.get(), 0.2f, 0.2f, 0.2f, 1.0f);
+	m_target->ClearRenderTarget(m_renderData->m_device.m_context.get(), m_renderData->m_depthBuffer.get(), 0.2f, 0.2f, 0.2f, 1.0f, 1.0f);
 	m_renderData->m_device.context()->ClearRenderTargetView(m_renderData->m_backBuffer.get(), clearColor);
 
 	// Clera depth stencil

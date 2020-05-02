@@ -1,19 +1,23 @@
-#include <d3d11.h>
 #pragma once
-class TextureRenderTarget
+#include <d3d11.h>
+#include "IRenderTarget.h"
+
+class TextureRenderTarget: public IRenderTarget
 {
 public:
 	TextureRenderTarget();
 	TextureRenderTarget(const TextureRenderTarget&);
 	~TextureRenderTarget();
 
-	bool Initialize(ID3D11Device* device, int width, int height);
-	void Dispose();
+	bool Initialize(ID3D11Device* device, int width, int height);	
+	// Inherited via IRenderTarget
+	virtual void Dispose() override;
+	virtual void SetRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencilView) override;
+	virtual void ClearRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencilView, float r, float g, float b, float alpha, float depth) override;
 
-	void SetRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencilView);
-	void ClearRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencilView, float r, float g, float b, float alpha);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 	ID3D11RenderTargetView* GetRenderTargetView();
+
 private:
 	ID3D11Texture2D* m_renderTargetTexture;
 	ID3D11RenderTargetView* m_renderTargetView;

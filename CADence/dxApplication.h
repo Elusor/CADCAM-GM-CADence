@@ -13,7 +13,8 @@
 
 #include "BackBufferRenderTarget.h"
 #include "TextureRenderTarget.h"
-
+#include "IRenderPass.h"
+#include "DefaultRenderPass.h"
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -34,6 +35,8 @@ private:
 	std::shared_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderState> m_renderData;
+
+	std::unique_ptr<DefaultRenderPass> m_defaultPass;
 
 	BackBufferRenderTarget* m_target;
 };

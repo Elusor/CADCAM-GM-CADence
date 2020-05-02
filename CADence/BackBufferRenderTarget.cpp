@@ -1,7 +1,5 @@
 #include "BackBufferRenderTarget.h"
 
-
-
 BackBufferRenderTarget::BackBufferRenderTarget()
 {
 	m_renderTargetTexture = 0;
@@ -63,12 +61,12 @@ void BackBufferRenderTarget::SetRenderTarget(ID3D11DeviceContext* context, ID3D1
 	context->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
 }
 
-void BackBufferRenderTarget::ClearRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencilView, float r, float g, float b, float alpha)
+void BackBufferRenderTarget::ClearRenderTarget(ID3D11DeviceContext* context, ID3D11DepthStencilView* depthStencilView, float r, float g, float b, float alpha, float depth = 1.0f)
 {
 	float color[4] = { r, g, b, alpha };
 
 	context->ClearRenderTargetView(m_renderTargetView, color);
-	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0.f);
+	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, depth, 0.f);
 }
 
 ID3D11RenderTargetView* BackBufferRenderTarget::GetRenderTargetView()
