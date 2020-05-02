@@ -1,5 +1,13 @@
 #include "DefaultRenderPass.h"
 
+DefaultRenderPass::DefaultRenderPass(const std::unique_ptr<RenderState>& renderState, SIZE wndSize)
+{
+	renderState->m_depthBuffer = renderState->m_device.CreateDepthStencilView(wndSize);
+	m_renderTarget = new BackBufferRenderTarget();
+	m_renderTarget->Initialize(renderState->m_device.m_device.get(), renderState->m_device.m_swapChain.get(), renderState.get());
+	m_renderTarget->SetRenderTarget(renderState->m_device.m_context.get(), renderState->m_depthBuffer.get());
+}
+
 void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {	
 	Clear(renderState);

@@ -35,13 +35,6 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		45.0f, 2.5f, 250.0f)); // fov, zNear, zFar
 
 	m_camController = unique_ptr<CameraController>(new CameraController(m_renderData->m_camera));
-	// Set Render Target
-	m_renderData->m_depthBuffer = m_renderData->m_device.CreateDepthStencilView(wndSize);
-	BackBufferRenderTarget* backTarget = new BackBufferRenderTarget();
-	backTarget->Initialize(m_renderData->m_device.m_device.get(), m_renderData->m_device.m_swapChain.get(), m_renderData.get());
-	backTarget->SetRenderTarget(m_renderData->m_device.m_context.get(), m_renderData->m_depthBuffer.get());
-	m_target = backTarget;
-
 	m_scene = std::shared_ptr<Scene>(new Scene());
 
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
@@ -58,16 +51,11 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderData->m_cbGSData = m_renderData->m_device.CreateConstantBuffer<XMFLOAT4>();
 
 	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderData->m_camera));
-
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
 	
-
-
 	//// RENDER PASS
-	m_defaultPass = std::unique_ptr<DefaultRenderPass>(new DefaultRenderPass());
-	m_defaultPass->m_renderTarget = backTarget;
+	m_defaultPass = std::unique_ptr<DefaultRenderPass>(new DefaultRenderPass(m_renderData,wndSize));
 	////
-
 
 	//Setup imGui
 	IMGUI_CHECKVERSION();

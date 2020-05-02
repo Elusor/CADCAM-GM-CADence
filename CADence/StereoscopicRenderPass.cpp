@@ -1,30 +1,53 @@
 #include "StereoscopicRenderPass.h"
 
+StereoscopicRenderPass::StereoscopicRenderPass(const std::unique_ptr<RenderState>& renderState, SIZE wndSize)
+{
+	m_tex1 = new TextureRenderTarget();
+	m_tex2 = new TextureRenderTarget();
+	m_backTarget = new BackBufferRenderTarget();
+	m_tex1->Initialize(renderState->m_device.m_device.get(), wndSize.cx, wndSize.cy);
+	m_tex2->Initialize(renderState->m_device.m_device.get(), wndSize.cx, wndSize.cy);
+	m_backTarget->Initialize(renderState->m_device.m_device.get(), renderState->m_device.m_swapChain.get(), renderState.get());
+
+}
+
 void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {
-	//// initialize all targets
-	//tex1->Initialize();
-	//tex2->Initialize();
-	//target->Initialize();
+	auto context = renderState->m_device.m_context.get();
+	auto depthStencil = renderState->m_depthBuffer.get();
 
-	//// Render to the first texture
-	//Clear();
-	//Render();
-	//tex1->SetRenderTarget();
+	Clear(renderState);
 
-	//// Render to the second texture
-	//Clear();
-	//Render();
-	//tex2->SetRenderTarget();
+	// Draw left eye
+	m_tex1->SetRenderTarget(context, depthStencil);
+	scene->RenderScene(renderState);
 
-	//// Blend both textures and display them
-	//Clear();
-	//Render();
-	//target->SetRenderTarget();
+	// Draw right eye
+	m_tex2->SetRenderTarget(context, depthStencil);
+	scene->RenderScene(renderState);
+	
+	ID3D11ShaderResourceView* tex1 = m_tex1->GetShaderResourceView();
+	ID3D11ShaderResourceView* tex2 = m_tex2->GetShaderResourceView();
+	m_backTarget->SetRenderTarget(context, depthStencil);
+	// set texture blending shaders
+
+	// set tex1 and tex2 as shader resources
+
+	// set an object taking up the whole screen and texture is 
+	
+
+	// draw the textured object	
+	renderState->m_device.m_context->DrawIndexed();
 }
 
 void StereoscopicRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
 {
+	float clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	auto context = renderState->m_device.m_context.get();
+	auto depthStencil = renderState->m_depthBuffer.get();
+	m_tex1->ClearRenderTarget(context, depthStencil, clearColor[0], clearColor[1], clearColor[2], clearColor[3], 1.0f);
+	m_tex2->ClearRenderTarget(context, depthStencil, clearColor[0], clearColor[1], clearColor[2], clearColor[3], 1.0f);
+	m_backTarget->ClearRenderTarget(context, depthStencil, clearColor[0], clearColor[1], clearColor[2], clearColor[3], 1.0f);
 }
 
 void StereoscopicRenderPass::Render(std::unique_ptr<RenderState>& renderState, Scene* scene)

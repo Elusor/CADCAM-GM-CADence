@@ -5,10 +5,11 @@
 
 class StereoscopicRenderPass : public IRenderPass
 {
-	TextureRenderTarget* tex1;
-	TextureRenderTarget* tex2;
-	BackBufferRenderTarget* target;
-	// Inherited via IRenderPass
+	TextureRenderTarget* m_tex1;
+	TextureRenderTarget* m_tex2;
+	BackBufferRenderTarget* m_backTarget;
+
+	StereoscopicRenderPass(const std::unique_ptr<RenderState>& renderState, SIZE wndSize);
 
 	// Inherited via IRenderPass
 	virtual void Execute(std::unique_ptr<RenderState>& renderState, Scene* scene) override;

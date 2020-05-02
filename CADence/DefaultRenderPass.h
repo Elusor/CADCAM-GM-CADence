@@ -5,6 +5,7 @@
 class DefaultRenderPass : public IRenderPass
 {
 public:
+	DefaultRenderPass(const std::unique_ptr<RenderState>& renderState, SIZE wndSize);
 	BackBufferRenderTarget* m_renderTarget;
 
 	// Inherited via IRenderPass
