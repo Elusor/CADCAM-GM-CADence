@@ -46,12 +46,6 @@
     <Filter Include="Source Files\CadSpecific\Scene">
       <UniqueIdentifier>{36027293-0cd6-40ea-8a7a-64a7cbec1d10}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\CadSpecific\Rendering">
-      <UniqueIdentifier>{a787eca8-3878-4295-b431-8979b131fa45}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\CadSpecific\Rendering">
-      <UniqueIdentifier>{1ecfc08e-bd43-4996-bc74-251402b716b7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\CadSpecific\Transformations">
       <UniqueIdentifier>{fc149d2d-c52a-4f47-8b0d-1ef523790a41}</UniqueIdentifier>
     </Filter>
@@ -88,11 +82,23 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{704bd5e8-b256-4efd-8884-bb80f8698b2c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\CadSpecific\Rendering\RenderPass">
+    <Filter Include="Header Files\Rendering">
+      <UniqueIdentifier>{1ecfc08e-bd43-4996-bc74-251402b716b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Rendering\RenderPass">
       <UniqueIdentifier>{f3c905d2-49ae-4377-85cc-989708f002cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\CadSpecific\Rendering\RenderTargets">
+    <Filter Include="Header Files\Rendering\RenderTargets">
       <UniqueIdentifier>{67bbb5f2-8a43-486e-a24d-99f34b5a9802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{a787eca8-3878-4295-b431-8979b131fa45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\RenderPass">
+      <UniqueIdentifier>{866115e1-73d7-45ee-bc2b-b6eb3931b714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\RenderTargets">
+      <UniqueIdentifier>{fc2a8eeb-d486-4fe9-aa4c-d0eb9f65a51b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -181,7 +187,7 @@
       <Filter>Header Files\CadSpecific\Objects\Type</Filter>
     </ClInclude>
     <ClInclude Include="renderState.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="objects.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
@@ -214,7 +220,7 @@
       <Filter>Header Files\CadSpecific\Utils</Filter>
     </ClInclude>
     <ClInclude Include="adaptiveRenderingCalculator.h">
-      <Filter>Header Files\CadSpecific\Rendering</Filter>
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="generalUtils.h">
       <Filter>Header Files\CadSpecific\Utils</Filter>
@@ -226,22 +232,22 @@
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
     <ClInclude Include="DefaultRenderPass.h">
-      <Filter>Header Files\CadSpecific\Rendering\RenderPass</Filter>
+      <Filter>Header Files\Rendering\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="IRenderPass.h">
-      <Filter>Header Files\CadSpecific\Rendering\RenderPass</Filter>
+      <Filter>Header Files\Rendering\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="BackBufferRenderTarget.h">
-      <Filter>Header Files\CadSpecific\Rendering\RenderTargets</Filter>
+      <Filter>Header Files\Rendering\RenderTargets</Filter>
     </ClInclude>
     <ClInclude Include="TextureRenderTarget.h">
-      <Filter>Header Files\CadSpecific\Rendering\RenderTargets</Filter>
+      <Filter>Header Files\Rendering\RenderTargets</Filter>
     </ClInclude>
     <ClInclude Include="IRenderTarget.h">
-      <Filter>Header Files\CadSpecific\Rendering\RenderTargets</Filter>
+      <Filter>Header Files\Rendering\RenderTargets</Filter>
     </ClInclude>
     <ClInclude Include="StereoscopicRenderPass.h">
-      <Filter>Header Files\CadSpecific\Rendering\RenderPass</Filter>
+      <Filter>Header Files\Rendering\RenderPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -312,7 +318,7 @@
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="renderState.cpp">
-      <Filter>Source Files\CadSpecific\Rendering</Filter>
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="vertexStructures.cpp">
       <Filter>Source Files\CadSpecific\Utils</Filter>
@@ -348,7 +354,7 @@
       <Filter>Source Files\CadSpecific\Utils</Filter>
     </ClCompile>
     <ClCompile Include="adaptiveRenderingCalculator.cpp">
-      <Filter>Source Files\CadSpecific\Rendering</Filter>
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="BezierCurveC2.cpp">
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
@@ -356,26 +362,26 @@
     <ClCompile Include="mathUtils.cpp">
       <Filter>Source Files\CadSpecific\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="generalUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneGrid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InterpolationBezierCurveC2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureRenderTarget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BackBufferRenderTarget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DefaultRenderPass.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Rendering\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="StereoscopicRenderPass.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Rendering\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="BackBufferRenderTarget.cpp">
+      <Filter>Source Files\Rendering\RenderTargets</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderTarget.cpp">
+      <Filter>Source Files\Rendering\RenderTargets</Filter>
+    </ClCompile>
+    <ClCompile Include="InterpolationBezierCurveC2.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="generalUtils.cpp">
+      <Filter>Source Files\CadSpecific\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGrid.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
