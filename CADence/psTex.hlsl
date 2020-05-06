@@ -24,8 +24,6 @@ float4 main(PSIn i) : SV_TARGET
 	
 	// sample tex1 at tex.xy - C
 	leftTex = leftEyeTex.Sample(texSampler, texScaled.xy);
-
-	texScaled += float2(0.03f, 0.03f);
 	// sample tex2 at tex.xy - M
 	rightTex = rightEyeTex.Sample(texSampler, texScaled);
 	
