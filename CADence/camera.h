@@ -21,6 +21,7 @@ public:
 	void TranslateCamera(float dx, float dy);
 	void ResizeViewport(float width, float height);
 	SIZE GetViewportSize();	
+	DirectX::XMMATRIX GetStereoscopicMatrix(bool isLeft, float d, float focusPlaneDist);
 
 private:	
 	// Calculate view matrix based on the cmaera position and target position

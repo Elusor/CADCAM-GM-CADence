@@ -73,7 +73,7 @@ XMMATRIX Camera::GetViewMatrix()
 
 void Camera::RecalculateProjectionMatrix()
 {	
-	m_projMat = DirectX::XMMatrixPerspectiveFovLH(XMConvertToRadians(m_fov), m_aspectRatio, m_zNear, m_zFar);
+	m_projMat = DirectX::XMMatrixPerspectiveFovLH(m_fov, m_aspectRatio, m_zNear, m_zFar);
 }
 
 DirectX::XMMATRIX Camera::GetViewProjectionMatrix()
@@ -157,6 +157,52 @@ SIZE Camera::GetViewportSize()
 	size.cx = m_width;
 	size.cy = m_height;
 	return size;
+}
+
+DirectX::XMMATRIX Camera::GetStereoscopicMatrix(bool isLeft, float d, float focusPlaneDist)
+{
+	float offset;
+	XMVECTOR pos = XMLoadFloat3(&m_pos);
+	XMVECTOR target = XMLoadFloat3(&m_target);
+	auto globalUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMVECTOR up = XMLoadFloat3(&globalUp);
+	XMVECTOR right = XMLoadFloat3(&m_right);
+	XMVECTOR modPos;
+	XMVECTOR modTarget;
+
+	float l, r;
+	float b, t;
+
+	float projPlaneDist = focusPlaneDist;
+
+	t = (float)(tanf(m_fov / 2.0f) * m_zNear);
+	b = -t;	
+	
+	r = t * m_aspectRatio;
+	l = -r;
+
+	float frustOffset;
+	if (isLeft)
+	{
+		offset = d/2.f;		
+
+	}
+	else 
+	{
+		offset = -d/2.f;
+
+	}	
+	l += (m_zNear / projPlaneDist) * -offset;
+	r += (m_zNear / projPlaneDist) * -offset;
+
+	auto modDir = right * offset;
+	modPos = XMVectorAdd(pos, modDir);
+	modTarget = XMVectorAdd(target, modDir);
+
+	auto view = XMMatrixLookAtLH(modPos, modTarget, up);
+	auto perspective = XMMatrixPerspectiveOffCenterLH(l,r,b,t,m_zNear, m_zFar);
+	
+	return XMMatrixMultiply(view, perspective);
 }
 
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2)

@@ -28,7 +28,7 @@ void DefaultRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
 	renderState->m_device.context()->ClearRenderTargetView(renderState->m_backBuffer.get(), clearColor);
 
 	// Clera depth stencil
-	renderState->m_device.context()->ClearDepthStencilView(renderState->m_depthBuffer.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	renderState->m_device.context()->ClearDepthStencilView(renderState->m_depthBuffer.get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void DefaultRenderPass::Render(std::unique_ptr<RenderState>& renderState, Scene* scene)
