@@ -127,7 +127,7 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 void StereoscopicRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
 {
-	float clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	auto context = renderState->m_device.m_context.get();
 	auto depthStencil = renderState->m_depthBuffer.get();
 	m_tex1->ClearRenderTarget(context, depthStencil, clearColor[0], clearColor[1], clearColor[2], clearColor[3], 1.0f);
