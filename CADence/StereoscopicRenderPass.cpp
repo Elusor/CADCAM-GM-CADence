@@ -87,6 +87,8 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	scene->RenderScene(renderState);
 
 	ClearDepth(renderState);	
+	
+	DrawTexturedQuad(renderState);
 
 }
 

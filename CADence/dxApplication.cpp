@@ -56,9 +56,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
 	
 	//// RENDER PASS
-	auto defPass = new DefaultRenderPass(m_renderState, wndSize);
-	auto stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
-	m_activePass = stereoPass;
+	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
+	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
+	m_activePass = m_defPass;
 	////
 
 	//Setup imGui
@@ -83,6 +83,20 @@ int DxApplication::MainLoop()
 		}
 		else
 		{
+			if (m_stereoChanged)
+			{
+				m_isStereo = !m_isStereo;
+				if (m_isStereo)
+				{
+					m_activePass = m_stereoPass;
+				}
+				else{
+					m_activePass = m_defPass;
+				}
+				m_stereoChanged = false;
+			}
+
+
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
@@ -186,9 +200,24 @@ void DxApplication::InitImguiWindows()
 	{
 		ImGui::Text("Center trasformations at:");
 		ImGui::Spacing();
-		
+
 		ImGui::Checkbox("Center trasformations at cursor", &(m_transController->m_transAroundCursor));
 	}
+
+	if (m_isStereo) {
+		if (ImGui::Button("Disable stereoscopy"))
+		{
+			m_stereoChanged = true;
+		}
+	}
+	else{
+		if (ImGui::Button("Enable stereoscopy"))
+		{
+			m_stereoChanged = true;
+		}
+	}
+	
+
 	ImGui::Separator();
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

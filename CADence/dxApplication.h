@@ -31,11 +31,17 @@ private:
 	void InitImguiWindows();
 	void Update();
 
+	bool m_isStereo;
+	bool m_stereoChanged;
+
 	std::unique_ptr<TransformationController> m_transController;
 	std::unique_ptr<PointSelector> m_pSelector;
 	std::shared_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderState> m_renderState;
+
+	IRenderPass* m_defPass;
+	IRenderPass* m_stereoPass;
 
 	IRenderPass* m_activePass;
 
