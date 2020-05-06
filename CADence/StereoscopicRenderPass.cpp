@@ -20,12 +20,12 @@ StereoscopicRenderPass::StereoscopicRenderPass(const std::unique_ptr<RenderState
 	m_backTarget->Initialize(device, renderState->m_device.m_swapChain.get(), renderState.get());
 
 	D3D11_SAMPLER_DESC desc;
-	desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.MinLOD = -D3D11_FLOAT32_MAX;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
+	desc.MinLOD = 0;
+	desc.MaxLOD = 0;
 	desc.MipLODBias = 0.0f;
 	desc.MaxAnisotropy = 1;
 	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
