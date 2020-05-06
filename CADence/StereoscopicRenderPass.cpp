@@ -65,7 +65,6 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
 	renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
 
-#pragma region left eye	
 	// Draw Left eye
 	// Update viewprojection matrix
 	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
@@ -75,10 +74,8 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 	m_tex1->SetRenderTarget(context, depthStencil);
 	scene->RenderScene(renderState);	
-#pragma endregion
 	ClearDepth(renderState);	
 
-#pragma region right eye	
 	// Draw Right eye
 	// Update viewprojection matrix
 	vp = renderState->m_camera->GetViewProjectionMatrix();
@@ -88,41 +85,9 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 	m_tex2->SetRenderTarget(context, depthStencil);
 	scene->RenderScene(renderState);
-#pragma endregion
 
 	ClearDepth(renderState);	
 
-	m_backTarget->SetRenderTarget(context, depthStencil);
-	// set texture blending shaders
-	context->VSSetShader(m_texVS.get(), nullptr, 0);
-	context->PSSetShader(m_texPS.get(), nullptr, 0);
-	//renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
-
-	vp = renderState->m_camera->GetViewProjectionMatrix();
-	VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
-	ID3D11Buffer* cbs4[] = { VPbuffer };
-	context->VSSetConstantBuffers(0, 1, cbs4);
-
-	// Set shader resources
-	ID3D11ShaderResourceView* tex1 = m_tex1->GetShaderResourceView();
-	ID3D11ShaderResourceView* tex2 = m_tex2->GetShaderResourceView();	
-	ID3D11ShaderResourceView* res[] = { tex1, tex2 };
-	context->PSSetShaderResources(0, 2, res);
-	ID3D11SamplerState* states[] = { m_sampler.get() };
-	context->PSSetSamplers(0, 1, states);
-
-	// set an object taking up the whole screen and texture is 
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(m_quadVerts));
-	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(m_quadIndices));
-	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
-	UINT strides[] = { sizeof(VertexPositionColor) };
-	UINT offsets[] = { 0 };
-	context->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);	
-
-	// draw the textured object	
-	context->DrawIndexed(m_quadIndices.size(), 0, 0);
 }
 
 void StereoscopicRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
@@ -143,4 +108,43 @@ void StereoscopicRenderPass::ClearDepth(std::unique_ptr<RenderState>& renderStat
 {
 	auto depthStencil = renderState->m_depthBuffer.get();
 	renderState->m_device.context()->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void StereoscopicRenderPass::DrawTexturedQuad(std::unique_ptr<RenderState>& renderState)
+{
+	auto device = renderState->m_device.m_device.get();
+	auto context = renderState->m_device.m_context.get();
+	auto depthStencil = renderState->m_depthBuffer.get();
+
+	m_backTarget->SetRenderTarget(context, depthStencil);
+	// set texture blending shaders
+	context->VSSetShader(m_texVS.get(), nullptr, 0);
+	context->PSSetShader(m_texPS.get(), nullptr, 0);
+	//renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
+
+	auto vp = renderState->m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
+	ID3D11Buffer* cbs4[] = { VPbuffer };
+	context->VSSetConstantBuffers(0, 1, cbs4);
+
+	// Set shader resources
+	ID3D11ShaderResourceView* tex1 = m_tex1->GetShaderResourceView();
+	ID3D11ShaderResourceView* tex2 = m_tex2->GetShaderResourceView();
+	ID3D11ShaderResourceView* res[] = { tex1, tex2 };
+	context->PSSetShaderResources(0, 2, res);
+	ID3D11SamplerState* states[] = { m_sampler.get() };
+	context->PSSetSamplers(0, 1, states);
+
+	// set an object taking up the whole screen and texture is 
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(m_quadVerts));
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(m_quadIndices));
+	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
+	UINT strides[] = { sizeof(VertexPositionColor) };
+	UINT offsets[] = { 0 };
+	context->IASetVertexBuffers(0, 1, vbs, strides, offsets);
+	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+
+	// draw the textured object	
+	context->DrawIndexed(m_quadIndices.size(), 0, 0);
 }
