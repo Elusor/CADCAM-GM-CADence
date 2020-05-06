@@ -4,14 +4,13 @@ DefaultRenderPass::DefaultRenderPass(const std::unique_ptr<RenderState>& renderS
 {
 	renderState->m_depthBuffer = renderState->m_device.CreateDepthStencilView(wndSize);
 	m_renderTarget = new BackBufferRenderTarget();
-	m_renderTarget->Initialize(renderState->m_device.m_device.get(), renderState->m_device.m_swapChain.get(), renderState.get());
-	m_renderTarget->SetRenderTarget(renderState->m_device.m_context.get(), renderState->m_depthBuffer.get());
+	m_renderTarget->Initialize(renderState->m_device.m_device.get(), renderState->m_device.m_swapChain.get(), renderState.get());	
 }
 
 void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {	
 	Clear(renderState);
-
+	m_renderTarget->SetRenderTarget(renderState->m_device.m_context.get(), renderState->m_depthBuffer.get());
 	// Update viewprojection matrix
 	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
 	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);

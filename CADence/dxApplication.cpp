@@ -47,6 +47,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_renderState->m_layout = m_renderState->m_device.CreateInputLayout(elements, vsBytes);
+
 	m_renderState->m_cbM = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_renderState->m_cbVP = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_renderState->m_cbGSData = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4>();
@@ -55,7 +56,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
 	
 	//// RENDER PASS
-	m_defaultPass = std::unique_ptr<DefaultRenderPass>(new DefaultRenderPass(m_renderState,wndSize));
+	auto defPass = new DefaultRenderPass(m_renderState, wndSize);
+	auto stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
+	m_activePass = stereoPass;
 	////
 
 	//Setup imGui
@@ -114,17 +117,10 @@ int DxApplication::MainLoop()
 
 #pragma endregion
 			}
-
-
-
 		
 			InitImguiWindows();
-
 			Update();
-
-			m_defaultPass->Execute(m_renderState, m_scene.get());
-			//RenderPass();
-
+			m_activePass->Execute(m_renderState, m_scene.get());		
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

@@ -5,6 +5,7 @@
 
 class StereoscopicRenderPass : public IRenderPass
 {
+public:
 	TextureRenderTarget* m_tex1;
 	TextureRenderTarget* m_tex2;
 	BackBufferRenderTarget* m_backTarget;
@@ -18,4 +19,12 @@ class StereoscopicRenderPass : public IRenderPass
 
 	virtual void Render(std::unique_ptr<RenderState>& renderState, Scene* scene) override;
 
+private: 
+	void ClearDepth(std::unique_ptr<RenderState>& renderState);
+	mini::dx_ptr<ID3D11VertexShader> m_texVS;
+	mini::dx_ptr<ID3D11PixelShader> m_texPS;
+	mini::dx_ptr<ID3D11SamplerState> m_sampler;
+	
+	std::vector<VertexPositionColor> m_quadVerts;
+	std::vector<unsigned short> m_quadIndices;
 };

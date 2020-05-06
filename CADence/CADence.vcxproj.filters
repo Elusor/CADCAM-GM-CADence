@@ -100,6 +100,9 @@
     <Filter Include="Source Files\Rendering\RenderTargets">
       <UniqueIdentifier>{fc2a8eeb-d486-4fe9-aa4c-d0eb9f65a51b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Texture Rendering">
+      <UniqueIdentifier>{8c7379c4-9ee3-4087-b79b-7987ed47d127}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -393,6 +396,12 @@
     </FxCompile>
     <FxCompile Include="bezierGs.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="psTex.hlsl">
+      <Filter>Shaders\Texture Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="vsTex.hlsl">
+      <Filter>Shaders\Texture Rendering</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

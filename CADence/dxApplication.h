@@ -15,6 +15,7 @@
 #include "TextureRenderTarget.h"
 #include "IRenderPass.h"
 #include "DefaultRenderPass.h"
+#include "StereoscopicRenderPass.h"
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -36,7 +37,7 @@ private:
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderState> m_renderState;
 
-	std::unique_ptr<DefaultRenderPass> m_defaultPass;
+	IRenderPass* m_activePass;
 
 	BackBufferRenderTarget* m_target;
 };
