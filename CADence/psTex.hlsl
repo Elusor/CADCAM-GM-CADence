@@ -28,9 +28,9 @@ float4 main(PSIn i) : SV_TARGET
 	rightTex = rightEyeTex.Sample(texSampler, texScaled);
 	
 	// Filter C to cyan
-	float4 clampedC = clamp(leftTex, black, cyan);
+	float4 clampedC = clamp(leftTex, black, magenta);
 	// Filter M to magenta
-	float4 clampedM = clamp(rightTex, black, magenta);
+	float4 clampedM = clamp(rightTex, black, cyan);
 	
 	return saturate(clampedC + clampedM);
 }
