@@ -67,7 +67,7 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 	// Draw Left eye
 	// Update viewprojection matrix
-	XMMATRIX vp = renderState->m_camera->GetStereoscopicMatrix(true, 0.1f, 2.f);
+	XMMATRIX vp = renderState->m_camera->GetStereoscopicMatrix(true, m_eyeDistance, m_focusPlaneDistance);
 	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
 	ID3D11Buffer* cbs2[] = { VPbuffer };
 	context->VSSetConstantBuffers(0, 1, cbs2);
@@ -78,7 +78,7 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 
 	// Draw Right eye
 	// Update viewprojection matrix
-	vp = renderState->m_camera->GetStereoscopicMatrix(false, 0.1f, 2.f);
+	vp = renderState->m_camera->GetStereoscopicMatrix(false, m_eyeDistance, m_focusPlaneDistance);
 	auto VPbuffer2 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vp);
 	ID3D11Buffer* cbs3[] = { VPbuffer2 };
 	context->VSSetConstantBuffers(0, 1, cbs3);

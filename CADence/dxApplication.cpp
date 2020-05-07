@@ -32,7 +32,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		XMFLOAT2(0.0f, -0.55f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
-		DirectX::XM_PIDIV2, 2.5f, 250.0f)); // fov, zNear, zFar
+		DirectX::XM_PIDIV2, 0.5f, 100.0f)); // fov, zNear, zFar
 
 	m_camController = unique_ptr<CameraController>(new CameraController(m_renderState->m_camera));
 	m_scene = std::shared_ptr<Scene>(new Scene());
@@ -203,19 +203,27 @@ void DxApplication::InitImguiWindows()
 
 		ImGui::Checkbox("Center trasformations at cursor", &(m_transController->m_transAroundCursor));
 	}
+	if (ImGui::CollapsingHeader("Stereoscopy"))
+	{
+		if (m_isStereo) {
 
-	if (m_isStereo) {
-		if (ImGui::Button("Disable stereoscopy"))
-		{
-			m_stereoChanged = true;
+			StereoscopicRenderPass* stereo = static_cast<StereoscopicRenderPass*>(m_stereoPass);
+
+			if (ImGui::Button("Disable stereoscopy"))
+			{
+				m_stereoChanged = true;
+			}
+			if (ImGui::DragFloat("Focus plane distance", &(stereo->m_focusPlaneDistance), .5f, 0.5f, 100.f));
+			if (ImGui::DragFloat("Eye distance", &(stereo->m_eyeDistance), 0.05f, 0.1f, 2.f));
+		}
+		else {
+			if (ImGui::Button("Enable stereoscopy"))
+			{
+				m_stereoChanged = true;
+			}
 		}
 	}
-	else{
-		if (ImGui::Button("Enable stereoscopy"))
-		{
-			m_stereoChanged = true;
-		}
-	}
+
 	
 
 	ImGui::Separator();

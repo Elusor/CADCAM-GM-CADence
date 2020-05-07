@@ -10,6 +10,9 @@ public:
 	TextureRenderTarget* m_tex2;
 	BackBufferRenderTarget* m_backTarget;
 
+	float m_focusPlaneDistance = 10.0f;
+	float m_eyeDistance = 0.10f;
+
 	StereoscopicRenderPass(const std::unique_ptr<RenderState>& renderState, SIZE wndSize);
 
 	// Inherited via IRenderPass
