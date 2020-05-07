@@ -122,6 +122,7 @@ std::shared_ptr<Node> ObjectFactory::CreateSpawnMarker()
 	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<SpawnMarker>(new SpawnMarker());
 	n->m_object->m_parent = n;
+	n->m_object->SetPosition(DirectX::XMFLOAT3(0.0f, 0.05f, 0.0f));
 	return n;
 }
 
