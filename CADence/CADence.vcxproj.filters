@@ -252,6 +252,12 @@
     <ClInclude Include="StereoscopicRenderPass.h">
       <Filter>Header Files\Rendering\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="BezierSurfaceC0.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="BezierPatch.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -385,6 +391,9 @@
     </ClCompile>
     <ClCompile Include="SceneGrid.cpp">
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierPatch.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -59,7 +59,6 @@ void Scene::DrawScenePopupMenu()
 
 			if (ImGui::MenuItem("Point"))
 			{
-
 				std::shared_ptr<Node> newPoint = m_objectFactory->CreatePoint(m_spawnMarker->GetTransform());
 				// Check if any bezier curves are selected, if so - add the point to them
 

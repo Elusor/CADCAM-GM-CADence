@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -161,6 +161,8 @@
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="BezierCurveC2.h" />
+    <ClInclude Include="BezierPatch.h" />
+    <ClInclude Include="BezierSurfaceC0.h" />
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
@@ -212,6 +214,7 @@
     <ClCompile Include="bezierCalculator.cpp" />
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="BezierCurveC2.cpp" />
+    <ClCompile Include="BezierPatch.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="DefaultRenderPass.cpp" />
