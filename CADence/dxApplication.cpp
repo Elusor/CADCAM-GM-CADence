@@ -40,10 +40,12 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
-	
+	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
+
 	m_renderState->m_vertexShader = m_renderState->m_device.CreateVertexShader(vsBytes);
 	m_renderState->m_pixelShader = m_renderState->m_device.CreatePixelShader(psBytes);
 	m_renderState->m_bezierGeometryShader = m_renderState->m_device.CreateGeometryShader(bezierGsBytes);
+	m_renderState->m_patchGeometryShader = m_renderState->m_device.CreateGeometryShader(patchGsBytes);
 
 	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_renderState->m_layout = m_renderState->m_device.CreateInputLayout(elements, vsBytes);

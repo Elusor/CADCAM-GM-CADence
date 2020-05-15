@@ -16,6 +16,7 @@ struct RenderState
 	mini::dx_ptr<ID3D11VertexShader> m_vertexShader;
 	mini::dx_ptr<ID3D11PixelShader> m_pixelShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
+	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
 	mini::dx_ptr<ID3D11InputLayout> m_layout;		
 
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;

@@ -25,6 +25,12 @@ Implementation requirements:
 	V  12 --- 13 --- 14 --- 15 -- u3
 */
 
+enum Coord {
+	X,
+	Y,
+	Z
+};
+
 enum BoundaryDirection {
 	Top,
 	Bottom,
@@ -57,6 +63,10 @@ public:
 		std::vector<std::weak_ptr<Node>> third,
 		std::vector<std::weak_ptr<Node>> fourth);
 
+	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
+	bool CreateParamsGui() override;
+	void UpdateObject() override;
+	bool GetIsModified() override;
 private:
 	// Bezier patch unique
 	std::weak_ptr<Node> m_u0[4];
@@ -64,11 +74,12 @@ private:
 	std::weak_ptr<Node> m_u2[4];
 	std::weak_ptr<Node> m_u3[4];
 
+	int m_uSize = 1;
+	int m_vSize = 1;
+
 	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 
-	XMFLOAT4X4 GetXCoordinates();
-	XMFLOAT4X4 GetYCoordinates();
-	XMFLOAT4X4 GetZCoordinates();
+	XMMATRIX GetCoordinates(Coord coord);
 };
