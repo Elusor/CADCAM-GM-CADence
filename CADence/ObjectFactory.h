@@ -10,11 +10,11 @@ class ObjectFactory
 public:	
 
 	std::shared_ptr<Node> CreateBezierPatch(
-		std::vector<std::weak_ptr<Node>> top,
-		std::vector<std::weak_ptr<Node>> bottom,
-		std::vector<std::weak_ptr<Node>> left,
-		std::vector<std::weak_ptr<Node>> right,
-		Scene* scene);
+		Scene* scene,
+		std::vector<std::weak_ptr<Node>> top = std::vector<std::weak_ptr<Node>>(),
+		std::vector<std::weak_ptr<Node>> bottom = std::vector<std::weak_ptr<Node>>(),
+		std::vector<std::weak_ptr<Node>> left = std::vector<std::weak_ptr<Node>>(),
+		std::vector<std::weak_ptr<Node>> right = std::vector<std::weak_ptr<Node>>());
 
 	std::shared_ptr<Node> CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
 

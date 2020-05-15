@@ -130,3 +130,9 @@ mini::dx_ptr<ID3D11DepthStencilView> DxDevice::CreateDepthStencilView(SIZE size)
 	dx_ptr<ID3D11Texture2D> texture = CreateTexture(desc);
 	return CreateDepthStencilView(texture);
 }
+
+mini::dx_ptr<ID3D11Buffer> DxDevice::CreateConstantBuffer(size_t size) const
+{
+	auto desc = BufferDescription::ConstantBufferDescription(size);
+	return CreateBuffer(nullptr, desc);
+}

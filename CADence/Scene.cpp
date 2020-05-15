@@ -57,6 +57,11 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->GetTransform()));
 			}
 
+			if (ImGui::MenuItem("Bezier Patch"))
+			{
+				AttachObject(m_objectFactory->CreateBezierPatch(this));
+			}
+
 			if (ImGui::MenuItem("Point"))
 			{
 				std::shared_ptr<Node> newPoint = m_objectFactory->CreatePoint(m_spawnMarker->GetTransform());

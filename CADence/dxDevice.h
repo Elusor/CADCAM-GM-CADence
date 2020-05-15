@@ -40,6 +40,8 @@ public:
 
 	mini::dx_ptr<ID3D11DepthStencilView> CreateDepthStencilView(SIZE size) const;
 
+	mini::dx_ptr<ID3D11Buffer> CreateConstantBuffer(size_t size) const;
+
 	template<class T> mini::dx_ptr<ID3D11Buffer> CreateConstantBuffer()
 	{
 		auto desc = BufferDescription::ConstantBufferDescription(sizeof(T));

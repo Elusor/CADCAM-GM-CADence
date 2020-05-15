@@ -1,11 +1,12 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
+	Scene* scene,
 	std::vector<std::weak_ptr<Node>> top,
 	std::vector<std::weak_ptr<Node>> bottom,
 	std::vector<std::weak_ptr<Node>> left,
-	std::vector<std::weak_ptr<Node>> right,
-	Scene* scene)
+	std::vector<std::weak_ptr<Node>> right
+	)
 {
 	// This function is ungodly and should be smitten by god for it's sole existance (TODO : refactor)
 
@@ -13,11 +14,14 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	std::vector<std::weak_ptr<Node>> u1;
 	std::vector<std::weak_ptr<Node>> u2;
 	std::vector<std::weak_ptr<Node>> u3;
+	std::weak_ptr<Node> c;
 
-	u0.reserve(4);
-	u1.reserve(4);
-	u2.reserve(4);
-	u3.reserve(4);
+	for (int i = 0; i < 4; i++) {
+		u0.push_back(c);
+		u1.push_back(c);
+		u2.push_back(c);
+		u3.push_back(c);
+	}
 
 	bool allocateTop, allocateBot, allocateLeft, allocateRight;
 
@@ -56,28 +60,28 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	// Refactor this to not attach points to the scene - this should even have a reference to it
 	for (int i = 0; i < 4; i++)
 	{
-		if (u0[i].expired)
+		if (u0[i].expired())
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
 			u0[i] = pt;
 		}
 
-		if (u1[i].expired)
+		if (u1[i].expired())
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
 			u1[i] = pt;		
 		}
 
-		if (u2[i].expired)
+		if (u2[i].expired())
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
 			u2[i] = pt;
 		}
 
-		if (u3[i].expired)
+		if (u3[i].expired())
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
@@ -94,7 +98,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 
 	patch->m_name = patch->m_defaultName = name;
 
-	std::shared_ptr<Node> node = std::make_shared<Node>(patch);
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(patch);
 	node->m_object = move(object);
 	m_bezierPatchCounter++;
