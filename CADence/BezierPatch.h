@@ -26,9 +26,9 @@ Implementation requirements:
 */
 
 enum Coord {
-	X,
-	Y,
-	Z
+	Xpos,
+	Ypos,
+	Zpos
 };
 
 enum BoundaryDirection {
@@ -74,8 +74,8 @@ private:
 	std::weak_ptr<Node> m_u2[4];
 	std::weak_ptr<Node> m_u3[4];
 
-	int m_uSize = 1;
-	int m_vSize = 1;
+	int m_uSize = 4;
+	int m_vSize = 4;
 
 	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);

@@ -393,7 +393,7 @@
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="BezierPatch.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -411,6 +411,9 @@
     </FxCompile>
     <FxCompile Include="vsTex.hlsl">
       <Filter>Shaders\Texture Rendering</Filter>
+    </FxCompile>
+    <FxCompile Include="patchGS.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

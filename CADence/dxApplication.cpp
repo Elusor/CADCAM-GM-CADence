@@ -53,7 +53,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderState->m_cbM = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_renderState->m_cbVP = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_renderState->m_cbGSData = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4>();
-	m_renderState->m_cbPatchData = m_renderState->m_device.CreateConstantBuffer(3 * sizeof(XMFLOAT4X4));
+	m_renderState->m_cbPatchData = m_renderState->m_device.CreateConstantBuffer<XMMATRIX>();
+	m_renderState->m_cbPatchData1 = m_renderState->m_device.CreateConstantBuffer<XMMATRIX>();
+	m_renderState->m_cbPatchData2 = m_renderState->m_device.CreateConstantBuffer<XMMATRIX>();
 
 	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderState->m_camera));
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
@@ -61,7 +63,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
-	m_activePass = m_defPass;
+	m_activePass = m_stereoPass;
 	////
 
 	//Setup imGui

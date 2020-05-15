@@ -24,6 +24,8 @@ struct RenderState
 	mini::dx_ptr<ID3D11Buffer> m_cbM;
 	mini::dx_ptr<ID3D11Buffer> m_cbGSData;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData;
+	mini::dx_ptr<ID3D11Buffer> m_cbPatchData1;
+	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
 
 	template <typename T>
 	ID3D11Buffer* SetConstantBuffer(ID3D11Buffer* buffer, T writeData);

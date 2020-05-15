@@ -12,9 +12,10 @@ BezierPatch::BezierPatch(
 	std::vector<std::weak_ptr<Node>> inner)
 {	 	
 	SetPoints(BoundaryDirection::Top, top);	
-	SetPoints(BoundaryDirection::Bottom, top);	
-	SetPoints(BoundaryDirection::Left, top);	
-	SetPoints(BoundaryDirection::Right, top);
+	SetPoints(BoundaryDirection::Bottom, bottom);	
+	SetPoints(BoundaryDirection::Left, left);	
+	SetPoints(BoundaryDirection::Right, right);
+	UpdateObject();
 }
 
 BezierPatch::BezierPatch(
@@ -24,24 +25,43 @@ BezierPatch::BezierPatch(
 	std::vector<std::weak_ptr<Node>> fourth)
 {
 	SetPoints(RowPlace::First, first);
-	SetPoints(RowPlace::Second, first);
-	SetPoints(RowPlace::Third, first);
-	SetPoints(RowPlace::Fourth, first);
+	SetPoints(RowPlace::Second, second);
+	SetPoints(RowPlace::Third, third);
+	SetPoints(RowPlace::Fourth, fourth);
+	UpdateObject();
 }
 
 void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 	auto context = renderState->m_device.context().get();
-	XMMATRIX x = GetCoordinates(Coord::X);
-	XMMATRIX y = GetCoordinates(Coord::Y);
-	XMMATRIX z = GetCoordinates(Coord::Z);
-	XMMATRIX coords[]{ x, y, z };
-	XMMATRIX* cbData = coords;
+	XMMATRIX x = GetCoordinates(Coord::Xpos);
+	XMMATRIX y = GetCoordinates(Coord::Ypos);
+	XMMATRIX z = GetCoordinates(Coord::Zpos);
 	
+
+	XMMATRIX mat = m_transform.GetModelMatrix();
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), mat);
+	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
+	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);
+
 	// Check if this works
-	auto mBuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData.get(), cbData, 3);
+	auto mBuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData.get(), x);
 	ID3D11Buffer* cb[] = { mBuffer };
 	context->GSSetConstantBuffers(0, 1, cb);
+
+	auto mBuffer1 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData1.get(), y);
+	ID3D11Buffer* cb1[] = { mBuffer1 };
+	context->GSSetConstantBuffers(1, 1, cb1);
+
+	auto mBuffer2 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData2.get(), z);
+	ID3D11Buffer* cb2[] = { mBuffer2 };
+	context->GSSetConstantBuffers(2, 1, cb2);
+
+	auto vp = renderState->m_cbVP.get();
+	ID3D11Buffer* mvp[] = { vp};
+	context->GSSetConstantBuffers(3, 1, mvp);
+	
+	context->GSSetConstantBuffers(4, 1, cbs1);
 
 	// Set geometry shader
 	context->GSSetShader(renderState->m_patchGeometryShader.get(), 0, 0);
@@ -77,17 +97,17 @@ void BezierPatch::UpdateObject()
 		float u = (float)i / (float)m_uSize;
 
 		vertices.push_back(VertexPositionColor{
-			{u, NAN, NAN},
-			m_meshDesc.m_defaultColor });
+			{u, 15, 0},
+			{ u,-1.0f, 0.0f} });
 		indices.push_back(i);
 	}
 
 	for (int i = 0; i <= m_vSize; i++) {
 		float v = (float)i / (float)m_vSize;
 		vertices.push_back(VertexPositionColor{
-			{NAN, v, NAN},
-			m_meshDesc.m_defaultColor });
-		indices.push_back(i + m_uSize);
+			{0, 15, v},
+			{-1.0f , v, 0.0f} });
+		indices.push_back(i + m_uSize + 1);
 	}
 
 	m_meshDesc.vertices = vertices;
@@ -211,11 +231,11 @@ float GetCoord(std::weak_ptr<Node> point, Coord coord)
 	{
 		auto pos = pt->m_object->GetPosition();
 		switch (coord) {
-		case Coord::X:
+		case Coord::Xpos:
 			return pos.x;
-		case Coord::Y:
+		case Coord::Ypos:
 			return pos.y;
-		case Coord::Z:
+		case Coord::Zpos:
 			return pos.z;
 		}
 	}
@@ -225,6 +245,7 @@ float GetCoord(std::weak_ptr<Node> point, Coord coord)
 
 XMMATRIX BezierPatch::GetCoordinates(Coord coord)
 {
+	auto ints = GetCoord(m_u0[0], coord);
 	XMFLOAT4X4 mat{
 		GetCoord(m_u0[0], coord), GetCoord(m_u0[1], coord), GetCoord(m_u0[2], coord), GetCoord(m_u0[3], coord),
 		GetCoord(m_u1[0], coord), GetCoord(m_u1[1], coord), GetCoord(m_u1[2], coord), GetCoord(m_u1[3], coord),
