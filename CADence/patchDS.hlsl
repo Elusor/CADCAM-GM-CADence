@@ -52,7 +52,7 @@ VSOut main(
 	VSOut o;
 	float len = input.EdgeTessFactor[0];
 	float u = uv.x ;
-	float v = uv.y * (len - 1) / (len - 2);
+	float v = min(uv.y * (len - 1) / (len - 2), 1.0f);
 	float4 basisU = BernsteinBasis(u);
 	float4 basisV = BernsteinBasis(v);
 	float3 p = CubicBezierSum(patch, basisU, basisV);
