@@ -8,6 +8,8 @@ class ObjectFactory
 {
 
 public:	
+	
+	std::shared_ptr<Node> CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position);
 
 	std::shared_ptr<Node> CreateBezierPatch(
 		Scene* scene,

@@ -57,9 +57,34 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->GetTransform()));
 			}
 
+			if (ImGui::MenuItem("Bezier Surface"))
+			{
+				m_objectFactory->CreateBezierSurface(this, 4, 4, XMFLOAT3(0.0f, 0.0f, 0.0f));
+				//AttachObject();
+			}
+
 			if (ImGui::MenuItem("Bezier Patch"))
 			{
-				AttachObject(m_objectFactory->CreateBezierPatch(this));
+				auto p1 = m_objectFactory->CreateBezierPatch(this);
+				BezierPatch* p = (BezierPatch*) p1->m_object.get();
+				AttachObject(p1);
+
+				auto topp = p->GetPoints(BoundaryDirection::Bottom);
+				auto topf = p->GetPoints(BoundaryDirection::Right);
+				auto p2 = m_objectFactory->CreateBezierPatch(this,topp);
+				BezierPatch* pa2 = (BezierPatch*)p2->m_object.get();
+				AttachObject(p2);
+
+				auto p3 = m_objectFactory->CreateBezierPatch(this, std::vector<std::weak_ptr<Node>>(), std::vector<std::weak_ptr<Node>>(), topf);
+				BezierPatch* pa3 = (BezierPatch*)p3->m_object.get();
+				AttachObject(p3);
+
+				auto p3bot = pa3->GetPoints(BoundaryDirection::Bottom);
+				auto p2right = pa2->GetPoints(BoundaryDirection::Right);
+				auto p4 = m_objectFactory->CreateBezierPatch(this, p3bot, std::vector<std::weak_ptr<Node>>(), p2right);
+				AttachObject(p4);
+
+				
 			}
 
 			if (ImGui::MenuItem("Point"))

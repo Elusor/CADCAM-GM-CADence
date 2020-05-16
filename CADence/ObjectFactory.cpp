@@ -1,5 +1,77 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
+#include "mathUtils.h"
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position)
+{
+
+	BezierPatch*** patches;
+	patches = new BezierPatch* * [width];
+
+	
+	for (int i = 0; i < width; i++) {
+		patches[i] = new BezierPatch*[height];
+	}
+
+	auto p00 = CreateBezierPatch(scene);
+	patches[0][0] = (BezierPatch*)p00->m_object.get();
+	scene->AttachObject(p00);
+	for (int i = 1; i < width; i++) {
+		
+		auto rightPoints = patches[i - 1][0]->GetPoints(BoundaryDirection::Right);
+		auto point = CreateBezierPatch(scene,
+			std::vector<std::weak_ptr<Node>>(),
+			std::vector<std::weak_ptr<Node>>(),
+			rightPoints);
+		scene->AttachObject(point);
+		patches[i][0] = (BezierPatch*)point->m_object.get();
+	}
+
+	for (int h = 1; h < height; h++)
+	{
+		auto botPoints = patches[0][h - 1]->GetPoints(BoundaryDirection::Top);
+		auto p = CreateBezierPatch(scene,
+			std::vector<std::weak_ptr<Node>>(),
+			botPoints);
+		scene->AttachObject(p);
+		patches[0][h] = (BezierPatch*)p->m_object.get();
+
+		for (int w = 1; w < width; w++)
+		{
+			auto bottomPoints = patches[w][h - 1]->GetPoints(BoundaryDirection::Top);
+			auto leftPoints = patches[w-1][h]->GetPoints(BoundaryDirection::Right);
+			auto innerPt = CreateBezierPatch(scene,
+				std::vector<std::weak_ptr<Node>>(),
+				bottomPoints,
+				leftPoints);
+			scene->AttachObject(innerPt);
+
+			patches[w][h] = (BezierPatch*)innerPt->m_object.get();
+		}
+	}
+
+	//auto p1 = CreateBezierPatch(scene);
+	//BezierPatch* p = (BezierPatch*)p1->m_object.get();
+	//scene->AttachObject(p1);
+
+	//auto topp = p->GetPoints(BoundaryDirection::Bottom);
+	//auto topf = p->GetPoints(BoundaryDirection::Right);
+	//auto p2 = CreateBezierPatch(scene, topp);
+	//BezierPatch* pa2 = (BezierPatch*)p2->m_object.get();
+	//scene->AttachObject(p2);
+
+	//auto p3 = CreateBezierPatch(scene, std::vector<std::weak_ptr<Node>>(), std::vector<std::weak_ptr<Node>>(), topf);
+	//BezierPatch* pa3 = (BezierPatch*)p3->m_object.get();
+	//scene->AttachObject(p3);
+
+	//auto p3bot = pa3->GetPoints(BoundaryDirection::Bottom);
+	//auto p2right = pa2->GetPoints(BoundaryDirection::Right);
+	//auto p4 = CreateBezierPatch(scene, p3bot, std::vector<std::weak_ptr<Node>>(), p2right);
+	//scene->AttachObject(p4);
+
+
+	return std::shared_ptr<Node>();
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	Scene* scene,
 	std::vector<std::weak_ptr<Node>> top,
@@ -9,6 +81,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	)
 {
 	// This function is ungodly and should be smitten by god for it's sole existance (TODO : refactor)
+	XMFLOAT3 pos = XMFLOAT3(0.f, 0.f, 0.f);
+	float h = 5.0f;
+	float w = 5.0f;
 
 	std::vector<std::weak_ptr<Node>> u0;
 	std::vector<std::weak_ptr<Node>> u1;
@@ -33,11 +108,13 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	if (allocateTop == false)
 	{
 		u0 = top;
+		pos = u0[0].lock()->m_object->GetPosition();
 	}
 
 	if (allocateBot == false)
 	{
 		u3 = bottom;
+		pos = XMF3SUB(u3[0].lock()->m_object->GetPosition(), XMFLOAT3(0.f, 0.0f, h * 3.f));
 	}
 
 	if (allocateLeft == false)
@@ -46,6 +123,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 		u1[0] = left[1];
 		u2[0] = left[2];
 		u3[0] = left[3];
+		pos = u0[0].lock()->m_object->GetPosition();
 	}
 
 	if (allocateRight == false)
@@ -54,16 +132,21 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 		u1[3] = right[1];
 		u2[3] = right[2];
 		u3[3] = right[3];		
+		pos = XMF3SUB(u0[3].lock()->m_object->GetPosition(), XMFLOAT3(w * (float)3.f, 0.0f, 0.0f));
 	}	
 	
 	// iterate through all vertices - if any of them are expired pointers - create new point	
 	// Refactor this to not attach points to the scene - this should even have a reference to it
+
+
 	for (int i = 0; i < 4; i++)
 	{
 		if (u0[i].expired())
 		{
 			auto pt = CreatePoint();
-			scene->AttachObject(pt);
+			scene->AttachObject(pt);		
+			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, 0.0f));
+			pt->m_object->SetPosition(ptPos);
 			u0[i] = pt;
 		}
 
@@ -71,6 +154,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
+			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, h));
+			pt->m_object->SetPosition(ptPos);
 			u1[i] = pt;		
 		}
 
@@ -78,6 +163,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
+			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, h * 2.f));
+			pt->m_object->SetPosition(ptPos);
 			u2[i] = pt;
 		}
 
@@ -85,6 +172,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 		{
 			auto pt = CreatePoint();
 			scene->AttachObject(pt);
+			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, h * 3.f));
+			pt->m_object->SetPosition(ptPos);
 			u3[i] = pt;
 		}		
 	}

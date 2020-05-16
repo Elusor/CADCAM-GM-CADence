@@ -67,6 +67,9 @@ public:
 	bool CreateParamsGui() override;
 	void UpdateObject() override;
 	bool GetIsModified() override;
+
+	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
+
 private:
 	// Bezier patch unique
 	std::weak_ptr<Node> m_u0[4];
@@ -79,7 +82,7 @@ private:
 
 	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);
-	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
+	
 
 	XMMATRIX GetCoordinates(Coord coord);
 };
