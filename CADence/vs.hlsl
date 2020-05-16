@@ -13,6 +13,7 @@ VSOut main(VSIn i)
 	matrix MVP = mul(VP,M); // tranposed order
 	VSOut o;
 	o.pos = mul(MVP, float4(i.pos, 1.0f));
+	o.posL = i.pos;
 	o.col = float4(i.col, 1.0f);
 	return o;
 }

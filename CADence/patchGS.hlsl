@@ -63,6 +63,8 @@ void main(
 	
 	VSOut element;
 	element.pos = input[0].pos;
+	element.posL = element.pos.xyz;
+
 	element.col = float4(0.8f, 0.0f, 0.0f, 1.0f);
 	output.Append(element);
 
@@ -81,6 +83,7 @@ void main(
 
 		VSOut element;
 		element.pos = mul(MVP,float4(coords,1.0f));
+		element.posL = element.pos.xyz;
 		element.col = float4(0.8f, 0.0f, 0.0f, 1.0f);
 		output.Append(element);
 	}

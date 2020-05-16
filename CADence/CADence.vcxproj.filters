@@ -103,6 +103,9 @@
     <Filter Include="Shaders\Texture Rendering">
       <UniqueIdentifier>{8c7379c4-9ee3-4087-b79b-7987ed47d127}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\BezierPatch">
+      <UniqueIdentifier>{504837e6-a3ee-4172-961d-201f6378d98d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -415,10 +418,19 @@
     <FxCompile Include="patchGS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="patchDS.hlsl">
+      <Filter>Shaders\BezierPatch</Filter>
+    </FxCompile>
+    <FxCompile Include="patchHS.hlsl">
+      <Filter>Shaders\BezierPatch</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderStructs.hlsli">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="tesselStructs.hlsli">
+      <Filter>Shaders\BezierPatch</Filter>
     </None>
   </ItemGroup>
 </Project>

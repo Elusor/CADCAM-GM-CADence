@@ -7,4 +7,5 @@ struct VSIn
 struct VSOut {
 	float4 pos : SV_POSITION;
 	float4 col : COLOR;
+	float3 posL : POSITION;
 };

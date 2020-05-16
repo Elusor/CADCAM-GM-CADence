@@ -114,6 +114,26 @@ dx_ptr<ID3D11GeometryShader> DxDevice::CreateGeometryShader(vector<BYTE> gsCode)
 	return result;
 }
 
+dx_ptr<ID3D11DomainShader> DxDevice::CreateDomainShader(vector<BYTE> dsCode) const
+{
+	ID3D11DomainShader* temp;
+	auto hr = m_device->CreateDomainShader(reinterpret_cast<const void*>(dsCode.data()), dsCode.size(), nullptr, &temp);
+	dx_ptr<ID3D11DomainShader> result(temp);
+	if (FAILED(hr))
+		THROW_WINAPI;
+	return result;
+}
+
+dx_ptr<ID3D11HullShader> DxDevice::CreateHullShader(vector<BYTE> hsCode) const
+{
+	ID3D11HullShader* temp;
+	auto hr = m_device->CreateHullShader(reinterpret_cast<const void*>(hsCode.data()), hsCode.size(), nullptr, &temp);
+	dx_ptr<ID3D11HullShader> result(temp);
+	if (FAILED(hr))
+		THROW_WINAPI;
+	return result;
+}
+
 dx_ptr<ID3D11InputLayout> DxDevice::CreateInputLayout(const vector<D3D11_INPUT_ELEMENT_DESC> elements, vector<BYTE> vsCode) const
 {
 	ID3D11InputLayout* temp;

@@ -44,29 +44,59 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
 	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);
 
-	// Check if this works
-	auto mBuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData.get(), x);
-	ID3D11Buffer* cb[] = { mBuffer };
-	context->GSSetConstantBuffers(0, 1, cb);
+	//// Check if this works
+	//auto mBuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData.get(), x);
+	//ID3D11Buffer* cb[] = { mBuffer };
+	//context->GSSetConstantBuffers(0, 1, cb);
 
-	auto mBuffer1 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData1.get(), y);
-	ID3D11Buffer* cb1[] = { mBuffer1 };
-	context->GSSetConstantBuffers(1, 1, cb1);
+	//auto mBuffer1 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData1.get(), y);
+	//ID3D11Buffer* cb1[] = { mBuffer1 };
+	//context->GSSetConstantBuffers(1, 1, cb1);
 
-	auto mBuffer2 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData2.get(), z);
-	ID3D11Buffer* cb2[] = { mBuffer2 };
-	context->GSSetConstantBuffers(2, 1, cb2);
+	//auto mBuffer2 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData2.get(), z);
+	//ID3D11Buffer* cb2[] = { mBuffer2 };
+	//context->GSSetConstantBuffers(2, 1, cb2);
 
-	auto vp = renderState->m_cbVP.get();
-	ID3D11Buffer* mvp[] = { vp};
-	context->GSSetConstantBuffers(3, 1, mvp);
+	//auto vp = renderState->m_cbVP.get();
+	//ID3D11Buffer* mvp[] = { vp};
+	//context->GSSetConstantBuffers(3, 1, mvp);
+	//
+	//context->GSSetConstantBuffers(4, 1, cbs1);
 	
-	context->GSSetConstantBuffers(4, 1, cbs1);
+
 
 	// Set geometry shader
-	context->GSSetShader(renderState->m_patchGeometryShader.get(), 0, 0);
+	//context->GSSetShader(renderState->m_patchGeometryShader.get(), 0, 0);
+
+	//ID3D11RasterizerState 
+	D3D11_RASTERIZER_DESC desc;
+	desc.FillMode = D3D11_FILL_WIREFRAME;
+	desc.CullMode = D3D11_CULL_NONE;
+	desc.AntialiasedLineEnable = 0;
+	desc.DepthBias = 0;
+	desc.DepthBiasClamp = 0;
+	desc.DepthClipEnable = true;
+	desc.FrontCounterClockwise = 0;
+	desc.MultisampleEnable = 0;
+	desc.ScissorEnable = 0;
+	desc.SlopeScaledDepthBias = 0;
+
+	ID3D11RasterizerState* rs;
+
+	renderState->m_device.m_device->CreateRasterizerState(&desc, &rs);
+	context->RSSetState(rs);
+
+	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);
+	context->DSSetShader(renderState->m_patchDomainShader.get(), 0, 0);
+
+	context->DSSetConstantBuffers(1, 1, cbs1);
+	ID3D11Buffer* cbs2[] = { renderState->m_cbVP.get() };
+	context->DSSetConstantBuffers(0, 1, cbs2);
 	MeshObject::RenderObject(renderState);
-	context->GSSetShader(nullptr, nullptr, 0);
+	context->HSSetShader(nullptr, 0, 0);
+	context->DSSetShader(nullptr, 0, 0);
+	context->RSSetState(nullptr);
+	//context->GSSetShader(nullptr, nullptr, 0);
 }
 
 bool BezierPatch::CreateParamsGui()
@@ -87,27 +117,45 @@ bool BezierPatch::CreateParamsGui()
 
 void BezierPatch::UpdateObject()
 {
-	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
 	// pass an (u,v) line to the shader
 	// one of those is the constant parameter - the other one is 
 	std::vector<VertexPositionColor> vertices;
 	std::vector<unsigned short> indices;
-
-	for (int i = 0; i <= m_uSize; i++) {
-		float u = (float)i / (float)m_uSize;
-
+	
+	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
-			{u, 15, 0},
-			{ u,-1.0f, 0.0f} });
+			m_u0[i].lock()->m_object->GetPosition(),
+			{1.0f,0.0f,0.0f} });
 		indices.push_back(i);
 	}
 
-	for (int i = 0; i <= m_vSize; i++) {
-		float v = (float)i / (float)m_vSize;
+	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
-			{0, 15, v},
-			{-1.0f , v, 0.0f} });
-		indices.push_back(i + m_uSize + 1);
+			m_u1[i].lock()->m_object->GetPosition(),
+			{0.5f,.5f,0.0f} });
+		indices.push_back(i+4);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		vertices.push_back(VertexPositionColor{
+			m_u2[i].lock()->m_object->GetPosition(),
+			{0.0f,0.5f,0.5f} });
+		indices.push_back(i+8);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		vertices.push_back(VertexPositionColor{
+			m_u3[i].lock()->m_object->GetPosition(),
+			{0.0f,0.0f,1.0f} });
+		indices.push_back(i+12);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		indices.push_back(i );
+		indices.push_back(i + 4);
+		indices.push_back(i + 8);
+		indices.push_back(i + 12);
 	}
 
 	m_meshDesc.vertices = vertices;
