@@ -51,8 +51,8 @@ VSOut main(
 	matrix MVP = mul(VP, M); // tranposed order
 	VSOut o;
 	float len = input.EdgeTessFactor[0];
-	float u = uv.x ;
-	float v = min(uv.y * (len - 1) / (len - 2), 1.0f);
+	float u = uv.x; //min(uv.x * (len - 1) / (len - 2), 1.0f);
+	float v = uv.y; //min(uv.y * (len - 1) / (len - 2), 1.0f);
 	float4 basisU = BernsteinBasis(u);
 	float4 basisV = BernsteinBasis(v);
 	float3 p = CubicBezierSum(patch, basisU, basisV);
