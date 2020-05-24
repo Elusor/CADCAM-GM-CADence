@@ -2,6 +2,7 @@
 #include "MeshObject.h"
 #include "Node.h"
 #include <direct.h>
+#include <DirectXMath.h>
 using namespace DirectX;
 /*
 Class describing Bezier patch.
@@ -67,6 +68,9 @@ public:
 	bool CreateParamsGui() override;
 	void UpdateObject() override;
 	bool GetIsModified() override;
+
+	void SetPolygonVisible(bool state);
+	void SetPolygonColor(DirectX::XMFLOAT3 col);
 
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 

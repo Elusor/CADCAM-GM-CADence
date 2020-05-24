@@ -252,6 +252,16 @@ bool BezierPatch::GetIsModified()
 	return modified;
 }
 
+void BezierPatch::SetPolygonVisible(bool state)
+{
+	m_displayPolygon = state;
+}
+
+void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 state)
+{
+	m_PolygonDesc.m_defaultColor = state;
+}
+
 void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points)
 {
 	assert(points.size() == 4);
