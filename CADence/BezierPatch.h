@@ -50,6 +50,7 @@ class BezierPatch : public MeshObject {
 public:
 	// Create a patch and allocates all points on the scene
 	BezierPatch();
+	virtual ~BezierPatch();
 	// Create a patch with given edges (edges with size 0 will be allocated and new points will be created
 	BezierPatch(
 		std::vector<std::weak_ptr<Node>> top,

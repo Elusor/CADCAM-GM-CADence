@@ -4,6 +4,17 @@ BezierPatch::BezierPatch()
 {
 }
 
+BezierPatch::~BezierPatch()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		m_u0[i].lock()->m_object->RefRelease();
+		m_u1[i].lock()->m_object->RefRelease();
+		m_u2[i].lock()->m_object->RefRelease();
+		m_u3[i].lock()->m_object->RefRelease();
+	}
+}
+
 BezierPatch::BezierPatch(
 	std::vector<std::weak_ptr<Node>> top,
 	std::vector<std::weak_ptr<Node>> bottom,
@@ -257,9 +268,9 @@ void BezierPatch::SetPolygonVisible(bool state)
 	m_displayPolygon = state;
 }
 
-void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 state)
+void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 col)
 {
-	m_PolygonDesc.m_defaultColor = state;
+	m_PolygonDesc.m_defaultColor = col;
 }
 
 void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points)
@@ -296,6 +307,11 @@ void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_p
 void BezierPatch::SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points)
 {
 	assert(points.size() == 4);
+
+	for (int i = 0; i < 4; i++)
+	{
+		points[i].lock()->m_object->RefUse();
+	}
 
 	switch (row) {
 	case RowPlace::First:

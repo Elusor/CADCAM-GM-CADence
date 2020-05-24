@@ -116,6 +116,21 @@ std::string Object::GetIdentifier()
 	return "##" + m_defaultName;
 }
 
+void Object::RefUse()
+{
+	m_refCounter++;
+}
+
+void Object::RefRelease()
+{
+	m_refCounter--;
+}
+
+bool Object::GetInUse()
+{
+	return m_refCounter>0;
+}
+
 Transform& Object::GetTransform()
 {
 	return m_transform;

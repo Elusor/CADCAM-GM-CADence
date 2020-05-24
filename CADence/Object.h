@@ -7,6 +7,8 @@ class Scene;
 class Node; 
 
 struct Object {
+	virtual ~Object() = default;
+	int m_refCounter = 0;
 	std::string m_name = "";
 	std::string m_defaultName = "";
 	std::weak_ptr<Node> m_parent;
@@ -14,6 +16,9 @@ struct Object {
 	std::string GetLabel();
 	std::string GetIdentifier();
 
+	void RefUse();
+	void RefRelease();
+	bool GetInUse();
 	// Transform Wrappers
 	Transform& GetTransform();
 	virtual void SetTransform(Transform transform);

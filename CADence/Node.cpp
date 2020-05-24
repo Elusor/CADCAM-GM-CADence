@@ -80,11 +80,13 @@ void Node::DrawNodeGUI(Scene& scene)
 				// Trigger a popup for renaming objects - probably check if name is availible through name registry
 			}
 
-			if (ImGui::Selectable("Remove object"))
+			if (m_object->GetInUse() == false)
 			{
-				scene.RemoveObject(m_object);
-			}
-
+				if (ImGui::Selectable("Remove object"))
+				{
+					scene.RemoveObject(m_object);
+				}
+			}			
 			ImGui::EndPopup();
 		}
 	}
