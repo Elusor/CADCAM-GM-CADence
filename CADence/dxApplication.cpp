@@ -32,7 +32,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		XMFLOAT2(0.0f, -0.55f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
-		DirectX::XM_PIDIV2, 0.5f, 100.0f)); // fov, zNear, zFar
+		DirectX::XM_PIDIV2, 0.5f, 150)); // fov, zNear, zFar
 
 	m_camController = unique_ptr<CameraController>(new CameraController(m_renderState->m_camera));
 	m_scene = std::shared_ptr<Scene>(new Scene());
@@ -61,6 +61,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_renderState->m_cbPatchData = m_renderState->m_device.CreateConstantBuffer<XMMATRIX>();
 	m_renderState->m_cbPatchData1 = m_renderState->m_device.CreateConstantBuffer<XMMATRIX>();
 	m_renderState->m_cbPatchData2 = m_renderState->m_device.CreateConstantBuffer<XMMATRIX>();
+	m_renderState->m_cbPatchDivisions = m_renderState->m_device.CreateConstantBuffer<XMFLOAT4>();
 
 	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderState->m_camera));
 	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
@@ -68,7 +69,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
-	m_activePass = m_stereoPass;
+	m_activePass = m_defPass;
 	////
 
 	//Setup imGui

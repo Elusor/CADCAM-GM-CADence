@@ -86,13 +86,22 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 	renderState->m_device.m_device->CreateRasterizerState(&desc, &rs);
 	context->RSSetState(rs);
 
-	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);
-	context->DSSetShader(renderState->m_patchDomainShader.get(), 0, 0);
+	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);	
+	ID3D11Buffer* hsCb[] = { renderState->m_cbPatchDivisions.get() };
+	context->HSSetConstantBuffers(0, 1, hsCb);
 
+	XMFLOAT4 divs = XMFLOAT4(m_uSize, m_vSize, 0.f,0.f);
+	auto divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
+	ID3D11Buffer* divCBuffer[] = { divBuff }; //, VPbuffer
+	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);
+
+
+	context->DSSetShader(renderState->m_patchDomainShader.get(), 0, 0);
 	context->DSSetConstantBuffers(1, 1, cbs1);
 	ID3D11Buffer* cbs2[] = { renderState->m_cbVP.get() };
 	context->DSSetConstantBuffers(0, 1, cbs2);
 	MeshObject::RenderObject(renderState);
+
 	context->HSSetShader(nullptr, 0, 0);
 	context->DSSetShader(nullptr, 0, 0);
 	context->RSSetState(nullptr);
@@ -101,22 +110,28 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 
 bool BezierPatch::CreateParamsGui()
 {
+	ImGui::Begin("Inspector");
+	// Create sliders for torus parameters	
+	ImGui::Text("Name: ");
+	ImGui::SameLine(); ImGui::Text(m_name.c_str());	
 	bool patchChanged = false;
-	patchChanged |= MeshObject::CreateParamsGui();
-	int dims[2] = { m_uSize, m_vSize };
-	std::string dimDrag = "Grid density" + GetIdentifier();
-	patchChanged = ImGui::DragInt2(dimDrag.c_str(), dims, 1.0f, 1, 100);
 
-	if (m_uSize < 1)
-		m_uSize = 1;
-	if (m_vSize < 1)
-		m_vSize = 1;
+	std::string dimDrag = "Grid density" + GetIdentifier();
+	patchChanged = ImGui::DragInt(dimDrag.c_str(), &m_uSize, 1.0f, 2, 64);
+
+	if (m_uSize < 2)
+		m_uSize = 2;
+	if (m_uSize > 64)
+		m_uSize = 64;
+	
+
+	ImGui::End();
 
 	return false;
 }
 
 void BezierPatch::UpdateObject()
-{
+{	
 	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
 	// pass an (u,v) line to the shader
 	// one of those is the constant parameter - the other one is 
