@@ -3,6 +3,7 @@
 #include "ObjectFactory.h"
 #include "GroupNode.h"
 #include "generalUtils.h"
+
 Scene::Scene()
 {
 	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
@@ -48,6 +49,7 @@ void Scene::ClearScene()
 
 void Scene::DrawScenePopupMenu()
 {
+	bool imGuiWorkaroundSuggestedByItsAuthor = false;
 	if (ImGui::BeginPopupContextItem("item context menu"))
 	{
 		if (ImGui::BeginMenu("Add child object"))
@@ -56,13 +58,13 @@ void Scene::DrawScenePopupMenu()
 			{
 				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->GetTransform()));
 			}
-
+			
 			if (ImGui::MenuItem("Bezier Surface"))
 			{
-				m_objectFactory->CreateBezierSurface(this, 4, 4, XMFLOAT3(0.0f, 0.0f, 0.0f));
-				//AttachObject();
+				//m_objectFactory->CreateBezierSurface(this, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f));
+				imGuiWorkaroundSuggestedByItsAuthor = true;								
 			}
-
+			
 			if (ImGui::MenuItem("Bezier Patch"))
 			{
 				auto p1 = m_objectFactory->CreateBezierPatch(this);				
@@ -123,6 +125,44 @@ void Scene::DrawScenePopupMenu()
 		if (ImGui::Selectable("Clear scene"))
 		{
 			ClearScene();
+		}
+		ImGui::EndPopup();
+	}
+
+	// ImGui Cannot Open new modal windows from MenuItems,
+	// as stated here: https://github.com/ocornut/imgui/issues/249
+	// there is currently no official way to do this except workarounds
+	if (imGuiWorkaroundSuggestedByItsAuthor)
+	{
+		ImGui::OpenPopup("Modal window");			
+		m_sizeU = 1;
+		m_sizeV = 1;
+		m_sizeX = 5;
+		m_altState = false;
+	}
+
+	if (ImGui::BeginPopupModal("Modal window"))
+	{		
+		ImGui::Text("Choose the size of your surface");	
+		ImGui::DragInt("Width", &m_sizeU, 1, 1, 10);
+		ImGui::DragInt("Height", &m_sizeV, 1, 1, 10);
+		ImGui::Checkbox("Is a cylinder", &m_altState);
+
+		if (m_altState)
+		{
+			ImGui::DragInt("Radius", &m_sizeX, 1, 1, 20);
+		}
+
+		if (m_sizeU < 1)
+			m_sizeU = 1;
+
+		if (m_sizeV < 1)
+			m_sizeV = 1;
+
+		if (ImGui::Button("Submit"))
+		{
+			m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV, XMFLOAT3(0.0f, 0.0f, 0.0f), m_altState, m_sizeX);
+			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
 	}

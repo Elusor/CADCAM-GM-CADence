@@ -7,7 +7,6 @@
 // where grouping nodes are for storing children only and ObjectNodes hold pointers to objects
 class Scene {
 public:	
-
 	std::unique_ptr<SceneGrid> m_grid;
 	std::unique_ptr<ObjectFactory> m_objectFactory;
 	std::unique_ptr<SpawnMarker> m_spawnMarker;
@@ -30,7 +29,10 @@ public:
 	void RenderScene(std::unique_ptr<RenderState> & renderState);
 	
 private:
-	
+	int m_sizeU;
+	int m_sizeV;
+	int m_sizeX;
+	bool m_altState;
 
 	void ClearScene();
 	void DrawScenePopupMenu();

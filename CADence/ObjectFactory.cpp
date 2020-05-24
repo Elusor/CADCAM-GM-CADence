@@ -1,7 +1,7 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
 #include "mathUtils.h"
-std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position)
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position, bool cylinder, float radius)
 {
 
 	BezierPatch*** patches;
