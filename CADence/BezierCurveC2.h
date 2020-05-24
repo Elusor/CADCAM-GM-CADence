@@ -44,12 +44,9 @@ private:
 
 	void MoveBernsteinPoint(int index);
 
-
 	void UpdateGSData();
 	void PreparePolygonDesc();
 	void RecalculateIfModified();
 	void RenderCurve(std::unique_ptr<RenderState>& renderState);
 	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
-
-
 };

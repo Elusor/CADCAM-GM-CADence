@@ -10,7 +10,8 @@ BezierPatch::BezierPatch(
 	std::vector<std::weak_ptr<Node>> left,
 	std::vector<std::weak_ptr<Node>> right,
 	std::vector<std::weak_ptr<Node>> inner)
-{	 	
+{	
+	m_displayPolygon = false;
 	SetPoints(BoundaryDirection::Top, top);	
 	SetPoints(BoundaryDirection::Bottom, bottom);	
 	SetPoints(BoundaryDirection::Left, left);	
@@ -24,6 +25,7 @@ BezierPatch::BezierPatch(
 	std::vector<std::weak_ptr<Node>> third, 
 	std::vector<std::weak_ptr<Node>> fourth)
 {
+	m_displayPolygon = false;
 	SetPoints(RowPlace::First, first);
 	SetPoints(RowPlace::Second, second);
 	SetPoints(RowPlace::Third, third);
@@ -33,42 +35,27 @@ BezierPatch::BezierPatch(
 
 void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
+	RenderPatch(renderState);
+	if (m_displayPolygon)
+	{
+		RenderPolygon(renderState);
+	}
+}
+
+void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
+{
+
 	auto context = renderState->m_device.context().get();
 	XMMATRIX x = GetCoordinates(Coord::Xpos);
 	XMMATRIX y = GetCoordinates(Coord::Ypos);
 	XMMATRIX z = GetCoordinates(Coord::Zpos);
-	
+
 
 	XMMATRIX mat = m_transform.GetModelMatrix();
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), mat);
 	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
 	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);
 
-	//// Check if this works
-	//auto mBuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData.get(), x);
-	//ID3D11Buffer* cb[] = { mBuffer };
-	//context->GSSetConstantBuffers(0, 1, cb);
-
-	//auto mBuffer1 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData1.get(), y);
-	//ID3D11Buffer* cb1[] = { mBuffer1 };
-	//context->GSSetConstantBuffers(1, 1, cb1);
-
-	//auto mBuffer2 = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbPatchData2.get(), z);
-	//ID3D11Buffer* cb2[] = { mBuffer2 };
-	//context->GSSetConstantBuffers(2, 1, cb2);
-
-	//auto vp = renderState->m_cbVP.get();
-	//ID3D11Buffer* mvp[] = { vp};
-	//context->GSSetConstantBuffers(3, 1, mvp);
-	//
-	//context->GSSetConstantBuffers(4, 1, cbs1);
-	
-
-
-	// Set geometry shader
-	//context->GSSetShader(renderState->m_patchGeometryShader.get(), 0, 0);
-
-	//ID3D11RasterizerState 
 	D3D11_RASTERIZER_DESC desc;
 	desc.FillMode = D3D11_FILL_WIREFRAME;
 	desc.CullMode = D3D11_CULL_NONE;
@@ -86,11 +73,11 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 	renderState->m_device.m_device->CreateRasterizerState(&desc, &rs);
 	context->RSSetState(rs);
 
-	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);	
+	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);
 	ID3D11Buffer* hsCb[] = { renderState->m_cbPatchDivisions.get() };
 	context->HSSetConstantBuffers(0, 1, hsCb);
 
-	XMFLOAT4 divs = XMFLOAT4(m_uSize, m_vSize, 0.f,0.f);
+	XMFLOAT4 divs = XMFLOAT4(m_uSize, m_vSize, 0.f, 0.f);
 	auto divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
 	ID3D11Buffer* divCBuffer[] = { divBuff }; //, VPbuffer
 	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);
@@ -105,7 +92,11 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 	context->HSSetShader(nullptr, 0, 0);
 	context->DSSetShader(nullptr, 0, 0);
 	context->RSSetState(nullptr);
-	//context->GSSetShader(nullptr, nullptr, 0);
+}
+
+void BezierPatch::RenderPolygon(std::unique_ptr<RenderState>& renderState)
+{
+	RenderMesh(renderState, m_PolygonDesc);
 }
 
 bool BezierPatch::CreateParamsGui()
@@ -116,9 +107,33 @@ bool BezierPatch::CreateParamsGui()
 	ImGui::SameLine(); ImGui::Text(m_name.c_str());	
 	bool patchChanged = false;
 
-	std::string dimDrag = "Grid density" + GetIdentifier();
-	patchChanged = ImGui::DragInt(dimDrag.c_str(), &m_uSize, 1.0f, 2, 64);
+	std::string label = "Display Bezier polygon" + GetIdentifier();
+	patchChanged |= ImGui::Checkbox(label.c_str(), &m_displayPolygon);
+	ImGui::Spacing();
 
+	// change colors for polygon
+	float pcolor[3] = {
+		m_PolygonDesc.m_defaultColor.x,
+		m_PolygonDesc.m_defaultColor.y,
+		m_PolygonDesc.m_defaultColor.z,
+	};
+
+	std::string ptext = "Bezier color";
+	ImGui::Text(ptext.c_str());
+	patchChanged |= ImGui::ColorEdit3((ptext + "##" + ptext + GetIdentifier()).c_str(), (float*)&pcolor);
+
+	m_PolygonDesc.m_defaultColor.x = pcolor[0];
+	m_PolygonDesc.m_defaultColor.y = pcolor[1];
+	m_PolygonDesc.m_defaultColor.z = pcolor[2];
+	ImGui::Spacing();
+
+	std::string dimDrag = "Grid density" + GetIdentifier();
+	patchChanged |= ImGui::DragInt(dimDrag.c_str(), &m_uSize, 1.0f, 2, 64);
+
+	if (patchChanged)
+	{
+		int x = 2;
+	}
 	if (m_uSize < 2)
 		m_uSize = 2;
 	if (m_uSize > 64)
@@ -126,8 +141,7 @@ bool BezierPatch::CreateParamsGui()
 	
 
 	ImGui::End();
-
-	return false;
+	return patchChanged;
 }
 
 void BezierPatch::UpdateObject()
@@ -172,6 +186,52 @@ void BezierPatch::UpdateObject()
 		indices.push_back(i + 8);
 		indices.push_back(i + 12);
 	}
+	
+	m_PolygonDesc.vertices.clear();
+	m_PolygonDesc.indices.clear();
+	m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+	for (int i = 0; i < 4; i++) {
+		m_PolygonDesc.vertices.push_back(VertexPositionColor{
+			m_u0[i].lock()->m_object->GetPosition(),
+			m_PolygonDesc.m_defaultColor });
+	}
+
+	for (int i = 0; i < 4; i++) {
+		m_PolygonDesc.vertices.push_back(VertexPositionColor{
+			m_u1[i].lock()->m_object->GetPosition(),
+			m_PolygonDesc.m_defaultColor });
+	}
+
+	for (int i = 0; i < 4; i++) {
+		m_PolygonDesc.vertices.push_back(VertexPositionColor{
+			m_u2[i].lock()->m_object->GetPosition(),
+			m_PolygonDesc.m_defaultColor });
+	}
+
+	for (int i = 0; i < 4; i++) {
+		m_PolygonDesc.vertices.push_back(VertexPositionColor{
+			m_u3[i].lock()->m_object->GetPosition(),
+			m_PolygonDesc.m_defaultColor });
+	}
+
+	for (int i = 0; i < 4; i++) {
+		m_PolygonDesc.indices.push_back(4*i);
+		m_PolygonDesc.indices.push_back(4*i + 1);
+		m_PolygonDesc.indices.push_back(4*i + 1);
+		m_PolygonDesc.indices.push_back(4*i + 2);
+		m_PolygonDesc.indices.push_back(4*i + 2);
+		m_PolygonDesc.indices.push_back(4*i + 3);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		m_PolygonDesc.indices.push_back(i);
+		m_PolygonDesc.indices.push_back(i + 4); 
+		m_PolygonDesc.indices.push_back(i + 4);
+		m_PolygonDesc.indices.push_back(i + 8);
+		m_PolygonDesc.indices.push_back(i + 8);
+		m_PolygonDesc.indices.push_back(i + 12);
+	}
+
 
 	m_meshDesc.vertices = vertices;
 	m_meshDesc.indices = indices;
@@ -179,7 +239,7 @@ void BezierPatch::UpdateObject()
 
 bool BezierPatch::GetIsModified()
 {
-	bool modified = false;
+	bool modified = m_modified;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -255,6 +315,8 @@ void BezierPatch::SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> point
 	}
 }
 
+
+
 std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direction)
 {
 	std::vector<std::weak_ptr<Node>> points;
@@ -305,6 +367,7 @@ float GetCoord(std::weak_ptr<Node> point, Coord coord)
 
 	return NAN;
 }
+
 
 XMMATRIX BezierPatch::GetCoordinates(Coord coord)
 {

@@ -49,25 +49,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 		}
 	}
 
-	//auto p1 = CreateBezierPatch(scene);
-	//BezierPatch* p = (BezierPatch*)p1->m_object.get();
-	//scene->AttachObject(p1);
-
-	//auto topp = p->GetPoints(BoundaryDirection::Bottom);
-	//auto topf = p->GetPoints(BoundaryDirection::Right);
-	//auto p2 = CreateBezierPatch(scene, topp);
-	//BezierPatch* pa2 = (BezierPatch*)p2->m_object.get();
-	//scene->AttachObject(p2);
-
-	//auto p3 = CreateBezierPatch(scene, std::vector<std::weak_ptr<Node>>(), std::vector<std::weak_ptr<Node>>(), topf);
-	//BezierPatch* pa3 = (BezierPatch*)p3->m_object.get();
-	//scene->AttachObject(p3);
-
-	//auto p3bot = pa3->GetPoints(BoundaryDirection::Bottom);
-	//auto p2right = pa2->GetPoints(BoundaryDirection::Right);
-	//auto p4 = CreateBezierPatch(scene, p3bot, std::vector<std::weak_ptr<Node>>(), p2right);
-	//scene->AttachObject(p4);
-
 
 	return std::shared_ptr<Node>();
 }

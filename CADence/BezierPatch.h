@@ -80,9 +80,12 @@ private:
 	int m_uSize = 4;
 	int m_vSize = 4;
 
+	bool m_displayPolygon;
+	MeshDescription m_PolygonDesc;
+
 	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);
-	
-
+	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
+	void RenderPatch(std::unique_ptr<RenderState>& renderState);
 	XMMATRIX GetCoordinates(Coord coord);
 };
