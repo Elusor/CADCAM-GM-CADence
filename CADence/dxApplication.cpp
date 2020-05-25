@@ -126,24 +126,6 @@ int DxApplication::MainLoop()
 					auto pos = ImGui::GetIO().MousePos;
 					m_pSelector->StartCaptureMultiselect(pos.x, pos.y);
 
-
-					/*auto selectedNode = m_pSelector->GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
-
-
-					if (auto node = selectedNode.lock())
-					{
-						for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
-						{
-							if (auto nod = m_scene->m_selectedNodes[i].lock())
-							{
-								nod->m_isSelected = false;
-							}
-						}
-						m_scene->m_selectedNodes.clear();
-
-						node->m_isSelected = true;
-						m_scene->m_selectedNodes.push_back(selectedNode);
-					}*/
 				}
 
 				if (lUp && !ImGui::GetIO().WantCaptureMouse)
@@ -153,24 +135,46 @@ int DxApplication::MainLoop()
 					{
 						m_pSelector->EndCaptureMultiselect(pos.x,pos.y);
 						auto pts =  m_pSelector->GetAllPointsInArea(m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy);
-
-						for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
+						if (pts.size() != 0)
 						{
-							if (auto nod = m_scene->m_selectedNodes[i].lock())
+							for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
 							{
-								nod->m_isSelected = false;
+								if (auto nod = m_scene->m_selectedNodes[i].lock())
+								{
+									nod->m_isSelected = false;
+								}
+							}
+							m_scene->m_selectedNodes.clear();
+
+							for (int i = 0; i < pts.size(); i++)
+							{
+								if (auto nod = pts[i].lock())
+								{
+									nod->m_isSelected = true;
+									m_scene->m_selectedNodes.push_back(nod);
+								}
 							}
 						}
-						m_scene->m_selectedNodes.clear();
+						else {
+							auto selectedNode = m_pSelector->GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
 
-						for (int i = 0; i < pts.size(); i++)
-						{
-							if (auto nod = pts[i].lock())
+
+							if (auto node = selectedNode.lock())
 							{
-								nod->m_isSelected = true;
-								m_scene->m_selectedNodes.push_back(nod);
+								for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
+								{
+									if (auto nod = m_scene->m_selectedNodes[i].lock())
+									{
+										nod->m_isSelected = false;
+									}
+								}
+								m_scene->m_selectedNodes.clear();
+
+								node->m_isSelected = true;
+								m_scene->m_selectedNodes.push_back(selectedNode); \
 							}
 						}
+						
 
 					}
 				}
