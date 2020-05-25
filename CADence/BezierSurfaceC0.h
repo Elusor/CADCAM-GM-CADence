@@ -1,20 +1,25 @@
 #pragma once
+#include <DirectXMath.h>
 #include "MeshObject.h"
+#include "BezierPatch.h"
 #include "BezierCurve.h"
-/*
-Class describing Bezier surface.
-- created as a surface or as a cylinder
-- when created U and V amount of bezier patches should be stated
-- all control points are created on the scene
-- neighbouring patches are made of the same control points at the edge ( they are not duplicated)
-*/
-class BezierSurfaceC0 : MeshObject
+#include "Node.h"
+class BezierSurfaceC0 : public MeshObject
 {
 public:
-	
+	BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches);
+	virtual ~BezierSurfaceC0();
+
+	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
+	bool CreateParamsGui() override;
+	void UpdateObject() override;
+	bool GetIsModified() override;
 
 private:
-	
+	std::vector<std::shared_ptr<Node>> m_patches;
+	void SetPolygonColor();
+	void SetDisplayPolygon();
 
-
+	bool m_displayPatchesPolygon;
+	DirectX::XMFLOAT3 m_polygonsColor;
 };

@@ -3,7 +3,7 @@
 #include "mathUtils.h"
 std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position, bool cylinder, float radius)
 {
-
+	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
 	BezierPatch*** patches;
 	patches = new BezierPatch* * [width];
 
@@ -12,9 +12,14 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 		patches[i] = new BezierPatch*[height];
 	}
 
+	// Create firts patch
 	auto p00 = CreateBezierPatch(scene);
 	patches[0][0] = (BezierPatch*)p00->m_object.get();
-	scene->AttachObject(p00);
+	surfPatches.push_back(p00);
+	//scene->AttachObject(p00);
+
+
+	//Create First Row
 	for (int i = 1; i < width; i++) {
 		
 		auto rightPoints = patches[i - 1][0]->GetPoints(BoundaryDirection::Right);
@@ -22,17 +27,20 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 			std::vector<std::weak_ptr<Node>>(),
 			std::vector<std::weak_ptr<Node>>(),
 			rightPoints);
-		scene->AttachObject(point);
+		surfPatches.push_back(point);
+		//scene->AttachObject(point);
 		patches[i][0] = (BezierPatch*)point->m_object.get();
 	}
 
+	// Create the rest
 	for (int h = 1; h < height; h++)
 	{
 		auto botPoints = patches[0][h - 1]->GetPoints(BoundaryDirection::Top);
 		auto p = CreateBezierPatch(scene,
 			std::vector<std::weak_ptr<Node>>(),
 			botPoints);
-		scene->AttachObject(p);
+		surfPatches.push_back(p);
+		//scene->AttachObject(p);
 		patches[0][h] = (BezierPatch*)p->m_object.get();
 
 		for (int w = 1; w < width; w++)
@@ -43,14 +51,28 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 				std::vector<std::weak_ptr<Node>>(),
 				bottomPoints,
 				leftPoints);
-			scene->AttachObject(innerPt);
+			surfPatches.push_back(innerPt);
+			//scene->AttachObject(innerPt);
 
 			patches[w][h] = (BezierPatch*)innerPt->m_object.get();
 		}
 	}
 
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
 
-	return std::shared_ptr<Node>();
+	std::string name = "Bezier Surface";
+	if (m_bezierSurfaceCounter> 0)
+	{
+		name = name + " " + std::to_string(m_bezierSurfaceCounter);
+	}
+	surface->m_name = surface->m_defaultName = name;
+	m_bezierSurfaceCounter++;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(surface);
+	node->m_object = move(object);
+	scene->AttachObject(node);
+	return node;
 }
 
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
@@ -321,6 +343,15 @@ std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
 	n->m_object = std::unique_ptr<Point>(p);
 	p->m_parent = n;
 	return n;
+}
+
+void ObjectFactory::ClearScene()
+{
+	m_bezierSurfaceCounter = 0;
+	m_bezierPatchCounter = 0;
+	m_bezierCurveCounter = 0;
+	m_torusCounter = 0;
+	m_pointCounter = 0;
 }
 
 std::vector<std::weak_ptr<Node>> ObjectFactory::FilterObjectTypes(const type_info& typeId, std::vector<std::weak_ptr<Node>> nodes)

@@ -40,8 +40,10 @@ public:
 
 	std::shared_ptr<Node> CreatePoint(Transform transform = Transform());
 
+	void ClearScene();
 private:	
 	std::vector<std::weak_ptr<Node>> FilterObjectTypes(const type_info& typeId, std::vector<std::weak_ptr<Node>> nodes);
+	int m_bezierSurfaceCounter = 0;
 	int m_bezierPatchCounter = 0;
 	int m_bezierCurveCounter = 0;
 	int m_torusCounter = 0;

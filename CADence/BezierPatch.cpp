@@ -141,10 +141,6 @@ bool BezierPatch::CreateParamsGui()
 	std::string dimDrag = "Grid density" + GetIdentifier();
 	patchChanged |= ImGui::DragInt(dimDrag.c_str(), &m_uSize, 1.0f, 2, 64);
 
-	if (patchChanged)
-	{
-		int x = 2;
-	}
 	if (m_uSize < 2)
 		m_uSize = 2;
 	if (m_uSize > 64)
@@ -266,11 +262,13 @@ bool BezierPatch::GetIsModified()
 void BezierPatch::SetPolygonVisible(bool state)
 {
 	m_displayPolygon = state;
+	//SetModified(true);
 }
 
 void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 col)
 {
 	m_PolygonDesc.m_defaultColor = col;
+	SetModified(true);
 }
 
 void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points)
