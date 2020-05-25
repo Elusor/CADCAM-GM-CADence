@@ -22,7 +22,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 
 
 	//Create First Row
-	for (int i = 1; i < width; i++) {
+	for (int i = 1; i < width-1; i++) {
 		
 		auto leftPoints = patches[i - 1][0]->GetPoints(BoundaryDirection::Right);
 		auto point = CreateBezierPatch(scene,
@@ -35,7 +35,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 	}
 
 	// Create the rest but one
-	for (int h = 1; h < height-1; h++)
+	for (int h = 1; h < height; h++)
 	{
 		auto botPoints = patches[0][h - 1]->GetPoints(BoundaryDirection::Top);
 		auto p = CreateBezierPatch(scene,
@@ -45,7 +45,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 		//scene->AttachObject(p);
 		patches[0][h] = (BezierPatch*)p->m_object.get();
 
-		for (int w = 1; w < width; w++)
+		for (int w = 1; w < width-1; w++)
 		{
 			auto bottomPoints = patches[w][h - 1]->GetPoints(BoundaryDirection::Top);
 			auto leftPoints = patches[w-1][h]->GetPoints(BoundaryDirection::Right);
@@ -59,38 +59,40 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 			patches[w][h] = (BezierPatch*)innerPt->m_object.get();
 		}
 	}
+
+
 	// Create the last one 
 	// Attach the first 
-	auto botPoints = patches[0][height - 2]->GetPoints(BoundaryDirection::Top);
+	auto leftPoints = patches[width-2][0]->GetPoints(BoundaryDirection::Right);
 	
-	std::vector<std::weak_ptr<Node>> topPoints;
+	std::vector<std::weak_ptr<Node>> rightPoints;
 	if(cylinder)
-		topPoints = patches[0][0]->GetPoints(BoundaryDirection::Bottom);
+		rightPoints = patches[0][0]->GetPoints(BoundaryDirection::Left);
 	else {
-		topPoints = std::vector<std::weak_ptr<Node>>();
+		rightPoints = std::vector<std::weak_ptr<Node>>();
 	}
 
-	auto firstConnector = CreateBezierPatch(scene, topPoints, botPoints);
+	auto firstConnector = CreateBezierPatch(scene, std::vector<std::weak_ptr<Node>>(), std::vector<std::weak_ptr<Node>>(), leftPoints, rightPoints);
 	surfPatches.push_back(firstConnector);
 	//scene->AttachObject(p);
-	patches[0][height-1] = (BezierPatch*)firstConnector->m_object.get();
+	patches[width-1][0] = (BezierPatch*)firstConnector->m_object.get();
 
-	for (int w = 1; w < width; w++)
+	for (int h = 1; h < height; h++)
 	{
-		auto botPoints = patches[w][height - 2]->GetPoints(BoundaryDirection::Top);
+		auto botPoints = patches[width-1][h-1]->GetPoints(BoundaryDirection::Top);
 		
-		std::vector<std::weak_ptr<Node>> topPoints;
+		std::vector<std::weak_ptr<Node>> rightPoints;
 		if (cylinder)
-			topPoints = patches[w][0]->GetPoints(BoundaryDirection::Bottom);
+			rightPoints = patches[0][h]->GetPoints(BoundaryDirection::Left);
 		else {
-			topPoints = std::vector<std::weak_ptr<Node>>();
+			rightPoints = std::vector<std::weak_ptr<Node>>();
 		}
 
-		auto leftPoints = patches[w-1][height-1]->GetPoints(BoundaryDirection::Right);
-		auto connector = CreateBezierPatch(scene, topPoints, botPoints, leftPoints);
+		auto leftPoints = patches[width-2][h]->GetPoints(BoundaryDirection::Right);
+		auto connector = CreateBezierPatch(scene, std::vector<std::weak_ptr<Node>>(), botPoints, leftPoints, rightPoints);
 		surfPatches.push_back(connector);
 		//scene->AttachObject(p);
-		patches[w][height - 1] = (BezierPatch*)connector->m_object.get();
+		patches[width-1][h] = (BezierPatch*)connector->m_object.get();
 
 	}
 
