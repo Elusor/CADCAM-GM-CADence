@@ -139,6 +139,7 @@ void Scene::DrawScenePopupMenu()
 		m_sizeU = 1;
 		m_sizeV = 1;
 		m_sizeX = 15;
+		m_sizeY = 15;
 		m_altState = false;
 	}
 
@@ -151,14 +152,16 @@ void Scene::DrawScenePopupMenu()
 
 		if (m_altState)
 		{
-			ImGui::DragInt("Width", &m_sizeU, 1, 1, 10);
-			ImGui::DragInt("Height", &m_sizeV, 1, 1, 10);
+			ImGui::DragInt("Radius patch count", &m_sizeU, 1, 1, 10);
+			ImGui::DragInt("Length patch count", &m_sizeV, 1, 1, 10);
 			ImGui::DragInt("Radius", &m_sizeX, 1, 1, 20);
+			ImGui::DragInt("Length", &m_sizeY, 1, 1, 20);
 		}
 		else {
-			ImGui::DragInt("Width", &m_sizeU, 2, 1, 10);
-			ImGui::DragInt("Height", &m_sizeV, 2, 1, 10);
-			ImGui::DragInt("Patch size", &m_sizeX, 1, 1, 30);
+			ImGui::DragInt("Width patch count", &m_sizeU, 2, 1, 10);
+			ImGui::DragInt("Length patch count", &m_sizeV, 2, 1, 10);
+			ImGui::DragInt("Surface Width", &m_sizeX, 1, 1, 30);
+			ImGui::DragInt("Surface Length", &m_sizeY, 1, 1, 30);
 		}
 
 		if (m_sizeU < 1)
@@ -175,7 +178,7 @@ void Scene::DrawScenePopupMenu()
 
 		if (ImGui::Button("Submit"))
 		{
-			m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV,m_spawnMarker->GetPosition(), m_altState, m_sizeX);
+			m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV,m_spawnMarker->GetPosition(), m_altState, m_sizeX, m_sizeY);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();

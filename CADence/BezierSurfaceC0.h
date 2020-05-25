@@ -21,7 +21,8 @@ private:
 	void SetDisplayPolygon();
 	void SetDivisions();
 
-	int m_divisions;
+	int m_divisionsU;
+	int m_divisionsV;
 	bool m_displayPatchesPolygon;
 	DirectX::XMFLOAT3 m_polygonsColor;
 };

@@ -70,7 +70,7 @@ public:
 	void UpdateObject() override;
 	bool GetIsModified() override;
 
-	void SetDivisions(int divs);
+	void SetDivisions(int divsU, int divsV);
 	void SetPolygonVisible(bool state);
 	void SetPolygonColor(DirectX::XMFLOAT3 col);
 

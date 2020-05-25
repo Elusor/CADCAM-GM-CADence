@@ -8,7 +8,7 @@ BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches)
 		patches[i]->m_object->RefUse();
 	}
 
-	m_divisions = 4;
+	m_divisionsU = m_divisionsV =  4;
 	m_patches = patches;
 }
 
@@ -66,20 +66,28 @@ bool BezierSurfaceC0::CreateParamsGui()
 		SetPolygonColor();		
 	}
 
-	std::string dimDrag = "Grid density" + GetIdentifier();
-	bool divsChanged = ImGui::DragInt(dimDrag.c_str(), &m_divisions, 1.0f, 2, 64);
+	std::string dimDrag = "Grid density U" + GetIdentifier();
+	bool divsChanged = ImGui::DragInt(dimDrag.c_str(), &m_divisionsU, 1.0f, 2, 64);
 
-	if (m_divisions < 2)
-		m_divisions = 2;
-	if (m_divisions > 64)
-		m_divisions = 64;
+	std::string dimDrag2 = "Grid density V" + GetIdentifier();
+	bool divsChanged2 = ImGui::DragInt(dimDrag2.c_str(), &m_divisionsV, 1.0f, 2, 64);
+
+	if (m_divisionsU < 2)
+		m_divisionsU = 2;
+	if (m_divisionsU > 64)
+		m_divisionsU = 64;
+
+	if (m_divisionsV < 2)
+		m_divisionsV = 2;
+	if (m_divisionsV > 64)
+		m_divisionsV = 64;
 
 	if(divsChanged)
 	{
 		SetDivisions();
 	}
 
-	patchChanged |= divsChanged;
+	patchChanged |= divsChanged || divsChanged2;
 
 	ImGui::Spacing();
 
@@ -134,6 +142,6 @@ void BezierSurfaceC0::SetDivisions()
 	for (int i = 0; i < m_patches.size(); i++)
 	{
 		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
-		patch->SetDivisions(m_divisions);
+		patch->SetDivisions(m_divisionsU,m_divisionsV);
 	}
 }

@@ -1,15 +1,15 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
 #include "mathUtils.h"
-std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position, bool cylinder, float radius)
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position, bool cylinder, float sizeW, float sizeH)
 {
 	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
 	BezierPatch*** patches;
 	patches = new BezierPatch* * [width];
 
+	float patchSizeW = sizeW / (float)width;
+	float patchSizeH = sizeH / (float)height;
 
-	float size = radius;
-	
 	for (int i = 0; i < width; i++) {
 		patches[i] = new BezierPatch*[height];
 	}
@@ -106,32 +106,32 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 			BezierPatch* patch = patches[w][h];
 			if (cylinder == false)
 			{				
-				float baseX = position.x + (float)w * size;
+				float baseX = position.x + (float)w * patchSizeW;
 				float baseY = position.y + 0.0f;
-				float baseZ = position.z + (float)h * size;
+				float baseZ = position.z + (float)h * patchSizeH;
 				auto u0 = patch->GetPoints(RowPlace::First);
 
 
 				for (int i = 0; i < 4; i++)
 				{
-					float x = baseX + (float)size * (float)i / 3.f;
-					float z = baseZ + (float)size;
+					float x = baseX + (float)patchSizeW * (float)i / 3.f;
+					float z = baseZ + (float)patchSizeH;
 					u0[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
 				}
 
 				auto U1 = patch->GetPoints(RowPlace::Second);
 				for (int i = 0; i < 4; i++)
 				{
-					float x = baseX + (float)size * (float)i / 3.f;
-					float z = baseZ + (float)size * 2.f / 3.f;
+					float x = baseX + (float)patchSizeW * (float)i / 3.f;
+					float z = baseZ + (float)patchSizeH * 2.f / 3.f;
 					U1[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
 				}
 
 				auto u2 = patch->GetPoints(RowPlace::Third);
 				for (int i = 0; i < 4; i++)
 				{
-					float x = baseX + (float)size * (float)i / 3.f;
-					float z = baseZ + (float)size * 1.f / 3.f;
+					float x = baseX + (float)patchSizeW * (float)i / 3.f;
+					float z = baseZ + (float)patchSizeH * 1.f / 3.f;
 					u2[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
 
 				}
@@ -139,7 +139,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 				auto u3 = patch->GetPoints(RowPlace::Fourth);
 				for (int i = 0; i < 4; i++)
 				{
-					float x = baseX + (float)size * (float)i / 3.f;
+					float x = baseX + (float)patchSizeW * (float)i / 3.f;
 					float z = baseZ;
 					u3[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
 				}
@@ -148,16 +148,16 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 
 				float baseX = position.x;
 				float baseY = position.y;
-				float baseZ = position.z + (float)h * size;
+				float baseZ = position.z + (float)h * patchSizeH;
 				
 				float step = XM_2PI / (float)width;
 				auto u0 = patch->GetPoints(RowPlace::First);
 				for (int i = 0; i < 4; i++)
 				{
 					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * radius;
-					float y = baseY + cosf(angle) * radius;
-					float z = baseZ + (float)size;
+					float x = baseX + sinf(angle) * sizeW;
+					float y = baseY + cosf(angle) * sizeW;
+					float z = baseZ + (float)patchSizeH;
 					u0[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
 				}
 
@@ -165,9 +165,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 				for (int i = 0; i < 4; i++)
 				{
 					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * radius;
-					float y = baseY + cosf(angle) * radius;
-					float z = baseZ + (float)size * 2.f / 3.f;
+					float x = baseX + sinf(angle) * sizeW;
+					float y = baseY + cosf(angle) * sizeW;
+					float z = baseZ + (float)patchSizeH * 2.f / 3.f;
 					U1[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
 				}
 
@@ -175,9 +175,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 				for (int i = 0; i < 4; i++)
 				{
 					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * radius;
-					float y = baseY + cosf(angle) * radius;
-					float z = baseZ + (float)size * 1.f / 3.f;
+					float x = baseX + sinf(angle) * sizeW;
+					float y = baseY + cosf(angle) * sizeW;
+					float z = baseZ + (float)patchSizeH * 1.f / 3.f;
 					u2[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
 
 				}
@@ -186,8 +186,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 				for (int i = 0; i < 4; i++)
 				{
 					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * radius;
-					float y = baseY + cosf(angle) * radius;
+					float x = baseX + sinf(angle) * sizeW;
+					float y = baseY + cosf(angle) * sizeW;
 					float z = baseZ;
 					u3[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
 				}

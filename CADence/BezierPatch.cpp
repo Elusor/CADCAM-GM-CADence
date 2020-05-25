@@ -267,9 +267,10 @@ bool BezierPatch::GetIsModified()
 	return modified;
 }
 
-void BezierPatch::SetDivisions(int m_divs)
+void BezierPatch::SetDivisions(int divsU, int divsV)
 {
-	m_uSize = m_divs;
+	m_uSize = divsU;
+	m_vSize = divsV;
 }
 
 void BezierPatch::SetPolygonVisible(bool state)

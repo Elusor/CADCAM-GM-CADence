@@ -32,6 +32,7 @@ private:
 	int m_sizeU;
 	int m_sizeV;
 	int m_sizeX;
+	int m_sizeY;
 	bool m_altState;
 
 	void ClearScene();
