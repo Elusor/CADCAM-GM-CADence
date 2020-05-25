@@ -22,18 +22,18 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 	//Create First Row
 	for (int i = 1; i < width; i++) {
 		
-		auto rightPoints = patches[i - 1][0]->GetPoints(BoundaryDirection::Right);
+		auto leftPoints = patches[i - 1][0]->GetPoints(BoundaryDirection::Right);
 		auto point = CreateBezierPatch(scene,
 			std::vector<std::weak_ptr<Node>>(),
 			std::vector<std::weak_ptr<Node>>(),
-			rightPoints);
+			leftPoints);
 		surfPatches.push_back(point);
 		//scene->AttachObject(point);
 		patches[i][0] = (BezierPatch*)point->m_object.get();
 	}
 
-	// Create the rest
-	for (int h = 1; h < height; h++)
+	// Create the rest but one
+	for (int h = 1; h < height-1; h++)
 	{
 		auto botPoints = patches[0][h - 1]->GetPoints(BoundaryDirection::Top);
 		auto p = CreateBezierPatch(scene,
@@ -56,6 +56,40 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 
 			patches[w][h] = (BezierPatch*)innerPt->m_object.get();
 		}
+	}
+	// Create the last one 
+	// Attach the first 
+	auto botPoints = patches[0][height - 2]->GetPoints(BoundaryDirection::Top);
+	
+	std::vector<std::weak_ptr<Node>> topPoints;
+	if(cylinder)
+		topPoints = patches[0][0]->GetPoints(BoundaryDirection::Bottom);
+	else {
+		topPoints = std::vector<std::weak_ptr<Node>>();
+	}
+
+	auto firstConnector = CreateBezierPatch(scene, topPoints, botPoints);
+	surfPatches.push_back(firstConnector);
+	//scene->AttachObject(p);
+	patches[0][height-1] = (BezierPatch*)firstConnector->m_object.get();
+
+	for (int w = 1; w < width; w++)
+	{
+		auto botPoints = patches[w][height - 2]->GetPoints(BoundaryDirection::Top);
+		
+		std::vector<std::weak_ptr<Node>> topPoints;
+		if (cylinder)
+			topPoints = patches[w][0]->GetPoints(BoundaryDirection::Bottom);
+		else {
+			topPoints = std::vector<std::weak_ptr<Node>>();
+		}
+
+		auto leftPoints = patches[w-1][height-1]->GetPoints(BoundaryDirection::Right);
+		auto connector = CreateBezierPatch(scene, topPoints, botPoints, leftPoints);
+		surfPatches.push_back(connector);
+		//scene->AttachObject(p);
+		patches[w][height - 1] = (BezierPatch*)connector->m_object.get();
+
 	}
 
 	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
