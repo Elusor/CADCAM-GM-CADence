@@ -89,6 +89,8 @@ private:
 	bool m_displayPolygon;
 	MeshDescription m_PolygonDesc;
 
+	MeshDescription m_UDesc, m_VDesc;
+
 	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);
 	void RenderPolygon(std::unique_ptr<RenderState>& renderState);

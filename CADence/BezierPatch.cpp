@@ -96,18 +96,22 @@ void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	ID3D11Buffer* hsCb[] = { renderState->m_cbPatchDivisions.get() };
 	context->HSSetConstantBuffers(0, 1, hsCb);
 
-	XMFLOAT4 divs = XMFLOAT4(m_uSize, m_vSize, 0.f, 0.f);
-	auto divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
-	ID3D11Buffer* divCBuffer[] = { divBuff }; //, VPbuffer
-	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);
-
-
 	context->DSSetShader(renderState->m_patchDomainShader.get(), 0, 0);
 	context->DSSetConstantBuffers(1, 1, cbs1);
 	ID3D11Buffer* cbs2[] = { renderState->m_cbVP.get() };
 	context->DSSetConstantBuffers(0, 1, cbs2);
-	MeshObject::RenderObject(renderState);
 
+	XMFLOAT4 divs = XMFLOAT4(m_uSize, 0.0f, 0.f, 0.f);
+	auto divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
+	ID3D11Buffer* divCBuffer[] = { divBuff }; //, VPbuffer
+	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);	
+	MeshObject::RenderMesh(renderState, m_UDesc);
+
+	divs = XMFLOAT4(m_vSize, 0.0f, 0.f, 0.f);
+	divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
+	ID3D11Buffer* divCBuffer2[] = { divBuff }; //, VPbuffer
+	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer2);
+	MeshObject::RenderMesh(renderState, m_VDesc);
 	context->HSSetShader(nullptr, 0, 0);
 	context->DSSetShader(nullptr, 0, 0);
 	context->RSSetState(nullptr);
@@ -161,45 +165,46 @@ bool BezierPatch::CreateParamsGui()
 
 void BezierPatch::UpdateObject()
 {	
-	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
+	m_VDesc.m_primitiveTopology = m_UDesc.m_primitiveTopology = m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
+
 	// pass an (u,v) line to the shader
 	// one of those is the constant parameter - the other one is 
 	std::vector<VertexPositionColor> vertices;
-	std::vector<unsigned short> indices;
-	
+	std::vector<unsigned short> indicesU;
+	std::vector<unsigned short> indicesV;
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u0[i].lock()->m_object->GetPosition(),
 			{1.0f,0.0f,0.0f} });
-		indices.push_back(i);
+		indicesU.push_back(i);
 	}
 
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u1[i].lock()->m_object->GetPosition(),
 			{0.5f,.5f,0.0f} });
-		indices.push_back(i+4);
+		indicesU.push_back(i+4);
 	}
 
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u2[i].lock()->m_object->GetPosition(),
 			{0.0f,0.5f,0.5f} });
-		indices.push_back(i+8);
+		indicesU.push_back(i+8);
 	}
 
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u3[i].lock()->m_object->GetPosition(),
 			{0.0f,0.0f,1.0f} });
-		indices.push_back(i+12);
+		indicesU.push_back(i+12);
 	}
 
 	for (int i = 0; i < 4; i++) {
-		indices.push_back(i );
-		indices.push_back(i + 4);
-		indices.push_back(i + 8);
-		indices.push_back(i + 12);
+		indicesV.push_back(i );
+		indicesV.push_back(i + 4);
+		indicesV.push_back(i + 8);
+		indicesV.push_back(i + 12);
 	}
 	
 	m_PolygonDesc.vertices.clear();
@@ -249,7 +254,10 @@ void BezierPatch::UpdateObject()
 
 
 	m_meshDesc.vertices = vertices;
-	m_meshDesc.indices = indices;
+	m_UDesc.vertices = m_VDesc.vertices = vertices;
+	m_UDesc.indices = indicesU;
+	m_VDesc.indices = indicesV;
+	//m_meshDesc.indices = indices;
 }
 
 bool BezierPatch::GetIsModified()

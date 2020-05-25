@@ -82,7 +82,7 @@ bool BezierSurfaceC0::CreateParamsGui()
 	if (m_divisionsV > 64)
 		m_divisionsV = 64;
 
-	if(divsChanged)
+	if(divsChanged || divsChanged2)
 	{
 		SetDivisions();
 	}
