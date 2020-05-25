@@ -60,7 +60,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 		}
 	}
 
-
+	if (width > 1)
+	{	
 	// Create the last one 
 	// Attach the first 
 	auto leftPoints = patches[width-2][0]->GetPoints(BoundaryDirection::Right);
@@ -96,6 +97,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 
 	}
 
+	}
 	for (int w = 0; w < width; w++)
 	{
 		for (int h = 0; h < height; h++)
