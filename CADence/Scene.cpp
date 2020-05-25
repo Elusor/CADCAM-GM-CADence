@@ -138,7 +138,7 @@ void Scene::DrawScenePopupMenu()
 		ImGui::OpenPopup("Modal window");			
 		m_sizeU = 1;
 		m_sizeV = 1;
-		m_sizeX = 5;
+		m_sizeX = 15;
 		m_altState = false;
 	}
 
@@ -166,6 +166,12 @@ void Scene::DrawScenePopupMenu()
 
 		if (m_sizeV < 1)
 			m_sizeV = 1;
+
+		if (m_sizeU > 10)
+			m_sizeU = 10;
+
+		if (m_sizeV > 10)
+			m_sizeV = 10;
 
 		if (ImGui::Button("Submit"))
 		{
