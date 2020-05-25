@@ -18,16 +18,21 @@ void CameraController::ProcessMessage(ImGuiIO* imguiIO)
 	bool rDown = imguiIO->MouseDown[1];
 	bool rUp = imguiIO->MouseReleased[1];
 	bool mDown = imguiIO->MouseDown[2];
+	bool mUp = imguiIO->MouseReleased[2];
 
+	if (ImGui::IsKeyDown('V'))
+	{
+		m_camera->ResetCamera();
+	}
 
 	if (imguiIO->WantCaptureMouse == false)
 	{
-		if (mDown)
+		/*if (mDown)
 		{
 			m_camera->ResetCamera();
-		}
+		}*/
 
-		if (lDown)
+		if (mDown)
 		{
 			auto pos = imguiIO->MousePos;
 			m_captureTrans = true;
@@ -42,7 +47,7 @@ void CameraController::ProcessMessage(ImGuiIO* imguiIO)
 			m_camera->CameraZoom(imguiIO->MouseWheel);
 	}
 
-	if (lUp)
+	if (mUp)
 	{
 		m_captureTrans = false;
 	}

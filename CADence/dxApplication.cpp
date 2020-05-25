@@ -119,11 +119,17 @@ int DxApplication::MainLoop()
 #pragma region point selection
 
 				bool lDown = ImGui::GetIO().MouseDown[0];
+				bool lUp = ImGui::GetIO().MouseReleased[0];
 
 				if (lDown && !ImGui::GetIO().WantCaptureMouse)
 				{
 					auto pos = ImGui::GetIO().MousePos;
-					auto selectedNode = m_pSelector->GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
+					m_pSelector->StartCaptureMultiselect(pos.x, pos.y);
+
+
+					/*auto selectedNode = m_pSelector->GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
+
+
 					if (auto node = selectedNode.lock())
 					{
 						for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
@@ -137,6 +143,35 @@ int DxApplication::MainLoop()
 
 						node->m_isSelected = true;
 						m_scene->m_selectedNodes.push_back(selectedNode);
+					}*/
+				}
+
+				if (lUp && !ImGui::GetIO().WantCaptureMouse)
+				{
+					auto pos = ImGui::GetIO().MousePos;
+					if (m_pSelector->IsCapturing())
+					{
+						m_pSelector->EndCaptureMultiselect(pos.x,pos.y);
+						auto pts =  m_pSelector->GetAllPointsInArea(m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy);
+
+						for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
+						{
+							if (auto nod = m_scene->m_selectedNodes[i].lock())
+							{
+								nod->m_isSelected = false;
+							}
+						}
+						m_scene->m_selectedNodes.clear();
+
+						for (int i = 0; i < pts.size(); i++)
+						{
+							if (auto nod = pts[i].lock())
+							{
+								nod->m_isSelected = true;
+								m_scene->m_selectedNodes.push_back(nod);
+							}
+						}
+
 					}
 				}
 
