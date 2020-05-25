@@ -259,6 +259,11 @@ bool BezierPatch::GetIsModified()
 	return modified;
 }
 
+void BezierPatch::SetDivisions(int m_divs)
+{
+	m_uSize = m_divs;
+}
+
 void BezierPatch::SetPolygonVisible(bool state)
 {
 	m_displayPolygon = state;

@@ -19,7 +19,9 @@ private:
 	std::vector<std::shared_ptr<Node>> m_patches;
 	void SetPolygonColor();
 	void SetDisplayPolygon();
+	void SetDivisions();
 
+	int m_divisions;
 	bool m_displayPatchesPolygon;
 	DirectX::XMFLOAT3 m_polygonsColor;
 };
