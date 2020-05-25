@@ -43,7 +43,7 @@ void Scene::ClearScene()
 		m_nodes[i]->m_object.reset();
 		m_nodes[i].reset();
 	}
-
+	m_objectFactory->ClearScene();
 	m_nodes.clear();
 	m_selectedNodes.clear();
 }
@@ -145,13 +145,20 @@ void Scene::DrawScenePopupMenu()
 	if (ImGui::BeginPopupModal("Modal window"))
 	{		
 		ImGui::Text("Choose the size of your surface");	
-		ImGui::DragInt("Width", &m_sizeU, 1, 1, 10);
-		ImGui::DragInt("Height", &m_sizeV, 1, 1, 10);
+		
 		ImGui::Checkbox("Is a cylinder", &m_altState);
+
 
 		if (m_altState)
 		{
+			ImGui::DragInt("Width", &m_sizeU, 1, 1, 10);
+			ImGui::DragInt("Height", &m_sizeV, 1, 1, 10);
 			ImGui::DragInt("Radius", &m_sizeX, 1, 1, 20);
+		}
+		else {
+			ImGui::DragInt("Width", &m_sizeU, 2, 1, 10);
+			ImGui::DragInt("Height", &m_sizeV, 2, 1, 10);
+			ImGui::DragInt("Patch size", &m_sizeX, 1, 1, 30);
 		}
 
 		if (m_sizeU < 1)
@@ -162,7 +169,12 @@ void Scene::DrawScenePopupMenu()
 
 		if (ImGui::Button("Submit"))
 		{
-			m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV, XMFLOAT3(0.0f, 0.0f, 0.0f), m_altState, m_sizeX);
+			m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV,m_spawnMarker->GetPosition(), m_altState, m_sizeX);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();

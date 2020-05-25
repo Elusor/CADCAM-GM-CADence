@@ -7,6 +7,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 	BezierPatch*** patches;
 	patches = new BezierPatch* * [width];
 
+
+	float size = radius;
 	
 	for (int i = 0; i < width; i++) {
 		patches[i] = new BezierPatch*[height];
@@ -91,6 +93,106 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 		patches[w][height - 1] = (BezierPatch*)connector->m_object.get();
 
 	}
+
+	for (int w = 0; w < width; w++)
+	{
+		for (int h = 0; h < height; h++)
+		{
+
+			BezierPatch* patch = patches[w][h];
+			if (cylinder == false)
+			{				
+				float baseX = position.x + (float)w * size;
+				float baseY = position.y + 0.0f;
+				float baseZ = position.z + (float)h * size;
+				auto u0 = patch->GetPoints(RowPlace::First);
+
+
+				for (int i = 0; i < 4; i++)
+				{
+					float x = baseX + (float)size * (float)i / 3.f;
+					float z = baseZ + (float)size;
+					u0[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
+				}
+
+				auto U1 = patch->GetPoints(RowPlace::Second);
+				for (int i = 0; i < 4; i++)
+				{
+					float x = baseX + (float)size * (float)i / 3.f;
+					float z = baseZ + (float)size * 2.f / 3.f;
+					U1[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
+				}
+
+				auto u2 = patch->GetPoints(RowPlace::Third);
+				for (int i = 0; i < 4; i++)
+				{
+					float x = baseX + (float)size * (float)i / 3.f;
+					float z = baseZ + (float)size * 1.f / 3.f;
+					u2[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
+
+				}
+
+				auto u3 = patch->GetPoints(RowPlace::Fourth);
+				for (int i = 0; i < 4; i++)
+				{
+					float x = baseX + (float)size * (float)i / 3.f;
+					float z = baseZ;
+					u3[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
+				}
+			}
+			else {
+
+				float baseX = position.x;
+				float baseY = position.y;
+				float baseZ = position.z + (float)h * size;
+				
+				float step = XM_2PI / (float)width;
+				auto u0 = patch->GetPoints(RowPlace::First);
+				for (int i = 0; i < 4; i++)
+				{
+					float angle = (float)i / 3.f * step + w * step;
+					float x = baseX + sinf(angle) * radius;
+					float y = baseY + cosf(angle) * radius;
+					float z = baseZ + (float)size;
+					u0[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
+				}
+
+				auto U1 = patch->GetPoints(RowPlace::Second);
+				for (int i = 0; i < 4; i++)
+				{
+					float angle = (float)i / 3.f * step + w * step;
+					float x = baseX + sinf(angle) * radius;
+					float y = baseY + cosf(angle) * radius;
+					float z = baseZ + (float)size * 2.f / 3.f;
+					U1[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
+				}
+
+				auto u2 = patch->GetPoints(RowPlace::Third);
+				for (int i = 0; i < 4; i++)
+				{
+					float angle = (float)i / 3.f * step + w * step;
+					float x = baseX + sinf(angle) * radius;
+					float y = baseY + cosf(angle) * radius;
+					float z = baseZ + (float)size * 1.f / 3.f;
+					u2[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
+
+				}
+
+				auto u3 = patch->GetPoints(RowPlace::Fourth);
+				for (int i = 0; i < 4; i++)
+				{
+					float angle = (float)i / 3.f * step + w * step;
+					float x = baseX + sinf(angle) * radius;
+					float y = baseY + cosf(angle) * radius;
+					float z = baseZ;
+					u3[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
+				}
+			}
+
+			patch->UpdateObject();
+		}
+	}
+
 
 	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
 

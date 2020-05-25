@@ -75,7 +75,7 @@ public:
 	void SetPolygonColor(DirectX::XMFLOAT3 col);
 
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
-
+	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);
 private:
 	// Bezier patch unique
 	std::weak_ptr<Node> m_u0[4];

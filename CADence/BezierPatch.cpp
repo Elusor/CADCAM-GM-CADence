@@ -8,10 +8,18 @@ BezierPatch::~BezierPatch()
 {
 	for (int i = 0; i < 4; i++)
 	{
-		m_u0[i].lock()->m_object->RefRelease();
-		m_u1[i].lock()->m_object->RefRelease();
-		m_u2[i].lock()->m_object->RefRelease();
-		m_u3[i].lock()->m_object->RefRelease();
+		if (auto pt = m_u0[i].lock()) {
+			pt->m_object->RefRelease();
+		}
+		if (auto pt = m_u1[i].lock()) {
+			pt->m_object->RefRelease();
+		}
+		if (auto pt = m_u2[i].lock()) {
+			pt->m_object->RefRelease();
+		}
+		if (auto pt = m_u3[i].lock()) {
+			pt->m_object->RefRelease();
+		}
 	}
 }
 
@@ -372,6 +380,39 @@ std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direct
 		points.push_back(m_u0[3]);
 		points.push_back(m_u1[3]);
 		points.push_back(m_u2[3]);
+		points.push_back(m_u3[3]);
+		break;
+	}
+
+	return points;
+}
+
+std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(RowPlace row)
+{
+	std::vector<std::weak_ptr<Node>> points;
+	switch (row) {
+	case RowPlace::First:
+		points.push_back(m_u0[0]);
+		points.push_back(m_u0[1]);
+		points.push_back(m_u0[2]);
+		points.push_back(m_u0[3]);
+		break;
+	case RowPlace::Second:
+		points.push_back(m_u1[0]);
+		points.push_back(m_u1[1]);
+		points.push_back(m_u1[2]);
+		points.push_back(m_u1[3]);
+		break;
+	case RowPlace::Third:
+		points.push_back(m_u2[0]);
+		points.push_back(m_u2[1]);
+		points.push_back(m_u2[2]);
+		points.push_back(m_u2[3]);
+		break;
+	case RowPlace::Fourth:
+		points.push_back(m_u3[0]);
+		points.push_back(m_u3[1]);
+		points.push_back(m_u3[2]);
 		points.push_back(m_u3[3]);
 		break;
 	}
