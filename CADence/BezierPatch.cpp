@@ -174,28 +174,28 @@ void BezierPatch::UpdateObject()
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u0[i].lock()->m_object->GetPosition(),
-			{1.0f,0.0f,0.0f} });
+			m_meshDesc.m_defaultColor });
 		indicesU.push_back(i);
 	}
 
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u1[i].lock()->m_object->GetPosition(),
-			{0.5f,.5f,0.0f} });
+			m_meshDesc.m_defaultColor });
 		indicesU.push_back(i+4);
 	}
 
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u2[i].lock()->m_object->GetPosition(),
-			{0.0f,0.5f,0.5f} });
+			m_meshDesc.m_defaultColor });
 		indicesU.push_back(i+8);
 	}
 
 	for (int i = 0; i < 4; i++) {
 		vertices.push_back(VertexPositionColor{
 			m_u3[i].lock()->m_object->GetPosition(),
-			{0.0f,0.0f,1.0f} });
+			m_meshDesc.m_defaultColor });
 		indicesU.push_back(i+12);
 	}
 
@@ -289,6 +289,12 @@ void BezierPatch::SetPolygonVisible(bool state)
 void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 col)
 {
 	m_PolygonDesc.m_defaultColor = col;
+	SetModified(true);
+}
+
+void BezierPatch::SetPatchColor(DirectX::XMFLOAT3 col)
+{
+	m_meshDesc.m_defaultColor = col;
 	SetModified(true);
 }
 

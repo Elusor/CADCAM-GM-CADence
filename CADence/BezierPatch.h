@@ -73,6 +73,7 @@ public:
 	void SetDivisions(int divsU, int divsV);
 	void SetPolygonVisible(bool state);
 	void SetPolygonColor(DirectX::XMFLOAT3 col);
+	void SetPatchColor(DirectX::XMFLOAT3 col);
 
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);

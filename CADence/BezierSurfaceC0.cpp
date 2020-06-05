@@ -29,6 +29,12 @@ void BezierSurfaceC0::RenderObject(std::unique_ptr<RenderState>& renderState)
 	}
 }
 
+void BezierSurfaceC0::SetIsSelected(bool isSelected)
+{
+	MeshObject::SetIsSelected(isSelected);
+	SetMeshColor();
+}
+
 bool BezierSurfaceC0::CreateParamsGui()
 {
 	ImGui::Begin("Inspector");
@@ -40,6 +46,27 @@ bool BezierSurfaceC0::CreateParamsGui()
 	std::string label = "Display Bezier polygons" + GetIdentifier();
 	patchChanged |= ImGui::Checkbox(label.c_str(), &m_displayPatchesPolygon);
 	ImGui::Spacing();
+
+	// change colors for mesh
+	float mcolor[3] = {
+		m_meshDesc.m_adjustableColor.x,
+		m_meshDesc.m_adjustableColor.y,
+		m_meshDesc.m_adjustableColor.z,
+	};
+
+	std::string mText = "Mesh color";
+	ImGui::Text(mText.c_str());
+	bool mColChanged = ImGui::ColorEdit3((mText + "##" + mText + GetIdentifier()).c_str(), (float*)&mcolor);
+	patchChanged |= mColChanged;
+
+	m_meshDesc.m_adjustableColor.x = mcolor[0];
+	m_meshDesc.m_adjustableColor.y = mcolor[1];
+	m_meshDesc.m_adjustableColor.z = mcolor[2];
+
+	if (mColChanged)
+	{
+		SetMeshColor();
+	}
 
 	// change colors for polygon
 	float pcolor[3] = {
@@ -134,6 +161,15 @@ void BezierSurfaceC0::SetDisplayPolygon()
 	{
 		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
 		patch->SetPolygonVisible(m_displayPatchesPolygon);
+	}
+}
+
+void BezierSurfaceC0::SetMeshColor()
+{
+	for (int i = 0; i < m_patches.size(); i++)
+	{
+		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
+		patch->SetPatchColor(m_meshDesc.m_defaultColor);
 	}
 }
 

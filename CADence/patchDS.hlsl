@@ -58,6 +58,6 @@ VSOut main(
 	float3 p = CubicBezierSum(patch, basisU, basisV);
 	//o.PosH = mul(float4(p, 1.0f), gWorldViewProj);
 	o.pos = mul(MVP, float4(p, 1.0f));
-	o.col = float4(1.0f,1.0f,1.0f, 1.0f);
+    o.col = float4(patch[0].color, 1.0f);
 	return o;
 }
