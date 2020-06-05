@@ -116,70 +116,7 @@ int DxApplication::MainLoop()
 			m_transController->ProcessInput(ImGui::GetIO());
 			if (m_transController->IsTransforming() == false) {
 				m_camController->ProcessMessage(&ImGui::GetIO());
-#pragma region point selection
-
-				bool lDown = ImGui::GetIO().MouseDown[0];
-				bool lUp = ImGui::GetIO().MouseReleased[0];
-
-				if (lDown && !ImGui::GetIO().WantCaptureMouse)
-				{
-					auto pos = ImGui::GetIO().MousePos;
-					m_pSelector->StartCaptureMultiselect(pos.x, pos.y);
-
-				}
-
-				if (lUp && !ImGui::GetIO().WantCaptureMouse)
-				{
-					auto pos = ImGui::GetIO().MousePos;
-					if (m_pSelector->IsCapturing())
-					{
-						m_pSelector->EndCaptureMultiselect(pos.x,pos.y);
-						auto pts =  m_pSelector->GetAllPointsInArea(m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy);
-						if (pts.size() != 0)
-						{
-							for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
-							{
-								if (auto nod = m_scene->m_selectedNodes[i].lock())
-								{
-									nod->m_isSelected = false;
-								}
-							}
-							m_scene->m_selectedNodes.clear();
-
-							for (int i = 0; i < pts.size(); i++)
-							{
-								if (auto nod = pts[i].lock())
-								{
-									nod->m_isSelected = true;
-									m_scene->m_selectedNodes.push_back(nod);
-								}
-							}
-						}
-						else {
-							auto selectedNode = m_pSelector->GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
-
-
-							if (auto node = selectedNode.lock())
-							{
-								for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
-								{
-									if (auto nod = m_scene->m_selectedNodes[i].lock())
-									{
-										nod->m_isSelected = false;
-									}
-								}
-								m_scene->m_selectedNodes.clear();
-
-								node->m_isSelected = true;
-								m_scene->m_selectedNodes.push_back(selectedNode); \
-							}
-						}
-						
-
-					}
-				}
-
-#pragma endregion
+				m_pSelector->ProcessInput(m_scene.get(), m_window.getClientSize());
 			}
 		
 			InitImguiWindows();

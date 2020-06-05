@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "Scene.h"
 #include "camera.h"
 #include "Node.h"
 
@@ -10,7 +11,7 @@ public:
 
 	std::weak_ptr<Node> GetNearestPoint(int mouseX, int mouseY, std::vector<std::shared_ptr<Node>> nodes, int w, int h, float radius);
 	std::vector<std::weak_ptr<Node>> GetAllPointsInArea(std::vector<std::shared_ptr<Node>> nodes, int width, int height);
-
+	void ProcessInput(Scene* scene, SIZE windowSize);
 	void StartCaptureMultiselect(int mouseX, int mouseY);
 	void EndCaptureMultiselect(int mouseX, int mouseY);
 	bool IsCapturing();
