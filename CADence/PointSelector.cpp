@@ -121,7 +121,6 @@ std::vector<std::weak_ptr<Node>> PointSelector::GetAllPointsInArea(std::vector<s
 
 void PointSelector::ProcessInput(Scene* scene, SIZE windowSize)
 {
-
 	bool lDown = ImGui::GetIO().MouseDown[0];
 	bool lUp = ImGui::GetIO().MouseReleased[0];
 
@@ -130,24 +129,6 @@ void PointSelector::ProcessInput(Scene* scene, SIZE windowSize)
 		auto pos = ImGui::GetIO().MousePos;
 		StartCaptureMultiselect(pos.x, pos.y);
 
-
-		/*auto selectedNode = GetNearestPoint(pos.x, pos.y, m_scene->m_nodes, m_window.getClientSize().cx, m_window.getClientSize().cy, 50);
-
-
-		if (auto node = selectedNode.lock())
-		{
-			for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
-			{
-				if (auto nod = m_scene->m_selectedNodes[i].lock())
-				{
-					nod->m_isSelected = false;
-				}
-			}
-			m_scene->m_selectedNodes.clear();
-
-			node->m_isSelected = true;
-			m_scene->m_selectedNodes.push_back(selectedNode);
-		}*/
 	}
 
 	if (lUp && !ImGui::GetIO().WantCaptureMouse)
@@ -156,29 +137,51 @@ void PointSelector::ProcessInput(Scene* scene, SIZE windowSize)
 		if (IsCapturing())
 		{
 			EndCaptureMultiselect(pos.x, pos.y);
+			// Find all points in the selected area
 			auto pts = GetAllPointsInArea(scene->m_nodes, windowSize.cx, windowSize.cy);
-
-			for (int i = 0; i < scene->m_selectedNodes.size(); i++)
+			if (pts.size() != 0)
 			{
-				if (auto nod = scene->m_selectedNodes[i].lock())
+				// Mark the points on the scene as selected
+				for (int i = 0; i < scene->m_selectedNodes.size(); i++)
 				{
-					nod->m_isSelected = false;
+					if (auto nod = scene->m_selectedNodes[i].lock())
+					{
+						nod->m_isSelected = false;
+					}
+				}
+				scene->m_selectedNodes.clear();
+
+				for (int i = 0; i < pts.size(); i++)
+				{
+					if (auto nod = pts[i].lock())
+					{
+						nod->m_isSelected = true;
+						scene->m_selectedNodes.push_back(nod);
+					}
 				}
 			}
-			scene->m_selectedNodes.clear();
+			else {
+				// If no points are in the selected area - get nearest point
+				// TODO : execute only when deltaX and deltaY are smaller than certain eps
+				auto selectedNode = GetNearestPoint(pos.x, pos.y, scene->m_nodes, windowSize.cx, windowSize.cy, 50);
 
-			for (int i = 0; i < pts.size(); i++)
-			{
-				if (auto nod = pts[i].lock())
+				if (auto node = selectedNode.lock())
 				{
-					nod->m_isSelected = true;
-					scene->m_selectedNodes.push_back(nod);
+					for (int i = 0; i < scene->m_selectedNodes.size(); i++)
+					{
+						if (auto nod = scene->m_selectedNodes[i].lock())
+						{
+							nod->m_isSelected = false;
+						}
+					}
+					scene->m_selectedNodes.clear();
+
+					node->m_isSelected = true;
+					scene->m_selectedNodes.push_back(selectedNode); \
 				}
 			}
-
 		}
 	}
-
 }
 
 void PointSelector::StartCaptureMultiselect(int mouseX, int mouseY)
