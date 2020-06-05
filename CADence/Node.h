@@ -8,8 +8,7 @@ class Scene;
 class Node
 {
 public:
-	std::unique_ptr<Object> m_object;
-	bool m_isSelected = false;	
+	std::unique_ptr<Object> m_object;	
 	bool m_isRenamed = false;
 	bool m_isVirtual = false;
 
@@ -17,6 +16,8 @@ public:
 	std::string GetLabel();
 	void Update();
 	void LateUpdate();
+	void SetIsSelected(bool isSelected);
+	bool GetIsSelected();
 	void Render(std::unique_ptr<RenderState> & renderState);		
 	
 	// Methods that coul be further used for non flat hierarchy 

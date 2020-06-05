@@ -264,7 +264,7 @@ void Scene::SelectionChanged(Node& node)
 		for (int i = 0; i < m_nodes.size(); i++)
 		{		
 			// clear selected status
-			m_nodes[i]->m_isSelected = false;
+			m_nodes[i]->SetIsSelected(false);
 			m_nodes[i]->ClearChildrenSelection();
 
 			// Find weak_ptr to node
@@ -285,7 +285,7 @@ void Scene::SelectionChanged(Node& node)
 		m_selectedNodes.clear();
 
 		// select this node
-		node.m_isSelected = true;			
+		node.SetIsSelected(true);			
 		m_selectedNodes.push_back(weakNode);
 	}
 	else
@@ -293,10 +293,10 @@ void Scene::SelectionChanged(Node& node)
 		// Ctrl is pressed
 		// Add not selected node to selection or
 		// Remove selected node from selection
-		if (node.m_isSelected)
+		if (node.GetIsSelected())
 		{
 			// deselect this node and
-			node.m_isSelected = false;
+			node.SetIsSelected(false);
 			// remove this node from m_selectedNodes
 			auto it = m_selectedNodes.begin();
 			while (it != m_selectedNodes.end())
@@ -318,7 +318,7 @@ void Scene::SelectionChanged(Node& node)
 		else
 		{
 			// select this node
-			node.m_isSelected = true;
+			node.SetIsSelected(true);
 			std::weak_ptr<Node> weakNode;
 			Object& obj = *(node.m_object.get());
 			auto vNode = FindObjectNode(m_nodes, obj);

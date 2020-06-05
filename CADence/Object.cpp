@@ -51,6 +51,16 @@ bool Object::GetIsModified()
 	return m_modified;
 }
 
+void Object::SetIsSelected(bool isSelected)
+{
+	m_isSelected = isSelected;
+}
+
+bool Object::GetIsSelected()
+{
+	return m_isSelected;
+}
+
 void Object::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 }

@@ -15,6 +15,9 @@ public:
 	void UpdateObject() override;
 	bool GetIsModified() override;
 
+	// Implement ChangeColor and override it here so taht when the color of the mesh is changed the color of all children is changed as well
+
+
 private:
 	std::vector<std::shared_ptr<Node>> m_patches;
 	void SetPolygonColor();

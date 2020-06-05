@@ -2,6 +2,24 @@
 #include "imgui.h"
 using namespace DirectX;
 
+void MeshObject::SetIsSelected(bool isSelected)
+{
+	if (isSelected)
+	{
+		// object selected
+		m_meshDesc.m_defaultColor = m_meshDesc.m_selectedColor;
+		SetModified(true);
+	}
+	else 
+	{
+		// object deselected
+		m_meshDesc.m_defaultColor = m_meshDesc.m_adjustableColor;
+		SetModified(true);
+	}
+
+	m_isSelected = isSelected;
+}
+
 void MeshObject::RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescription desc)
 {
 	renderState->m_device.context()->IASetPrimitiveTopology(desc.m_primitiveTopology);

@@ -77,7 +77,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 		bool treePushed = true;
 		// Set Leaf Flags
 		ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_None;
-		if (m_isSelected)
+		if (GetIsSelected())
 		{
 			leaf_flags |= ImGuiTreeNodeFlags_Selected;
 		}
@@ -137,7 +137,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 				if (auto node = it->lock())
 				{
 					ImGuiTreeNodeFlags leaf_flags2 = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-					if (node->m_isSelected)
+					if (node->GetIsSelected())
 					{
 						leaf_flags2 |= ImGuiTreeNodeFlags_Selected;
 					}
@@ -213,7 +213,7 @@ std::vector<std::weak_ptr<Node>> GroupNode::GetSelectedChildren()
 	{
 		if (auto child = m_children[i].lock())
 		{
-			if (child->m_isSelected)
+			if (child->GetIsSelected())
 			{
 				selectedChildren.push_back(child);
 			}
@@ -234,7 +234,7 @@ void GroupNode::ClearChildrenSelection()
 	{
 		if (auto child = m_children[i].lock())
 		{
-			child->m_isSelected = false;
+			child->SetIsSelected(false);
 		}
 	}
 }

@@ -69,7 +69,6 @@ void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	XMMATRIX y = GetCoordinates(Coord::Ypos);
 	XMMATRIX z = GetCoordinates(Coord::Zpos);
 
-
 	XMMATRIX mat = m_transform.GetModelMatrix();
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), mat);
 	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer

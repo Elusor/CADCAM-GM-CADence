@@ -145,7 +145,7 @@ void PointSelector::ProcessInput(std::shared_ptr<Scene>& scene, SIZE windowSize)
 				{
 					if (auto nod = scene->m_selectedNodes[i].lock())
 					{
-						nod->m_isSelected = false;
+						nod->SetIsSelected(false);
 					}
 				}
 				scene->m_selectedNodes.clear();
@@ -154,7 +154,7 @@ void PointSelector::ProcessInput(std::shared_ptr<Scene>& scene, SIZE windowSize)
 				{
 					if (auto nod = pts[i].lock())
 					{
-						nod->m_isSelected = true;
+						nod->SetIsSelected(true);
 						scene->m_selectedNodes.push_back(nod);
 					}
 				}
@@ -170,12 +170,12 @@ void PointSelector::ProcessInput(std::shared_ptr<Scene>& scene, SIZE windowSize)
 					{
 						if (auto nod = scene->m_selectedNodes[i].lock())
 						{
-							nod->m_isSelected = false;
+							nod->SetIsSelected(false);
 						}
 					}
 					scene->m_selectedNodes.clear();
 
-					node->m_isSelected = true;
+					node->SetIsSelected(true);
 					scene->m_selectedNodes.push_back(selectedNode);
 				}
 			}

@@ -56,7 +56,7 @@ void Node::DrawNodeGUI(Scene& scene)
 	else
 	{
 		ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		if (m_isSelected)
+		if (GetIsSelected())
 		{
 			leaf_flags |= ImGuiTreeNodeFlags_Selected;
 		}
@@ -111,4 +111,14 @@ void Node::Update()
 void Node::LateUpdate()
 {
 	this->Update();
+}
+
+void Node::SetIsSelected(bool isSelected)
+{
+	m_object->SetIsSelected(isSelected);
+}
+
+bool Node::GetIsSelected()
+{
+	return m_object->GetIsSelected();
 }

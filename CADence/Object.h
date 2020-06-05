@@ -40,11 +40,15 @@ struct Object {
 	virtual void RenderObjectSpecificContextOptions(Scene& scene);
 	virtual void UpdateObject();
 	virtual bool CreateParamsGui();
-	virtual bool GetIsModified();
+
+	virtual bool GetIsSelected();
+	virtual void SetIsSelected(bool isSelected);
+	virtual bool GetIsModified();	
 	void SetModified(bool value);
 protected:
 
 	Transform m_transform;
 	bool m_modified = false;
+	bool m_isSelected = false;
 
 };
