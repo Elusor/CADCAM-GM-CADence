@@ -58,18 +58,18 @@ bool MeshObject::CreateParamsGui()
 	
 	//change color
 	float color[3] = {
-		m_meshDesc.m_defaultColor.x,
-		m_meshDesc.m_defaultColor.y,
-		m_meshDesc.m_defaultColor.z,
+		m_meshDesc.m_adjustableColor.x,
+		m_meshDesc.m_adjustableColor.y,
+		m_meshDesc.m_adjustableColor.z,
 	};
 
 	std::string text = "Default mesh color";
 	ImGui::Text(text.c_str());
 	meshChanged = ImGui::ColorEdit3(GetIdentifier().c_str(), (float*)&color);
 	
-	m_meshDesc.m_defaultColor.x = color[0];
-	m_meshDesc.m_defaultColor.y = color[1];
-	m_meshDesc.m_defaultColor.z = color[2];
+	m_meshDesc.m_adjustableColor.x = color[0];
+	m_meshDesc.m_adjustableColor.y = color[1];
+	m_meshDesc.m_adjustableColor.z = color[2];
 	
 	return meshChanged;
 }

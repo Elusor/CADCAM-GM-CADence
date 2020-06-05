@@ -50,18 +50,18 @@ bool InterpolationBezierCurveC2::CreateParamsGui()
 
 	// change colors for the curve
 	float mcolor[3] = {
-		m_meshDesc.m_defaultColor.x,
-		m_meshDesc.m_defaultColor.y,
-		m_meshDesc.m_defaultColor.z,
+		m_meshDesc.m_adjustableColor.x,
+		m_meshDesc.m_adjustableColor.y,
+		m_meshDesc.m_adjustableColor.z,
 	};
 
 	std::string mtext = "Curve color";
 	ImGui::Text(mtext.c_str());
 	objectChanged |= ImGui::ColorEdit3(("##" + mtext + GetIdentifier()).c_str(), (float*)&mcolor);
 
-	m_meshDesc.m_defaultColor.x = mcolor[0];
-	m_meshDesc.m_defaultColor.y = mcolor[1];
-	m_meshDesc.m_defaultColor.z = mcolor[2];
+	m_meshDesc.m_adjustableColor.x = mcolor[0];
+	m_meshDesc.m_adjustableColor.y = mcolor[1];
+	m_meshDesc.m_adjustableColor.z = mcolor[2];
 	ImGui::Spacing();
 
 	// checkbox for Bernstein's polygon
