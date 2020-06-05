@@ -5,23 +5,22 @@
 #include "Node.h"
 
 using namespace DirectX;
-void Point::RenderObject(std::unique_ptr<RenderState>& renderState)
-{
-	//Update content to fill constant buffer
-	XMMATRIX m = m_transform.GetModelMatrix();
-	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
-	ID3D11Buffer* cbs[] = { Mbuffer };
-	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs);
 
-	float size = 0.2f;
+Point::Point(float size)
+{
+	m_size = size;
+
+	m_meshDesc.m_selectedColor = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	m_meshDesc.m_adjustableColor = XMFLOAT3(1.0f, 0.0f, 1.0f);
+	m_meshDesc.m_defaultColor = m_meshDesc.m_adjustableColor;
 
 	std::vector<VertexPositionColor> vertices{
-		{{-size,0.0f,0.0f},{1.0f,1.0f,1.0f}},
-		{{ size,0.0f,0.0f},{1.0f,1.0f,1.0f}},
-		{{0.0f,-size,0.0f},{1.0f,1.0f,1.0f}},
-		{{0.0f, size,0.0f},{1.0f,1.0f,1.0f}},
-		{{0.0f,0.0f,-size},{1.0f,1.0f,1.0f}},
-		{{0.0f,0.0f, size},{1.0f,1.0f,1.0f}}
+		{{-m_size,0.0f,0.0f}, m_meshDesc.m_defaultColor},
+		{{ m_size,0.0f,0.0f}, m_meshDesc.m_defaultColor},
+		{{0.0f,-m_size,0.0f}, m_meshDesc.m_defaultColor},
+		{{0.0f, m_size,0.0f}, m_meshDesc.m_defaultColor},
+		{{0.0f,0.0f,-m_size}, m_meshDesc.m_defaultColor},
+		{{0.0f,0.0f, m_size}, m_meshDesc.m_defaultColor}
 	};
 
 	std::vector<unsigned short> indices{
@@ -30,22 +29,16 @@ void Point::RenderObject(std::unique_ptr<RenderState>& renderState)
 	4,5
 	};
 
-	renderState->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	
+	m_meshDesc.vertices = vertices;
+	m_meshDesc.indices = indices;
+	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
-	// Update Vertex and index buffers
-	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(vertices));
-	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(indices));
-	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
+}
 
-	//Update strides and offets based on the vertex class
-	UINT strides[] = { sizeof(VertexPositionColor) };
-	UINT offsets[] = { 0 };
-
-	renderState->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
-
-	// Watch out for meshes that cannot be covered by ushort
-	renderState->m_device.context()->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
-	renderState->m_device.context()->DrawIndexed(6, 0, 0);
+void Point::RenderObject(std::unique_ptr<RenderState>& renderState)
+{
+	RenderMesh(renderState, m_meshDesc);
 }
 
 bool Point::CreateParamsGui()
@@ -112,7 +105,26 @@ void Point::RenderObjectSpecificContextOptions(Scene& scene)
 			}			
 			ImGui::EndMenu();
 		}
-	}
+	}	
+}
 
-	
+void Point::UpdateObject()
+{	
+	std::vector<VertexPositionColor> vertices{
+		{{-m_size,0.0f,0.0f}, m_meshDesc.m_defaultColor},
+		{{ m_size,0.0f,0.0f}, m_meshDesc.m_defaultColor},
+		{{0.0f,-m_size,0.0f}, m_meshDesc.m_defaultColor},
+		{{0.0f, m_size,0.0f}, m_meshDesc.m_defaultColor},
+		{{0.0f,0.0f,-m_size}, m_meshDesc.m_defaultColor},
+		{{0.0f,0.0f, m_size}, m_meshDesc.m_defaultColor}
+	};
+
+	std::vector<unsigned short> indices{
+	0,1,
+	2,3,
+	4,5
+	};
+
+	m_meshDesc.vertices = vertices;
+	m_meshDesc.indices = indices;
 }
