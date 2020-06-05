@@ -2,16 +2,16 @@
 #include "Scene.h"
 #include "mathUtils.h"
 std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
-	int width, int height, XMFLOAT3 position,
-	bool cylinder, float sizeW, float sizeH,
+	int patchesW, int patchesH, XMFLOAT3 position,
+	bool cylinder, float width, float height,
 	SurfaceWrapDirection wrapDir)
 {
-	int widthPointCount = 3 * width + 1;
-	int heightPointCount = 3 * height + 1;
+	int widthPointCount = 3 * patchesW + 1;
+	int heightPointCount = 3 * patchesH + 1;
 
 	int wrappedHeight = heightPointCount;
 	int wrappedWidth = widthPointCount;
-	
+
 	if (cylinder)
 	{
 		if (wrapDir == SurfaceWrapDirection::Height)
@@ -25,7 +25,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 		}
 	}
 
-	std::shared_ptr<Node>** points = new std::shared_ptr<Node>*[widthPointCount];
+	std::shared_ptr<Node>** points = new std::shared_ptr<Node> * [widthPointCount];
 	for (int i = 0; i < widthPointCount; i++) {
 		points[i] = new std::shared_ptr<Node>[heightPointCount];
 	}
@@ -54,29 +54,29 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 			points[widthPointCount - 1] = points[0];
 		}
 	}
-	
+
 	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
 	BezierPatch*** patches;
-	patches = new BezierPatch** [width];
+	patches = new BezierPatch * *[patchesW];
 
-	for (int i = 0; i < width; i++) {
-		patches[i] = new BezierPatch*[height];
+	for (int i = 0; i < patchesW; i++) {
+		patches[i] = new BezierPatch * [patchesH];
 	}
 
-	float patchSizeW = sizeW / (float)width;
-	float patchSizeH = sizeH / (float)height;
+	float patchSizeW = width / (float)patchesW;
+	float patchSizeH = height / (float)patchesH;
 
-	for (int patchW = 0; patchW < width; patchW++) {
-		for (int patchH = 0; patchH < height; patchH++) {
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
 
 			std::vector<std::weak_ptr<Node>> top, bot, topMid, botMid;
 			// determine top bot left and right
 			int startIdxW = 3 * patchW;
 			int startIdxH = 3 * patchH;
-			top =	 { points[startIdxW][startIdxH + 3], points[startIdxW + 1][startIdxH + 3], points[startIdxW + 2][startIdxH + 3], points[startIdxW + 3][startIdxH + 3] };
+			top = { points[startIdxW][startIdxH + 3], points[startIdxW + 1][startIdxH + 3], points[startIdxW + 2][startIdxH + 3], points[startIdxW + 3][startIdxH + 3] };
 			topMid = { points[startIdxW][startIdxH + 2], points[startIdxW + 1][startIdxH + 2], points[startIdxW + 2][startIdxH + 2], points[startIdxW + 3][startIdxH + 2] };
 			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
-			bot =	 { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
+			bot = { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
 
 			auto patch = CreateBezierPatch(scene, top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
@@ -84,114 +84,74 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 		}
 	}
 
-	for (int w = 0; w < width; w++)
-	{
-		for (int h = 0; h < height; h++)
+	// determine pointStepW and pointStepH
+	// Move to grid
+
+	if (cylinder)
+	{		
+		for (int w = 0; w < wrappedWidth; w++)
 		{
-
-			BezierPatch* patch = patches[w][h];
-			if (cylinder == false)
-			{				
-				float baseX = position.x + (float)w * patchSizeW;
-				float baseY = position.y + 0.0f;
-				float baseZ = position.z + (float)h * patchSizeH;
-				auto u0 = patch->GetPoints(RowPlace::First);
-
-
-				for (int i = 0; i < 4; i++)
+			for (int h = 0; h < wrappedHeight; h++)
+			{
+				if (wrapDir == SurfaceWrapDirection::Width)
 				{
-					float x = baseX + (float)patchSizeW * (float)i / 3.f;
-					float z = baseZ + (float)patchSizeH;
-					u0[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
+					// case width wrap
+					float currentArg = (float)w / (float)wrappedWidth * XM_2PI;
+					float radius = width;
+					float pointStepLen = height / ((float)patchesH * 3.0f);					
+					points[w][h]->m_object->SetPosition(
+						XMFLOAT3( 
+							sinf(currentArg) * radius, 
+							cosf(currentArg) * radius,
+							(float) h * pointStepLen)
+						);						
 				}
-
-				auto U1 = patch->GetPoints(RowPlace::Second);
-				for (int i = 0; i < 4; i++)
-				{
-					float x = baseX + (float)patchSizeW * (float)i / 3.f;
-					float z = baseZ + (float)patchSizeH * 2.f / 3.f;
-					U1[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
-				}
-
-				auto u2 = patch->GetPoints(RowPlace::Third);
-				for (int i = 0; i < 4; i++)
-				{
-					float x = baseX + (float)patchSizeW * (float)i / 3.f;
-					float z = baseZ + (float)patchSizeH * 1.f / 3.f;
-					u2[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
-
-				}
-
-				auto u3 = patch->GetPoints(RowPlace::Fourth);
-				for (int i = 0; i < 4; i++)
-				{
-					float x = baseX + (float)patchSizeW * (float)i / 3.f;
-					float z = baseZ;
-					u3[i].lock()->m_object->SetPosition(XMFLOAT3(x, baseY, z));
+				else {
+					float currentArg = (float)h / (float)wrappedHeight * XM_2PI;
+					float radius = height;
+					float pointStepLen = width / ((float)patchesW * 3.0f);
+					points[w][h]->m_object->SetPosition(
+						XMFLOAT3(
+							(float)w * pointStepLen,
+							cosf(currentArg) * radius,
+							sinf(currentArg) * radius)
+					);
 				}
 			}
-			else {
+		}	
+	}
+	else
+	{
+		float pointStepW = width / ((float)patchesW * 3.0f);
+		float pointStepH = height / ((float)patchesH * 3.0f);
 
-				float baseX = position.x;
-				float baseY = position.y;
-				float baseZ = position.z + (float)h * patchSizeH;
-				
-				float step = XM_2PI / (float)width;
-				auto u0 = patch->GetPoints(RowPlace::First);
-				for (int i = 0; i < 4; i++)
-				{
-					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * sizeW;
-					float y = baseY + cosf(angle) * sizeW;
-					float z = baseZ + (float)patchSizeH;
-					u0[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
-				}
-
-				auto U1 = patch->GetPoints(RowPlace::Second);
-				for (int i = 0; i < 4; i++)
-				{
-					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * sizeW;
-					float y = baseY + cosf(angle) * sizeW;
-					float z = baseZ + (float)patchSizeH * 2.f / 3.f;
-					U1[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
-				}
-
-				auto u2 = patch->GetPoints(RowPlace::Third);
-				for (int i = 0; i < 4; i++)
-				{
-					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * sizeW;
-					float y = baseY + cosf(angle) * sizeW;
-					float z = baseZ + (float)patchSizeH * 1.f / 3.f;
-					u2[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
-
-				}
-
-				auto u3 = patch->GetPoints(RowPlace::Fourth);
-				for (int i = 0; i < 4; i++)
-				{
-					float angle = (float)i / 3.f * step + w * step;
-					float x = baseX + sinf(angle) * sizeW;
-					float y = baseY + cosf(angle) * sizeW;
-					float z = baseZ;
-					u3[i].lock()->m_object->SetPosition(XMFLOAT3(x, y, z));
-				}
+		for (int w = 0; w < wrappedWidth; w++)
+		{
+			for (int h = 0; h < wrappedHeight; h++)
+			{
+				points[w][h]->m_object->SetPosition(
+					XMFLOAT3(
+					(float)w * pointStepW,
+						0.0f,
+						(float)h * pointStepH));
 			}
-
-			patch->UpdateObject();
 		}
 	}
+	
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
+			patches[patchW][patchH]->UpdateObject();
+		}
+	}	
 
-	//TODO release all dynamically set up resources
-
+	// Relese auxiliary data
 	for (int i = 0; i < wrappedWidth; i++)
 	{
 		delete[] (points[i]);
 	}
 	delete[] points;
 
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < patchesW; i++)
 	{
 		delete[] (patches[i]);
 	}

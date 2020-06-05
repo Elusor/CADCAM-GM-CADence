@@ -34,6 +34,7 @@ private:
 	int m_sizeX;
 	int m_sizeY;
 	bool m_altState;
+	bool m_altDir;
 
 	void ClearScene();
 	void DrawScenePopupMenu();

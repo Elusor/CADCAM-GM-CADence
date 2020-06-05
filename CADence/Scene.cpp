@@ -141,6 +141,7 @@ void Scene::DrawScenePopupMenu()
 		m_sizeX = 15;
 		m_sizeY = 15;
 		m_altState = false;
+		m_altDir = false;
 	}
 
 	if (ImGui::BeginPopupModal("Modal window"))
@@ -152,6 +153,7 @@ void Scene::DrawScenePopupMenu()
 
 		if (m_altState)
 		{
+			ImGui::Checkbox("Wrap height", &m_altDir);
 			ImGui::DragInt("Radius patch count", &m_sizeU, 1, 1, 10);
 			ImGui::DragInt("Length patch count", &m_sizeV, 1, 1, 10);
 			ImGui::DragInt("Radius", &m_sizeX, 1, 1, 20);
@@ -178,7 +180,16 @@ void Scene::DrawScenePopupMenu()
 
 		if (ImGui::Button("Submit"))
 		{
-			m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV,m_spawnMarker->GetPosition(), m_altState, m_sizeX, m_sizeY);
+			if (m_altDir)
+			{
+				m_objectFactory->CreateBezierSurface(this, m_sizeV, m_sizeU, m_spawnMarker->GetPosition(),
+					m_altState, m_sizeY, m_sizeX, SurfaceWrapDirection::Height);
+			}
+			else {
+				m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV, m_spawnMarker->GetPosition(),
+					m_altState, m_sizeX, m_sizeY, SurfaceWrapDirection::Width);
+			}
+			
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
