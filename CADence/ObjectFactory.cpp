@@ -2,7 +2,7 @@
 #include "Scene.h"
 #include "mathUtils.h"
 std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
-	int patchesW, int patchesH, XMFLOAT3 position,
+	int patchesW, int patchesH, XMFLOAT3 middlePosition,
 	bool cylinder, float width, float height,
 	SurfaceWrapDirection wrapDir)
 {
@@ -87,24 +87,25 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 	// determine pointStepW and pointStepH
 	// Move to grid
 
-	if (cylinder)
-	{		
-		for (int w = 0; w < wrappedWidth; w++)
+		
+	for (int w = 0; w < wrappedWidth; w++)
+	{
+		for (int h = 0; h < wrappedHeight; h++)
 		{
-			for (int h = 0; h < wrappedHeight; h++)
+			if (cylinder)
 			{
 				if (wrapDir == SurfaceWrapDirection::Width)
 				{
 					// case width wrap
 					float currentArg = (float)w / (float)wrappedWidth * XM_2PI;
 					float radius = width;
-					float pointStepLen = height / ((float)patchesH * 3.0f);					
+					float pointStepLen = height / ((float)patchesH * 3.0f);
 					points[w][h]->m_object->SetPosition(
-						XMFLOAT3( 
-							sinf(currentArg) * radius, 
+						XMFLOAT3(
+							sinf(currentArg) * radius,
 							cosf(currentArg) * radius,
-							(float) h * pointStepLen)
-						);						
+							(float)h * pointStepLen - height / 2.f)
+					);
 				}
 				else {
 					float currentArg = (float)h / (float)wrappedHeight * XM_2PI;
@@ -112,31 +113,31 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 					float pointStepLen = width / ((float)patchesW * 3.0f);
 					points[w][h]->m_object->SetPosition(
 						XMFLOAT3(
-							(float)w * pointStepLen,
+						(float)w * pointStepLen - width / 2.f,
 							cosf(currentArg) * radius,
 							sinf(currentArg) * radius)
 					);
 				}
 			}
-		}	
-	}
-	else
-	{
-		float pointStepW = width / ((float)patchesW * 3.0f);
-		float pointStepH = height / ((float)patchesH * 3.0f);
-
-		for (int w = 0; w < wrappedWidth; w++)
-		{
-			for (int h = 0; h < wrappedHeight; h++)
+			else 
 			{
+				float pointStepW = width / ((float)patchesW * 3.0f);
+				float pointStepH = height / ((float)patchesH * 3.0f);
+
+				
 				points[w][h]->m_object->SetPosition(
 					XMFLOAT3(
-					(float)w * pointStepW,
+						(float)w * pointStepW - width / 2.f,
 						0.0f,
-						(float)h * pointStepH));
+						(float)h * pointStepH - height / 2.f));
+				
 			}
+			// move all point so they center of the surface is in the cursor
+			points[w][h]->m_object->SetPosition(
+				XMF3SUM(points[w][h]->m_object->GetPosition(), middlePosition));
+			
 		}
-	}
+	}			
 	
 	for (int patchW = 0; patchW < patchesW; patchW++) {
 		for (int patchH = 0; patchH < patchesH; patchH++) {
