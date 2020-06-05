@@ -1,12 +1,18 @@
 #pragma once
+#include <DirectXMath.h>
 #include "dxDevice.h"
 #include "camera.h"
 #include "window.h"
+#include "vertexStructures.h"
+
+using namespace DirectX;
+
 // Used to pass render data to objects so they can be drawn independently
 // TODO: rework this class 
 struct RenderState
 {
 	RenderState(mini::Window& window);
+	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
 
 	std::shared_ptr<Camera> m_camera;
 	DxDevice m_device;

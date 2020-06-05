@@ -25,9 +25,6 @@ protected:
 	int MainLoop() override;
 
 private:
-	void RenderPass();
-	void Clear();
-	void Render();
 	void InitImguiWindows();
 	void Update();
 
