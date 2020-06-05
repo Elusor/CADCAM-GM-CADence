@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "window.h"
 // Used to pass render data to objects so they can be drawn independently
+// TODO: rework this class 
 struct RenderState
 {
 	RenderState(mini::Window& window);
@@ -16,6 +17,10 @@ struct RenderState
 
 	mini::dx_ptr<ID3D11VertexShader> m_vertexShader;
 	mini::dx_ptr<ID3D11PixelShader> m_pixelShader;
+
+	mini::dx_ptr<ID3D11VertexShader> m_screenSpaceVS;
+	mini::dx_ptr<ID3D11PixelShader> m_screenSpacePS;
+
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
 	mini::dx_ptr<ID3D11HullShader> m_patchHullShader;
@@ -24,6 +29,7 @@ struct RenderState
 	mini::dx_ptr<ID3D11InputLayout> m_layout;		
 
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;
+
 	mini::dx_ptr<ID3D11Buffer> m_cbVP;
 	mini::dx_ptr<ID3D11Buffer> m_cbM;
 	mini::dx_ptr<ID3D11Buffer> m_cbGSData;
@@ -62,7 +68,6 @@ inline ID3D11Buffer* RenderState::SetConstantBuffer(ID3D11Buffer* buffer, T* wri
 }
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX* writeData, int count);
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR* writeData, int count);
-
 
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX writeData);
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR writeData);

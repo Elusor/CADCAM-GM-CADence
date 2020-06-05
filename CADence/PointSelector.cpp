@@ -119,7 +119,7 @@ std::vector<std::weak_ptr<Node>> PointSelector::GetAllPointsInArea(std::vector<s
 	return points;
 }
 
-void PointSelector::ProcessInput(Scene* scene, SIZE windowSize)
+void PointSelector::ProcessInput(std::shared_ptr<Scene>& scene, SIZE windowSize)
 {
 	bool lDown = ImGui::GetIO().MouseDown[0];
 	bool lUp = ImGui::GetIO().MouseReleased[0];
@@ -127,8 +127,7 @@ void PointSelector::ProcessInput(Scene* scene, SIZE windowSize)
 	if (lDown && !ImGui::GetIO().WantCaptureMouse)
 	{
 		auto pos = ImGui::GetIO().MousePos;
-		StartCaptureMultiselect(pos.x, pos.y);
-
+		StartCaptureMultiselect(pos.x, pos.y);		
 	}
 
 	if (lUp && !ImGui::GetIO().WantCaptureMouse)
@@ -177,11 +176,68 @@ void PointSelector::ProcessInput(Scene* scene, SIZE windowSize)
 					scene->m_selectedNodes.clear();
 
 					node->m_isSelected = true;
-					scene->m_selectedNodes.push_back(selectedNode); \
+					scene->m_selectedNodes.push_back(selectedNode);
 				}
 			}
 		}
 	}
+}
+
+void PointSelector::DrawSelectionWindow(std::unique_ptr<RenderState>& renderState, SIZE windowSize)
+{
+	if (m_isCapturing)
+	{
+		auto pos = ImGui::GetIO().MousePos;
+		StartCaptureMultiselect(pos.x, pos.y);
+
+		renderState->m_device.context()->VSSetShader(renderState->m_screenSpaceVS.get(), 0, 0);
+		renderState->m_device.context()->PSSetShader(renderState->m_screenSpacePS.get(), 0, 0);
+
+		XMFLOAT3 m_color = XMFLOAT3(0.8f, 0.3f, 0.1f);
+
+		float wf = (float)windowSize.cx;
+		float hf = (float)windowSize.cy;
+
+		// calculcate pos 
+
+		float x1 = m_p0.x / wf - 0.5f;
+		float y1 = m_p0.y / hf - 0.5f;
+
+		float x2 = pos.x / wf - 0.5f;
+		float y2 = pos.y / hf - 0.5f;
+
+		x1 *= 2.f;
+		y1 *= -2.f;
+		x2 *= 2.f;
+		y2 *= -2.f;
+
+		std::vector<VertexPositionColor> vertices{
+			{{x1,y2, 0.0f}, {m_color}},
+			{{x1,y1, 0.0f}, {m_color}},
+			{{x2,y1, 0.0f}, {m_color}},
+			{{x2,y2, 0.0f}, {m_color}}
+		};
+
+		std::vector<unsigned short> indices{ 0,1,1,2,2,3,3,0 };
+
+		renderState->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		// Update Vertex and index buffers
+		renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(vertices));
+		renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(indices));
+		ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
+
+		//Update strides and offets based on the vertex class
+		UINT strides[] = { sizeof(VertexPositionColor) };
+		UINT offsets[] = { 0 };
+
+		renderState->m_device.context()->IASetVertexBuffers(0, 1, vbs, strides, offsets);
+
+		// Watch out for meshes that cannot be covered by ushort
+		renderState->m_device.context()->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+		renderState->m_device.context()->DrawIndexed(indices.size(), 0, 0);
+	}
+	
 }
 
 void PointSelector::StartCaptureMultiselect(int mouseX, int mouseY)

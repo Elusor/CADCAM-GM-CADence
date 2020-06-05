@@ -19,33 +19,38 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	: WindowApplication(hInstance)
 {
 	// init viewport
-	m_renderState = unique_ptr<RenderState>(new RenderState(m_window));
 	SIZE wndSize = m_window.getClientSize();
-	Viewport viewport{ wndSize };
-	m_renderState->m_device.context()->RSSetViewports(1, &viewport);
+	Viewport viewport{ wndSize };	
 
 	// init camera
-	m_renderState->m_camera = std::shared_ptr<Camera>(
-		new Camera(
-		XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
+	std::shared_ptr<Camera> camera = make_shared<Camera>(XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
 		XMFLOAT2(0.0f, -0.55f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
-		DirectX::XM_PIDIV2, 0.5f, 150)); // fov, zNear, zFar
+		DirectX::XM_PIDIV2, 0.5f, 150); // fov, zNear, zFar		
+			
+	m_camController = make_unique<CameraController>(camera);
+	m_scene = make_shared<Scene>();
 
-	m_camController = unique_ptr<CameraController>(new CameraController(m_renderState->m_camera));
-	m_scene = std::shared_ptr<Scene>(new Scene());
+	// set up RenderState
+	m_renderState = make_unique<RenderState>(m_window);
+	m_renderState->m_device.context()->RSSetViewports(1, &viewport);
+	m_renderState->m_camera = camera;
 
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
+	const auto ssVsBytes = DxDevice::LoadByteCode(L"ssVs.cso");
+	const auto ssPsBytes = DxDevice::LoadByteCode(L"ssPs.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
 	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
 	const auto patchDsBytes = DxDevice::LoadByteCode(L"patchDS.cso");
-
+	
 	m_renderState->m_vertexShader = m_renderState->m_device.CreateVertexShader(vsBytes);
 	m_renderState->m_pixelShader = m_renderState->m_device.CreatePixelShader(psBytes);
+	m_renderState->m_screenSpaceVS = m_renderState->m_device.CreateVertexShader(ssVsBytes);
+	m_renderState->m_screenSpacePS = m_renderState->m_device.CreatePixelShader(ssPsBytes);
 	m_renderState->m_bezierGeometryShader = m_renderState->m_device.CreateGeometryShader(bezierGsBytes);
 	m_renderState->m_patchGeometryShader = m_renderState->m_device.CreateGeometryShader(patchGsBytes);
 
@@ -107,7 +112,6 @@ int DxApplication::MainLoop()
 				m_stereoChanged = false;
 			}
 
-
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
@@ -116,12 +120,14 @@ int DxApplication::MainLoop()
 			m_transController->ProcessInput(ImGui::GetIO());
 			if (m_transController->IsTransforming() == false) {
 				m_camController->ProcessMessage(&ImGui::GetIO());
-				m_pSelector->ProcessInput(m_scene.get(), m_window.getClientSize());
+				m_pSelector->ProcessInput(m_scene, m_window.getClientSize());
+				
 			}
 		
 			InitImguiWindows();
 			Update();
 			m_activePass->Execute(m_renderState, m_scene.get());		
+			m_pSelector->DrawSelectionWindow(m_renderState, m_window.getClientSize());
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

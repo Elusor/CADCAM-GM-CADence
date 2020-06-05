@@ -11,7 +11,8 @@ public:
 
 	std::weak_ptr<Node> GetNearestPoint(int mouseX, int mouseY, std::vector<std::shared_ptr<Node>> nodes, int w, int h, float radius);
 	std::vector<std::weak_ptr<Node>> GetAllPointsInArea(std::vector<std::shared_ptr<Node>> nodes, int width, int height);
-	void ProcessInput(Scene* scene, SIZE windowSize);
+	void ProcessInput(std::shared_ptr<Scene>& scene, SIZE windowSize);
+	void DrawSelectionWindow(std::unique_ptr<RenderState>& renderState, SIZE windowSize);
 	void StartCaptureMultiselect(int mouseX, int mouseY);
 	void EndCaptureMultiselect(int mouseX, int mouseY);
 	bool IsCapturing();

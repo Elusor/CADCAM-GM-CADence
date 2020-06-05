@@ -42,7 +42,6 @@ private:
 
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
-
 	IRenderPass* m_activePass;
 
 	BackBufferRenderTarget* m_target;

@@ -427,6 +427,12 @@
     <FxCompile Include="patchHS.hlsl">
       <Filter>Shaders\BezierPatch</Filter>
     </FxCompile>
+    <FxCompile Include="ssVs.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ssPs.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderStructs.hlsli">
