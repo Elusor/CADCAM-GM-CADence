@@ -66,11 +66,11 @@ void Scene::DrawScenePopupMenu()
 				imGuiWorkaroundSuggestedByItsAuthor = true;								
 			}
 			
-			if (ImGui::MenuItem("Bezier Patch"))
+			/*if (ImGui::MenuItem("Bezier Patch"))
 			{
 				auto p1 = m_objectFactory->CreateBezierPatch(this);				
 				AttachObject(p1);				
-			}
+			}*/
 
 			if (ImGui::MenuItem("Point"))
 			{

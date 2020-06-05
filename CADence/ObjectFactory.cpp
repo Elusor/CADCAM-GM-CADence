@@ -1,103 +1,89 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
 #include "mathUtils.h"
-std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position, bool cylinder, float sizeW, float sizeH)
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
+	int width, int height, XMFLOAT3 position,
+	bool cylinder, float sizeW, float sizeH,
+	SurfaceWrapDirection wrapDir)
 {
+	int widthPointCount = 3 * width + 1;
+	int heightPointCount = 3 * height + 1;
+
+	int wrappedHeight = heightPointCount;
+	int wrappedWidth = widthPointCount;
+	
+	if (cylinder)
+	{
+		if (wrapDir == SurfaceWrapDirection::Height)
+		{
+			wrappedHeight--;
+		}
+
+		if (wrapDir == SurfaceWrapDirection::Width)
+		{
+			wrappedWidth--;
+		}
+	}
+
+	std::shared_ptr<Node>** points = new std::shared_ptr<Node>*[widthPointCount];
+	for (int i = 0; i < widthPointCount; i++) {
+		points[i] = new std::shared_ptr<Node>[heightPointCount];
+	}
+
+	for (int w = 0; w < wrappedWidth; w++) {
+		for (int h = 0; h < wrappedHeight; h++) {
+			auto pt = CreatePoint();
+			scene->AttachObject(pt);
+			pt->m_object->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+			points[w][h] = pt;
+		}
+	}
+
+	if (cylinder)
+	{
+		if (wrapDir == SurfaceWrapDirection::Height)
+		{
+			for (int w = 0; w < wrappedWidth; w++)
+			{
+				points[w][heightPointCount - 1] = points[w][0];
+			}
+		}
+
+		if (wrapDir == SurfaceWrapDirection::Width)
+		{
+			points[widthPointCount - 1] = points[0];
+		}
+	}
+	
 	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
 	BezierPatch*** patches;
-	patches = new BezierPatch* * [width];
-
-	float patchSizeW = sizeW / (float)width;
-	float patchSizeH = sizeH / (float)height;
+	patches = new BezierPatch** [width];
 
 	for (int i = 0; i < width; i++) {
 		patches[i] = new BezierPatch*[height];
 	}
 
-	// Create firts patch
-	auto p00 = CreateBezierPatch(scene);
-	patches[0][0] = (BezierPatch*)p00->m_object.get();
-	surfPatches.push_back(p00);
-	//scene->AttachObject(p00);
+	float patchSizeW = sizeW / (float)width;
+	float patchSizeH = sizeH / (float)height;
 
+	for (int patchW = 0; patchW < width; patchW++) {
+		for (int patchH = 0; patchH < height; patchH++) {
 
-	//Create First Row
-	for (int i = 1; i < width-1; i++) {
-		
-		auto leftPoints = patches[i - 1][0]->GetPoints(BoundaryDirection::Right);
-		auto point = CreateBezierPatch(scene,
-			std::vector<std::weak_ptr<Node>>(),
-			std::vector<std::weak_ptr<Node>>(),
-			leftPoints);
-		surfPatches.push_back(point);
-		//scene->AttachObject(point);
-		patches[i][0] = (BezierPatch*)point->m_object.get();
-	}
+			std::vector<std::weak_ptr<Node>> top, bot, topMid, botMid;
+			// determine top bot left and right
+			int startIdxW = 3 * patchW;
+			int startIdxH = 3 * patchH;
+			top =	 { points[startIdxW][startIdxH + 3], points[startIdxW + 1][startIdxH + 3], points[startIdxW + 2][startIdxH + 3], points[startIdxW + 3][startIdxH + 3] };
+			topMid = { points[startIdxW][startIdxH + 2], points[startIdxW + 1][startIdxH + 2], points[startIdxW + 2][startIdxH + 2], points[startIdxW + 3][startIdxH + 2] };
+			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
+			bot =	 { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
 
-	// Create the rest but one
-	for (int h = 1; h < height; h++)
-	{
-		auto botPoints = patches[0][h - 1]->GetPoints(BoundaryDirection::Top);
-		auto p = CreateBezierPatch(scene,
-			std::vector<std::weak_ptr<Node>>(),
-			botPoints);
-		surfPatches.push_back(p);
-		//scene->AttachObject(p);
-		patches[0][h] = (BezierPatch*)p->m_object.get();
-
-		for (int w = 1; w < width-1; w++)
-		{
-			auto bottomPoints = patches[w][h - 1]->GetPoints(BoundaryDirection::Top);
-			auto leftPoints = patches[w-1][h]->GetPoints(BoundaryDirection::Right);
-			auto innerPt = CreateBezierPatch(scene,
-				std::vector<std::weak_ptr<Node>>(),
-				bottomPoints,
-				leftPoints);
-			surfPatches.push_back(innerPt);
-			//scene->AttachObject(innerPt);
-
-			patches[w][h] = (BezierPatch*)innerPt->m_object.get();
+			auto patch = CreateBezierPatch(scene, top, topMid, botMid, bot);
+			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
+			surfPatches.push_back(patch);
 		}
 	}
 
-	if (width > 1)
-	{	
-	// Create the last one 
-	// Attach the first 
-	auto leftPoints = patches[width-2][0]->GetPoints(BoundaryDirection::Right);
-	
-	std::vector<std::weak_ptr<Node>> rightPoints;
-	if(cylinder)
-		rightPoints = patches[0][0]->GetPoints(BoundaryDirection::Left);
-	else {
-		rightPoints = std::vector<std::weak_ptr<Node>>();
-	}
-
-	auto firstConnector = CreateBezierPatch(scene, std::vector<std::weak_ptr<Node>>(), std::vector<std::weak_ptr<Node>>(), leftPoints, rightPoints);
-	surfPatches.push_back(firstConnector);
-	//scene->AttachObject(p);
-	patches[width-1][0] = (BezierPatch*)firstConnector->m_object.get();
-
-	for (int h = 1; h < height; h++)
-	{
-		auto botPoints = patches[width-1][h-1]->GetPoints(BoundaryDirection::Top);
-		
-		std::vector<std::weak_ptr<Node>> rightPoints;
-		if (cylinder)
-			rightPoints = patches[0][h]->GetPoints(BoundaryDirection::Left);
-		else {
-			rightPoints = std::vector<std::weak_ptr<Node>>();
-		}
-
-		auto leftPoints = patches[width-2][h]->GetPoints(BoundaryDirection::Right);
-		auto connector = CreateBezierPatch(scene, std::vector<std::weak_ptr<Node>>(), botPoints, leftPoints, rightPoints);
-		surfPatches.push_back(connector);
-		//scene->AttachObject(p);
-		patches[width-1][h] = (BezierPatch*)connector->m_object.get();
-
-	}
-
-	}
 	for (int w = 0; w < width; w++)
 	{
 		for (int h = 0; h < height; h++)
@@ -197,6 +183,20 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 		}
 	}
 
+	//TODO release all dynamically set up resources
+
+	for (int i = 0; i < wrappedWidth; i++)
+	{
+		delete[] (points[i]);
+	}
+	delete[] points;
+
+	for (int i = 0; i < width; i++)
+	{
+		delete[] (patches[i]);
+	}
+	delete[] patches;
+
 
 	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
 
@@ -218,107 +218,31 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene, int width
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	Scene* scene,
 	std::vector<std::weak_ptr<Node>> top,
-	std::vector<std::weak_ptr<Node>> bottom,
-	std::vector<std::weak_ptr<Node>> left,
-	std::vector<std::weak_ptr<Node>> right
+	std::vector<std::weak_ptr<Node>> topMid,
+	std::vector<std::weak_ptr<Node>> botMid,
+	std::vector<std::weak_ptr<Node>> bot
 	)
 {
-	// This function is ungodly and should be smitten by god for it's sole existance (TODO : refactor)
 	XMFLOAT3 pos = XMFLOAT3(0.f, 0.f, 0.f);
-	float h = 5.0f;
-	float w = 5.0f;
 
 	std::vector<std::weak_ptr<Node>> u0;
 	std::vector<std::weak_ptr<Node>> u1;
 	std::vector<std::weak_ptr<Node>> u2;
 	std::vector<std::weak_ptr<Node>> u3;
-	std::weak_ptr<Node> c;
-
-	for (int i = 0; i < 4; i++) {
-		u0.push_back(c);
-		u1.push_back(c);
-		u2.push_back(c);
-		u3.push_back(c);
-	}
-
+	
 	bool allocateTop, allocateBot, allocateLeft, allocateRight;
 
 	allocateTop = top.size() != 4;
-	allocateBot = bottom.size() != 4;
-	allocateLeft = left.size() != 4;
-	allocateRight = right.size() != 4;
-
-	if (allocateTop == false)
-	{
-		u0 = top;
-		pos = u0[0].lock()->m_object->GetPosition();
-	}
-
-	if (allocateBot == false)
-	{
-		u3 = bottom;
-		pos = XMF3SUB(u3[0].lock()->m_object->GetPosition(), XMFLOAT3(0.f, 0.0f, h * 3.f));
-	}
-
-	if (allocateLeft == false)
-	{
-		u0[0] = left[0];
-		u1[0] = left[1];
-		u2[0] = left[2];
-		u3[0] = left[3];
-		pos = u0[0].lock()->m_object->GetPosition();
-	}
-
-	if (allocateRight == false)
-	{		
-		u0[3] = right[0];
-		u1[3] = right[1];
-		u2[3] = right[2];
-		u3[3] = right[3];		
-		pos = XMF3SUB(u0[3].lock()->m_object->GetPosition(), XMFLOAT3(w * (float)3.f, 0.0f, 0.0f));
-	}	
-	
-	// iterate through all vertices - if any of them are expired pointers - create new point	
-	// Refactor this to not attach points to the scene - this should even have a reference to it
-
+	allocateBot = bot.size() != 4;
+	allocateLeft = topMid.size() != 4;
+	allocateRight = botMid.size() != 4;
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (u0[i].expired())
-		{
-			auto pt = CreatePoint();
-			scene->AttachObject(pt);		
-			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, 0.0f));
-			pt->m_object->SetPosition(ptPos);
-			u0[i] = pt;
-		}
-
-		if (u1[i].expired())
-		{
-			auto pt = CreatePoint();
-			scene->AttachObject(pt);
-			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, h));
-			pt->m_object->SetPosition(ptPos);
-			u1[i] = pt;		
-		}
-
-		if (u2[i].expired())
-		{
-			auto pt = CreatePoint();
-			scene->AttachObject(pt);
-			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, h * 2.f));
-			pt->m_object->SetPosition(ptPos);
-			u2[i] = pt;
-		}
-
-		if (u3[i].expired())
-		{
-			auto pt = CreatePoint();
-			scene->AttachObject(pt);
-			XMFLOAT3 ptPos = XMF3SUM(pos, XMFLOAT3(w * (float)i, 0.0f, h * 3.f));
-			pt->m_object->SetPosition(ptPos);
-			u3[i] = pt;
-		}		
+		u0.push_back(top[i]);
+		u1.push_back(topMid[i]);
+		u2.push_back(botMid[i]);
+		u3.push_back(bot[i]);
 	}
 
 	BezierPatch* patch = new BezierPatch(u0, u1, u2, u3);

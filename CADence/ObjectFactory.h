@@ -4,12 +4,22 @@
 #include "torusGenerator.h"
 #include "Node.h"
 #include "GroupNode.h"
+
+enum SurfaceWrapDirection
+{
+	Width,
+	Height
+};
+
 class ObjectFactory
 {
 
 public:	
 	
-	std::shared_ptr<Node> CreateBezierSurface(Scene* scene, int width, int height, XMFLOAT3 position, bool cylinder = false, float sizeW = 5.0f, float sizeH = 5.0f);
+	std::shared_ptr<Node> CreateBezierSurface(Scene* scene, int width, int height,
+		XMFLOAT3 position, bool cylinder = false,
+		float sizeW = 5.0f, float sizeH = 5.0f, 
+		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
 
 	std::shared_ptr<Node> CreateBezierPatch(
 		Scene* scene,

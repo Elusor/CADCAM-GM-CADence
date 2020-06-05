@@ -9,16 +9,20 @@ BezierPatch::~BezierPatch()
 	for (int i = 0; i < 4; i++)
 	{
 		if (auto pt = m_u0[i].lock()) {
-			pt->m_object->RefRelease();
+			if(pt->m_object != nullptr)
+				pt->m_object->RefRelease();
 		}
 		if (auto pt = m_u1[i].lock()) {
-			pt->m_object->RefRelease();
+			if (pt->m_object != nullptr)
+				pt->m_object->RefRelease();
 		}
 		if (auto pt = m_u2[i].lock()) {
-			pt->m_object->RefRelease();
+			if (pt->m_object != nullptr)
+				pt->m_object->RefRelease();
 		}
 		if (auto pt = m_u3[i].lock()) {
-			pt->m_object->RefRelease();
+			if (pt->m_object != nullptr)
+				pt->m_object->RefRelease();
 		}
 	}
 }
