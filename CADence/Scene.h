@@ -27,6 +27,7 @@ public:
 	void LateUpdate();
 	void UpdateSelectedNode();
 	void RenderScene(std::unique_ptr<RenderState> & renderState);
+	void ClearScene();
 	
 private:
 	int m_sizeU;
@@ -36,7 +37,6 @@ private:
 	bool m_altState;
 	bool m_altDir;
 
-	void ClearScene();
 	void DrawScenePopupMenu();
 	void DrawNodePopupMenu(const std::shared_ptr<Node> node);
 	void RenderMiddleMarker(std::unique_ptr<RenderState>& renderState);

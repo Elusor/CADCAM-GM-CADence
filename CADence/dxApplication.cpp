@@ -23,7 +23,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	Viewport viewport{ wndSize };	
 
 	// init camera
-	std::shared_ptr<Camera> camera = make_shared<Camera>(XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
+	shared_ptr<Camera> camera = make_shared<Camera>(XMFLOAT3(0.0f, 0.0f, -30.0f), // camera pos 
 		XMFLOAT3(0.0f, 0.0f, 0.0f),  // targer pos 
 		XMFLOAT2(0.0f, -0.55f), // yaw, pitch
 		viewport.Width,
@@ -34,9 +34,10 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_scene = make_shared<Scene>();
 	m_renderState = make_unique<RenderState>(m_window, viewport, camera);
 
-	m_pSelector = std::unique_ptr<PointSelector>(new PointSelector(m_renderState->m_camera));
-	m_transController = std::unique_ptr<TransformationController>(new TransformationController(m_scene));
-	
+	m_pSelector = make_unique<PointSelector>(m_renderState->m_camera);
+	m_transController = make_unique<TransformationController>(m_scene);
+	m_importer = make_unique<SceneImporter>(m_scene.get());
+
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);

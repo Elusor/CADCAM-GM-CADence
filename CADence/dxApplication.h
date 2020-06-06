@@ -16,6 +16,7 @@
 #include "IRenderPass.h"
 #include "DefaultRenderPass.h"
 #include "StereoscopicRenderPass.h"
+#include "sceneImporter.h"
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -37,7 +38,7 @@ private:
 	std::shared_ptr<Scene> m_scene;	
 	std::unique_ptr<CameraController> m_camController;		
 	std::unique_ptr<RenderState> m_renderState;
-
+	std::unique_ptr<SceneImporter> m_importer;
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
 	IRenderPass* m_activePass;

@@ -198,6 +198,7 @@
     <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="StereoscopicRenderPass.h" />
     <ClInclude Include="TextureRenderTarget.h" />
+    <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="vertexStructures.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SpawnMarker.h" />
@@ -239,6 +240,7 @@
     <ClCompile Include="SceneGrid.cpp" />
     <ClCompile Include="StereoscopicRenderPass.cpp" />
     <ClCompile Include="TextureRenderTarget.cpp" />
+    <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="vertexStructures.cpp" />
     <ClCompile Include="MeshObject.cpp" />
     <ClCompile Include="Node.cpp" />

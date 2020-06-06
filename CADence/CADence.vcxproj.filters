@@ -109,6 +109,12 @@
     <Filter Include="Shaders\Screen Space">
       <UniqueIdentifier>{76e5f8f1-65aa-4d4f-a3ee-888544da2afa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\IO">
+      <UniqueIdentifier>{f80c7f09-402a-4f76-87a1-1f5d57b4e985}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IO">
+      <UniqueIdentifier>{8b505632-b9ad-45bd-a146-d562dccf93ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -267,6 +273,9 @@
     <ClInclude Include="BezierPatchC2.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="tinyxml2.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -409,6 +418,9 @@
     </ClCompile>
     <ClCompile Include="BezierPatchC2.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
