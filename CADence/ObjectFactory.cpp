@@ -300,8 +300,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 			}
 			else
 			{
-				float pointStepW = width / ((float)patchesW * 3.0f);
-				float pointStepH = height / ((float)patchesH * 3.0f);
+				float pointStepW = width / ((float)widthPointCount-1);
+				float pointStepH = height / ((float)heightPointCount-1);
 
 
 				points[w][h]->m_object->SetPosition(
