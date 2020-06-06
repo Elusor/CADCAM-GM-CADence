@@ -86,10 +86,18 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
 	renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
 
+	//Update Cam buffer
 	XMFLOAT4 camPos = renderState->m_camera->GetCameraPosition();
 	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbCamPos.get(), camPos);
 	ID3D11Buffer* psCbs[] = { renderState->m_cbCamPos.get() };
 	renderState->m_device.context()->PSSetConstantBuffers(0, 1, psCbs);
+	//Update Fog buffer
+	float nearZ = renderState->m_camera->GetZNear();
+	float farZ = renderState->m_camera->GetZFar();
+	XMFLOAT4 fogBuff = XMFLOAT4(nearZ, farZ, 0.8f * farZ, 0.0f);
+	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbFogBuffer.get(), fogBuff);
+	ID3D11Buffer* psFogCbs[] = { renderState->m_cbFogBuffer.get() };
+	renderState->m_device.context()->PSSetConstantBuffers(1, 1, psFogCbs);
 
 	// Draw Left eye
 	// Update viewprojection matrix

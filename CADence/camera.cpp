@@ -86,6 +86,16 @@ DirectX::XMFLOAT4 Camera::GetCameraPosition()
 	return DirectX::XMFLOAT4(m_pos.x, m_pos.y, m_pos.z, 1.0f);
 }
 
+float Camera::GetZNear()
+{
+	return m_zNear;
+}
+
+float Camera::GetZFar()
+{
+	return m_zFar;
+}
+
 void Camera::ResetCamera()
 {
 	m_pos = XMFLOAT3(0.0f, 0.0f, -30.0f);

@@ -14,6 +14,8 @@ public:
 	DirectX::XMMATRIX GetViewProjectionMatrix();
 
 	DirectX::XMFLOAT4 GetCameraPosition();
+	float GetZNear();
+	float GetZFar();
 	void ResetCamera();
 	void UpdateUpVector();
 	void CameraZoom(float delta);

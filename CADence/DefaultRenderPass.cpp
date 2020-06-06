@@ -35,10 +35,19 @@ void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene
 	FLOAT facs[4] = { 1.0f,1.0f,1.0f,1.0f };
 	renderState->m_device.context()->OMSetBlendState(m_blendState.get(), facs, 0xffffffff);
 	
+	//Update Cam buffer
 	XMFLOAT4 camPos = renderState->m_camera->GetCameraPosition();
 	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbCamPos.get(), camPos);
 	ID3D11Buffer* psCbs[] = { renderState->m_cbCamPos.get() };
 	renderState->m_device.context()->PSSetConstantBuffers(0, 1, psCbs);
+	//Update Fog buffer
+	float nearZ = renderState->m_camera->GetZNear();
+	float farZ = renderState->m_camera->GetZFar();
+	XMFLOAT4 fogBuff = XMFLOAT4(nearZ, farZ, 0.8f * farZ, 0.0f);
+	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbFogBuffer.get(), fogBuff);
+	ID3D11Buffer* psFogCbs[] = { renderState->m_cbFogBuffer.get() };
+	renderState->m_device.context()->PSSetConstantBuffers(1, 1, psFogCbs);
+
 
 	m_renderTarget->SetRenderTarget(renderState->m_device.m_context.get(), renderState->m_depthBuffer.get());
 	// Update viewprojection matrix
