@@ -4,27 +4,6 @@
 #include <direct.h>
 #include <DirectXMath.h>
 using namespace DirectX;
-/*
-Class describing Bezier patch.
-Implementation requirements:
-- grid of constant parameter curves
-- obliczenia punktów siatki tworz¹cej powierzchnie powinny byæ przeprowadzane na procesorze graficznym???
-- resizeable U/V grid size
--
-*/
-/*
-	  ------------->
-	| 0  ---  1 ---- 2 ---  3 -- u0
-	| |       |      |     | 
-	| |       |      |     | 
-	| 4  ---  5 ---- 6 ---  7 -- u1
-	| |       |      |     | 
-	| |       |      |     | 
-	| 8  ---  9 --- 1O --- 11 -- u2
-	| |       |      |     |
-	| |       |      |     |
-	V  12 --- 13 --- 14 --- 15 -- u3
-*/
 
 enum Coord {
 	Xpos,

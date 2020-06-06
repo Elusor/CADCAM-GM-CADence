@@ -175,6 +175,187 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 	return node;
 }
 
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
+	int patchesW, int patchesH, XMFLOAT3 middlePosition,
+	bool cylinder, float width, float height,
+	SurfaceWrapDirection wrapDir)
+{
+	int widthPointCount = 3 + patchesW;
+	int heightPointCount = 3 + patchesH;
+
+	int wrappedHeight = heightPointCount;
+	int wrappedWidth = widthPointCount;
+
+	if (cylinder)
+	{
+		if (wrapDir == SurfaceWrapDirection::Height)
+		{
+			wrappedHeight -= 3;
+		}
+
+		if (wrapDir == SurfaceWrapDirection::Width)
+		{
+			wrappedWidth -= 3;
+		}
+	}
+
+	std::shared_ptr<Node>** points = new std::shared_ptr<Node> * [widthPointCount];
+	for (int i = 0; i < widthPointCount; i++) {
+		points[i] = new std::shared_ptr<Node>[heightPointCount];
+	}
+
+	for (int w = 0; w < wrappedWidth; w++) {
+		for (int h = 0; h < wrappedHeight; h++) {
+			auto pt = CreatePoint();
+			scene->AttachObject(pt);
+			pt->m_object->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+			points[w][h] = pt;
+		}
+	}
+
+	// Wrap
+	if (cylinder)
+	{
+		// Wrap 3 last points
+		if (wrapDir == SurfaceWrapDirection::Height)
+		{
+			for (int w = 0; w < wrappedWidth; w++)
+			{
+				points[w][heightPointCount - 1] = points[w][2 % wrappedHeight];
+				points[w][heightPointCount - 2] = points[w][1 % wrappedHeight];
+				points[w][heightPointCount - 3] = points[w][0 % wrappedHeight];
+			}
+		}
+
+		if (wrapDir == SurfaceWrapDirection::Width)
+		{
+			points[widthPointCount - 1] = points[2 % wrappedWidth];
+			points[widthPointCount - 2] = points[1 % wrappedWidth];
+			points[widthPointCount - 3] = points[0 % wrappedWidth];
+		}
+	}
+
+	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
+	BezierPatch*** patches;
+	patches = new BezierPatch * *[patchesW];
+
+	for (int i = 0; i < patchesW; i++) {
+		patches[i] = new BezierPatch * [patchesH];
+	}
+
+	float patchSizeW = width / (float)patchesW;
+	float patchSizeH = height / (float)patchesH;
+
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
+
+			std::vector<std::weak_ptr<Node>> top, bot, topMid, botMid;
+			// determine top bot left and right
+			int startIdxW = patchW;
+			int startIdxH = patchH;
+			top = { points[startIdxW][startIdxH + 3], points[startIdxW + 1][startIdxH + 3], points[startIdxW + 2][startIdxH + 3], points[startIdxW + 3][startIdxH + 3] };
+			topMid = { points[startIdxW][startIdxH + 2], points[startIdxW + 1][startIdxH + 2], points[startIdxW + 2][startIdxH + 2], points[startIdxW + 3][startIdxH + 2] };
+			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
+			bot = { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
+
+			auto patch = CreateBezierPatch(scene, top, topMid, botMid, bot);
+			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
+			surfPatches.push_back(patch);
+		}
+	}
+
+	// determine pointStepW and pointStepH
+	// Move to grid
+
+	for (int w = 0; w < wrappedWidth; w++)
+	{
+		for (int h = 0; h < wrappedHeight; h++)
+		{
+			if (cylinder)
+			{
+				if (wrapDir == SurfaceWrapDirection::Width)
+				{
+					// case width wrap
+					float currentArg = (float)w / (float)wrappedWidth * XM_2PI;
+					float radius = width;
+					float pointStepLen = height / ((float)heightPointCount-1);
+					points[w][h]->m_object->SetPosition(
+						XMFLOAT3(
+							sinf(currentArg) * radius,
+							cosf(currentArg) * radius,
+							(float)h * pointStepLen - height / 2.f)
+					);
+				}
+				else {
+					float currentArg = (float)h / (float)wrappedHeight * XM_2PI;
+					float radius = height;
+					float pointStepLen = width / ((float)widthPointCount-1);
+					points[w][h]->m_object->SetPosition(
+						XMFLOAT3(
+						(float)w * pointStepLen - width / 2.f,
+							cosf(currentArg) * radius,
+							sinf(currentArg) * radius)
+					);
+				}
+			}
+			else
+			{
+				float pointStepW = width / ((float)patchesW * 3.0f);
+				float pointStepH = height / ((float)patchesH * 3.0f);
+
+
+				points[w][h]->m_object->SetPosition(
+					XMFLOAT3(
+					(float)w * pointStepW - width / 2.f,
+						0.0f,
+						(float)h * pointStepH - height / 2.f));
+
+			}
+			// move all point so they center of the surface is in the cursor
+			points[w][h]->m_object->SetPosition(
+				XMF3SUM(points[w][h]->m_object->GetPosition(), middlePosition));
+
+		}
+	}
+
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
+			patches[patchW][patchH]->UpdateObject();
+		}
+	}
+
+	// Relese auxiliary data
+	for (int i = 0; i < wrappedWidth; i++)
+	{
+		delete[](points[i]);
+	}
+	delete[] points;
+
+	for (int i = 0; i < patchesW; i++)
+	{
+		delete[](patches[i]);
+	}
+	delete[] patches;
+
+
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
+
+	std::string name = "Bezier Surface C2";
+	if (m_bezierSurfaceCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierSurfaceCounter);
+	}
+	surface->m_name = surface->m_defaultName = name;
+	m_bezierSurfaceCounter++;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(surface);
+	node->m_object = move(object);
+	scene->AttachObject(node);
+	return node;
+
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	Scene* scene,
 	std::vector<std::weak_ptr<Node>> top,

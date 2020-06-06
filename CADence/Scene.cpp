@@ -51,6 +51,7 @@ void Scene::ClearScene()
 void Scene::DrawScenePopupMenu()
 {
 	bool imGuiWorkaroundSuggestedByItsAuthor = false;
+	bool imGuiWorkaroundSuggestedByItsAuthorC2 = false;
 	if (ImGui::BeginPopupContextItem("item context menu"))
 	{
 		if (ImGui::BeginMenu("Add child object"))
@@ -66,6 +67,11 @@ void Scene::DrawScenePopupMenu()
 				imGuiWorkaroundSuggestedByItsAuthor = true;								
 			}
 			
+			if (ImGui::MenuItem("Bezier Surface C2"))
+			{
+				//m_objectFactory->CreateBezierSurface(this, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f));
+				imGuiWorkaroundSuggestedByItsAuthorC2 = true;
+			}
 			/*if (ImGui::MenuItem("Bezier Patch"))
 			{
 				auto p1 = m_objectFactory->CreateBezierPatch(this);				
@@ -144,10 +150,28 @@ void Scene::DrawScenePopupMenu()
 		m_altDir = false;
 	}
 
+	if (imGuiWorkaroundSuggestedByItsAuthorC2)
+	{
+		ImGui::OpenPopup("Modal window##C2");
+		m_sizeU = 1;
+		m_sizeV = 1;
+		m_sizeX = 15;
+		m_sizeY = 15;
+		m_altState = false;
+		m_altDir = false;
+	}
+
+	DrawBezierSurfaceModal();
+	DrawBezierSurfaceC2Modal();
+}
+
+
+void Scene::DrawBezierSurfaceModal()
+{
 	if (ImGui::BeginPopupModal("Modal window"))
-	{		
-		ImGui::Text("Choose the size of your surface");	
-		
+	{
+		ImGui::Text("Choose the size of your surface");
+
 		ImGui::Checkbox("Is a cylinder", &m_altState);
 
 
@@ -189,7 +213,66 @@ void Scene::DrawScenePopupMenu()
 				m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV, m_spawnMarker->GetPosition(),
 					m_altState, m_sizeX, m_sizeY, SurfaceWrapDirection::Width);
 			}
-			
+
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Scene::DrawBezierSurfaceC2Modal()
+{
+	if (ImGui::BeginPopupModal("Modal window##C2"))
+	{
+		ImGui::Text("Choose the size of your surface");
+
+		ImGui::Checkbox("Is a cylinder", &m_altState);
+
+
+		if (m_altState)
+		{
+			ImGui::Checkbox("Wrap height", &m_altDir);
+			ImGui::DragInt("Radius patch count", &m_sizeU, 1, 1, 10);
+			ImGui::DragInt("Length patch count", &m_sizeV, 1, 1, 10);
+			ImGui::DragInt("Radius", &m_sizeX, 1, 1, 20);
+			ImGui::DragInt("Length", &m_sizeY, 1, 1, 20);
+		}
+		else {
+			ImGui::DragInt("Width patch count", &m_sizeU, 2, 1, 10);
+			ImGui::DragInt("Length patch count", &m_sizeV, 2, 1, 10);
+			ImGui::DragInt("Surface Width", &m_sizeX, 1, 1, 30);
+			ImGui::DragInt("Surface Length", &m_sizeY, 1, 1, 30);
+		}
+
+		if (m_sizeU < 1)
+			m_sizeU = 1;
+
+		if (m_sizeV < 1)
+			m_sizeV = 1;
+
+		if (m_sizeU > 10)
+			m_sizeU = 10;
+
+		if (m_sizeV > 10)
+			m_sizeV = 10;
+
+		if (ImGui::Button("Submit"))
+		{
+			if (m_altDir)
+			{
+				m_objectFactory->CreateBezierSurfaceC2(this, m_sizeV, m_sizeU, m_spawnMarker->GetPosition(),
+					m_altState, m_sizeY, m_sizeX, SurfaceWrapDirection::Height);
+			}
+			else {
+				m_objectFactory->CreateBezierSurfaceC2(this, m_sizeU, m_sizeV, m_spawnMarker->GetPosition(),
+					m_altState, m_sizeX, m_sizeY, SurfaceWrapDirection::Width);
+			}
+
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
@@ -235,6 +318,7 @@ void Scene::RenderMiddleMarker(std::unique_ptr<RenderState>& renderState)
 		m_middleMarker->RenderCoordinates(renderState);
 	}
 }
+
 
 void Scene::DrawSceneHierarchy(bool filtered)
 {

@@ -264,6 +264,9 @@
     <ClInclude Include="BezierPatch.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="BezierPatchC2.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -436,12 +439,18 @@
     <FxCompile Include="ssVs.hlsl">
       <Filter>Shaders\Screen Space</Filter>
     </FxCompile>
+    <FxCompile Include="patchC2DS.hlsl">
+      <Filter>Shaders\BezierPatch</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderStructs.hlsli">
       <Filter>Shaders</Filter>
     </None>
     <None Include="tesselStructs.hlsli">
+      <Filter>Shaders\BezierPatch</Filter>
+    </None>
+    <None Include="bezierPatchFuncs.hlsli">
       <Filter>Shaders\BezierPatch</Filter>
     </None>
   </ItemGroup>

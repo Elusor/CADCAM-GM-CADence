@@ -1,5 +1,6 @@
 #include "ShaderStructs.hlsli"
 #include "tesselStructs.hlsli"
+#include "bezierPatchFuncs.hlsli"
 
 #define NUM_CONTROL_POINTS 16
 
@@ -45,18 +46,23 @@ float3 CubicBezierSum(const OutputPatch<HSOutCP, 16> bezpatch, float4 basisU, fl
 [domain("isoline")]
 VSOut main(
 	HSOutConst input,
-	float2 uv : SV_DomainLocation,
+	float2 domain : SV_DomainLocation,
 	const OutputPatch<HSOutCP, NUM_CONTROL_POINTS> patch)
 {
 	matrix MVP = mul(VP, M); // tranposed order
 	VSOut o;
 	float len = input.EdgeTessFactor[0];
-	float u = min(uv.x * (len) / (len - 1), 1.0f);
-	float v = min(uv.y * (len) / (len - 1), 1.0f);
-	float4 basisU = BernsteinBasis(u);
-	float4 basisV = BernsteinBasis(v);
-	float3 p = CubicBezierSum(patch, basisU, basisV);
-	//o.PosH = mul(float4(p, 1.0f), gWorldViewProj);
+    float3 controlpoints[16];
+    for (int i = 0; i < 16;i++)
+    {
+        controlpoints[i] = patch[i].posL;
+    }
+    
+    float u = min(domain.x * (len) / (len - 1), 1.0f);
+    float v = min(domain.y * (len) / (len - 1), 1.0f);
+    float2 uv = float2(u, v);
+	
+    float3 p = BezierPatchPoint(controlpoints, uv);    
 	o.pos = mul(MVP, float4(p, 1.0f));
     o.posL = p;
     o.posW = mul(M, float4(p, 1.0f));

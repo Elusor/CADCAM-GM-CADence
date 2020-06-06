@@ -16,6 +16,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
 	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
+	const auto patchC2DsBytes = DxDevice::LoadByteCode(L"patchC2DS.cso");
 	const auto patchDsBytes = DxDevice::LoadByteCode(L"patchDS.cso");
 
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
@@ -25,6 +26,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_bezierGeometryShader = m_device.CreateGeometryShader(bezierGsBytes);
 	m_patchGeometryShader = m_device.CreateGeometryShader(patchGsBytes);
 
+	m_patchC2DomainShader = m_device.CreateDomainShader(patchC2DsBytes);
 	m_patchDomainShader = m_device.CreateDomainShader(patchDsBytes);
 	m_patchHullShader = m_device.CreateHullShader(patchHsBytes);
 

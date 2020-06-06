@@ -31,6 +31,7 @@ struct RenderState
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
 	mini::dx_ptr<ID3D11HullShader> m_patchHullShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchDomainShader;
+	mini::dx_ptr<ID3D11DomainShader> m_patchC2DomainShader;
 
 	mini::dx_ptr<ID3D11InputLayout> m_layout;		
 

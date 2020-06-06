@@ -35,6 +35,7 @@ HSOutCP main(
 	uint PatchID : SV_PrimitiveID )
 {
 	HSOutCP Output;
+    Output.pos = patch[i].pos;
 	Output.posL = patch[i].posL;
 	Output.color = patch[i].col;
 

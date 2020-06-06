@@ -20,6 +20,11 @@ public:
 		float sizeW = 5.0f, float sizeH = 5.0f, 
 		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
 
+	std::shared_ptr<Node> CreateBezierSurfaceC2(Scene* scene, int width, int height,
+		XMFLOAT3 position, bool cylinder = false,
+		float sizeW = 5.0f, float sizeH = 5.0f,
+		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
+
 	std::shared_ptr<Node> CreateBezierPatch(
 		Scene* scene,
 		std::vector<std::weak_ptr<Node>> top = std::vector<std::weak_ptr<Node>>(),

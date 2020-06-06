@@ -1,6 +1,7 @@
 // Output control point
 struct HSOutCP
 {
+    float4 pos : POSITION;
 	float3 posL : WORLDPOS;
 	float3 color : COLOR;
 };

@@ -40,4 +40,6 @@ private:
 	void DrawScenePopupMenu();
 	void DrawNodePopupMenu(const std::shared_ptr<Node> node);
 	void RenderMiddleMarker(std::unique_ptr<RenderState>& renderState);
+	void DrawBezierSurfaceModal();
+	void DrawBezierSurfaceC2Modal();
 };

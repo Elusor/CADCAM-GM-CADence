@@ -162,6 +162,7 @@
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="BezierCurveC2.h" />
     <ClInclude Include="BezierPatch.h" />
+    <ClInclude Include="BezierPatchC2.h" />
     <ClInclude Include="BezierSurfaceC0.h" />
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="generalUtils.h" />
@@ -267,6 +268,16 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="patchC2DS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Domain</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="patchDS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Domain</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -336,6 +347,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bezierPatchFuncs.hlsli" />
     <None Include="ShaderStructs.hlsli" />
     <None Include="tesselStructs.hlsli" />
   </ItemGroup>
