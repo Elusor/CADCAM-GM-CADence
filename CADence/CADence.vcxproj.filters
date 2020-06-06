@@ -276,6 +276,9 @@
     <ClInclude Include="tinyxml2.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
+    <ClInclude Include="sceneImporter.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -416,11 +419,14 @@
     <ClCompile Include="BezierSurfaceC0.cpp">
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
-    <ClCompile Include="BezierPatchC2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tinyxml2.cpp">
       <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneImporter.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierPatchC2.cpp">
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

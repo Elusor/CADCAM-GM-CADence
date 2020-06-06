@@ -10,6 +10,7 @@ SceneImporter::SceneImporter(Scene* scene)
 
 bool SceneImporter::Import(std::wstring wpath)
 {
+	// TODO: check if file is correct
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converterX;
 
 	m_scene->ClearScene();

@@ -113,6 +113,44 @@ void DxApplication::Update()
 void DxApplication::InitImguiWindows()
 {
 
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("New")) {
+				// Clear Scene
+				// Reset the camera
+				// Turn of transformations
+				// Reset the colors
+				// Set all things to default
+			}
+			if (ImGui::MenuItem("Open", "Ctrl+O")) {
+				
+				// Open dialog to select file
+				// Check if file is correct
+				// If yes 
+				// Import scene from file
+				// If no
+				// Error Modal
+			}
+			if (ImGui::MenuItem("Save", "Ctrl+S")) {
+				// If a file has been saved 
+					// Save to the lastest file
+				// else
+				// Trigger Save As
+			}
+			if (ImGui::MenuItem("Save As..")) {
+				// Open dialog to choose save location
+				// Save the file
+			}
+			//ShowExampleMenuFile();
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+	
+
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{		
 		ImGui::Checkbox("Hide Points", &m_filterObjects);
