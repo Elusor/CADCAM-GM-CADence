@@ -216,6 +216,7 @@
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="BezierCurveC2.cpp" />
     <ClCompile Include="BezierPatch.cpp" />
+    <ClCompile Include="BezierPatchC2.cpp" />
     <ClCompile Include="BezierSurfaceC0.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />

@@ -258,7 +258,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
 			bot = { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
 
-			auto patch = CreateBezierPatch(scene, top, topMid, botMid, bot);
+			auto patch = CreateBezierPatchC2(scene, top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
 			surfPatches.push_back(patch);
 		}
@@ -387,6 +387,51 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	}
 
 	BezierPatch* patch = new BezierPatch(u0, u1, u2, u3);
+	std::string name = "Bezier Patch";
+	if (m_bezierPatchCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierPatchCounter);
+	}
+
+	patch->m_name = patch->m_defaultName = name;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(patch);
+	node->m_object = move(object);
+	m_bezierPatchCounter++;
+	return node;
+}
+
+std::shared_ptr<Node> ObjectFactory::CreateBezierPatchC2(
+	Scene* scene,
+	std::vector<std::weak_ptr<Node>> top,
+	std::vector<std::weak_ptr<Node>> topMid,
+	std::vector<std::weak_ptr<Node>> botMid,
+	std::vector<std::weak_ptr<Node>> bot)
+{
+	XMFLOAT3 pos = XMFLOAT3(0.f, 0.f, 0.f);
+
+	std::vector<std::weak_ptr<Node>> u0;
+	std::vector<std::weak_ptr<Node>> u1;
+	std::vector<std::weak_ptr<Node>> u2;
+	std::vector<std::weak_ptr<Node>> u3;
+
+	bool allocateTop, allocateBot, allocateLeft, allocateRight;
+
+	allocateTop = top.size() != 4;
+	allocateBot = bot.size() != 4;
+	allocateLeft = topMid.size() != 4;
+	allocateRight = botMid.size() != 4;
+
+	for (int i = 0; i < 4; i++)
+	{
+		u0.push_back(top[i]);
+		u1.push_back(topMid[i]);
+		u2.push_back(botMid[i]);
+		u3.push_back(bot[i]);
+	}
+
+	BezierPatchC2* patch = new BezierPatchC2(u0, u1, u2, u3);
 	std::string name = "Bezier Patch";
 	if (m_bezierPatchCounter > 0)
 	{

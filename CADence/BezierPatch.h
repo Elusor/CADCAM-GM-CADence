@@ -56,7 +56,7 @@ public:
 
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);
-private:
+protected:
 	// Bezier patch unique
 	std::weak_ptr<Node> m_u0[4];
 	std::weak_ptr<Node> m_u1[4];
@@ -76,4 +76,24 @@ private:
 	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 	void RenderPatch(std::unique_ptr<RenderState>& renderState);
 	XMMATRIX GetCoordinates(Coord coord);
+};
+
+class BezierPatchC2 : public BezierPatch {
+public:
+	BezierPatchC2();
+	~BezierPatchC2();
+	BezierPatchC2(
+		std::vector<std::weak_ptr<Node>> top,
+		std::vector<std::weak_ptr<Node>> bottom,
+		std::vector<std::weak_ptr<Node>> left,
+		std::vector<std::weak_ptr<Node>> right,
+		std::vector<std::weak_ptr<Node>> inner);
+	BezierPatchC2(
+		std::vector<std::weak_ptr<Node>> first,
+		std::vector<std::weak_ptr<Node>> second,
+		std::vector<std::weak_ptr<Node>> third,
+		std::vector<std::weak_ptr<Node>> fourth);
+
+	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
+
 };
