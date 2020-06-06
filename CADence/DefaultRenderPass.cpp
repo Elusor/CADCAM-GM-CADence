@@ -5,11 +5,41 @@ DefaultRenderPass::DefaultRenderPass(const std::unique_ptr<RenderState>& renderS
 	renderState->m_depthBuffer = renderState->m_device.CreateDepthStencilView(wndSize);
 	m_renderTarget = new BackBufferRenderTarget();
 	m_renderTarget->Initialize(renderState->m_device.m_device.get(), renderState->m_device.m_swapChain.get(), renderState.get());	
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtBsDesc;
+	ZeroMemory(&rtBsDesc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC));
+	rtBsDesc.BlendEnable = true;
+	rtBsDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtBsDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	rtBsDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rtBsDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	rtBsDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	rtBsDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtBsDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	D3D11_BLEND_DESC bsDesc;
+	bsDesc.AlphaToCoverageEnable = false;
+	bsDesc.IndependentBlendEnable = false;
+	bsDesc.RenderTarget[0] = rtBsDesc;
+
+	ID3D11BlendState* bs;
+	auto HR = renderState->m_device->CreateBlendState(&bsDesc, &bs);
+	m_blendState = dx_ptr<ID3D11BlendState>(bs);
 }
 
 void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {	
 	Clear(renderState);
+	
+
+	FLOAT facs[4] = { 1.0f,1.0f,1.0f,1.0f };
+	renderState->m_device.context()->OMSetBlendState(m_blendState.get(), facs, 0xffffffff);
+	
+	XMFLOAT4 camPos = renderState->m_camera->GetCameraPosition();
+	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbCamPos.get(), camPos);
+	ID3D11Buffer* psCbs[] = { renderState->m_cbCamPos.get() };
+	renderState->m_device.context()->PSSetConstantBuffers(0, 1, psCbs);
+
 	m_renderTarget->SetRenderTarget(renderState->m_device.m_context.get(), renderState->m_depthBuffer.get());
 	// Update viewprojection matrix
 	XMMATRIX vp = renderState->m_camera->GetViewProjectionMatrix();
@@ -18,6 +48,8 @@ void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene
 	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
 
 	Render(renderState, scene);
+	//auto HR = renderState->m_device->CreateBlendState(&bsDesc, &bs);
+	renderState->m_device.context()->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 }
 
 void DefaultRenderPass::Clear(std::unique_ptr<RenderState>& renderState)

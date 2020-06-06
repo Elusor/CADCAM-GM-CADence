@@ -36,6 +36,7 @@ struct RenderState
 
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;
 
+	mini::dx_ptr<ID3D11Buffer> m_cbCamPos;
 	mini::dx_ptr<ID3D11Buffer> m_cbVP;
 	mini::dx_ptr<ID3D11Buffer> m_cbM;
 	mini::dx_ptr<ID3D11Buffer> m_cbGSData;

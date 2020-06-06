@@ -31,6 +31,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_layout = m_device.CreateInputLayout(elements, vsBytes);
 
+	m_cbCamPos = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbM = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_cbVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_cbGSData = m_device.CreateConstantBuffer<XMFLOAT4>();

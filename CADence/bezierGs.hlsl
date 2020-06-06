@@ -9,8 +9,9 @@ VSOut Bezier1(VSOut p0, VSOut p1, float t)
 {
 	VSOut v1;
 	v1.pos = p0.pos * (1.0f - t) + p1.pos * t;
+	v1.posL = p0.posL * (1.0f - t) + p1.posL * t;
+    v1.posW = p0.posW * (1.0f - t) + p1.posW * t;
 	v1.col = p0.col * (1.0f - t) + p1.col * t;
-	v1.posL = v1.pos.xyz;
 	return v1;
 }
 
@@ -20,7 +21,8 @@ VSOut Bezier2(VSOut p0, VSOut p1, VSOut p2, float t)
 	VSOut v2 = Bezier1(p1, p2, t);
 	VSOut vr;
 	vr.pos = v1.pos * (1.0f - t) + v2.pos * t;
-	vr.posL = vr.pos.xyz;
+    vr.posL= v1.posL* (1.0f - t) + v2.posL* t;
+    vr.posW= v1.posW* (1.0f - t) + v2.posW* t;
 	vr.col = v1.col * (1.0f - t) + v2.col * t;
 	return vr;
 }
@@ -31,8 +33,9 @@ VSOut Bezier3(VSOut p0, VSOut p1, VSOut p2, VSOut p3, float t)
 	VSOut v2 = Bezier2(p1, p2, p3, t);
 	VSOut vr;
 	vr.pos = v1.pos * (1.0f - t) + v2.pos * t;
+    vr.posL = v1.posL * (1.0f - t) + v2.posL * t;
+    vr.posW = v1.posW * (1.0f - t) + v2.posW * t;
 	vr.col = v1.col * (1.0f - t) + v2.col * t;
-	vr.posL = vr.pos.xyz;
 	return vr;
 }
 

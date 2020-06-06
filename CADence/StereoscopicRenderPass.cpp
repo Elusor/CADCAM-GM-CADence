@@ -52,6 +52,26 @@ StereoscopicRenderPass::StereoscopicRenderPass(const std::unique_ptr<RenderState
 		3, 1, 2
 	};
 
+	D3D11_RENDER_TARGET_BLEND_DESC rtBsDesc;
+	ZeroMemory(&rtBsDesc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC));
+	rtBsDesc.BlendEnable = true;
+	rtBsDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtBsDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	rtBsDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rtBsDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	rtBsDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	rtBsDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtBsDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	D3D11_BLEND_DESC bsDesc;
+	bsDesc.AlphaToCoverageEnable = false;
+	bsDesc.IndependentBlendEnable = false;
+	bsDesc.RenderTarget[0] = rtBsDesc;
+
+	ID3D11BlendState* bs;
+	auto HR = renderState->m_device->CreateBlendState(&bsDesc, &bs);
+	m_blendState = mini::dx_ptr<ID3D11BlendState>(bs);
+
 }
 
 void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
@@ -60,10 +80,16 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	auto depthStencil = renderState->m_depthBuffer.get();
 
 	Clear(renderState);
-
+	FLOAT facs[4] = { 1.0f,1.0f,1.0f,1.0f };
+	renderState->m_device.context()->OMSetBlendState(m_blendState.get(), facs, 0xffffffff);
 	renderState->m_device.context()->VSSetShader(renderState->m_vertexShader.get(), nullptr, 0);
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
 	renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
+
+	XMFLOAT4 camPos = renderState->m_camera->GetCameraPosition();
+	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbCamPos.get(), camPos);
+	ID3D11Buffer* psCbs[] = { renderState->m_cbCamPos.get() };
+	renderState->m_device.context()->PSSetConstantBuffers(0, 1, psCbs);
 
 	// Draw Left eye
 	// Update viewprojection matrix
@@ -89,6 +115,7 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	ClearDepth(renderState);	
 	
 	DrawTexturedQuad(renderState);
+	//renderState->m_device.context()->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
 }
 

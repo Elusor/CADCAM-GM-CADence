@@ -81,6 +81,11 @@ DirectX::XMMATRIX Camera::GetViewProjectionMatrix()
 	return GetViewMatrix() * m_projMat;
 }
 
+DirectX::XMFLOAT4 Camera::GetCameraPosition()
+{
+	return DirectX::XMFLOAT4(m_pos.x, m_pos.y, m_pos.z, 1.0f);
+}
+
 void Camera::ResetCamera()
 {
 	m_pos = XMFLOAT3(0.0f, 0.0f, -30.0f);

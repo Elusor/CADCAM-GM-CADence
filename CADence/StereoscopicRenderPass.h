@@ -26,6 +26,7 @@ private:
 	mini::dx_ptr<ID3D11VertexShader> m_texVS;
 	mini::dx_ptr<ID3D11PixelShader> m_texPS;
 	mini::dx_ptr<ID3D11SamplerState> m_sampler;
+	mini::dx_ptr<ID3D11BlendState> m_blendState;
 	
 	std::vector<VertexPositionColor> m_quadVerts;
 	std::vector<unsigned short> m_quadIndices;

@@ -106,6 +106,9 @@
     <Filter Include="Shaders\BezierPatch">
       <UniqueIdentifier>{504837e6-a3ee-4172-961d-201f6378d98d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Screen Space">
+      <UniqueIdentifier>{76e5f8f1-65aa-4d4f-a3ee-888544da2afa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -427,11 +430,11 @@
     <FxCompile Include="patchHS.hlsl">
       <Filter>Shaders\BezierPatch</Filter>
     </FxCompile>
-    <FxCompile Include="ssVs.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="ssPs.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Screen Space</Filter>
+    </FxCompile>
+    <FxCompile Include="ssVs.hlsl">
+      <Filter>Shaders\Screen Space</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
