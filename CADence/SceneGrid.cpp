@@ -10,13 +10,17 @@ SceneGrid::SceneGrid() : SceneGrid(300)
 SceneGrid::SceneGrid(int gridSize)
 {
 	m_color = { .4f, .4f, .5f };
-	m_gridSize = gridSize;
+	m_gridSize = 5.f;
+	m_gridDim = gridSize;
 	m_defaultName = "SceneGrid";
 	GenerateVertices(gridSize);
 }
 
 void SceneGrid::RenderObject(std::unique_ptr<RenderState>& renderState)
 {		
+	XMFLOAT4 camPos = renderState->m_camera->GetCameraPosition();
+	MoveGridToCamera(camPos);	
+
 	XMMATRIX m = m_transform.GetModelMatrix();
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
 	ID3D11Buffer* cbs[] = { Mbuffer };
@@ -59,18 +63,18 @@ bool SceneGrid::CreateParamsGui()
 	m_color.y = color[1];
 	m_color.z = color[2];
 
-	objectChanged |= ImGui::DragInt(GetIdentifier().c_str(), &m_gridSize);
+	objectChanged |= ImGui::DragInt(GetIdentifier().c_str(), &m_gridDim);
 
 	if (objectChanged)
 	{
-		GenerateVertices(m_gridSize);
+		GenerateVertices(m_gridDim);
 	}
 	return objectChanged;
 }
 
 void SceneGrid::UpdateObject()
 {
-	GenerateVertices(m_gridSize);
+	GenerateVertices(m_gridDim);
 }
 
 void SceneGrid::GenerateVertices(int gridSize)
@@ -83,10 +87,10 @@ void SceneGrid::GenerateVertices(int gridSize)
 	int counter = 0;
 	for (int i = -gridSize ; i <= gridSize; i++)
 	{
-		VertexPositionColor v1{ {(float) gridSize * 5.f, 0.f, (float)i * 5.f},{m_color} };
-		VertexPositionColor v2{ {(float)-gridSize * 5.f, 0.f, (float)i * 5.f},{m_color} };
-		VertexPositionColor v3{ {(float)i * 5.f, 0.f, (float) gridSize * 5.f},{m_color} };
-		VertexPositionColor v4{ {(float)i * 5.f, 0.f, (float)-gridSize * 5.f},{m_color} };
+		VertexPositionColor v1{ {(float) gridSize * m_gridSize, 0.f, (float)i * m_gridSize},{m_color} };
+		VertexPositionColor v2{ {(float)-gridSize * m_gridSize, 0.f, (float)i * m_gridSize},{m_color} };
+		VertexPositionColor v3{ {(float)i * m_gridSize, 0.f, (float) gridSize * m_gridSize},{m_color} };
+		VertexPositionColor v4{ {(float)i * m_gridSize, 0.f, (float)-gridSize * m_gridSize},{m_color} };
 		// calculate horizontal line
 		m_vertices.push_back(v1);
 		m_vertices.push_back(v2);
@@ -99,4 +103,14 @@ void SceneGrid::GenerateVertices(int gridSize)
 		m_indices.push_back(counter++);
 		m_indices.push_back(counter++);
 	}
+}
+
+void SceneGrid::MoveGridToCamera(DirectX::XMFLOAT4 cameraPos)
+{
+	float x = (int)(cameraPos.x / m_gridSize);
+	float z = (int)(cameraPos.z / m_gridSize);
+	x *= m_gridSize;
+	z *= m_gridSize;
+	XMFLOAT3 newPos = XMFLOAT3(x, 0.f, z);
+	SetPosition(newPos);
 }

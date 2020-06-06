@@ -15,9 +15,11 @@ public:
 
 private:
 
-	void GenerateVertices(int gridSize);
+	void GenerateVertices(int gridDim);
+	void MoveGridToCamera(DirectX::XMFLOAT4 cameraPos);
+	int m_gridDim;
+	float m_gridSize;
 
-	int m_gridSize;
 	DirectX::XMFLOAT3 m_color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	std::vector<VertexPositionColor> m_vertices;
 	std::vector<unsigned short> m_indices;
