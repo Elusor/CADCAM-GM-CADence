@@ -236,7 +236,7 @@ void Scene::RenderMiddleMarker(std::unique_ptr<RenderState>& renderState)
 	}
 }
 
-void Scene::DrawSceneHierarchy()
+void Scene::DrawSceneHierarchy(bool filtered)
 {
 	bool node_open = ImGui::TreeNode("Scene");	
 	
@@ -248,7 +248,17 @@ void Scene::DrawSceneHierarchy()
 		{
 			for (int i = 0; i < m_nodes.size(); i++)
 			{
-				m_nodes[i]->DrawNodeGUI(*this);				
+				if (filtered)
+				{
+					if (typeid(*(m_nodes[i]->m_object.get())) != typeid(Point))
+					{
+						m_nodes[i]->DrawNodeGUI(*this);
+					}
+				}
+				else {
+					m_nodes[i]->DrawNodeGUI(*this);
+				}
+				
 			}
 		}
 		else 

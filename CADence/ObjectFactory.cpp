@@ -86,7 +86,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 
 	// determine pointStepW and pointStepH
 	// Move to grid
-
 		
 	for (int w = 0; w < wrappedWidth; w++)
 	{

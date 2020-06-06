@@ -23,6 +23,51 @@ void TransformationController::ProcessInput(ImGuiIO& imguiIO)
 	}
 }
 
+void TransformationController::CreateGuiStatus()
+{
+	if (m_type != TransformationType::NoTT)
+	{
+		ImGui::Text("Press Q to exit transformation mode");
+		ImGui::Spacing();
+	}
+
+	ImGui::Text("Transformation:");
+	ImGui::SameLine();
+	switch (m_type)
+	{
+	case TransformationType::Translation:
+		ImGui::Text("Translation");
+		break;
+	case TransformationType::Rotation:
+		ImGui::Text("Rotation");
+		break;
+	case TransformationType::Scaling:
+		ImGui::Text("Scaling");
+		break;
+	case TransformationType::NoTT:
+		ImGui::Text("None");
+		break;
+	}
+
+	ImGui::Text("Coordinate:");
+	ImGui::SameLine();
+	switch (m_coordinate)
+	{
+	case AffectedCoordinate::X:
+		ImGui::Text("X");
+		break;
+	case AffectedCoordinate::Y:
+		ImGui::Text("Y");
+		break;
+	case AffectedCoordinate::Z:
+		ImGui::Text("Z");
+		break;
+	case AffectedCoordinate::NoAC:
+		ImGui::Text("None");
+		break;
+	}
+}
+
 void TransformationController::SetOperationType(ImGuiIO& imguiIO)
 {
 	if (m_type != TransformationType::NoTT)

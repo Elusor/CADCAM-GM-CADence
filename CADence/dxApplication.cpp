@@ -114,7 +114,9 @@ void DxApplication::InitImguiWindows()
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{		
-		m_scene->DrawSceneHierarchy();
+		ImGui::Checkbox("Hide Points", &m_filterObjects);
+
+		m_scene->DrawSceneHierarchy(m_filterObjects);
 		ImGui::Spacing();
 	}
 	if (ImGui::CollapsingHeader("Cursor"))
@@ -153,6 +155,10 @@ void DxApplication::InitImguiWindows()
 		}
 	}	
 
+	ImGui::Separator();
+	ImGui::Spacing();
+	m_transController->CreateGuiStatus();
+	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
