@@ -19,7 +19,8 @@ public:
 	void SetIsSelected(bool isSelected);
 	bool GetIsSelected();
 	void Render(std::unique_ptr<RenderState> & renderState);		
-	
+	void Rename(std::string name);
+
 	// Methods that coul be further used for non flat hierarchy 
 	virtual std::vector<std::weak_ptr<Node>> GetSelectedChildren();
 	virtual std::vector<std::weak_ptr<Node>> GetChildren();

@@ -10,6 +10,11 @@ void Node::Render(std::unique_ptr<RenderState> & renderState)
 	}	
 }
 
+void Node::Rename(std::string name)
+{
+	m_object->m_name = name.c_str();
+}
+
 std::vector<std::weak_ptr<Node>> Node::GetSelectedChildren()
 {
 	return std::vector<std::weak_ptr<Node>>();
@@ -38,7 +43,8 @@ void Node::DrawRenameGUI()
 	ImGui::SetKeyboardFocusHere(-1);
 	if (entered)
 	{
-		m_object->m_name = text;
+		std::string name(text);
+		Rename(name);
 		m_isRenamed = false;
 	}
 	delete[] text;

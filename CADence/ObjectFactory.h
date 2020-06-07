@@ -8,21 +8,22 @@
 enum SurfaceWrapDirection
 {
 	Width,
-	Height
+	Height,
+	None
 };
 
 class ObjectFactory
 {
 public:	
 	
-	std::shared_ptr<Node> CreateBezierSurface(Scene* scene, int width, int height,
-		XMFLOAT3 position, bool cylinder = false,
-		float sizeW = 5.0f, float sizeH = 5.0f, 
+	std::shared_ptr<Node> CreateBezierSurface(Scene* scene,
+		int patchesW, int patchesH, XMFLOAT3 middlePosition,
+		bool cylinder = false, float width = 5.0f, float height = 5.0f,
 		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
 
-	std::shared_ptr<Node> CreateBezierSurfaceC2(Scene* scene, int width, int height,
-		XMFLOAT3 position, bool cylinder = false,
-		float sizeW = 5.0f, float sizeH = 5.0f,
+	std::shared_ptr<Node> CreateBezierSurfaceC2(Scene* scene,
+		int patchesW, int patchesH, XMFLOAT3 middlePosition,
+		bool cylinder = false, float width = 5.0f, float height = 5.0f,
 		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
 
 	std::shared_ptr<Node> CreateBezierPatch(

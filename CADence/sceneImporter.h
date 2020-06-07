@@ -9,16 +9,20 @@ class SceneImporter
 public:
 	SceneImporter(Scene* scene);
 	bool Import(std::wstring path);
+	bool InvalidateFile(std::wstring path);
 private:
 	Scene* m_scene;
 	ObjectFactory* m_factory;
 
+	std::vector<std::shared_ptr<Node>> m_loadedPoints;
+
 	void ProcessElement(tinyxml2::XMLElement* element);
 
 	std::string GetName(tinyxml2::XMLElement* element);
-	DirectX::XMFLOAT3 GetPosition(tinyxml2::XMLElement* element);
+	Transform GetTransform(tinyxml2::XMLElement* element);
+	DirectX::XMFLOAT3 GetFloat3Attribute(tinyxml2::XMLElement* element, std::string attributeName);
 
-	void LoadPointReferences(tinyxml2::XMLElement* element);
+	std::vector<std::weak_ptr<Node>> LoadPointReferences(tinyxml2::XMLElement* element);
 	void LoadPoint(tinyxml2::XMLElement* element);
 	void LoadTorus(tinyxml2::XMLElement* element);
 	void LoadBezierC0(tinyxml2::XMLElement* element);

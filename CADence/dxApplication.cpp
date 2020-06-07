@@ -133,11 +133,16 @@ void DxApplication::InitImguiWindows()
 				// Open dialog to select file
 				wstring filename = m_fileManager->OpenFileDialog();
 				// Check if file is correct
-				// If yes 
-				// Import scene from file
-				m_importer->Import(filename);
-				// If no
-				// Error Modal
+				bool validFile = m_importer->InvalidateFile(filename);				 
+				if (validFile)
+				{
+					// Import scene from file
+					m_importer->Import(filename);
+				}
+				else 
+				{					
+					// Error Modal - File Invalid
+				}
 			}
 			if (ImGui::MenuItem("Save", "Ctrl+S")) {
 				// If a file has been saved 
