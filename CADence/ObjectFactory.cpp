@@ -142,23 +142,10 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 		for (int patchH = 0; patchH < patchesH; patchH++) {
 			patches[patchW][patchH]->UpdateObject();
 		}
-	}	
+	}		
 
-	// Relese auxiliary data
-	for (int i = 0; i < wrappedWidth; i++)
-	{
-		delete[] (points[i]);
-	}
-	delete[] points;
-
-	for (int i = 0; i < patchesW; i++)
-	{
-		delete[] (patches[i]);
-	}
-	delete[] patches;
-
-
-	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches,wrapDir);
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
+	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	std::string name = "Bezier Surface";
 	if (m_bezierSurfaceCounter> 0)
 	{
@@ -171,6 +158,20 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 	auto object = std::unique_ptr<Object>(surface);
 	node->m_object = move(object);
 	scene->AttachObject(node);
+
+	// Relese auxiliary data
+	for (int i = 0; i < wrappedWidth; i++)
+	{
+		delete[](points[i]);
+	}
+	delete[] points;
+
+	for (int i = 0; i < patchesW; i++)
+	{
+		delete[](patches[i]);
+	}
+	delete[] patches;
+
 	return node;
 }
 
@@ -323,6 +324,23 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 		}
 	}
 
+
+
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
+	surface->SetPoints(points, wrappedWidth, wrappedHeight);
+	std::string name = "Bezier Surface C2";
+	if (m_bezierSurfaceCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierSurfaceCounter);
+	}
+	surface->m_name = surface->m_defaultName = name;
+	m_bezierSurfaceCounter++;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(surface);
+	node->m_object = move(object);
+	scene->AttachObject(node);
+
 	// Relese auxiliary data
 	for (int i = 0; i < wrappedWidth; i++)
 	{
@@ -336,21 +354,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 	}
 	delete[] patches;
 
-
-	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, wrapDir);
-
-	std::string name = "Bezier Surface C2";
-	if (m_bezierSurfaceCounter > 0)
-	{
-		name = name + " " + std::to_string(m_bezierSurfaceCounter);
-	}
-	surface->m_name = surface->m_defaultName = name;
-	m_bezierSurfaceCounter++;
-
-	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
-	auto object = std::unique_ptr<Object>(surface);
-	node->m_object = move(object);
-	scene->AttachObject(node);
 	return node;
 
 }
@@ -435,8 +438,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector
 	}
 	delete[] patches;
 
-	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, wrapDir);
-
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
+	surface->SetPoints(points,wrappedWidth,wrappedHeight);
 	std::string name = "Bezier Surface";
 	if (m_bezierSurfaceCounter > 0)
 	{
@@ -531,8 +534,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 	}
 	delete[] patches;
 
-	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, wrapDir);
-
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
+	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	std::string name = "Bezier Surface";
 	if (m_bezierSurfaceCounter > 0)
 	{

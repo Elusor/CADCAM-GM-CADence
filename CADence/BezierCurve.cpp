@@ -65,6 +65,11 @@ bool BezierCurve::IsChild(std::weak_ptr<Node> point)
 	return false;
 }
 
+const std::vector<std::weak_ptr<Node>> BezierCurve::GetControlPoints()
+{
+	return m_controlPoints;
+}
+
 void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 {
 	// Get points that do not belong to this point

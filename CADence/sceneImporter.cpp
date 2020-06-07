@@ -66,7 +66,7 @@ void SceneImporter::ProcessElement(tinyxml2::XMLElement* element)
 	}
 	else if (name == "PatchC2")
 	{
-		LoadBezierC2Surface(element);
+		//LoadBezierC2Surface(element);
 	}
 }
 

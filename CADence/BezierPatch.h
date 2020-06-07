@@ -55,7 +55,7 @@ public:
 	void SetPatchColor(DirectX::XMFLOAT3 col);
 
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
-	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);
+	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);	
 protected:
 	// Bezier patch unique
 	std::weak_ptr<Node> m_u0[4];

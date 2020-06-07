@@ -31,7 +31,7 @@ public:
 	void virtual AttachChild(std::weak_ptr<Node> controlPoint);
 	void virtual RemoveChild(std::weak_ptr<Node> controlPoint);	
 	bool IsChild(std::weak_ptr<Node> point);	
-
+	const std::vector<std::weak_ptr<Node>> GetControlPoints();
 protected:
 	std::vector<std::weak_ptr<Node>> m_controlPoints;
 

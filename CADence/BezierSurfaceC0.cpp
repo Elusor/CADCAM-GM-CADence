@@ -1,6 +1,6 @@
 #include "BezierSurfaceC0.h"
 
-BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, SurfaceWrapDirection wrapDir)
+BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDir)
 {
 	m_wrapDir = wrapDir;
 	// mark all patches as "in use"
@@ -8,6 +8,9 @@ BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, Sur
 	{
 		patches[i]->m_object->RefUse();
 	}
+
+	m_patchW = wCount;
+	m_patchH = hCount;
 
 	m_divisionsU = m_divisionsV =  4;
 	m_patches = patches;
@@ -67,6 +70,35 @@ bool BezierSurfaceC0::GetDisplayPolygon()
 SurfaceWrapDirection BezierSurfaceC0::GetWrapDirection()
 {
 	return m_wrapDir;
+}
+
+std::vector<std::vector<std::weak_ptr<Node>>> BezierSurfaceC0::GetPoints()
+{
+	return m_points;
+}
+
+void BezierSurfaceC0::SetPoints(std::shared_ptr<Node>** points, int width, int height)
+{
+	for (int w = 0; w < width; w++)
+	{
+		m_points.push_back(std::vector<std::weak_ptr<Node>>());
+		for (int h = 0; h < height; h++)
+		{
+			m_points[w].push_back(points[w][h]);
+		}
+	}
+}
+
+void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height)
+{
+	for (int w = 0; w < width; w++)
+	{
+		m_points.push_back(std::vector<std::weak_ptr<Node>>());
+		for (int h = 0; h < height; h++)
+		{
+			m_points[w].push_back(points[w][h]);
+		}
+	}
 }
 
 bool BezierSurfaceC0::CreateParamsGui()
