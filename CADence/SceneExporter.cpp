@@ -1,9 +1,11 @@
 #include "SceneExporter.h"
 #include <codecvt>
+#include <algorithm>
 
-SceneExporter::SceneExporter(Scene* scene)
+SceneExporter::SceneExporter(Scene* scene, GuiManager* guiManager)
 {
 	m_scene = scene;
+	m_guiManager = guiManager;
 }
 
 bool SceneExporter::Export(std::wstring path)
@@ -30,6 +32,37 @@ bool SceneExporter::Export(std::wstring path)
 
 	auto res = doc.SaveFile(pathStr.c_str());
 	return res == tinyxml2::XMLError::XML_SUCCESS;
+}
+
+bool SceneExporter::InvalidateScene()
+{
+	return CheckDuplicateNames();
+}
+
+bool SceneExporter::CheckDuplicateNames()
+{
+	bool duplicate = false;
+
+	auto objects = m_scene->m_nodes;
+	for (auto it = objects.begin(); it != objects.end(); it++)
+	{
+		auto obj = (*it)->m_object.get();
+		auto dup = std::find_if(objects.begin(), objects.end(), [obj](std::shared_ptr<Node> pt) -> bool
+			{
+				return (pt->m_object->m_name == obj->m_name.c_str()) && (pt->m_object.get() != obj);
+			});
+		if (dup!= objects.end())
+		{
+			duplicate = true;
+		}
+	}
+
+	if (duplicate)
+	{
+		m_guiManager->EnableCustomModal("Scene invalid. Detected duplicate object names.", "Scene invalidation error");
+	}
+
+	return !duplicate;
 }
 
 void SceneExporter::ExportObject(tinyxml2::XMLElement* scene, std::shared_ptr<Node> object)

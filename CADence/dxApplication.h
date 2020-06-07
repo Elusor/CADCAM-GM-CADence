@@ -19,6 +19,7 @@
 #include "sceneImporter.h"
 #include "SceneExporter.h"
 #include "FileManager.h"
+#include "GuiManager.h"
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -43,6 +44,7 @@ private:
 	std::unique_ptr<SceneImporter> m_importer;
 	std::unique_ptr<SceneExporter> m_exporter;
 	std::unique_ptr<FileManager> m_fileManager;
+	std::unique_ptr<GuiManager> m_guiManager;
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
 	IRenderPass* m_activePass;

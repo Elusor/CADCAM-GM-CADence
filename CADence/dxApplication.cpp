@@ -36,8 +36,9 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 
 	m_pSelector = make_unique<PointSelector>(m_renderState->m_camera);
 	m_transController = make_unique<TransformationController>(m_scene);
-	m_importer = make_unique<SceneImporter>(m_scene.get());
-	m_exporter = make_unique<SceneExporter>(m_scene.get());
+	m_guiManager = make_unique<GuiManager>();
+	m_importer = make_unique<SceneImporter>(m_scene.get(), m_guiManager.get());
+	m_exporter = make_unique<SceneExporter>(m_scene.get(), m_guiManager.get());
 	m_fileManager = make_unique<FileManager>();
 
 	//// RENDER PASS
@@ -94,6 +95,7 @@ int DxApplication::MainLoop()
 			}
 		
 			InitImguiWindows();
+			m_guiManager->Update();
 			Update();
 			m_activePass->Execute(m_renderState, m_scene.get());		
 			m_pSelector->DrawSelectionWindow(m_renderState, m_window.getClientSize());
@@ -138,7 +140,9 @@ void DxApplication::InitImguiWindows()
 				if (validFile)
 				{
 					// Import scene from file
-					m_importer->Import(filename);
+					if (m_importer->Import(filename)) {
+						m_guiManager->EnableCustomModal("Scene imported successfully.", "Operation complete");
+					}
 				}
 				else 
 				{					
@@ -153,12 +157,15 @@ void DxApplication::InitImguiWindows()
 			}
 			if (ImGui::MenuItem("Save As...")) {
 				// Open dialog to choose save location				
-				bool validFile = m_importer->InvalidateScene();
+				bool validFile = m_exporter->InvalidateScene();
 				// Save the file
 				if (validFile)
 				{
 					wstring filename = m_fileManager->SaveFileDialog();
-					m_exporter->Export(filename);
+					if (m_exporter->Export(filename))
+					{
+						m_guiManager->EnableCustomModal("Object saved successfully.", "Operation complete");
+					}
 				}
 				else {
 					// Scene is invalid modal

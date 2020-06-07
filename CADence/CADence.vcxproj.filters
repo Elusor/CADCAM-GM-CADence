@@ -288,6 +288,9 @@
     <ClInclude Include="BezierSurfaceC2.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="GuiManager.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -445,6 +448,9 @@
     </ClCompile>
     <ClCompile Include="BezierSurfaceC2.cpp">
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

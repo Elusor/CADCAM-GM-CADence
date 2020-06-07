@@ -3,8 +3,9 @@
 #include <codecvt>
 #include <algorithm>
 
-SceneImporter::SceneImporter(Scene* scene)
+SceneImporter::SceneImporter(Scene* scene, GuiManager* guiManager)
 {
+	m_guiManager = guiManager;
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 }
@@ -14,8 +15,7 @@ bool SceneImporter::Import(std::wstring wpath)
 	// TODO: check if file is correct
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converterX;
 	
-	m_loadedPoints.clear();
-	m_scene->ClearScene();
+	
 	auto path = converterX.to_bytes(wpath);
 
 	tinyxml2::XMLDocument doc;
@@ -24,6 +24,16 @@ bool SceneImporter::Import(std::wstring wpath)
 		return false;
 	
 	tinyxml2::XMLElement* scene = doc.FirstChildElement("Scene");
+	if (scene == nullptr)
+	{
+		m_guiManager->EnableCustomModal("File formatting incompatible.", "Reading error");
+		return false;
+	}
+	else {
+		m_loadedPoints.clear();
+		m_scene->ClearScene();
+	}
+
 	tinyxml2::XMLElement* element = scene->FirstChildElement();
 
 	while (element != nullptr)
@@ -32,6 +42,7 @@ bool SceneImporter::Import(std::wstring wpath)
 		element = element->NextSiblingElement();
 	}
 	m_loadedPoints.clear();
+	return true;
 }
 
 void SceneImporter::ProcessElement(tinyxml2::XMLElement* element)
@@ -71,11 +82,6 @@ void SceneImporter::ProcessElement(tinyxml2::XMLElement* element)
 }
 
 bool SceneImporter::InvalidateFile(std::wstring path)
-{
-	return true;
-}
-
-bool SceneImporter::InvalidateScene()
 {
 	return true;
 }

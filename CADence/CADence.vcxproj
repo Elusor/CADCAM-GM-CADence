@@ -169,6 +169,7 @@
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
+    <ClInclude Include="GuiManager.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="IRenderTarget.h" />
     <ClInclude Include="mathUtils.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="generalUtils.cpp" />
     <ClCompile Include="GroupNode.cpp" />
+    <ClCompile Include="GuiManager.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />

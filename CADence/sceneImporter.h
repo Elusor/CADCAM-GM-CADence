@@ -1,19 +1,20 @@
 #pragma once
 #include <string>
 #include "Scene.h"
+#include "GuiManager.h"
 #include "ObjectFactory.h"
 #include "tinyxml2.h"
 #include "objects.h"
 class SceneImporter
 {
 public:
-	SceneImporter(Scene* scene);
+	SceneImporter(Scene* scene, GuiManager* guiManager);
 	bool Import(std::wstring path);
 	bool InvalidateFile(std::wstring path);
-	bool InvalidateScene();
 private:
 	Scene* m_scene;
 	ObjectFactory* m_factory;
+	GuiManager* m_guiManager;
 
 	std::vector<std::shared_ptr<Node>> m_loadedPoints;
 
