@@ -78,7 +78,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
 			bot = { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
 
-			auto patch = CreateBezierPatch(scene, top, topMid, botMid, bot);
+			auto patch = CreateBezierPatch(top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
 			surfPatches.push_back(patch);
 		}
@@ -258,7 +258,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
 			bot = { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
 
-			auto patch = CreateBezierPatchC2(scene, top, topMid, botMid, bot);
+			auto patch = CreateBezierPatchC2(top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
 			surfPatches.push_back(patch);
 		}
@@ -356,8 +356,200 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 
 }
 
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector<std::weak_ptr<Node>>> points, int patchesW, int patchesH, SurfaceWrapDirection wrapDir)
+{	
+	int widthPointCount = 3 * patchesW + 1;
+	int heightPointCount = 3 * patchesH + 1;
+
+	int wrappedHeight = heightPointCount;
+	int wrappedWidth = widthPointCount;
+
+	bool cylinder = wrapDir != SurfaceWrapDirection::None;
+
+	if (cylinder)
+	{
+		if (wrapDir == SurfaceWrapDirection::Height)
+		{
+			wrappedHeight--;
+		}
+
+		if (wrapDir == SurfaceWrapDirection::Width)
+		{
+			wrappedWidth--;
+		}
+	}
+
+	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
+	BezierPatch*** patches;
+	patches = new BezierPatch * *[patchesW];
+
+	for (int i = 0; i < patchesW; i++) {
+		patches[i] = new BezierPatch * [patchesH];
+	}
+
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
+
+			std::vector<std::weak_ptr<Node>> top, bot, topMid, botMid;
+			// determine top bot left and right
+			int startIdxW = 3 * patchW;
+			int startIdxH = 3 * patchH;
+			top =    {
+				points[(startIdxW)% wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW+1) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW+2) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW+3) % wrappedWidth][(startIdxH + 3) % wrappedHeight] };
+			topMid = { 
+				points[(startIdxW)% wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW+1) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW+2) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 2) % wrappedHeight] };
+			botMid = { 
+				points[(startIdxW)% wrappedWidth][(startIdxH + 1) % wrappedHeight],
+				points[(startIdxW+1) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
+				points[(startIdxW+2) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 1) % wrappedHeight] };
+			bot =	 { 
+				points[(startIdxW)% wrappedWidth][(startIdxH) % wrappedHeight],
+				points[(startIdxW+1) % wrappedWidth][(startIdxH) % wrappedHeight],
+				points[(startIdxW+2) % wrappedWidth][(startIdxH) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH    )%wrappedHeight] };
+
+			auto patch = CreateBezierPatch(top, topMid, botMid, bot);
+			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
+			surfPatches.push_back(patch);
+		}
+	}
+
+	// determine pointStepW and pointStepH
+	// Move to grid
+
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
+			patches[patchW][patchH]->UpdateObject();
+		}
+	}
+
+	for (int i = 0; i < patchesW; i++)
+	{
+		delete[](patches[i]);
+	}
+	delete[] patches;
+
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
+
+	std::string name = "Bezier Surface";
+	if (m_bezierSurfaceCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierSurfaceCounter);
+	}
+	surface->m_name = surface->m_defaultName = name;
+	m_bezierSurfaceCounter++;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(surface);
+	node->m_object = move(object);
+	return node;
+}
+
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vector<std::weak_ptr<Node>>> points, int patchesW, int patchesH, SurfaceWrapDirection wrapDir)
+{
+	int widthPointCount = patchesW + 3;
+	int heightPointCount = patchesH + 3;
+
+	int wrappedHeight = heightPointCount;
+	int wrappedWidth = widthPointCount;
+
+	bool cylinder = wrapDir != SurfaceWrapDirection::None;
+
+	if (cylinder)
+	{
+		if (wrapDir == SurfaceWrapDirection::Height)
+		{
+			wrappedHeight-=3;
+		}
+
+		if (wrapDir == SurfaceWrapDirection::Width)
+		{
+			wrappedWidth-=3;
+		}
+	}
+
+	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
+	BezierPatchC2 *** patches;
+	patches = new BezierPatchC2 * *[patchesW];
+
+	for (int i = 0; i < patchesW; i++) {
+		patches[i] = new BezierPatchC2 * [patchesH];
+	}	
+
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {			
+
+			std::vector<std::weak_ptr<Node>> top, bot, topMid, botMid;
+			// determine top bot left and right
+			int startIdxW = patchW;
+			int startIdxH = patchH;
+			top = {
+				points[(startIdxW) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 3) % wrappedHeight] };
+			topMid = {
+				points[(startIdxW) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 2) % wrappedHeight] };
+			botMid = {
+				points[(startIdxW) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
+				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
+				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 1) % wrappedHeight] };
+			bot = {
+				points[(startIdxW) % wrappedWidth][(startIdxH) % wrappedHeight],
+				points[(startIdxW + 1) % wrappedWidth][(startIdxH) % wrappedHeight],
+				points[(startIdxW + 2) % wrappedWidth][(startIdxH) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH) % wrappedHeight] };
+
+			auto patch = CreateBezierPatchC2(top, topMid, botMid, bot);
+			patches[patchW][patchH] = (BezierPatchC2*)patch->m_object.get();
+			surfPatches.push_back(patch);
+		}
+	}
+
+	// determine pointStepW and pointStepH
+	// Move to grid
+
+	for (int patchW = 0; patchW < patchesW; patchW++) {
+		for (int patchH = 0; patchH < patchesH; patchH++) {
+			patches[patchW][patchH]->UpdateObject();
+		}
+	}
+
+	for (int i = 0; i < patchesW; i++)
+	{
+		delete[](patches[i]);
+	}
+	delete[] patches;
+
+	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches);
+
+	std::string name = "Bezier Surface";
+	if (m_bezierSurfaceCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierSurfaceCounter);
+	}
+	surface->m_name = surface->m_defaultName = name;
+	m_bezierSurfaceCounter++;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(surface);
+	node->m_object = move(object);
+	return node;
+	return nullptr;
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
-	Scene* scene,
 	std::vector<std::weak_ptr<Node>> top,
 	std::vector<std::weak_ptr<Node>> topMid,
 	std::vector<std::weak_ptr<Node>> botMid,
@@ -403,7 +595,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 }
 
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatchC2(
-	Scene* scene,
 	std::vector<std::weak_ptr<Node>> top,
 	std::vector<std::weak_ptr<Node>> topMid,
 	std::vector<std::weak_ptr<Node>> botMid,

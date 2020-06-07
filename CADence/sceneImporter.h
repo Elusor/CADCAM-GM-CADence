@@ -23,6 +23,8 @@ private:
 	DirectX::XMFLOAT3 GetFloat3Attribute(tinyxml2::XMLElement* element, std::string attributeName);
 
 	std::vector<std::weak_ptr<Node>> LoadPointReferences(tinyxml2::XMLElement* element);
+	std::vector<std::vector<std::weak_ptr<Node>>> LoadGridPointReferences(tinyxml2::XMLElement* element);
+
 	void LoadPoint(tinyxml2::XMLElement* element);
 	void LoadTorus(tinyxml2::XMLElement* element);
 	void LoadBezierC0(tinyxml2::XMLElement* element);

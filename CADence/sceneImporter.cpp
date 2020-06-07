@@ -109,11 +109,11 @@ std::vector<std::weak_ptr<Node>> SceneImporter::LoadPointReferences(tinyxml2::XM
 
 	while (point != nullptr)
 	{
-		auto name = point->Attribute("Name");		
+		auto name = GetName(point);
 		auto pointObj = std::find_if(m_loadedPoints.begin(), m_loadedPoints.end(),
 			[name](std::shared_ptr<Node> pt) -> bool
 			{
-				return pt->m_object->m_name == name;
+				return pt->m_object->m_name == name.c_str();
 			});
 
 		if (pointObj != m_loadedPoints.end())
@@ -128,6 +128,80 @@ std::vector<std::weak_ptr<Node>> SceneImporter::LoadPointReferences(tinyxml2::XM
 	}
 
 	return pointList;
+}
+
+std::vector<std::vector<std::weak_ptr<Node>>> SceneImporter::LoadGridPointReferences(tinyxml2::XMLElement* element)
+{
+	std::vector<std::vector<std::weak_ptr<Node>>> vertices;
+	// REMEMBER TO REVERSE THE ROW ORDER (format requires row 0 at the top while this program uses row 0 at the bottom)
+			
+	std::vector<std::weak_ptr<Node>> pointList;
+	auto points = element->FirstChildElement("Points");
+	auto point = points->FirstChildElement("PointRef");
+	// Iterate through all points and find the size of the grid
+
+	int colCount = 0;
+	int rowCount = 0;
+	// Find row and column count
+	while (point != nullptr)
+	{
+		int col = point->IntAttribute("Column");
+		int row = point->IntAttribute("Row");
+
+		colCount = max(col, colCount);
+		rowCount = max(row, rowCount);
+		point = point->NextSiblingElement();
+	}
+	colCount++;
+	rowCount++;
+
+	std::weak_ptr<Node>** objPoints = new std::weak_ptr<Node>*[colCount];
+
+	for (int c = 0; c < colCount; c++)
+	{
+		objPoints[c] = new std::weak_ptr<Node>[rowCount];
+	}
+
+	point = points->FirstChildElement("PointRef");
+	while (point != nullptr)
+	{
+		auto name = GetName(point);
+		int col = point->IntAttribute("Column");
+		int row = point->IntAttribute("Row");
+		auto pointObj = std::find_if(m_loadedPoints.begin(), m_loadedPoints.end(),
+			[name](std::shared_ptr<Node> pt) -> bool
+			{
+				return pt->m_object->m_name == name.c_str();
+			});
+
+		if (pointObj != m_loadedPoints.end())
+		{
+			objPoints[col][rowCount - row - 1] = *pointObj;
+		}
+		else {
+			// ERROR - WRONG FORMAT
+		}
+
+		point = point->NextSiblingElement();
+	}
+	
+	for (int col = 0; col < colCount; col++)
+	{
+		vertices.push_back(std::vector<std::weak_ptr<Node>>());
+		for (int row = 0; row < rowCount; row++)
+		{
+			vertices[col].push_back(objPoints[col][row]);
+		}
+	}
+
+	// release auxiliary structs
+	for (int c = 0; c < colCount; c++)
+	{
+		delete[] objPoints[c];
+	}
+	delete[] objPoints;
+
+	return vertices;
 }
 
 void SceneImporter::LoadPoint(tinyxml2::XMLElement* element)
@@ -200,47 +274,61 @@ void SceneImporter::LoadBezierC0Surface(tinyxml2::XMLElement* element)
 	float widthSlices = element->FloatAttribute("RowSlices");
 	float heightSlices = element->FloatAttribute("ColumnSlices");
 	auto wrapDirection = element->Attribute("WrapDirection");
-	
-	if (wrapDirection == "Column")
+
+	auto points = LoadGridPointReferences(element);
+
+	int width = (points.size() - 1) / 3;
+	int height = (points[0].size() - 1) / 3;
+
+	if (strcmp(wrapDirection, "Column") == 0)
 	{
 		wrapDir = SurfaceWrapDirection::Width;
+		width++;
 	}
-	if (wrapDirection == "Row")
+	if (strcmp(wrapDirection, "Row") == 0)
 	{
 		wrapDir = SurfaceWrapDirection::Height;
+		height++;
 	}
-	if (wrapDirection == "None")
+	if (strcmp(wrapDirection, "None") == 0)
 	{
 		wrapDir = SurfaceWrapDirection::None;
 	}
 
-	//surface->Rename(GetName(element));
-	LoadPointReferences(element);
+	auto surface = m_factory->CreateBezierSurface(points,width, height, wrapDir);
+	surface->Rename(GetName(element));
+	m_scene->AttachObject(surface);	
 }
 
 void SceneImporter::LoadBezierC2Surface(tinyxml2::XMLElement* element)
 {
-	auto name = GetName(element);
-
 	SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None;
 	bool showControlPolygon = element->BoolAttribute("ShowControlPolygon");
 	float widthSlices = element->FloatAttribute("RowSlices");
 	float heightSlices = element->FloatAttribute("ColumnSlices");
 	auto wrapDirection = element->Attribute("WrapDirection");
 
-	if (wrapDirection == "Column")
+	auto points = LoadGridPointReferences(element);
+
+	int width = (points.size() - 3);
+	int height = (points[0].size() - 3);
+
+	if (strcmp(wrapDirection, "Column") == 0)
 	{
 		wrapDir = SurfaceWrapDirection::Width;
+		width+=3;
 	}
-	if (wrapDirection == "Row")
+	if (strcmp(wrapDirection, "Row") == 0)
 	{
 		wrapDir = SurfaceWrapDirection::Height;
+		height+=3;
 	}
-	if (wrapDirection == "None")
+	if (strcmp(wrapDirection, "None") == 0)
 	{
 		wrapDir = SurfaceWrapDirection::None;
 	}
 
-	//surface->Rename(GetName(element));
-	LoadPointReferences(element);
+	auto surface = m_factory->CreateBezierSurfaceC2(points, width, height, wrapDir);
+	surface->Rename(GetName(element));
+	m_scene->AttachObject(surface);
 }

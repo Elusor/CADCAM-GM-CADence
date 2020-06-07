@@ -26,15 +26,21 @@ public:
 		bool cylinder = false, float width = 5.0f, float height = 5.0f,
 		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
 
+	std::shared_ptr<Node> CreateBezierSurface(
+		std::vector<std::vector<std::weak_ptr<Node>>> points,
+		int patchesW, int patchesH, SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
+
+	std::shared_ptr<Node> CreateBezierSurfaceC2(
+		std::vector<std::vector<std::weak_ptr<Node>>> points,
+		int patchesW, int patchesH, SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
+
 	std::shared_ptr<Node> CreateBezierPatch(
-		Scene* scene,
 		std::vector<std::weak_ptr<Node>> top = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> bottom = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> left = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> right = std::vector<std::weak_ptr<Node>>());
 
 	std::shared_ptr<Node> CreateBezierPatchC2(
-		Scene* scene,
 		std::vector<std::weak_ptr<Node>> top = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> bottom = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> left = std::vector<std::weak_ptr<Node>>(),
