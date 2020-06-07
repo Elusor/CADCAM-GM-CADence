@@ -7,6 +7,7 @@ class FileManager
 {
 public:
 	std::wstring OpenFileDialog();
+	std::wstring SaveFileDialog();
 private:
 
 };

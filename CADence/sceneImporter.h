@@ -10,6 +10,7 @@ public:
 	SceneImporter(Scene* scene);
 	bool Import(std::wstring path);
 	bool InvalidateFile(std::wstring path);
+	bool InvalidateScene();
 private:
 	Scene* m_scene;
 	ObjectFactory* m_factory;

@@ -282,6 +282,9 @@
     <ClInclude Include="FileManager.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
+    <ClInclude Include="SceneExporter.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -432,6 +435,9 @@
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="FileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

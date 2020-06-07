@@ -37,6 +37,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pSelector = make_unique<PointSelector>(m_renderState->m_camera);
 	m_transController = make_unique<TransformationController>(m_scene);
 	m_importer = make_unique<SceneImporter>(m_scene.get());
+	m_exporter = make_unique<SceneExporter>(m_scene.get());
 	m_fileManager = make_unique<FileManager>();
 
 	//// RENDER PASS
@@ -129,7 +130,7 @@ void DxApplication::InitImguiWindows()
 				// Reset the colors
 				// Set all things to default
 			}
-			if (ImGui::MenuItem("Open", "Ctrl+O")) {
+			if (ImGui::MenuItem("Open")) {
 				// Open dialog to select file
 				wstring filename = m_fileManager->OpenFileDialog();
 				// Check if file is correct
@@ -144,15 +145,24 @@ void DxApplication::InitImguiWindows()
 					// Error Modal - File Invalid
 				}
 			}
-			if (ImGui::MenuItem("Save", "Ctrl+S")) {
+			if (ImGui::MenuItem("Save")) {
 				// If a file has been saved 
 					// Save to the lastest file
 				// else
 				// Trigger Save As
 			}
-			if (ImGui::MenuItem("Save As..")) {
-				// Open dialog to choose save location
+			if (ImGui::MenuItem("Save As...")) {
+				// Open dialog to choose save location				
+				bool validFile = m_importer->InvalidateScene();
 				// Save the file
+				if (validFile)
+				{
+					wstring filename = m_fileManager->SaveFileDialog();
+					m_exporter->Export(filename);
+				}
+				else {
+					// Scene is invalid modal
+				}
 			}
 			//ShowExampleMenuFile();
 			ImGui::EndMenu();

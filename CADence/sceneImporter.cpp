@@ -75,6 +75,11 @@ bool SceneImporter::InvalidateFile(std::wstring path)
 	return true;
 }
 
+bool SceneImporter::InvalidateScene()
+{
+	return true;
+}
+
 std::string SceneImporter::GetName(tinyxml2::XMLElement* element)
 {
 	return std::string(element->Attribute("Name"));
