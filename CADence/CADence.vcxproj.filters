@@ -285,6 +285,9 @@
     <ClInclude Include="SceneExporter.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
+    <ClInclude Include="BezierSurfaceC2.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -438,6 +441,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SceneExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierSurfaceC2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

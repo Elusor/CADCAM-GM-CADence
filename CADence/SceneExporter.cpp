@@ -56,15 +56,14 @@ void SceneExporter::ExportObject(tinyxml2::XMLElement* scene, std::shared_ptr<No
 	{
 		ExportCurveC0(scene, (BezierCurve*)obj);
 	}
+	else if (typeid(*obj) == typeid(BezierSurfaceC2))
+	{
+		ExportSurfaceC2(scene, (BezierSurfaceC2*)obj);
+	}
 	else if (typeid(*obj) == typeid(BezierSurfaceC0))
 	{
 		ExportSurfaceC0(scene, (BezierSurfaceC0*)obj);
 	}
-
-	/*if (typeid(*obj) == typeid(BezierSurface))
-	{
-
-	}*/
 
 }
 
@@ -157,9 +156,9 @@ void SceneExporter::ExportSurfaceC0(tinyxml2::XMLElement* scene, BezierSurfaceC0
 	ExportGridPoints(object, surface);
 }
 
-void SceneExporter::ExportSurfaceC2(tinyxml2::XMLElement* scene, BezierSurfaceC0* surface)
+void SceneExporter::ExportSurfaceC2(tinyxml2::XMLElement* scene, BezierSurfaceC2* surface)
 {
-	auto object = scene->InsertNewChildElement("PatchC0");
+	auto object = scene->InsertNewChildElement("PatchC2");
 	object->SetAttribute("Name", surface->m_name.c_str());
 	object->SetAttribute("ShowControlPolygon", surface->GetDisplayPolygon());
 

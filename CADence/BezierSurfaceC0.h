@@ -33,7 +33,7 @@ public:
 	std::vector<std::vector<std::weak_ptr<Node>>> GetPoints();
 	void SetPoints(std::shared_ptr<Node>** points, int width, int height);
 	void SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height);
-private:
+protected:
 	std::vector<std::vector<std::weak_ptr<Node>>> m_points;
 	SurfaceWrapDirection m_wrapDir;
 	std::vector<std::shared_ptr<Node>> m_patches;
@@ -48,4 +48,12 @@ private:
 	int m_divisionsV;
 	bool m_displayPatchesPolygon;
 	DirectX::XMFLOAT3 m_polygonsColor;
+};
+
+class BezierSurfaceC2 : public BezierSurfaceC0
+{
+public:
+	BezierSurfaceC2();
+	BezierSurfaceC2(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDirection);
+	virtual ~BezierSurfaceC2();
 };

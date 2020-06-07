@@ -164,6 +164,7 @@
     <ClInclude Include="BezierPatch.h" />
     <ClInclude Include="BezierPatchC2.h" />
     <ClInclude Include="BezierSurfaceC0.h" />
+    <ClInclude Include="BezierSurfaceC2.h" />
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
@@ -222,6 +223,7 @@
     <ClCompile Include="BezierPatch.cpp" />
     <ClCompile Include="BezierPatchC2.cpp" />
     <ClCompile Include="BezierSurfaceC0.cpp" />
+    <ClCompile Include="BezierSurfaceC2.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="DefaultRenderPass.cpp" />

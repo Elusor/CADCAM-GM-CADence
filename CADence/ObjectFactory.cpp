@@ -326,7 +326,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 
 
 
-	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
+	BezierSurfaceC2* surface = new BezierSurfaceC2(surfPatches, patchesW, patchesH, wrapDir);
 	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	std::string name = "Bezier Surface C2";
 	if (m_bezierSurfaceCounter > 0)
@@ -534,9 +534,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 	}
 	delete[] patches;
 
-	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
+	BezierSurfaceC2* surface = new BezierSurfaceC2(surfPatches, patchesW, patchesH, wrapDir);
 	surface->SetPoints(points, wrappedWidth, wrappedHeight);
-	std::string name = "Bezier Surface";
+	std::string name = "Bezier Surface C2";
 	if (m_bezierSurfaceCounter > 0)
 	{
 		name = name + " " + std::to_string(m_bezierSurfaceCounter);

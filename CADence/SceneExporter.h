@@ -18,7 +18,7 @@ private:
 	void ExportCurveC2(tinyxml2::XMLElement* scene, BezierCurveC2* curve);
 	void ExportInterpolCurve(tinyxml2::XMLElement* scene, InterpolationBezierCurveC2* curve);
 	void ExportSurfaceC0(tinyxml2::XMLElement* scene, BezierSurfaceC0* surface);
-	void ExportSurfaceC2(tinyxml2::XMLElement* scene, BezierSurfaceC0* surface);
+	void ExportSurfaceC2(tinyxml2::XMLElement* scene, BezierSurfaceC2* surface);
 
 	void ExportCurvePoints(tinyxml2::XMLElement* object, BezierCurve* curve);
 	void ExportGridPoints(tinyxml2::XMLElement* object, BezierSurfaceC0* curve);

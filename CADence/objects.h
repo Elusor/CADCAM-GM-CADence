@@ -7,6 +7,7 @@
 #include "BezierPatch.h"
 //#include "BezierPatchC2.h"
 #include "BezierSurfaceC0.h"
+#include "BezierSurfaceC2.h"
 #include "BezierCurve.h"
 #include "BezierCurveC2.h"
 #include "Point.h"
