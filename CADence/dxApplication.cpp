@@ -37,6 +37,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pSelector = make_unique<PointSelector>(m_renderState->m_camera);
 	m_transController = make_unique<TransformationController>(m_scene);
 	m_importer = make_unique<SceneImporter>(m_scene.get());
+	m_fileManager = make_unique<FileManager>();
 
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
@@ -118,18 +119,23 @@ void DxApplication::InitImguiWindows()
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("New")) {
+				// This will delete any unsaved work
 				// Clear Scene
+				m_scene->ClearScene();
 				// Reset the camera
+				m_renderState->m_camera->ResetCamera();
 				// Turn of transformations
+				m_transController->Reset();
 				// Reset the colors
 				// Set all things to default
 			}
 			if (ImGui::MenuItem("Open", "Ctrl+O")) {
-				
 				// Open dialog to select file
+				wstring filename = m_fileManager->OpenFileDialog();
 				// Check if file is correct
 				// If yes 
 				// Import scene from file
+				m_importer->Import(filename);
 				// If no
 				// Error Modal
 			}

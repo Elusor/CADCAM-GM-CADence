@@ -165,6 +165,7 @@
     <ClInclude Include="BezierPatchC2.h" />
     <ClInclude Include="BezierSurfaceC0.h" />
     <ClInclude Include="DefaultRenderPass.h" />
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
@@ -227,6 +228,7 @@
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
     <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="generalUtils.cpp" />
     <ClCompile Include="GroupNode.cpp" />
     <ClCompile Include="imgui.cpp" />

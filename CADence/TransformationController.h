@@ -33,6 +33,7 @@ public:
 	explicit TransformationController(std::shared_ptr<Scene> scene);
 	void ProcessInput(ImGuiIO& imguiIO);
 	void CreateGuiStatus();
+	void Reset();
 private:	
 	ImVec2 prevPos;
 	bool m_isCapturingMouse;

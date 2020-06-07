@@ -68,6 +68,12 @@ void TransformationController::CreateGuiStatus()
 	}
 }
 
+void TransformationController::Reset()
+{
+	m_type = TransformationType::NoTT;
+	m_coordinate = AffectedCoordinate::NoAC;
+}
+
 void TransformationController::SetOperationType(ImGuiIO& imguiIO)
 {
 	if (m_type != TransformationType::NoTT)

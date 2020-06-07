@@ -279,6 +279,9 @@
     <ClInclude Include="sceneImporter.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
+    <ClInclude Include="FileManager.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -427,6 +430,9 @@
     </ClCompile>
     <ClCompile Include="BezierPatchC2.cpp">
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
