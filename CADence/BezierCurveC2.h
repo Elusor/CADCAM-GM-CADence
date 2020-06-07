@@ -21,7 +21,9 @@ public:
 	void RecalculateBasisPoints(bool overwriteVertices = true);
 
 	bool GetIsModified() override;
-
+	void SetDisplayDeBoorPolygon(bool isDisplayed);
+	bool GetDisplayDeBoorPolygon();
+	BezierBasis GetCurrentBasis();
 protected:
 	bool RemoveExpiredChildren() override;
 

@@ -1,7 +1,8 @@
 #include "BezierSurfaceC0.h"
 
-BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches)
+BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, SurfaceWrapDirection wrapDir)
 {
+	m_wrapDir = wrapDir;
 	// mark all patches as "in use"
 	for (int i = 0; i < patches.size(); i++)
 	{
@@ -33,6 +34,39 @@ void BezierSurfaceC0::SetIsSelected(bool isSelected)
 {
 	MeshObject::SetIsSelected(isSelected);
 	SetMeshColor();
+}
+
+void BezierSurfaceC0::SetDivisions(int divsU, int divsV)
+{
+	m_divisionsU = divsU;
+	m_divisionsV = divsV;
+	SetDivisions();
+}
+
+int BezierSurfaceC0::GetUDivisions()
+{
+	return m_divisionsU;
+}
+
+int BezierSurfaceC0::GetVDivisions()
+{
+	return m_divisionsV;
+}
+
+void BezierSurfaceC0::SetDisplayPolygon(bool displayPolygon)
+{
+	m_displayPatchesPolygon = displayPolygon;
+	SetDisplayPolygon();
+}
+
+bool BezierSurfaceC0::GetDisplayPolygon()
+{
+	return m_displayPatchesPolygon;
+}
+
+SurfaceWrapDirection BezierSurfaceC0::GetWrapDirection()
+{
+	return m_wrapDir;
 }
 
 bool BezierSurfaceC0::CreateParamsGui()

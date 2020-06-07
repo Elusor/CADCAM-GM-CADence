@@ -25,7 +25,8 @@ public:
 	void UpdateObject() override;
 	bool CreateParamsGui() override;
 	bool GetIsModified() override;
-
+	virtual void SetDisplayPolygon(bool displayPolygon);
+	virtual bool GetDisplayPolygon();
 	// Child managment
 	void virtual AttachChild(std::weak_ptr<Node> controlPoint);
 	void virtual RemoveChild(std::weak_ptr<Node> controlPoint);	

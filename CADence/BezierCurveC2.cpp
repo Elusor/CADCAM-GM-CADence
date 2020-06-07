@@ -177,6 +177,21 @@ bool BezierCurveC2::GetIsModified()
 	return m_modified;
 }
 
+void BezierCurveC2::SetDisplayDeBoorPolygon(bool isDisplayed)
+{
+	m_renderDeBoorPolygon = isDisplayed;
+}
+
+bool BezierCurveC2::GetDisplayDeBoorPolygon()
+{
+	return m_renderDeBoorPolygon;
+}
+
+BezierBasis BezierCurveC2::GetCurrentBasis()
+{
+	return m_basis;
+}
+
 bool BezierCurveC2::RemoveExpiredChildren()
 {
 	bool removed = false;

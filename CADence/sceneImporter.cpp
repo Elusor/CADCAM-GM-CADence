@@ -218,13 +218,12 @@ void SceneImporter::LoadPoint(tinyxml2::XMLElement* element)
 void SceneImporter::LoadTorus(tinyxml2::XMLElement* element)
 {
 	auto name = GetName(element);
-
 	Transform t = GetTransform(element);
 	float majorRad = element->FloatAttribute("MajorRadius");
 	float minorRad = element->FloatAttribute("MinorRadius");
 	float xSlices = element->FloatAttribute("VerticalSlices");
 	float ySlices = element->FloatAttribute("HorizontalSlices");
-
+	
 	auto torus = m_factory->CreateTorus(t, name, majorRad, minorRad, xSlices, ySlices);
 	torus->Rename(GetName(element));
 	m_scene->AttachObject(torus);
@@ -233,11 +232,16 @@ void SceneImporter::LoadTorus(tinyxml2::XMLElement* element)
 void SceneImporter::LoadBezierC0(tinyxml2::XMLElement* element)
 {
 	bool showControlPolygon = element->BoolAttribute("ShowControlPolygon");
+
+	// SET show control Polygon
+
 	auto name = GetName(element);
 	auto points = LoadPointReferences(element);
 
 	auto curve = m_factory->CreateBezierCurve(points);
 	curve->Rename(GetName(element));
+	((BezierCurve*)curve->m_object.get())->SetDisplayPolygon(showControlPolygon);
+
 	m_scene->AttachObject(curve);	
 }
 
@@ -246,22 +250,33 @@ void SceneImporter::LoadBezierC2(tinyxml2::XMLElement* element)
 	bool showBernsteinPoints = element->BoolAttribute("ShowBernsteinPoints");
 	bool showBernsteinPolygon = element->BoolAttribute("ShowBernsteinPolygon");
 	bool showDeBoorPolygon = element->BoolAttribute("ShowDeBoorPolygon");
+
 	auto name = GetName(element);
 	auto points = LoadPointReferences(element);
-
-	auto curve = m_factory->CreateBezierCurveC2(points);
+	std::shared_ptr<Node> curve;
+	if (showBernsteinPoints)
+	{
+		curve = m_factory->CreateBezierCurveC2(points,BezierBasis::Bernstein);
+	}
+	else {
+		curve = m_factory->CreateBezierCurveC2(points);
+	}
 	curve->Rename(GetName(element));
+	((BezierCurve*)curve->m_object.get())->SetDisplayPolygon(showBernsteinPoints);
 	m_scene->AttachObject(curve);
 }
 
 void SceneImporter::LoadInterpolationSpline(tinyxml2::XMLElement* element)
 {
 	bool showControlPolygon = element->BoolAttribute("ShowControlPolygon");
+	// SET show control Polygon
+
 	auto name = GetName(element);
 	auto points = LoadPointReferences(element);
 
 	auto curve = m_factory->CreateInterpolBezierCurveC2(points);
 	curve->Rename(GetName(element));
+	((BezierCurve*)curve->m_object.get())->SetDisplayPolygon(showControlPolygon);
 	m_scene->AttachObject(curve);
 }
 
@@ -274,6 +289,9 @@ void SceneImporter::LoadBezierC0Surface(tinyxml2::XMLElement* element)
 	float widthSlices = element->FloatAttribute("RowSlices");
 	float heightSlices = element->FloatAttribute("ColumnSlices");
 	auto wrapDirection = element->Attribute("WrapDirection");
+
+	// SET show control Polygon
+	// Set Slices 
 
 	auto points = LoadGridPointReferences(element);
 
@@ -297,6 +315,8 @@ void SceneImporter::LoadBezierC0Surface(tinyxml2::XMLElement* element)
 
 	auto surface = m_factory->CreateBezierSurface(points,width, height, wrapDir);
 	surface->Rename(GetName(element));
+	((BezierSurfaceC0*)surface->m_object.get())->SetDivisions(widthSlices+1, heightSlices+1);
+	((BezierSurfaceC0*)surface->m_object.get())->SetDisplayPolygon(showControlPolygon);
 	m_scene->AttachObject(surface);	
 }
 
@@ -307,6 +327,9 @@ void SceneImporter::LoadBezierC2Surface(tinyxml2::XMLElement* element)
 	float widthSlices = element->FloatAttribute("RowSlices");
 	float heightSlices = element->FloatAttribute("ColumnSlices");
 	auto wrapDirection = element->Attribute("WrapDirection");
+
+	// SET show control Polygon
+	// Set Slices 
 
 	auto points = LoadGridPointReferences(element);
 
@@ -330,5 +353,7 @@ void SceneImporter::LoadBezierC2Surface(tinyxml2::XMLElement* element)
 
 	auto surface = m_factory->CreateBezierSurfaceC2(points, width, height, wrapDir);
 	surface->Rename(GetName(element));
+	((BezierSurfaceC0*)surface->m_object.get())->SetDivisions(widthSlices + 1, heightSlices + 1);
+	((BezierSurfaceC0*)surface->m_object.get())->SetDisplayPolygon(showControlPolygon);
 	m_scene->AttachObject(surface);
 }

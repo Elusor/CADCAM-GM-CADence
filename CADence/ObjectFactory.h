@@ -5,13 +5,6 @@
 #include "Node.h"
 #include "GroupNode.h"
 
-enum SurfaceWrapDirection
-{
-	Width,
-	Height,
-	None
-};
-
 class ObjectFactory
 {
 public:	

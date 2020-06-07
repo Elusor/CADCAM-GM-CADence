@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "ObjectFactory.h"
 #include "tinyxml2.h"
-
+#include "objects.h"
 class SceneImporter
 {
 public:

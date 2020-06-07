@@ -263,6 +263,16 @@ bool BezierCurve::GetIsModified()
 	return m_modified;
 }
 
+void BezierCurve::SetDisplayPolygon(bool displayPolygon)
+{
+	m_renderPolygon = displayPolygon;
+}
+
+bool BezierCurve::GetDisplayPolygon()
+{
+	return m_renderPolygon;
+}
+
 void BezierCurve::UpdateObject()
 {
 	if (m_controlPoints.size() > 0)
