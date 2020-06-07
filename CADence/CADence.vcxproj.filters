@@ -438,13 +438,13 @@
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="FileManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="SceneExporter.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="BezierSurfaceC2.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
