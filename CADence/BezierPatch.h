@@ -73,8 +73,8 @@ protected:
 
 	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);
-	void RenderPolygon(std::unique_ptr<RenderState>& renderState);
-	void RenderPatch(std::unique_ptr<RenderState>& renderState);
+	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
+	virtual void RenderPatch(std::unique_ptr<RenderState>& renderState);
 	XMMATRIX GetCoordinates(Coord coord);
 };
 
@@ -95,5 +95,5 @@ public:
 		std::vector<std::weak_ptr<Node>> fourth);
 
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
-
+	void RenderPatch(std::unique_ptr<RenderState>& renderState) override;
 };

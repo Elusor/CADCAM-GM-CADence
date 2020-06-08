@@ -30,6 +30,16 @@ BezierPatchC2::BezierPatchC2(
 void BezierPatchC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
 
+	RenderPatch(renderState);
+	if (m_displayPolygon)
+	{
+		RenderPolygon(renderState);
+	}
+
+}
+
+void BezierPatchC2::RenderPatch(std::unique_ptr<RenderState>& renderState)
+{
 	auto context = renderState->m_device.context().get();
 	XMMATRIX x = GetCoordinates(Coord::Xpos);
 	XMMATRIX y = GetCoordinates(Coord::Ypos);
