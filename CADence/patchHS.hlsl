@@ -16,7 +16,7 @@ HSOutConst CalcHSPatchConstants(
 
 	// Insert code to compute Output here
 	Output.EdgeTessFactor[0] = uDivisions;
-	Output.EdgeTessFactor[1] = uDivisions;//uDivisions;
+	Output.EdgeTessFactor[1] = 64;//uDivisions;
 	//Output.EdgeTessFactor[1] = Output.EdgeTessFactor[3] = 1;//vDivisions;
 	//Output.InsideTessFactor[0] = Output.InsideTessFactor[1] = 16;
 

@@ -12,12 +12,12 @@ public:
 	std::shared_ptr<Node> CreateBezierSurface(Scene* scene,
 		int patchesW, int patchesH, XMFLOAT3 middlePosition,
 		bool cylinder = false, float width = 5.0f, float height = 5.0f,
-		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
+		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
 
 	std::shared_ptr<Node> CreateBezierSurfaceC2(Scene* scene,
 		int patchesW, int patchesH, XMFLOAT3 middlePosition,
 		bool cylinder = false, float width = 5.0f, float height = 5.0f,
-		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::Width);
+		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
 
 	std::shared_ptr<Node> CreateBezierSurface(
 		std::vector<std::vector<std::weak_ptr<Node>>> points,

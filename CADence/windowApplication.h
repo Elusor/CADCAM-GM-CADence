@@ -29,7 +29,7 @@ namespace mini
 		explicit WindowApplication(HINSTANCE hInstance,
 			int wndWidth = Window::m_defaultWindowWidth,
 			int wndHeight = Window::m_defaultWindowHeight,
-			std::wstring wndTitle = L"Default Window");
+			std::wstring wndTitle = L"CADence");
 
 		/******************************************************************//*!
 		 * Destroys the window and frees application resources.

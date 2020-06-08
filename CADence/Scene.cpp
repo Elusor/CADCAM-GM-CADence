@@ -204,14 +204,27 @@ void Scene::DrawBezierSurfaceModal()
 
 		if (ImGui::Button("Submit"))
 		{
+			SurfaceWrapDirection wrap = SurfaceWrapDirection::None;
+
+			if (m_altState)
+			{
+				if (m_altDir)
+				{
+					wrap = SurfaceWrapDirection::Height;
+				}
+				else {
+					wrap = SurfaceWrapDirection::Width;
+				}
+			}
+
 			if (m_altDir)
 			{
 				m_objectFactory->CreateBezierSurface(this, m_sizeV, m_sizeU, m_spawnMarker->GetPosition(),
-					m_altState, m_sizeY, m_sizeX, SurfaceWrapDirection::Height);
+					m_altState, m_sizeY, m_sizeX, wrap);
 			}
 			else {
 				m_objectFactory->CreateBezierSurface(this, m_sizeU, m_sizeV, m_spawnMarker->GetPosition(),
-					m_altState, m_sizeX, m_sizeY, SurfaceWrapDirection::Width);
+					m_altState, m_sizeX, m_sizeY, wrap);
 			}
 
 			ImGui::CloseCurrentPopup();
@@ -263,14 +276,27 @@ void Scene::DrawBezierSurfaceC2Modal()
 
 		if (ImGui::Button("Submit"))
 		{
+			SurfaceWrapDirection wrap = SurfaceWrapDirection::None;
+
+			if (m_altState)
+			{
+				if (m_altDir)
+				{
+					wrap = SurfaceWrapDirection::Height;
+				}
+				else {
+					wrap = SurfaceWrapDirection::Width;
+				}
+			}
+
 			if (m_altDir)
 			{
 				m_objectFactory->CreateBezierSurfaceC2(this, m_sizeV, m_sizeU, m_spawnMarker->GetPosition(),
-					m_altState, m_sizeY, m_sizeX, SurfaceWrapDirection::Height);
+					m_altState, m_sizeY, m_sizeX, wrap);
 			}
 			else {
 				m_objectFactory->CreateBezierSurfaceC2(this, m_sizeU, m_sizeV, m_spawnMarker->GetPosition(),
-					m_altState, m_sizeX, m_sizeY, SurfaceWrapDirection::Width);
+					m_altState, m_sizeX, m_sizeY, wrap);
 			}
 
 			ImGui::CloseCurrentPopup();
