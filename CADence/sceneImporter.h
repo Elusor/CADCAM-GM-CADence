@@ -35,4 +35,6 @@ private:
 	void LoadInterpolationSpline(tinyxml2::XMLElement* element);
 	void LoadBezierC0Surface(tinyxml2::XMLElement* element);
 	void LoadBezierC2Surface(tinyxml2::XMLElement* element);
+
+	void SwitchToLoadedScene();
 };

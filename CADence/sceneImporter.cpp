@@ -31,8 +31,8 @@ bool SceneImporter::Import(std::wstring wpath)
 			throw SceneClassifierNotFoundException();			
 		}
 		else {
-			m_loadedPoints.clear();
-			m_scene->ClearScene();
+			m_loadedPoints.clear();		
+			m_loadedObjects.clear();
 		}
 
 		tinyxml2::XMLElement* element = scene->FirstChildElement();
@@ -58,8 +58,13 @@ bool SceneImporter::Import(std::wstring wpath)
 		fileLoadedCorrectly = false;
 	}
 	
-	m_loadedObjects.clear();
-	m_loadedPoints.clear();
+	if (fileLoadedCorrectly)
+	{
+		SwitchToLoadedScene();
+		m_loadedObjects.clear();
+		m_loadedPoints.clear();
+	}
+	
 	return fileLoadedCorrectly;
 }
 
@@ -237,12 +242,12 @@ std::vector<std::vector<std::weak_ptr<Node>>> SceneImporter::LoadGridPointRefere
 void SceneImporter::LoadPoint(tinyxml2::XMLElement* element)
 {
 	DirectX::XMFLOAT3 pos = GetFloat3Attribute(element, "Position");	
-	auto pt = m_factory->CreatePoint();
-	m_scene->AttachObject(pt);
+	auto pt = m_factory->CreatePoint();	
 	pt->m_object->SetPosition(pos);
 	// Add point to the loaded point list so that refs can be easily found
 	pt->Rename(GetName(element));
 	m_loadedPoints.push_back(pt);
+	m_loadedObjects.push_back(pt);
 }
 
 void SceneImporter::LoadTorus(tinyxml2::XMLElement* element)
@@ -256,7 +261,7 @@ void SceneImporter::LoadTorus(tinyxml2::XMLElement* element)
 	
 	auto torus = m_factory->CreateTorus(t, name, majorRad, minorRad, xSlices, ySlices);
 	torus->Rename(GetName(element));
-	m_scene->AttachObject(torus);
+	m_loadedObjects.push_back(torus);	
 }
 
 void SceneImporter::LoadBezierC0(tinyxml2::XMLElement* element)
@@ -272,7 +277,7 @@ void SceneImporter::LoadBezierC0(tinyxml2::XMLElement* element)
 	curve->Rename(GetName(element));
 	((BezierCurve*)curve->m_object.get())->SetDisplayPolygon(showControlPolygon);
 
-	m_scene->AttachObject(curve);	
+	m_loadedObjects.push_back(curve);
 }
 
 void SceneImporter::LoadBezierC2(tinyxml2::XMLElement* element)
@@ -293,7 +298,7 @@ void SceneImporter::LoadBezierC2(tinyxml2::XMLElement* element)
 	}
 	curve->Rename(GetName(element));
 	((BezierCurve*)curve->m_object.get())->SetDisplayPolygon(showBernsteinPoints);
-	m_scene->AttachObject(curve);
+	m_loadedObjects.push_back(curve);
 }
 
 void SceneImporter::LoadInterpolationSpline(tinyxml2::XMLElement* element)
@@ -307,7 +312,7 @@ void SceneImporter::LoadInterpolationSpline(tinyxml2::XMLElement* element)
 	auto curve = m_factory->CreateInterpolBezierCurveC2(points);
 	curve->Rename(GetName(element));
 	((BezierCurve*)curve->m_object.get())->SetDisplayPolygon(showControlPolygon);
-	m_scene->AttachObject(curve);
+	m_loadedObjects.push_back(curve);
 }
 
 void SceneImporter::LoadBezierC0Surface(tinyxml2::XMLElement* element)
@@ -347,7 +352,7 @@ void SceneImporter::LoadBezierC0Surface(tinyxml2::XMLElement* element)
 	surface->Rename(GetName(element));
 	((BezierSurfaceC0*)surface->m_object.get())->SetDivisions(widthSlices+1, heightSlices+1);
 	((BezierSurfaceC0*)surface->m_object.get())->SetDisplayPolygon(showControlPolygon);
-	m_scene->AttachObject(surface);	
+	m_loadedObjects.push_back(surface);
 }
 
 void SceneImporter::LoadBezierC2Surface(tinyxml2::XMLElement* element)
@@ -385,5 +390,14 @@ void SceneImporter::LoadBezierC2Surface(tinyxml2::XMLElement* element)
 	surface->Rename(GetName(element));
 	((BezierSurfaceC0*)surface->m_object.get())->SetDivisions(widthSlices + 1, heightSlices + 1);
 	((BezierSurfaceC0*)surface->m_object.get())->SetDisplayPolygon(showControlPolygon);
-	m_scene->AttachObject(surface);
+	m_loadedObjects.push_back(surface);
+}
+
+void SceneImporter::SwitchToLoadedScene()
+{
+	m_scene->ClearScene();
+	for (int i = 0; i < m_loadedObjects.size(); i++)
+	{
+		m_scene->AttachObject(m_loadedObjects[i]);
+	}
 }

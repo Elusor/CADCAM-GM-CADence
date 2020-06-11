@@ -309,6 +309,9 @@
     <ClInclude Include="IOExceptions.h">
       <Filter>Header Files\Exceptions\IOExceptions</Filter>
     </ClInclude>
+    <ClInclude Include="SceneClassifierNotFoundException.h">
+      <Filter>Header Files\Exceptions\IOExceptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
