@@ -145,7 +145,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies);shlwapi.lib</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -170,6 +170,7 @@
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="GuiManager.h" />
+    <ClInclude Include="IncorrectFileExtensionException.h" />
     <ClInclude Include="IncorrectFileFormatException.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="IOExceptions.h" />

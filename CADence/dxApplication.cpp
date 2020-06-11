@@ -10,7 +10,7 @@
 #include "renderState.h"
 #include "ObjectFactory.h"
 #include "PointSelector.h"
-
+#include "IOExceptions.h"
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -134,20 +134,27 @@ void DxApplication::InitImguiWindows()
 			}
 			if (ImGui::MenuItem("Open")) {
 				// Open dialog to select file
-				wstring filename = m_fileManager->OpenFileDialog();
-				// Check if file is correct
-				bool validFile = m_importer->InvalidateFile(filename);				 
-				if (validFile)
+				try{
+					wstring filename = m_fileManager->OpenFileDialog();
+					// Check if file is correct
+					bool validFile = m_importer->InvalidateFile(filename);
+					if (validFile)
+					{
+						// Import scene from file
+						if (m_importer->Import(filename)) {
+							m_guiManager->EnableCustomModal("Scene imported successfully.", "Operation complete");
+						}
+					}					
+				}
+				catch (IncorrectFileExtensionException & e)
 				{
-					// Import scene from file
-					if (m_importer->Import(filename)) {
-						m_guiManager->EnableCustomModal("Scene imported successfully.", "Operation complete");
-					}
+					m_guiManager->EnableCustomModal(e.what(), "Reading Error");
 				}
-				else 
-				{					
-					// Error Modal - File Invalid
+				catch(...) 
+				{
+					m_guiManager->EnableCustomModal("Something went wrong.", "Reading Error");
 				}
+				
 			}
 			if (ImGui::MenuItem("Save")) {
 				// If a file has been saved 
@@ -156,20 +163,31 @@ void DxApplication::InitImguiWindows()
 				// Trigger Save As
 			}
 			if (ImGui::MenuItem("Save As...")) {
-				// Open dialog to choose save location				
-				bool validFile = m_exporter->InvalidateScene();
-				// Save the file
-				if (validFile)
-				{
-					wstring filename = m_fileManager->SaveFileDialog();
-					if (m_exporter->Export(filename))
+				try {
+					// Open dialog to choose save location			
+					bool validFile = m_exporter->InvalidateScene();
+					// Save the file
+					if (validFile)
 					{
-						m_guiManager->EnableCustomModal("Object saved successfully.", "Operation complete");
+						wstring filename = m_fileManager->SaveFileDialog();
+						if (m_exporter->Export(filename))
+						{
+							m_guiManager->EnableCustomModal("Object saved successfully.", "Operation complete");
+						}
+					}
+					else {
+						// Scene is invalid modal
 					}
 				}
-				else {
-					// Scene is invalid modal
+				catch (IncorrectFileExtensionException & e)
+				{
+					m_guiManager->EnableCustomModal(e.what(), "Reading Error");
 				}
+				catch (...)
+				{
+					m_guiManager->EnableCustomModal("Something went wrong.", "Reading Error");
+				}
+				
 			}
 			//ShowExampleMenuFile();
 			ImGui::EndMenu();

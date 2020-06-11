@@ -1,4 +1,6 @@
 #include "FileManager.h"
+#include "IOExceptions.h"
+#include <Shlwapi.h>
 
 std::wstring Pwstr2wstring(PWSTR& pwstring)
 {
@@ -8,7 +10,7 @@ std::wstring Pwstr2wstring(PWSTR& pwstring)
 
 std::wstring FileManager::OpenFileDialog()
 {	
-	std::wstring fileName;
+	std::wstring fileName = L"";
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
 		COINIT_DISABLE_OLE1DDE);
 
@@ -19,6 +21,11 @@ std::wstring FileManager::OpenFileDialog()
 		// Create the FileOpenDialog object.
 		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
 			IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+		LPCWSTR xmlTypeName = L"XML file";
+		COMDLG_FILTERSPEC filter[] =
+		{ { xmlTypeName, L"*.xml"} };
+		pFileOpen->SetFileTypes(1, filter);
 
 		if (SUCCEEDED(hr))
 		{
@@ -38,6 +45,10 @@ std::wstring FileManager::OpenFileDialog()
 					// Display the file name to the user.
 					if (SUCCEEDED(hr))
 					{
+						if (ValidateFileExtension(pszFilePath) == false)
+						{
+							throw IncorrectFileExtensionException();
+						}
 						//MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
 						CoTaskMemFree(pszFilePath);
 					}
@@ -53,7 +64,7 @@ std::wstring FileManager::OpenFileDialog()
 
 std::wstring FileManager::SaveFileDialog()
 {	
-	std::wstring fileName;
+	std::wstring fileName = L"";
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
 		COINIT_DISABLE_OLE1DDE);
 
@@ -64,6 +75,11 @@ std::wstring FileManager::SaveFileDialog()
 		// Create the FileOpenDialog object.
 		hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL,
 			IID_IFileSaveDialog, reinterpret_cast<void**>(&pFileOpen));
+
+		LPCWSTR xmlTypeName = L"XML file";
+		COMDLG_FILTERSPEC filter[] =
+		{ { xmlTypeName, L"*.xml"} };
+		pFileOpen->SetFileTypes(1, filter);
 
 		if (SUCCEEDED(hr))
 		{
@@ -83,6 +99,10 @@ std::wstring FileManager::SaveFileDialog()
 					// Display the file name to the user.
 					if (SUCCEEDED(hr))
 					{
+						if (ValidateFileExtension(pszFilePath) == false)
+						{
+							throw IncorrectFileExtensionException();
+						}
 						//MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
 						CoTaskMemFree(pszFilePath);
 					}
@@ -94,4 +114,9 @@ std::wstring FileManager::SaveFileDialog()
 		CoUninitialize();
 	}
 	return fileName;
+}
+
+bool FileManager::ValidateFileExtension(LPCWSTR filename)
+{
+	return wcscmp(PathFindExtensionW(filename), L".xml") == 0;
 }
