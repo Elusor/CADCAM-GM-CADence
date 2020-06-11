@@ -160,10 +160,6 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 		auto pos = imguiIO.MousePos;
 		deltaY = -(pos.y - prevPos.y);
 
-		float sensitivity = 0.5f;
-		float scaleSensitivity = 0.01f;
-		float rotSensitivity = 0.01f;
-		
 
 		DirectX::XMFLOAT3 pivotPos;
 
@@ -175,73 +171,77 @@ void TransformationController::ProcessMouse(ImGuiIO& imguiIO)
 		{
 			pivotPos = m_scene->m_middleMarker->GetPosition();
 		}
-
-		
-
+	
 		for (int i = 0; i < m_scene->m_selectedNodes.size(); i++)
 		{			
-			DirectX::XMFLOAT3 vec2 = DirectX::XMFLOAT3(vect.x, vect.y, vect.z);
-			if (auto node = m_scene->m_selectedNodes[i].lock())
-			{
-				switch (m_type)
-				{
-				case TransformationType::Translation:
-					vec2.x *= deltaY * sensitivity;
-					vec2.y *= deltaY * sensitivity;
-					vec2.z *= deltaY * sensitivity;
-					m_transformer->TranslateObject(node->m_object, pivotPos, vec2);
-					break;
-				case TransformationType::Rotation:
-					vec2.x *= deltaY * rotSensitivity;
-					vec2.y *= deltaY * rotSensitivity;
-					vec2.z *= deltaY * rotSensitivity;
-					m_transformer->RotateObject(node->m_object, pivotPos, vec2);
-					break;
-				case TransformationType::Scaling:	
-					if (deltaY != 0)
-					{
-						DirectX::XMFLOAT3 scaleVector = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);					
-
-						if (deltaY > 0)
-						{
-							switch (m_coordinate)
-							{
-							case AffectedCoordinate::X:
-								scaleVector.x += deltaY * scaleSensitivity;
-								break;
-							case AffectedCoordinate::Y:
-								scaleVector.y += deltaY * scaleSensitivity;
-								break;
-							case AffectedCoordinate::Z:
-								scaleVector.z += deltaY * scaleSensitivity;
-								break;
-							}				
-						}
-						else
-						{
-							switch (m_coordinate)
-							{
-							case AffectedCoordinate::X:
-								scaleVector.x -= -deltaY * scaleSensitivity;
-								break;
-							case AffectedCoordinate::Y:
-								scaleVector.y -= -deltaY * scaleSensitivity;
-								break;
-							case AffectedCoordinate::Z:
-								scaleVector.z -= -deltaY * scaleSensitivity;
-								break;
-							}				
-						}
-											
-						m_transformer->ScaleObject(node->m_object, pivotPos, scaleVector);
-					}
-					
-					break;
-				}
-			}
+			if (auto obj = m_scene->m_selectedNodes[i].lock())
+				Transform(vect, pivotPos, obj, deltaX, deltaY);
 		}
 	}
 	
 	prevPos = imguiIO.MousePos;
 
+}
+
+void TransformationController::Transform(DirectX::XMFLOAT3 vect, DirectX::XMFLOAT3 pivotPos, std::shared_ptr<Node> object, float dx, float dy)
+{
+	DirectX::XMFLOAT3 vec2 = DirectX::XMFLOAT3(vect.x, vect.y, vect.z);
+	if (object->GetIsInactive() == false)
+	{
+		switch (m_type)
+		{
+		case TransformationType::Translation:
+			vec2.x *= dy * m_sensitivity;
+			vec2.y *= dy * m_sensitivity;
+			vec2.z *= dy * m_sensitivity;
+			m_transformer->TranslateObject(object->m_object, pivotPos, vec2);
+			break;
+		case TransformationType::Rotation:
+			vec2.x *= dy * m_rotSensitivity;
+			vec2.y *= dy * m_rotSensitivity;
+			vec2.z *= dy * m_rotSensitivity;
+			m_transformer->RotateObject(object->m_object, pivotPos, vec2);
+			break;
+		case TransformationType::Scaling:
+			if (dy != 0)
+			{
+				DirectX::XMFLOAT3 scaleVector = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+				if (dy > 0)
+				{
+					switch (m_coordinate)
+					{
+					case AffectedCoordinate::X:
+						scaleVector.x += dy * m_scaleSensitivity;
+						break;
+					case AffectedCoordinate::Y:
+						scaleVector.y += dy * m_scaleSensitivity;
+						break;
+					case AffectedCoordinate::Z:
+						scaleVector.z += dy * m_scaleSensitivity;
+						break;
+					}
+				}
+				else
+				{
+					switch (m_coordinate)
+					{
+					case AffectedCoordinate::X:
+						scaleVector.x -= -dy * m_scaleSensitivity;
+						break;
+					case AffectedCoordinate::Y:
+						scaleVector.y -= -dy * m_scaleSensitivity;
+						break;
+					case AffectedCoordinate::Z:
+						scaleVector.z -= -dy * m_scaleSensitivity;
+						break;
+					}
+				}
+
+				m_transformer->ScaleObject(object->m_object, pivotPos, scaleVector);
+			}
+
+			break;
+		}
+	}
 }

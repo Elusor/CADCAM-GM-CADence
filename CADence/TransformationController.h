@@ -35,6 +35,10 @@ public:
 	void CreateGuiStatus();
 	void Reset();
 private:	
+
+	float m_sensitivity = 0.5f;
+	float m_scaleSensitivity = 0.01f;
+	float m_rotSensitivity = 0.01f;
 	ImVec2 prevPos;
 	bool m_isCapturingMouse;
 	std::shared_ptr<Scene> m_scene;
@@ -44,4 +48,5 @@ private:
 
 	void SetOperationType(ImGuiIO& imguiIO);
 	void ProcessMouse(ImGuiIO& imguiIO);
+	void Transform(DirectX::XMFLOAT3 transformationVector, DirectX::XMFLOAT3 pivotPosition, std::shared_ptr<Node> object, float dx, float dy);
 };
