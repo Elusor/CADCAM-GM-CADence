@@ -1,5 +1,6 @@
 #include "sceneImporter.h"
 #include "IOExceptions.h"
+#include "ArgumentExceptions.h"
 #include <cassert>
 #include <codecvt>
 #include <algorithm>
@@ -43,18 +44,9 @@ bool SceneImporter::Import(std::wstring wpath)
 			element = element->NextSiblingElement();
 		}
 	}
-	catch (IncorrectFileFormatException& e) {
-		m_guiManager->EnableCustomModal(e.what(), "Reading error");		
-		fileLoadedCorrectly = false;
-	}
-	catch (SceneClassifierNotFoundException & e)
+	catch (std::exception & e)
 	{
 		m_guiManager->EnableCustomModal(e.what(), "Reading error");
-		fileLoadedCorrectly = false;
-	}
-	catch (...)
-	{
-		m_guiManager->EnableCustomModal("Unidentified exception", "Reading error");
 		fileLoadedCorrectly = false;
 	}
 	

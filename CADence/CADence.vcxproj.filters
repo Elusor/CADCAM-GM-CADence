@@ -127,6 +127,9 @@
     <Filter Include="Source Files\Exceptions\IOExceptions">
       <UniqueIdentifier>{26f0bcec-7a9f-480b-bdcb-a6cf613adb62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Exceptions\ArgumentExceptions">
+      <UniqueIdentifier>{d9858829-1cc4-472f-b39f-1c26c86ccf49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -314,6 +317,12 @@
     </ClInclude>
     <ClInclude Include="IncorrectFileExtensionException.h">
       <Filter>Header Files\Exceptions\IOExceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="IncorrectObjectArgumentException.h">
+      <Filter>Header Files\Exceptions\ArgumentExceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="ArgumentExceptions.h">
+      <Filter>Header Files\Exceptions\ArgumentExceptions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

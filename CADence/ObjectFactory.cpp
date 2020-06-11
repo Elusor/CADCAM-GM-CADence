@@ -1,6 +1,8 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
 #include "mathUtils.h"
+#include "ArgumentExceptions.h"
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 	int patchesW, int patchesH, XMFLOAT3 middlePosition,
 	bool cylinder, float width, float height,
@@ -381,6 +383,12 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector
 		}
 	}
 
+	if (wrappedWidth != points.size() || wrappedHeight != points[0].size())
+	{
+		throw IncorrectObjectArgumentException();
+	}
+
+
 	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
 	BezierPatch*** patches;
 	patches = new BezierPatch * *[patchesW];
@@ -475,6 +483,11 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 		{
 			wrappedWidth-=3;
 		}
+	}
+
+	if (wrappedWidth != points.size() || wrappedHeight != points[0].size())
+	{
+		throw IncorrectObjectArgumentException();
 	}
 
 	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();

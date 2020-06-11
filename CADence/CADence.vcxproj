@@ -99,7 +99,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies);shlwapi.lib</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="adaptiveRenderingCalculator.h" />
+    <ClInclude Include="ArgumentExceptions.h" />
     <ClInclude Include="BackBufferRenderTarget.h" />
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="GuiManager.h" />
     <ClInclude Include="IncorrectFileExtensionException.h" />
     <ClInclude Include="IncorrectFileFormatException.h" />
+    <ClInclude Include="IncorrectObjectArgumentException.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IRenderTarget.h" />
