@@ -324,6 +324,12 @@
     <ClInclude Include="ArgumentExceptions.h">
       <Filter>Header Files\Exceptions\ArgumentExceptions</Filter>
     </ClInclude>
+    <ClInclude Include="PointCollapser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectReferences.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -483,6 +489,12 @@
       <Filter>Source Files\CadSpecific\Objects\Concrete</Filter>
     </ClCompile>
     <ClCompile Include="GuiManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PointCollapser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectReferences.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,9 @@
+#pragma once
+#include "renderState.h"
 #include "Node.h"
 #include "imgui.h"
 #include "Scene.h"
+#include "Object.h"
 
 void Node::Render(std::unique_ptr<RenderState> & renderState)
 {

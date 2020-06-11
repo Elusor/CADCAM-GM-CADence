@@ -1,8 +1,10 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "objects.h"
+#include <string>
+class Object;
 class Scene;
+class RenderState;
 
 // Represents a hierarchy node used to represent objects in the scene
 class Node

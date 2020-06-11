@@ -9,8 +9,9 @@ using namespace DirectX;
 
 // Used to pass render data to objects so they can be drawn independently
 // TODO: rework this class 
-struct RenderState
+class RenderState
 {
+public:
 	RenderState(mini::Window& window);
 	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
 

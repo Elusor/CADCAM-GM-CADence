@@ -81,7 +81,7 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 		if (typeid(*currentobject) == typeid(Point))
 		{
 			Point* point = dynamic_cast<Point*>(currentobject);
-			if (IsChild(point->m_parent) == false)
+			if (IsChild(point->m_nodePtr) == false)
 			{
 				points.push_back(point);
 			}
@@ -93,12 +93,12 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 	{
 		if (ImGui::BeginMenu("Add to Curve"))
 		{
-			if (auto parent = (m_parent.lock()))
+			if (auto parent = (m_nodePtr.lock()))
 			{
 				auto gParent = dynamic_cast<GroupNode*>(parent.get());
 				for (int i = 0; i < points.size(); i++)
 				{			
-					if (auto node = points[i]->m_parent.lock())
+					if (auto node = points[i]->m_nodePtr.lock())
 					{
 						if (ImGui::MenuItem(node->GetLabel().c_str()))
 						{
@@ -147,7 +147,7 @@ bool BezierCurve::RemoveExpiredChildren()
 		}		
 	}
 
-	if (auto parent = m_parent.lock())
+	if (auto parent = m_nodePtr.lock())
 	{
 		auto gParent = dynamic_cast<GroupNode*>(parent.get());
 		gParent->RemoveExpiredChildren();
@@ -330,7 +330,7 @@ void BezierCurve::UpdateObject()
 		{
 			// mage edges out of the vertices
 			// There are some elements that should be added
-			if (m_controlPoints.size() - i > 1);
+			if (m_controlPoints.size() - i > 1)
 			{
 				// add next 4 points normally
 				if (m_controlPoints.size() - i >= 4)

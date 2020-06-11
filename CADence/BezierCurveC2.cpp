@@ -208,7 +208,7 @@ bool BezierCurveC2::RemoveExpiredChildren()
 		}
 	}
 
-	if (auto parent = m_parent.lock())
+	if (auto parent = m_nodePtr.lock())
 	{
 		auto gParent = dynamic_cast<GroupNode*>(parent.get());
 		gParent->RemoveExpiredChildren();
@@ -242,7 +242,7 @@ void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
 			m_curBasisControlPoints.push_back(m_controlPoints[i]);
 		}
 
-		if (auto parent = m_parent.lock())
+		if (auto parent = m_nodePtr.lock())
 		{
 			GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
 			gParent->SetChildren(m_curBasisControlPoints);
@@ -286,7 +286,7 @@ void BezierCurveC2::RecalculateBernsteinPoints(bool overwriteVertices)
 			m_curBasisControlPoints.push_back(weaknode);
 		}
 
-		if (auto parent = m_parent.lock())
+		if (auto parent = m_nodePtr.lock())
 		{
 				GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
 				gParent->SetChildren(m_curBasisControlPoints);
@@ -294,7 +294,7 @@ void BezierCurveC2::RecalculateBernsteinPoints(bool overwriteVertices)
 	}	
 	else
 	{
-		if (auto parent = m_parent.lock())
+		if (auto parent = m_nodePtr.lock())
 		{
 			GroupNode* gParent = dynamic_cast<GroupNode*>(parent.get());
 			auto children = gParent->GetChildren();
@@ -464,7 +464,7 @@ void BezierCurveC2::UpdateGSData()
 	{
 		// mage edges out of the vertices
 		// There are some elements that should be added
-		if (m_virtualBernsteinPos.size() - i > 1);
+		if (m_virtualBernsteinPos.size() - i > 1)
 		{
 			// add next 4 points normally
 			if (m_virtualBernsteinPos.size() - i >= 4)

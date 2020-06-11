@@ -666,7 +666,7 @@ std::shared_ptr<Node> ObjectFactory::CreateInterpolBezierCurveC2(std::vector<std
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
 	node->m_object = std::unique_ptr<Object>(bC);
-	bC->m_parent = node;
+	bC->m_nodePtr = node;
 	m_bezierCurveCounter++;
 	return node;
 }
@@ -686,7 +686,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurveC2(std::vector<std::weak_p
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
 	node->m_object = std::unique_ptr<Object>(bC);
-	bC->m_parent = node;
+	bC->m_nodePtr = node;
 	bC->RecalculateBasisPoints();
 	m_bezierCurveCounter++;
 	return node;
@@ -710,7 +710,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new GroupNode(points));
 	node->m_object = std::unique_ptr<Object>(bC);;	
-	bC->m_parent = node;
+	bC->m_nodePtr = node;
 	m_bezierCurveCounter++;
 	return node;
 }
@@ -720,7 +720,7 @@ std::shared_ptr<Node> ObjectFactory::CreateSceneGrid(int gridSize)
 {
 	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<SceneGrid>(new SceneGrid(gridSize));
-	n->m_object->m_parent = n;
+	n->m_object->m_nodePtr = n;
 	return n;
 }
 
@@ -765,7 +765,7 @@ std::shared_ptr<Node> ObjectFactory::CreateTorus(
 
 	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<Torus>(t);
-	t->m_parent = n;
+	t->m_nodePtr = n;
 	return n;
 }
 
@@ -773,7 +773,7 @@ std::shared_ptr<Node> ObjectFactory::CreateSpawnMarker()
 {	
 	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<SpawnMarker>(new SpawnMarker());
-	n->m_object->m_parent = n;
+	n->m_object->m_nodePtr = n;
 	n->m_object->SetPosition(DirectX::XMFLOAT3(0.0f, 0.05f, 0.0f));
 	return n;
 }
@@ -796,7 +796,7 @@ std::shared_ptr<Node> ObjectFactory::CreatePoint(Transform transform)
 
 	std::shared_ptr<Node> n = std::shared_ptr<Node>(new Node());
 	n->m_object = std::unique_ptr<Point>(p);
-	p->m_parent = n;
+	p->m_nodePtr = n;
 	return n;
 }
 

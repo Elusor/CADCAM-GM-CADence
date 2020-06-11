@@ -1,4 +1,7 @@
 #include "adaptiveRenderingCalculator.h"
+#include "renderState.h"
+#include "Node.h"
+#include "Object.h"
 
 unsigned int AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(std::vector<std::weak_ptr<Node>> points, std::unique_ptr<RenderState>& renderState)
 {

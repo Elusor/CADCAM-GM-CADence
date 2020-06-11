@@ -2,16 +2,19 @@
 #include <string>
 #include "Transform.h"
 #include "renderState.h"
+#include "ObjectReferences.h"
 
 class Scene;
 class Node; 
 
-struct Object {
+class Object {
+public:
+	Object();
 	virtual ~Object() = default;
 	int m_refCounter = 0;
 	std::string m_name = "";
 	std::string m_defaultName = "";
-	std::weak_ptr<Node> m_parent;
+	std::weak_ptr<Node> m_nodePtr;
 
 	std::string GetLabel();
 	std::string GetIdentifier();
@@ -19,6 +22,7 @@ struct Object {
 	void RefUse();
 	void RefRelease();
 	bool GetInUse();
+	ObjectReferences& GetReferences();
 	// Transform Wrappers
 	Transform& GetTransform();
 	virtual void SetTransform(Transform transform);
@@ -46,7 +50,7 @@ struct Object {
 	virtual bool GetIsModified();	
 	void SetModified(bool value);
 protected:
-
+	ObjectReferences m_references;
 	Transform m_transform;
 	bool m_modified = false;
 	bool m_isSelected = false;

@@ -74,7 +74,7 @@ void Point::RenderObjectSpecificContextOptions(Scene& scene)
 		if (dynamic_cast<BezierCurve*>(currentobject) != nullptr)
 		{
 			BezierCurve* curve = dynamic_cast<BezierCurve*>(currentobject);
-			if (curve->IsChild(this->m_parent) == false)
+			if (curve->IsChild(this->m_nodePtr) == false)
 			{
 				curves.push_back(curve);
 			}			
@@ -89,12 +89,12 @@ void Point::RenderObjectSpecificContextOptions(Scene& scene)
 			for (int i = 0; i < curves.size(); i++)
 			{
 
-				if (auto parent = (curves[i]->m_parent.lock()))
+				if (auto parent = (curves[i]->m_nodePtr.lock()))
 				{
 					auto node = dynamic_cast<GroupNode*>(parent.get());
 					if (ImGui::MenuItem(node->GetLabel().c_str()))
 					{
-						std::weak_ptr<Node> weakParent = this->m_parent;
+						std::weak_ptr<Node> weakParent = this->m_nodePtr;
 						if (std::shared_ptr<Node> nodeParent = weakParent.lock())
 						{
 							node->AddChild(nodeParent);

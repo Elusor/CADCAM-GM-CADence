@@ -1,4 +1,6 @@
+#pragma once 
 #include "BezierSurfaceC0.h"
+#include "imgui.h"
 
 BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDir)
 {

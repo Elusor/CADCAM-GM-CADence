@@ -164,7 +164,7 @@ bool InterpolationBezierCurveC2::RemoveExpiredChildren()
 		}
 	}
 
-	if (auto parent = m_parent.lock())
+	if (auto parent = m_nodePtr.lock())
 	{
 		auto gParent = dynamic_cast<GroupNode*>(parent.get());
 		gParent->RemoveExpiredChildren();

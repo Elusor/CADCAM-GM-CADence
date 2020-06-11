@@ -28,7 +28,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		XMFLOAT2(0.0f, -0.55f), // yaw, pitch
 		viewport.Width,
 		viewport.Height,
-		DirectX::XM_PIDIV2, 1.f, 200); // fov, zNear, zFar		
+		DirectX::XM_PIDIV4, 1.f, 200); // fov, zNear, zFar		
 			
 	m_camController = make_unique<CameraController>(camera);
 	m_scene = make_shared<Scene>();

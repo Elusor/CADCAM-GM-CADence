@@ -116,6 +116,10 @@ void Object::UpdateObject()
 
 #pragma region Transform Wrappers
 
+Object::Object():m_references(this)
+{
+}
+
 std::string Object::GetLabel()
 {
 	return m_name + "##" + m_defaultName;
@@ -139,6 +143,11 @@ void Object::RefRelease()
 bool Object::GetInUse()
 {
 	return m_refCounter>0;
+}
+
+ObjectReferences& Object::GetReferences()
+{
+	return m_references;
 }
 
 Transform& Object::GetTransform()

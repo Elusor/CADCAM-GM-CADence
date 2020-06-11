@@ -3,6 +3,8 @@
 #include <memory>
 #include "Node.h"
 
+class RenderState;
+
 static class AdaptiveRenderingCalculator
 {
 public:
