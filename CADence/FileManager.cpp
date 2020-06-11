@@ -80,7 +80,7 @@ std::wstring FileManager::SaveFileDialog()
 		COMDLG_FILTERSPEC filter[] =
 		{ { xmlTypeName, L"*.xml"} };
 		pFileOpen->SetFileTypes(1, filter);
-
+		pFileOpen->SetDefaultExtension(L".xml");
 		if (SUCCEEDED(hr))
 		{
 			// Show the Open dialog box.
@@ -94,7 +94,8 @@ std::wstring FileManager::SaveFileDialog()
 				if (SUCCEEDED(hr))
 				{
 					PWSTR pszFilePath;
-					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);				
+
 					fileName = Pwstr2wstring(pszFilePath);
 					// Display the file name to the user.
 					if (SUCCEEDED(hr))
@@ -119,4 +120,9 @@ std::wstring FileManager::SaveFileDialog()
 bool FileManager::ValidateFileExtension(LPCWSTR filename)
 {
 	return wcscmp(PathFindExtensionW(filename), L".xml") == 0;
+}
+
+bool FileManager::FileHasExtension(LPCWSTR filename)
+{
+	return wcscmp(PathFindExtensionW(filename), L"") == 0;
 }

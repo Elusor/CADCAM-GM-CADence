@@ -10,4 +10,5 @@ public:
 	std::wstring SaveFileDialog();
 private:
 	bool ValidateFileExtension(LPCWSTR filename);
+	bool FileHasExtension(LPCWSTR filename);
 };
