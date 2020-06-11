@@ -50,7 +50,7 @@ std::weak_ptr<Node> PointSelector::GetNearestPoint(int mouseX, int mouseY, std::
 
 		float distSqr = deltaX * deltaX + deltaY * deltaY;
 
-		if (minDist > distSqr && distSqr < radSqr)
+		if (minDist > distSqr && distSqr < radSqr && nodes[i]->GetIsInactive() == false)
 		{
 			minDist = distSqr;
 			minIdx = i;
@@ -110,7 +110,7 @@ std::vector<std::weak_ptr<Node>> PointSelector::GetAllPointsInArea(std::vector<s
 		float screenW = wfHalf * (xFrust + 1.0f);
 		float screenH = hfHalf * (1.0f - yFrust);
 
-		if (screenW > minX&& screenW < maxX && screenH > minY&& screenH < maxY)
+		if (screenW > minX&& screenW < maxX && screenH > minY&& screenH < maxY && nodes[i]->GetIsInactive() == false)
 		{
 			points.push_back(std::weak_ptr<Node>(nodes[i]));
 		}
