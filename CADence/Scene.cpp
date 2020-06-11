@@ -380,6 +380,32 @@ void Scene::DrawSceneHierarchy(bool filtered)
 	}	
 }
 
+void Scene::Select(std::weak_ptr<Node> obj, bool unique)
+{
+	if (unique)
+	{
+		ClearSelection();
+	}
+
+	if (auto node = obj.lock())
+	{
+		node->SetIsSelected(true);
+		m_selectedNodes.push_back(obj);
+	}
+}
+
+void Scene::Select(std::vector<std::weak_ptr<Node>> obj, bool unique)
+{
+	if (unique)
+	{
+		ClearSelection();
+	}
+
+	for (int i = 0; i < obj.size(); i++) {
+		Select(obj[i], false);
+	}
+}
+
 void Scene::SelectionChanged(Node& node)
 {
 	// If ctrl is not pressed
@@ -462,6 +488,18 @@ void Scene::SelectionChanged(Node& node)
 		}
 
 	}
+}
+
+void Scene::ClearSelection()
+{
+	for (int i = 0; i < m_selectedNodes.size(); i++)
+	{
+		if (auto nod = m_selectedNodes[i].lock())
+		{
+			nod->SetIsSelected(false);
+		}
+	}
+	m_selectedNodes.clear();
 }
 
 void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)

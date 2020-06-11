@@ -86,6 +86,22 @@ void Node::DrawNodeGUI(Scene& scene)
 				// Trigger a popup for renaming objects - probably check if name is availible through name registry
 			}
 
+			if (m_isInactive)
+			{
+				if (ImGui::Selectable("Set active"))
+				{
+					SetIsInactive(false);
+				}
+			}
+
+			if (m_isInactive == false)
+			{
+				if (ImGui::Selectable("Set inactive"))
+				{
+					SetIsInactive(true);					
+				}
+			}
+			
 			if (m_object->GetInUse() == false)
 			{
 				if (ImGui::Selectable("Remove object"))

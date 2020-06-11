@@ -141,43 +141,14 @@ void PointSelector::ProcessInput(std::shared_ptr<Scene>& scene, SIZE windowSize)
 			if (pts.size() != 0)
 			{
 				// Mark the points on the scene as selected
-				for (int i = 0; i < scene->m_selectedNodes.size(); i++)
-				{
-					if (auto nod = scene->m_selectedNodes[i].lock())
-					{
-						nod->SetIsSelected(false);
-					}
-				}
-				scene->m_selectedNodes.clear();
-
-				for (int i = 0; i < pts.size(); i++)
-				{
-					if (auto nod = pts[i].lock())
-					{
-						nod->SetIsSelected(true);
-						scene->m_selectedNodes.push_back(nod);
-					}
-				}
+				scene->ClearSelection();
+				scene->Select(pts);				
 			}
 			else {
 				// If no points are in the selected area - get nearest point
 				// TODO : execute only when deltaX and deltaY are smaller than certain eps
 				auto selectedNode = GetNearestPoint(pos.x, pos.y, scene->m_nodes, windowSize.cx, windowSize.cy, 50);
-
-				if (auto node = selectedNode.lock())
-				{
-					for (int i = 0; i < scene->m_selectedNodes.size(); i++)
-					{
-						if (auto nod = scene->m_selectedNodes[i].lock())
-						{
-							nod->SetIsSelected(false);
-						}
-					}
-					scene->m_selectedNodes.clear();
-
-					node->SetIsSelected(true);
-					scene->m_selectedNodes.push_back(selectedNode);
-				}
+				scene->Select(selectedNode);
 			}
 		}
 	}

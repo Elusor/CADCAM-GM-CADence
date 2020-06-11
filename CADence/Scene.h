@@ -16,11 +16,14 @@ public:
 
 	Scene();	
 
-	void AttachObject(std::shared_ptr<Node>);
+	void AttachObject(std::shared_ptr<Node> obj);
 	void RemoveObject(std::unique_ptr<Object>& object);
 	void DrawSceneHierarchy(bool filtered);
 
+	void Select(std::weak_ptr<Node> obj, bool unique = true);
+	void Select(std::vector<std::weak_ptr<Node>> obj, bool unique = true);
 	void SelectionChanged(Node& node);
+	void ClearSelection();
 
 	void ClearModifiedTag();
 	void UpdateScene();
