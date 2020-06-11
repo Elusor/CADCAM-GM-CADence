@@ -17,6 +17,7 @@ private:
 	GuiManager* m_guiManager;
 
 	std::vector<std::shared_ptr<Node>> m_loadedPoints;
+	std::vector<std::shared_ptr<Node>> m_loadedObjects;
 
 	void ProcessElement(tinyxml2::XMLElement* element);
 

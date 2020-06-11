@@ -115,6 +115,18 @@
     <Filter Include="Source Files\IO">
       <UniqueIdentifier>{8b505632-b9ad-45bd-a146-d562dccf93ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Exceptions">
+      <UniqueIdentifier>{778fc333-d443-4527-a434-1a08a59f4514}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Exceptions\IOExceptions">
+      <UniqueIdentifier>{17e36da1-fc68-4612-af34-f62c02ce57f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Exceptions">
+      <UniqueIdentifier>{6cfc5b66-e531-41a3-9a36-3448bebc7bd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Exceptions\IOExceptions">
+      <UniqueIdentifier>{26f0bcec-7a9f-480b-bdcb-a6cf613adb62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -290,6 +302,12 @@
     </ClInclude>
     <ClInclude Include="GuiManager.h">
       <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
+    <ClInclude Include="IncorrectFileFormatException.h">
+      <Filter>Header Files\Exceptions\IOExceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="IOExceptions.h">
+      <Filter>Header Files\Exceptions\IOExceptions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

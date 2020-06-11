@@ -1,4 +1,5 @@
 #include "sceneImporter.h"
+#include "IOExceptions.h"
 #include <cassert>
 #include <codecvt>
 #include <algorithm>
@@ -12,37 +13,54 @@ SceneImporter::SceneImporter(Scene* scene, GuiManager* guiManager)
 
 bool SceneImporter::Import(std::wstring wpath)
 {
-	// TODO: check if file is correct
-	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converterX;
-	
-	
-	auto path = converterX.to_bytes(wpath);
+	bool fileLoadedCorrectly = true;
 
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converterX;		
+	auto path = converterX.to_bytes(wpath);
 	tinyxml2::XMLDocument doc;
 	auto res = doc.LoadFile((path).c_str());
 	if (res != tinyxml2::XMLError::XML_SUCCESS)
 		return false;
+
+	try {
+
+		tinyxml2::XMLElement* scene = doc.FirstChildElement("Scene");
+
+		if (scene == nullptr)
+		{
+			throw SceneClassifierNotFoundException();			
+		}
+		else {
+			m_loadedPoints.clear();
+			m_scene->ClearScene();
+		}
+
+		tinyxml2::XMLElement* element = scene->FirstChildElement();
 	
-	tinyxml2::XMLElement* scene = doc.FirstChildElement("Scene");
-	if (scene == nullptr)
+		while (element != nullptr)
+		{
+			ProcessElement(element);
+			element = element->NextSiblingElement();
+		}
+	}
+	catch (IncorrectFileFormatException& e) {
+		m_guiManager->EnableCustomModal(e.what(), "Reading error");		
+		fileLoadedCorrectly = false;
+	}
+	catch (SceneClassifierNotFoundException & e)
 	{
-		m_guiManager->EnableCustomModal("File formatting incompatible.", "Reading error");
-		return false;
+		m_guiManager->EnableCustomModal(e.what(), "Reading error");
+		fileLoadedCorrectly = false;
 	}
-	else {
-		m_loadedPoints.clear();
-		m_scene->ClearScene();
-	}
-
-	tinyxml2::XMLElement* element = scene->FirstChildElement();
-
-	while (element != nullptr)
+	catch (...)
 	{
-		ProcessElement(element);
-		element = element->NextSiblingElement();
+		m_guiManager->EnableCustomModal("Unidentified exception", "Reading error");
+		fileLoadedCorrectly = false;
 	}
+	
+	m_loadedObjects.clear();
 	m_loadedPoints.clear();
-	return true;
+	return fileLoadedCorrectly;
 }
 
 void SceneImporter::ProcessElement(tinyxml2::XMLElement* element)
@@ -132,7 +150,7 @@ std::vector<std::weak_ptr<Node>> SceneImporter::LoadPointReferences(tinyxml2::XM
 			pointList.push_back((*pointObj));
 		}
 		else {
-			// ERROR - WRONG FORMAT
+			throw IncorrectFileFormatException();
 		}
 
 		point = point->NextSiblingElement();
@@ -190,6 +208,7 @@ std::vector<std::vector<std::weak_ptr<Node>>> SceneImporter::LoadGridPointRefere
 			objPoints[col][rowCount - row - 1] = *pointObj;
 		}
 		else {
+			throw IncorrectFileFormatException();
 			// ERROR - WRONG FORMAT
 		}
 

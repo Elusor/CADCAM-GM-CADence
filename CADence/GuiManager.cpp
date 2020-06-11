@@ -11,6 +11,7 @@ void GuiManager::Update()
 
 void GuiManager::EnableCustomModal(std::string message, std::string customHeader)
 {
+
 	m_customMessage = message;
 	m_customHeader = customHeader;
 	m_displatCustomModal = true;

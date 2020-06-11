@@ -170,7 +170,9 @@
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="GuiManager.h" />
+    <ClInclude Include="IncorrectFileFormatException.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
+    <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IRenderTarget.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
