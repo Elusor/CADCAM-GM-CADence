@@ -17,35 +17,45 @@ BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 	m_modified = true;
 	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = true;
-	m_controlPoints = initialControlPoints;
+	auto refs = GetReferences();
+	for (int i = 0; i < initialControlPoints.size(); i++)
+	{
+		refs.LinkRef(initialControlPoints[i]);
+	}
+	//m_controlPoints = initialControlPoints;
 }
 
 void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
 {
-	m_controlPoints.push_back(controlPoint);
+	GetReferences().LinkRef(controlPoint);
+	//m_controlPoints.push_back(controlPoint);
 	
 	SetModified(true);
 }
 
 void BezierCurve::RemoveChild(std::weak_ptr<Node> controlPoint)
 {	
+	auto controlPointRefs = GetReferences().GetAllRef();	
+
 	if (auto controlPt = controlPoint.lock())
 	{
-		auto it = m_controlPoints.begin();
-		while (it != m_controlPoints.end())
+		auto it = controlPointRefs.begin();
+		while (it != controlPointRefs.end())
 		{
-			if (auto node = it->lock())
+			if (auto node = it->m_refered.lock())
 			{
 				if (node == controlPt)
 				{
-					it = m_controlPoints.erase(it);
+					GetReferences().UnlinkRef(it->m_refered);
+					//it = m_controlPoints.erase(it);
 				}
 				else {
 					it++;
 				}
 			}
 			else {
-				it = m_controlPoints.erase(it);
+				GetReferences().UnlinkRef(it->m_refered);
+				//it = m_controlPoints.erase(it);
 			}			
 		}
 	}	
@@ -54,11 +64,13 @@ void BezierCurve::RemoveChild(std::weak_ptr<Node> controlPoint)
 
 bool BezierCurve::IsChild(std::weak_ptr<Node> point)
 {
+	auto controlPointRefs = GetReferences().GetAllRef();
+
 	if (std::shared_ptr<Node> candidate = point.lock())
 	{
-		for (int i = 0; i < m_controlPoints.size(); i++)
+		for (int i = 0; i < controlPointRefs.size(); i++)
 		{
-			if (candidate == m_controlPoints[i].lock())
+			if (candidate == controlPointRefs[i].m_refered.lock())
 				return true;
 		}
 	}
@@ -67,7 +79,13 @@ bool BezierCurve::IsChild(std::weak_ptr<Node> point)
 
 const std::vector<std::weak_ptr<Node>> BezierCurve::GetControlPoints()
 {
-	return m_controlPoints;
+	auto controlPointRefs = GetReferences().GetAllRef();
+	std::vector<std::weak_ptr<Node>> points;
+	for (int i = 0; i < controlPointRefs.size(); i++)
+	{
+		points.push_back(controlPointRefs[i].m_refered);
+	}
+	return points;
 }
 
 void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
@@ -115,11 +133,18 @@ void BezierCurve::RenderObjectSpecificContextOptions(Scene& scene)
 
 void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
+	auto controlPointRefs = GetReferences().GetAllRef();
+	std::vector<std::weak_ptr<Node>> points;
+	for (int i = 0; i < controlPointRefs.size(); i++)
+	{
+		points.push_back(controlPointRefs[i].m_refered);
+	}
+
 	RemoveExpiredChildren();
-	if (m_controlPoints.size() > 1)
+	if (points.size() > 1)
 	{				
 		// This should actually be in update (late update?)
-		CalculateAdaptiveRendering(m_controlPoints, renderState);
+		CalculateAdaptiveRendering(points, renderState);
 
 		// This should actually be in update (late update?)
 		if (m_modified)
@@ -133,16 +158,17 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 
 bool BezierCurve::RemoveExpiredChildren()
 {
+	auto controlPointRefs = GetReferences().GetAllRef();
 	bool removed = false;
-	auto it = m_controlPoints.begin();
-	while (it != m_controlPoints.end())
+	auto it = controlPointRefs.begin();
+	while (it != controlPointRefs.end())
 	{
-		if (auto pt = it->lock())
+		if (auto pt = it->m_refered.lock())
 		{
 			it++;
 		}
 		else {
-			it = m_controlPoints.erase(it);
+			it = controlPointRefs.erase(it);
 			removed = true;
 		}		
 	}
@@ -249,9 +275,10 @@ bool BezierCurve::CreateParamsGui()
 
 bool BezierCurve::GetIsModified()
 {
-	for (int i = 0; i < m_controlPoints.size(); i++)
+	auto controlPointRefs = GetReferences().GetAllRef();
+	for (int i = 0; i < controlPointRefs.size(); i++)
 	{
-		if (auto point = m_controlPoints[i].lock())
+		if (auto point = controlPointRefs[i].m_refered.lock())
 		{
 			if (point->m_object->GetIsModified())
 			{
@@ -280,7 +307,8 @@ bool BezierCurve::GetDisplayPolygon()
 
 void BezierCurve::UpdateObject()
 {
-	if (m_controlPoints.size() > 0)
+	auto controlPoints = GetReferences().GetAllRef();
+	if (controlPoints.size() > 0)
 	{
 		// Render object using De Casteljau algorithm
 		std::vector<DirectX::XMFLOAT3> knots;
@@ -288,9 +316,9 @@ void BezierCurve::UpdateObject()
 		std::vector<VertexPositionColor> polygonVertices;
 		std::vector<unsigned short> polygonIndices;
 
-		for (int i = 0; i < m_controlPoints.size(); i++)
+		for (int i = 0; i < controlPoints.size(); i++)
 		{
-			if (auto point = m_controlPoints[i].lock())
+			if (auto point = controlPoints[i].m_refered.lock())
 			{
 				knots.push_back(point->m_object->GetPosition());
 			}
@@ -315,10 +343,10 @@ void BezierCurve::UpdateObject()
 		std::vector<VertexPositionColor> vertices;
 		std::vector<unsigned short> indices;
 		m_lastVertexDuplicationCount = 0;
-		for (int i = 0; i < m_controlPoints.size(); i++)
+		for (int i = 0; i < controlPoints.size(); i++)
 		{
 			//add all vertices
-			if (auto point1 = m_controlPoints[i].lock())
+			if (auto point1 = controlPoints[i].m_refered.lock())
 			{
 				vertices.push_back(VertexPositionColor{
 						point1->m_object->GetPosition(),
@@ -326,14 +354,14 @@ void BezierCurve::UpdateObject()
 			}
 		}
 
-		for (int i = 0; i < m_controlPoints.size(); i += 3)
+		for (int i = 0; i < controlPoints.size(); i += 3)
 		{
 			// mage edges out of the vertices
 			// There are some elements that should be added
-			if (m_controlPoints.size() - i > 1)
+			if (controlPoints.size() - i > 1)
 			{
 				// add next 4 points normally
-				if (m_controlPoints.size() - i >= 4)
+				if (controlPoints.size() - i >= 4)
 				{
 					indices.push_back(i);
 					indices.push_back(i + 1);
@@ -342,17 +370,17 @@ void BezierCurve::UpdateObject()
 				}
 				// add the rest of the nodes and add the last node multiple times
 				else {
-					for (int j = i; j < m_controlPoints.size(); j++)
+					for (int j = i; j < controlPoints.size(); j++)
 					{
 						indices.push_back(j);
 					}
 
 					// add the rest of the vertices as duplicates of the last one
-					int emptyVertices = 4 - (m_controlPoints.size() - i);
+					int emptyVertices = 4 - (controlPoints.size() - i);
 					//m_lastVertexDuplicationCount = emptyVertices;
 					for (int k = 0; k < emptyVertices; k++)
 					{
-						indices.push_back(m_controlPoints.size() - 1);
+						indices.push_back(controlPoints.size() - 1);
 					}
 				}
 

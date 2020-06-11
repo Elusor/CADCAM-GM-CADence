@@ -16,16 +16,23 @@ InterpolationBezierCurveC2::InterpolationBezierCurveC2(std::vector<std::weak_ptr
 {
 	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = false;
-	m_controlPoints = initialKnots;
+	auto refs = GetReferences();
+	for (int i = 0; i < initialKnots.size(); i++)
+	{
+		refs.LinkRef(initialKnots[i]);
+	}
+
+	auto controlPoints = GetControlPoints();
+
 	if (initialKnots.size() > 0)
-		GetInterpolationSplineBernsteinPoints(m_controlPoints);
+		GetInterpolationSplineBernsteinPoints(controlPoints);
 }
 
 void InterpolationBezierCurveC2::UpdateObject()
 {
 	RecalculateIfModified();
 	
-	if (m_controlPoints.size() >= 2)
+	if (GetReferences().GetAllRef().size() >= 2)
 	{
 
 		UpdateGSData();
@@ -91,9 +98,10 @@ bool InterpolationBezierCurveC2::CreateParamsGui()
 
 void InterpolationBezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	if (m_controlPoints.size() >= 2)
+	auto controlPoints = GetControlPoints();
+	if (controlPoints.size() >= 2)
 	{
-		CalculateAdaptiveRendering(m_controlPoints, renderState);
+		CalculateAdaptiveRendering(controlPoints, renderState);
 		RenderCurve(renderState);
 		RenderPolygon(renderState);
 	}
@@ -101,32 +109,13 @@ void InterpolationBezierCurveC2::RenderObject(std::unique_ptr<RenderState>& rend
 
 void InterpolationBezierCurveC2::AttachChild(std::weak_ptr<Node> controlPoint)
 {
-	m_controlPoints.push_back(controlPoint);	
+	GetReferences().LinkRef(controlPoint);	
 	SetModified(true);
 }
 
 void InterpolationBezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 {
-	if (auto controlPt = controlPoint.lock())
-	{
-		auto it = m_controlPoints.begin();
-		while (it != m_controlPoints.end())
-		{
-			if (auto node = it->lock())
-			{
-				if (node == controlPt)
-				{
-					it = m_controlPoints.erase(it);
-				}
-				else {
-					it++;
-				}
-			}
-			else {
-				it = m_controlPoints.erase(it);
-			}
-		}
-	}
+	GetReferences().UnlinkRef(controlPoint);
 	SetModified(true);
 }
 
@@ -134,10 +123,10 @@ bool InterpolationBezierCurveC2::GetIsModified()
 {
 	if (RemoveExpiredChildren())
 		SetModified(true);
-
-	for (int i = 0; i < m_controlPoints.size(); i++)
+	auto controlPoints = GetControlPoints();
+	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = m_controlPoints[i].lock())
+		if (auto point = controlPoints[i].lock())
 		{			
 			if (point->m_object->GetIsModified())
 			{
@@ -151,15 +140,16 @@ bool InterpolationBezierCurveC2::GetIsModified()
 bool InterpolationBezierCurveC2::RemoveExpiredChildren()
 {
 	bool removed = false;
-	auto it = m_controlPoints.begin();
-	while (it != m_controlPoints.end())
+	auto controlPointsReferences = GetReferences().GetAllRef();
+	auto it = controlPointsReferences.begin();
+	while (it != controlPointsReferences.end())
 	{
-		if (auto pt = it->lock())
+		if (auto pt = it->m_refered.lock())
 		{
 			it++;
 		}
 		else {
-			it = m_controlPoints.erase(it);
+			it = controlPointsReferences.erase(it);
 			removed = true;
 		}
 	}
@@ -179,15 +169,15 @@ bool InterpolationBezierCurveC2::RemoveExpiredChildren()
 void InterpolationBezierCurveC2::RecalculateIfModified()
 {
 	bool isModified = m_modified;
-
-	for (int i = 0; i < m_controlPoints.size(); i++)
+	auto controlPoints = GetControlPoints();
+	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		isModified |= m_controlPoints[i].lock()->m_object->GetIsModified();
+		isModified |= controlPoints[i].lock()->m_object->GetIsModified();
 	}
 
 	if (isModified)
 	{
-		GetInterpolationSplineBernsteinPoints(m_controlPoints);
+		GetInterpolationSplineBernsteinPoints(controlPoints);
 	}
 }
 
@@ -485,11 +475,12 @@ void InterpolationBezierCurveC2::UpdateGSData()
 
 void InterpolationBezierCurveC2::PreparePolygonDesc()
 {	
+	auto controlPoints = GetControlPoints();
 	std::vector<VertexPositionColor> interpolationCurveVertices;
 	std::vector<unsigned short> interpolationCurveIndices;
-	for (int i = 0; i < m_controlPoints.size(); i++)
+	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = m_controlPoints[i].lock())
+		if (auto point = controlPoints[i].lock())
 		{
 			interpolationCurveVertices.push_back(VertexPositionColor{
 				point->m_object->GetPosition(),

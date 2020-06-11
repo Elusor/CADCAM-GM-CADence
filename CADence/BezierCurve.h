@@ -33,7 +33,7 @@ public:
 	bool IsChild(std::weak_ptr<Node> point);	
 	const std::vector<std::weak_ptr<Node>> GetControlPoints();
 protected:
-	std::vector<std::weak_ptr<Node>> m_controlPoints;
+	//std::vector<std::weak_ptr<Node>> m_controlPoints;
 
 	bool m_renderPolygon;
 	int m_adaptiveRenderingSamples;
