@@ -52,22 +52,22 @@ void Scene::DrawScenePopupMenu()
 {
 	bool imGuiWorkaroundSuggestedByItsAuthor = false;
 	bool imGuiWorkaroundSuggestedByItsAuthorC2 = false;
-	if (ImGui::BeginPopupContextItem("item context menu"))
+	if (ImGui::BeginPopupContextItem("item context menu##ScenePopup"))
 	{
-		if (ImGui::BeginMenu("Add child object"))
+		if (ImGui::BeginMenu("Add child object##ScenePopup"))
 		{
-			if (ImGui::MenuItem("Torus"))
+			if (ImGui::MenuItem("Torus##ScenePopup"))
 			{
 				AttachObject(m_objectFactory->CreateTorus(m_spawnMarker->GetTransform()));
 			}
 			
-			if (ImGui::MenuItem("Bezier Surface"))
+			if (ImGui::MenuItem("Bezier Surface##ScenePopup"))
 			{
 				//m_objectFactory->CreateBezierSurface(this, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f));
 				imGuiWorkaroundSuggestedByItsAuthor = true;								
 			}
 			
-			if (ImGui::MenuItem("Bezier Surface C2"))
+			if (ImGui::MenuItem("Bezier Surface C2##ScenePopup"))
 			{
 				//m_objectFactory->CreateBezierSurface(this, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f));
 				imGuiWorkaroundSuggestedByItsAuthorC2 = true;
@@ -78,7 +78,7 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(p1);				
 			}*/
 
-			if (ImGui::MenuItem("Point"))
+			if (ImGui::MenuItem("Point##ScenePopup"))
 			{
 				std::shared_ptr<Node> newPoint = m_objectFactory->CreatePoint(m_spawnMarker->GetTransform());
 				// Check if any bezier curves are selected, if so - add the point to them
@@ -100,24 +100,24 @@ void Scene::DrawScenePopupMenu()
 				AttachObject(newPoint);
 
 			}
-			if (ImGui::MenuItem("Bezier Curve C0"))
+			if (ImGui::MenuItem("Bezier Curve C0##ScenePopup"))
 			{
 				AttachObject(m_objectFactory->CreateBezierCurve(m_selectedNodes));				
 			}
 
-			if (ImGui::BeginMenu("Bezier Curve C2"))
+			if (ImGui::BeginMenu("Bezier Curve C2##ScenePopup"))
 			{
-				if (ImGui::MenuItem("B-Spline basis"))
+				if (ImGui::MenuItem("B-Spline basis##ScenePopup"))
 				{
 					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::BSpline));
 				}
 
-				if (ImGui::MenuItem("Bernstein basis"))
+				if (ImGui::MenuItem("Bernstein basis##ScenePopup"))
 				{
 					AttachObject(m_objectFactory->CreateBezierCurveC2(m_selectedNodes, BezierBasis::Bernstein));
 				}
 
-				if (ImGui::MenuItem("Interpolation curve"))
+				if (ImGui::MenuItem("Interpolation curve##ScenePopup"))
 				{
 					AttachObject(m_objectFactory->CreateInterpolBezierCurveC2(m_selectedNodes));
 				}
@@ -129,7 +129,7 @@ void Scene::DrawScenePopupMenu()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::Selectable("Clear scene"))
+		if (ImGui::Selectable("Clear scene##ScenePopup"))
 		{
 			ClearScene();
 		}
@@ -386,7 +386,7 @@ void Scene::SelectionChanged(Node& node)
 	// select only the clicked node
 
 	bool uniqueSelection = ImGui::GetIO().KeyCtrl == false;
-	uniqueSelection |= node.m_isVirtual;
+	uniqueSelection |= node.GetIsVirtual();
 
 	if (uniqueSelection)
 	{

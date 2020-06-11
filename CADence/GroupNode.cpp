@@ -152,7 +152,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 					}
 
 
-					if (!node->m_isVirtual)
+					if (!node->GetIsVirtual())
 					{					
 						if (ImGui::BeginPopupContextItem(childLabelName.c_str()))
 						{

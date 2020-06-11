@@ -119,6 +119,21 @@ void Node::LateUpdate()
 	this->Update();
 }
 
+bool Node::GetIsRenamed()
+{
+	return m_isRenamed;
+}
+
+Node::Node()
+{
+}
+
+Node::Node(std::unique_ptr<Object> object, bool isVirtual)
+{
+	m_object = move(object);
+	m_isVirtual = isVirtual;
+}
+
 void Node::SetIsSelected(bool isSelected)
 {
 	m_object->SetIsSelected(isSelected);
@@ -127,4 +142,24 @@ void Node::SetIsSelected(bool isSelected)
 bool Node::GetIsSelected()
 {
 	return m_object->GetIsSelected();
+}
+
+void Node::SetIsInactive(bool isInactive)
+{
+	m_isInactive = isInactive;
+}
+
+bool Node::GetIsInactive()
+{
+	return m_isInactive;
+}
+
+void Node::SetIsVirtual(bool isVirtual)
+{
+	m_isVirtual = isVirtual;
+}
+
+bool Node::GetIsVirtual()
+{
+	return m_isVirtual;
 }

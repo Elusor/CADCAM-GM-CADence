@@ -407,7 +407,7 @@ std::shared_ptr<Node> InterpolationBezierCurveC2::CreateVirtualPoint(DirectX::XM
 	p->SetPosition(pos);
 
 	Node* node = new Node();
-	node->m_isVirtual = true;
+	node->SetIsVirtual(true);
 	node->m_object = std::unique_ptr<Point>(p);
 	// fill m_curBasisControlPoints with Bernstein points - that is points calculated from m_virtualBernsteinPoints	
 	std::shared_ptr<Node> nodeptr = std::shared_ptr<Node>(node);
