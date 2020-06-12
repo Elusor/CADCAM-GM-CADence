@@ -131,10 +131,10 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 			std::vector<std::weak_ptr<Node>> nodesToDelete;
 
 			bool removed = false;
-			auto it = m_children.begin();
-			while (it != m_children.end())
+			auto it = m_object->GetReferences().GetAllRef().begin();
+			while (it != m_object->GetReferences().GetAllRef().end())
 			{
-				if (auto node = it->lock())
+				if (auto node = it->m_refered.lock())
 				{
 					ImGuiTreeNodeFlags leaf_flags2 = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 					if (node->GetIsSelected())
@@ -158,7 +158,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 						{
 							if (ImGui::Selectable("Remove node"))
 							{
-								std::weak_ptr<Node> deletedNode = *it;
+								std::weak_ptr<Node> deletedNode = it->m_refered;
 								nodesToDelete.push_back(deletedNode);
 								//it = m_children.erase(it);
 								/*BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());
@@ -171,9 +171,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 					if (removed == false) it++;
 					else removed = false;
 				}
-				else {
-					it = m_children.erase(it);
-				}
+				
 			}		
 			ImGui::TreePop();
 
