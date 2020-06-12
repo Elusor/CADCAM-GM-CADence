@@ -23,6 +23,8 @@ bool SceneImporter::Import(std::wstring wpath)
 	if (res != tinyxml2::XMLError::XML_SUCCESS)
 		return false;
 
+	m_scene->ClearScene();
+
 	try {
 
 		tinyxml2::XMLElement* scene = doc.FirstChildElement("Scene");
@@ -387,7 +389,7 @@ void SceneImporter::LoadBezierC2Surface(tinyxml2::XMLElement* element)
 
 void SceneImporter::SwitchToLoadedScene()
 {
-	m_scene->ClearScene();
+
 	for (int i = 0; i < m_loadedObjects.size(); i++)
 	{
 		m_scene->AttachObject(m_loadedObjects[i]);

@@ -50,6 +50,7 @@ void PointCollapser::Collapse(std::weak_ptr<Node> p1, std::weak_ptr<Node> p2)
 	// Update scene hierarchy
 
 	// REMOVE p1 and p2 FROM SCENE
+	m_scene->ClearSelection();
 	m_scene->RemoveObject(point1->m_object);
 	m_scene->RemoveObject(point2->m_object);
 }
