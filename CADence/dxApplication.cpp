@@ -40,7 +40,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_importer = make_unique<SceneImporter>(m_scene.get(), m_guiManager.get());
 	m_exporter = make_unique<SceneExporter>(m_scene.get(), m_guiManager.get());
 	m_fileManager = make_unique<FileManager>();
-
+	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
@@ -92,8 +92,8 @@ int DxApplication::MainLoop()
 				m_camController->ProcessMessage(&ImGui::GetIO());
 				m_pSelector->ProcessInput(m_scene, m_window.getClientSize());
 				
-			}
-		
+			}					
+
 			InitImguiWindows();
 			m_guiManager->Update();
 			Update();
@@ -199,6 +199,20 @@ void DxApplication::InitImguiWindows()
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{		
+		if (m_scene->m_selectedNodes.size() == 2)
+		{
+			auto p1 = m_scene->m_selectedNodes[0];
+			auto p2 = m_scene->m_selectedNodes[1];
+			if (typeid(*p1.lock()->m_object.get()) == typeid(Point) &&
+				typeid(*p2.lock()->m_object.get()) == typeid(Point))
+			{
+				if (ImGui::Button("Collapse points"))
+				{
+					m_pointCollapser->Collapse(p1, p2);
+				}				
+			}
+		}
+
 		ImGui::Checkbox("Hide Points", &m_filterObjects);
 
 		m_scene->DrawSceneHierarchy(m_filterObjects);

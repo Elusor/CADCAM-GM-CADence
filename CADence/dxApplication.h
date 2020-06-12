@@ -20,6 +20,8 @@
 #include "SceneExporter.h"
 #include "FileManager.h"
 #include "GuiManager.h"
+#include "PointCollapser.h"
+
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -45,6 +47,7 @@ private:
 	std::unique_ptr<SceneExporter> m_exporter;
 	std::unique_ptr<FileManager> m_fileManager;
 	std::unique_ptr<GuiManager> m_guiManager;
+	std::unique_ptr<PointCollapser> m_pointCollapser;
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
 	IRenderPass* m_activePass;

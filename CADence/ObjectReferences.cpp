@@ -17,8 +17,8 @@ void ObjectReferences::SubstituteReference(ObjectRef existingRef, ObjectRef newR
 				it->m_refered = newRef;
 				auto childPar = m_owner->m_nodePtr;
 				// Add a parent ref for (this) to newRef
-				auto refs = object->m_object->GetReferences();
-				refs.AddParentRef(childPar);
+				//std::find()
+				object->m_object->GetReferences().AddParentRef(childPar);
 			}
 		}
 	}
