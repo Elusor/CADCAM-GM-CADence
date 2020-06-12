@@ -24,18 +24,19 @@ void ObjectReferences::SubstituteReference(ObjectRef existingRef, ObjectRef newR
 	}
 }
 
-std::vector<Reference> ObjectReferences::GetAllRef()
+std::vector<Reference>& ObjectReferences::GetAllRef()
 {
 	return m_children;
 }
 
-std::vector<Reference> ObjectReferences::GetAllRefParents()
+std::vector<Reference>& ObjectReferences::GetAllRefParents()
 {
 	return m_parents;
 }
 
 void ObjectReferences::LinkRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	if (auto child = reference.lock())
 	{
 		auto thisRef = m_owner->m_nodePtr;
@@ -46,6 +47,7 @@ void ObjectReferences::LinkRef(ObjectRef reference)
 
 void ObjectReferences::LinkParentRef(ObjectRef parentReference)
 {
+	assert(!parentReference.expired());
 	if (auto parent = parentReference.lock())
 	{
 		auto thisRef = m_owner->m_nodePtr;
@@ -56,6 +58,7 @@ void ObjectReferences::LinkParentRef(ObjectRef parentReference)
 
 void ObjectReferences::UnlinkRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	RemoveRef(reference);
 	auto thisRef = m_owner->m_nodePtr;
 	if (auto child = reference.lock())
@@ -66,6 +69,7 @@ void ObjectReferences::UnlinkRef(ObjectRef reference)
 
 void ObjectReferences::UnlinkParentRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	RemoveParentRef(reference);
 	auto thisRef = m_owner->m_nodePtr;
 	if (auto parent = reference.lock())
@@ -76,17 +80,20 @@ void ObjectReferences::UnlinkParentRef(ObjectRef reference)
 
 void ObjectReferences::AddRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	m_children.push_back(Reference(reference));
 }
 
 void ObjectReferences::AddParentRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	m_parents.push_back(Reference(reference));
 }
 
 // Remove all child references to the given object
 void ObjectReferences::RemoveRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	if (auto obj = reference.lock())
 	{
 		for (auto it = m_children.begin(); it != m_children.end();)
@@ -109,6 +116,7 @@ void ObjectReferences::RemoveRef(ObjectRef reference)
 // Remove all parent references to the given object
 void ObjectReferences::RemoveParentRef(ObjectRef reference)
 {
+	assert(!reference.expired());
 	if (auto obj = reference.lock())
 	{
 		for (auto it = m_parents.begin(); it != m_parents.end();)
@@ -124,6 +132,39 @@ void ObjectReferences::RemoveParentRef(ObjectRef reference)
 			}
 		}
 	}
+}
+
+bool ObjectReferences::RemovedExpiredReferences()
+{
+	bool anyRemoved = false;
+
+	auto it = m_children.begin();
+	while (it != m_children.end())
+	{
+		if (auto pt = it->m_refered.lock())
+		{
+			it++;
+		}
+		else {
+			it = m_children.erase(it);
+			anyRemoved = true;
+		}
+	}
+
+	auto it2 = m_parents.begin();
+	while (it2 != m_parents.end())
+	{
+		if (auto pt = it2->m_refered.lock())
+		{
+			it2++;
+		}
+		else {
+			it2 = m_parents.erase(it2);
+			anyRemoved = true;
+		}
+	}
+
+	return anyRemoved;
 }
 
 Reference::Reference(ObjectRef referedObj)

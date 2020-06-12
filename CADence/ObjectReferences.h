@@ -19,8 +19,8 @@ public:
 
 	void SubstituteReference(ObjectRef existingRef, ObjectRef newRef);
 
-	std::vector<Reference> GetAllRef();
-	std::vector<Reference> GetAllRefParents();
+	std::vector<Reference>& GetAllRef();
+	std::vector<Reference>& GetAllRefParents();
 
 	// Link Unlink methods that execute Add ref for object and Add parent ref as well
 	void LinkRef(ObjectRef reference);
@@ -33,6 +33,7 @@ public:
 	void RemoveRef(ObjectRef reference);
 	void RemoveParentRef(ObjectRef reference);
 
+	bool RemovedExpiredReferences();
 private:
 	Object* m_owner;
 	std::vector<Reference> m_parents;

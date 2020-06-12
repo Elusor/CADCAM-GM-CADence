@@ -8,7 +8,9 @@ struct InterpolationBezierCurveC2 : BezierCurve
 public:
 	InterpolationBezierCurveC2();
 	explicit InterpolationBezierCurveC2(std::vector<std::weak_ptr<Node>> initialKnots);
-	
+	void Initialize(std::vector<std::weak_ptr<Node>> initialKnots);
+
+
 	// Rendering and updates
 	void UpdateObject() override;
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;

@@ -12,7 +12,8 @@ struct BezierCurveC2 : BezierCurve
 public:
 	BezierCurveC2();
 	explicit BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoints, BezierBasis basis = BezierBasis::BSpline);
-	
+	void Initialize(std::vector<std::weak_ptr<Node>> initialControlPoints, BezierBasis basis = BezierBasis::BSpline);
+
 	void UpdateObject() override;
 	bool CreateParamsGui() override;
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;

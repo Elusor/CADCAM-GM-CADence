@@ -16,10 +16,16 @@ InterpolationBezierCurveC2::InterpolationBezierCurveC2(std::vector<std::weak_ptr
 {
 	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = false;
-	auto refs = GetReferences();
+	m_renderDeBoorPolygon = false;
+}
+
+void InterpolationBezierCurveC2::Initialize(std::vector<std::weak_ptr<Node>> initialKnots)
+{
+	assert(!m_nodePtr.expired());
+
 	for (int i = 0; i < initialKnots.size(); i++)
 	{
-		refs.LinkRef(initialKnots[i]);
+		GetReferences().LinkRef(initialKnots[i]);
 	}
 
 	auto controlPoints = GetControlPoints();
@@ -139,21 +145,7 @@ bool InterpolationBezierCurveC2::GetIsModified()
 
 bool InterpolationBezierCurveC2::RemoveExpiredChildren()
 {
-	bool removed = false;
-	auto controlPointsReferences = GetReferences().GetAllRef();
-	auto it = controlPointsReferences.begin();
-	while (it != controlPointsReferences.end())
-	{
-		if (auto pt = it->m_refered.lock())
-		{
-			it++;
-		}
-		else {
-			it = controlPointsReferences.erase(it);
-			removed = true;
-		}
-	}
-
+	bool removed = GetReferences().RemovedExpiredReferences();
 	if (auto parent = m_nodePtr.lock())
 	{
 		auto gParent = dynamic_cast<GroupNode*>(parent.get());

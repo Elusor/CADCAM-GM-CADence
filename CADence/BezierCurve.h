@@ -9,6 +9,7 @@ struct BezierCurve : MeshObject
 public:
 	BezierCurve();
 	explicit BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints);
+	void Initialize(std::vector<std::weak_ptr<Node>> initialControlPoints);
 
 	// Translation overrides
 	void SetTransform(Transform transform) override;	

@@ -13,13 +13,20 @@ BezierCurveC2::BezierCurveC2(): BezierCurveC2(std::vector<std::weak_ptr<Node>>()
 BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoints, BezierBasis basis)
 {
 	m_adaptiveRenderingSamples = 0;
+	m_renderPolygon = false;
+	m_renderDeBoorPolygon = false;	
+}
+
+void BezierCurveC2::Initialize(std::vector<std::weak_ptr<Node>> initialControlPoints, BezierBasis basis)
+{
+	assert(!m_nodePtr.expired());
+
 	m_renderPolygon = basis == BezierBasis::Bernstein;
 	m_renderDeBoorPolygon = basis == BezierBasis::BSpline;
 
-	auto refs = GetReferences();
 	for (int i = 0; i < initialControlPoints.size(); i++)
 	{
-		refs.LinkRef(initialControlPoints[i]);
+		GetReferences().LinkRef(initialControlPoints[i]);
 	}
 
 	m_basis = basis;
@@ -172,22 +179,7 @@ BezierBasis BezierCurveC2::GetCurrentBasis()
 
 bool BezierCurveC2::RemoveExpiredChildren()
 {
-
-	auto controlPointRefs = GetReferences().GetAllRef();
-
-	bool removed = false;
-	auto it = controlPointRefs.begin();
-	while (it != controlPointRefs.end())
-	{
-		if (auto pt = it->m_refered.lock())
-		{
-			it++;
-		}
-		else {
-			it = controlPointRefs.erase(it);
-			removed = true;
-		}
-	}
+	bool removed = GetReferences().RemovedExpiredReferences();
 
 	if (auto parent = m_nodePtr.lock())
 	{

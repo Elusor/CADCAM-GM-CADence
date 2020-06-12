@@ -17,12 +17,18 @@ BezierCurve::BezierCurve(std::vector<std::weak_ptr<Node>> initialControlPoints)
 	m_modified = true;
 	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = true;
-	auto refs = GetReferences();
+	m_lastVertexDuplicationCount = 0;	
+}
+
+void BezierCurve::Initialize(std::vector<std::weak_ptr<Node>> initialControlPoints)
+{
+	assert(!m_nodePtr.expired());
+	m_modified = true;
+	m_adaptiveRenderingSamples = 0;
 	for (int i = 0; i < initialControlPoints.size(); i++)
 	{
-		refs.LinkRef(initialControlPoints[i]);
+		GetReferences().LinkRef(initialControlPoints[i]);
 	}
-	//m_controlPoints = initialControlPoints;
 }
 
 void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
@@ -36,29 +42,7 @@ void BezierCurve::AttachChild(std::weak_ptr<Node> controlPoint)
 void BezierCurve::RemoveChild(std::weak_ptr<Node> controlPoint)
 {	
 	auto controlPointRefs = GetReferences().GetAllRef();	
-
-	if (auto controlPt = controlPoint.lock())
-	{
-		auto it = controlPointRefs.begin();
-		while (it != controlPointRefs.end())
-		{
-			if (auto node = it->m_refered.lock())
-			{
-				if (node == controlPt)
-				{
-					GetReferences().UnlinkRef(it->m_refered);
-					//it = m_controlPoints.erase(it);
-				}
-				else {
-					it++;
-				}
-			}
-			else {
-				GetReferences().UnlinkRef(it->m_refered);
-				//it = m_controlPoints.erase(it);
-			}			
-		}
-	}	
+	GetReferences().UnlinkRef(controlPoint);	
 	SetModified(true);
 }
 
@@ -157,22 +141,8 @@ void BezierCurve::RenderObject(std::unique_ptr<RenderState>& renderState)
 }
 
 bool BezierCurve::RemoveExpiredChildren()
-{
-	auto controlPointRefs = GetReferences().GetAllRef();
-	bool removed = false;
-	auto it = controlPointRefs.begin();
-	while (it != controlPointRefs.end())
-	{
-		if (auto pt = it->m_refered.lock())
-		{
-			it++;
-		}
-		else {
-			it = controlPointRefs.erase(it);
-			removed = true;
-		}		
-	}
-
+{	
+	bool removed = GetReferences().RemovedExpiredReferences();;	
 	if (auto parent = m_nodePtr.lock())
 	{
 		auto gParent = dynamic_cast<GroupNode*>(parent.get());

@@ -655,7 +655,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatchC2(
 std::shared_ptr<Node> ObjectFactory::CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints)
 {
 	auto points = FilterObjectTypes(typeid(Point), controlPoints);
-	InterpolationBezierCurveC2* bC = new InterpolationBezierCurveC2(points);
+	InterpolationBezierCurveC2* bC = new InterpolationBezierCurveC2();
 	std::string name = "Bezier Curve";
 
 	if (m_bezierCurveCounter > 0)
@@ -668,6 +668,7 @@ std::shared_ptr<Node> ObjectFactory::CreateInterpolBezierCurveC2(std::vector<std
 	node->m_object = std::unique_ptr<Object>(bC);
 	bC->m_nodePtr = node;
 	m_bezierCurveCounter++;
+	bC->Initialize(controlPoints);
 	return node;
 }
 
@@ -689,6 +690,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurveC2(std::vector<std::weak_p
 	bC->m_nodePtr = node;
 	bC->RecalculateBasisPoints();
 	m_bezierCurveCounter++;
+	bC->Initialize(controlPoints, basis);
 	return node;
 }
 
@@ -712,6 +714,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierCurve(std::vector<std::weak_ptr
 	node->m_object = std::unique_ptr<Object>(bC);;	
 	bC->m_nodePtr = node;
 	m_bezierCurveCounter++;
+	bC->Initialize(controlPoints);
 	return node;
 }
 
