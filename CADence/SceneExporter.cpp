@@ -220,9 +220,9 @@ void SceneExporter::ExportCurvePoints(tinyxml2::XMLElement* object, BezierCurve*
 
 	for (auto pt = points.begin(); pt != points.end(); pt++)
 	{
-		auto ptObj = pt->lock();
+		auto ptObj = *pt;
 		auto pointRef = list->InsertNewChildElement("PointRef");
-		pointRef->SetAttribute("Name", ptObj->m_object->m_name.c_str());
+		pointRef->SetAttribute("Name", ptObj->m_name.c_str());
 	}
 }
 

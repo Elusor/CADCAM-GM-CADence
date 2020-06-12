@@ -31,7 +31,7 @@ public:
 	void virtual AttachChild(std::weak_ptr<Node> controlPoint);
 	void virtual RemoveChild(std::weak_ptr<Node> controlPoint);	
 	bool IsChild(std::weak_ptr<Node> point);	
-	const std::vector<std::weak_ptr<Node>> GetControlPoints();
+	const std::vector<Object*> GetControlPoints();
 protected:
 	//std::vector<std::weak_ptr<Node>> m_controlPoints;
 
@@ -41,7 +41,7 @@ protected:
 	MeshDescription m_PolygonDesc;
 	
 	virtual bool RemoveExpiredChildren();
-	virtual void CalculateAdaptiveRendering(std::vector<std::weak_ptr<Node>> points, std::unique_ptr<RenderState>& renderState);
+	virtual void CalculateAdaptiveRendering(std::vector<Object*> points, std::unique_ptr<RenderState>& renderState);
 	virtual void RenderCurve(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 };

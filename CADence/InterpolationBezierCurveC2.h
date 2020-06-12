@@ -32,7 +32,7 @@ private:
 	MeshDescription m_deBoorPolyDesc;
 
 	void RecalculateIfModified();
-	void GetInterpolationSplineBernsteinPoints(std::vector<std::weak_ptr<Node>> interpolationKnots);
+	void GetInterpolationSplineBernsteinPoints(std::vector<Object*> interpolationKnots);
 
 	std::shared_ptr<Node> CreateVirtualPoint(DirectX::XMFLOAT3 pos, int ptIdx);
 	void UpdateGSData();

@@ -8,5 +8,5 @@ class RenderState;
 static class AdaptiveRenderingCalculator
 {
 public:
-	static unsigned int CalculateAdaptiveSamplesCount(std::vector<std::weak_ptr<Node>> points, std::unique_ptr<RenderState>& renderState);
+	static unsigned int CalculateAdaptiveSamplesCount(std::vector<Object*> points, std::unique_ptr<RenderState>& renderState);
 };

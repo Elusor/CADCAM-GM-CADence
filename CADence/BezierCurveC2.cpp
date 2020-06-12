@@ -16,10 +16,10 @@ BezierCurveC2::BezierCurveC2(std::vector<std::weak_ptr<Node>> initialControlPoin
 	m_renderPolygon = basis == BezierBasis::Bernstein;
 	m_renderDeBoorPolygon = basis == BezierBasis::BSpline;
 
-	auto refs = GetReferences();
+	auto& refs = GetReferences();
 	for (int i = 0; i < initialControlPoints.size(); i++)
 	{
-		refs.LinkRef(initialControlPoints[i]);
+		refs.LinkRef(initialControlPoints[i].lock()->m_object.get());
 	}
 
 	m_basis = basis;
@@ -51,7 +51,7 @@ void BezierCurveC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 
 void BezierCurveC2::AttachChild(std::weak_ptr<Node> controlPoint)
 {
-	GetReferences().LinkRef(controlPoint);
+	GetReferences().LinkRef(controlPoint.lock()->m_object.get());
 	RecalculateBasisPoints();
 	SetModified(true);
 }
@@ -59,7 +59,7 @@ void BezierCurveC2::AttachChild(std::weak_ptr<Node> controlPoint)
 void BezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 {
 	auto controlPointRefs = GetReferences().GetAllRef();
-	GetReferences().UnlinkRef(controlPoint);	
+	GetReferences().UnlinkRef(controlPoint.lock()->m_object.get());
 	RecalculateBasisPoints(true);
 	SetModified(true);
 }
@@ -137,9 +137,9 @@ bool BezierCurveC2::GetIsModified()
 
 	for (int i = 0; i < controlPointRefs.size(); i++)
 	{
-		if (auto point = controlPointRefs[i].m_refered.lock())
+		if (auto point = controlPointRefs[i].m_refered)
 		{			
-			if (point->m_object->GetIsModified())
+			if (point->GetIsModified())
 			{
 				SetModified(true);
 			}
@@ -179,7 +179,7 @@ bool BezierCurveC2::RemoveExpiredChildren()
 	auto it = controlPointRefs.begin();
 	while (it != controlPointRefs.end())
 	{
-		if (auto pt = it->m_refered.lock())
+		if (it->m_refered != nullptr)
 		{
 			it++;
 		}
@@ -222,7 +222,7 @@ void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
 	{
 		for (int i = 0; i < controlPoints.size(); i++)
 		{
-			m_curBasisControlPoints.push_back(controlPoints[i]);
+			m_curBasisControlPoints.push_back(controlPoints[i]->m_nodePtr);
 		}
 
 		if (auto parent = m_nodePtr.lock())
@@ -235,11 +235,11 @@ void BezierCurveC2::RecalculateBSplinePoints(bool overwriteVertices)
 
 		for (int i = 0; i < controlPoints.size(); i++)
 		{
-			if (auto point = controlPoints[i].lock())
+			if (auto point = controlPoints[i])
 			{
 				if (auto ctrlPoint = m_curBasisControlPoints[i].lock())
 				{
-					ctrlPoint->m_object->SetPosition(point->m_object->GetPosition());
+					ctrlPoint->m_object->SetPosition(point->GetPosition());
 					ctrlPoint->m_object->SetModified(true);
 				}				
 			}			
@@ -320,10 +320,10 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = controlPoints[i].lock())
+		if (auto point = controlPoints[i])
 		{
 			deBoorPoints.push_back(
-				point->m_object->GetPosition()
+				point->GetPosition()
 			);
 		}
 	}
@@ -394,13 +394,13 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 
 		bool allValid = true;
 
-		std::shared_ptr<Node> prevDB = controlPoints[controlPointIndex - 1].lock();
-		std::shared_ptr<Node> curDB = controlPoints[controlPointIndex].lock();
-		std::shared_ptr<Node> nextDB = controlPoints[controlPointIndex + 1].lock();
+		auto prevDB = controlPoints[controlPointIndex - 1];
+		auto curDB = controlPoints[controlPointIndex];
+		auto nextDB = controlPoints[controlPointIndex + 1];
 
-		DirectX::XMFLOAT3 prevDBPos = prevDB->m_object->GetPosition();
-		DirectX::XMFLOAT3 curDBPos = curDB->m_object->GetPosition();
-		DirectX::XMFLOAT3 nextDBPos = nextDB->m_object->GetPosition();
+		DirectX::XMFLOAT3 prevDBPos = prevDB->GetPosition();
+		DirectX::XMFLOAT3 curDBPos = curDB->GetPosition();
+		DirectX::XMFLOAT3 nextDBPos = nextDB->GetPosition();
 
 		DirectX::XMFLOAT3 newDBcoords = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
@@ -425,8 +425,8 @@ void BezierCurveC2::MoveBernsteinPoint(int index)
 			}
 		}
 
-		curDB->m_object->SetPosition(newDBcoords);
-		curDB->m_object->SetModified(true);
+		curDB->SetPosition(newDBcoords);
+		curDB->SetModified(true);
 	}
 	
 }
@@ -509,10 +509,10 @@ void BezierCurveC2::PreparePolygonDesc()
 	std::vector<unsigned short> deBoorCurveIndices;
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = controlPoints[i].lock())
+		if (auto point = controlPoints[i])
 		{
 			deBoorCurveVertices.push_back(VertexPositionColor{
-				point->m_object->GetPosition(),
+				point->GetPosition(),
 				m_deBoorPolyDesc.m_defaultColor
 				}
 			);
@@ -555,9 +555,9 @@ void BezierCurveC2::RecalculateIfModified()
 	modifiedIndex = -1;
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = controlPoints[i].lock())
+		if (auto point = controlPoints[i])
 		{
-			if (point->m_object->GetIsModified())
+			if (point->GetIsModified())
 			{
 				modifiedIndex = i;
 			}

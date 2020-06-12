@@ -16,14 +16,13 @@ InterpolationBezierCurveC2::InterpolationBezierCurveC2(std::vector<std::weak_ptr
 {
 	m_adaptiveRenderingSamples = 0;
 	m_renderPolygon = false;
-	auto refs = GetReferences();
+
 	for (int i = 0; i < initialKnots.size(); i++)
 	{
-		refs.LinkRef(initialKnots[i]);
+		GetReferences().LinkRef(initialKnots[i].lock()->m_object.get());
 	}
 
 	auto controlPoints = GetControlPoints();
-
 	if (initialKnots.size() > 0)
 		GetInterpolationSplineBernsteinPoints(controlPoints);
 }
@@ -109,13 +108,13 @@ void InterpolationBezierCurveC2::RenderObject(std::unique_ptr<RenderState>& rend
 
 void InterpolationBezierCurveC2::AttachChild(std::weak_ptr<Node> controlPoint)
 {
-	GetReferences().LinkRef(controlPoint);	
+	GetReferences().LinkRef(controlPoint.lock()->m_object.get());	
 	SetModified(true);
 }
 
 void InterpolationBezierCurveC2::RemoveChild(std::weak_ptr<Node> controlPoint)
 {
-	GetReferences().UnlinkRef(controlPoint);
+	GetReferences().UnlinkRef(controlPoint.lock()->m_object.get());
 	SetModified(true);
 }
 
@@ -126,9 +125,9 @@ bool InterpolationBezierCurveC2::GetIsModified()
 	auto controlPoints = GetControlPoints();
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = controlPoints[i].lock())
+		if (auto point = controlPoints[i])
 		{			
-			if (point->m_object->GetIsModified())
+			if (point->GetIsModified())
 			{
 				SetModified(true);
 			}
@@ -144,7 +143,7 @@ bool InterpolationBezierCurveC2::RemoveExpiredChildren()
 	auto it = controlPointsReferences.begin();
 	while (it != controlPointsReferences.end())
 	{
-		if (auto pt = it->m_refered.lock())
+		if (it->m_refered != nullptr)
 		{
 			it++;
 		}
@@ -172,7 +171,7 @@ void InterpolationBezierCurveC2::RecalculateIfModified()
 	auto controlPoints = GetControlPoints();
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		isModified |= controlPoints[i].lock()->m_object->GetIsModified();
+		isModified |= controlPoints[i]->GetIsModified();
 	}
 
 	if (isModified)
@@ -181,7 +180,7 @@ void InterpolationBezierCurveC2::RecalculateIfModified()
 	}
 }
 
-void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vector<std::weak_ptr<Node>> interpolationKnots)
+void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vector<Object*> interpolationKnots)
 {
 	if (interpolationKnots.size() < 2)
 	{
@@ -198,8 +197,8 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 
 	for (int i = 0; i < interpolationKnots.size() - 1; i++)
 	{
-		auto p1 = interpolationKnots[i].lock()->m_object->GetPosition();
-		auto p2 = interpolationKnots[i + 1].lock()->m_object->GetPosition();
+		auto p1 = interpolationKnots[i]->GetPosition();
+		auto p2 = interpolationKnots[i + 1]->GetPosition();
 		// DISTANCES FROM d0 to dk-1, where k is knots count
 		float dist = GetDistanceBetweenPoints(p2, p1);
 		dist = max(dist, 0.001f);
@@ -241,9 +240,9 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		}
 
 		// calculate and assing Ri
-		auto P = interpolationKnots[i].lock()->m_object->GetPosition();;
-		auto Pnext = interpolationKnots[i + 1].lock()->m_object->GetPosition();;
-		auto Pprev = interpolationKnots[i - 1].lock()->m_object->GetPosition();;
+		auto P = interpolationKnots[i]->GetPosition();
+		auto Pnext = interpolationKnots[i + 1]->GetPosition();
+		auto Pprev = interpolationKnots[i - 1]->GetPosition();
 
 		auto diff = XMF3TimesFloat(XMF3SUB(Pnext, P), 1.f / dist);
 		auto diffPrev = XMF3TimesFloat(XMF3SUB(P, Pprev), 1.f / distPrev);
@@ -277,8 +276,8 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 	{
 		DirectX::XMFLOAT3 zero = { 0.f, 0.f, 0.f };
 
-		auto p0 = interpolationKnots[0].lock()->m_object->GetPosition();
-		auto p1 = interpolationKnots[1].lock()->m_object->GetPosition();
+		auto p0 = interpolationKnots[0]->GetPosition();
+		auto p1 = interpolationKnots[1]->GetPosition();
 
 		c.push_back(zero);
 		a.push_back(p0);
@@ -286,11 +285,11 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		for (int i = 0; i < xRes.size(); i++)
 		{
 			c.push_back(DirectX::XMFLOAT3(xRes[i], yRes[i], zRes[i]));
-			a.push_back(interpolationKnots[i + 1].lock()->m_object->GetPosition());
+			a.push_back(interpolationKnots[i + 1]->GetPosition());
 			//d.push_back(interpolationKnots[i + 2].lock()->m_object->GetPosition());
 		}
 
-		auto plast = interpolationKnots[interpolationKnots.size() - 1].lock()->m_object->GetPosition();
+		auto plast = interpolationKnots[interpolationKnots.size() - 1]->GetPosition();
 		c.push_back(zero);
 		a.push_back(plast);
 
@@ -355,13 +354,13 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 			resultPos.push_back(k3);
 		}
 
-		resultPos.push_back(interpolationKnots[interpolationKnots.size() - 1].lock()->m_object->GetPosition());
+		resultPos.push_back(interpolationKnots[interpolationKnots.size() - 1]->GetPosition());
 		// Each segmenent is built from 4 points, the middle points are the same
 	}
 	else
 	{
-		XMFLOAT3 pos0 = interpolationKnots[0].lock()->m_object->GetPosition();
-		XMFLOAT3 pos1 = interpolationKnots[1].lock()->m_object->GetPosition();
+		XMFLOAT3 pos0 = interpolationKnots[0]->GetPosition();
+		XMFLOAT3 pos1 = interpolationKnots[1]->GetPosition();
 
 		resultPos.push_back(pos0);
 		resultPos.push_back(WeightedXMFloat3Average(pos0, pos1, 1.f / 3.f));
@@ -480,10 +479,10 @@ void InterpolationBezierCurveC2::PreparePolygonDesc()
 	std::vector<unsigned short> interpolationCurveIndices;
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		if (auto point = controlPoints[i].lock())
+		if (auto point = controlPoints[i])
 		{
 			interpolationCurveVertices.push_back(VertexPositionColor{
-				point->m_object->GetPosition(),
+				point->GetPosition(),
 				m_PolygonDesc.m_defaultColor
 				}
 			);

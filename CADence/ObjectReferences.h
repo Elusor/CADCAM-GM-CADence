@@ -2,7 +2,7 @@
 #include <xmemory>
 #include "Node.h"
 
-typedef std::weak_ptr<Node> ObjectRef;
+typedef Object* ObjectRef;
 class Object; 
 
 struct Reference {

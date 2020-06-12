@@ -25,14 +25,14 @@ void PointCollapser::Collapse(std::weak_ptr<Node> p1, std::weak_ptr<Node> p2)
 
 	for (auto it = parents1.begin(); it != parents1.end(); it++)
 	{
-		auto parentObject = it->m_refered.lock()->m_object.get();
-		parentObject->GetReferences().SubstituteReference(p1, p3);
+		auto parentObject = it->m_refered;
+		parentObject->GetReferences().SubstituteReference(point1->m_object.get(), p3->m_object.get());
 	}
 
 	for (auto it = parents2.begin(); it != parents2.end(); it++)
 	{
-		auto parentObject = it->m_refered.lock()->m_object.get();
-		parentObject->GetReferences().SubstituteReference(p2, p3);
+		auto parentObject = it->m_refered;
+		parentObject->GetReferences().SubstituteReference(point2->m_object.get(), p3->m_object.get());
 	}
 
 	// REMOVE p1 and p2 FROM SCENE
