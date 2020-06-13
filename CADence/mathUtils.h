@@ -10,3 +10,7 @@ DirectX::XMFLOAT3 XMF3TimesFloat(DirectX::XMFLOAT3 vec, float val);
 Transform WeightedTransformAverage(Transform p0, Transform p1, float t);
 DirectX::XMFLOAT3 WeightedXMFloat3Average(DirectX::XMFLOAT3 f1, DirectX::XMFLOAT3 f2, float t);
 float GetDistanceBetweenPoints(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
+
+DirectX::XMFLOAT3& operator+(XMFLOAT3 a, XMFLOAT3 b);
+DirectX::XMFLOAT3& operator*(XMFLOAT3 val, float t);
+DirectX::XMFLOAT3& operator*(float t, XMFLOAT3 val);

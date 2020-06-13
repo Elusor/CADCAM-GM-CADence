@@ -78,3 +78,24 @@ float GetDistanceBetweenPoints(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
 	return sqrtf((p1.x-p2.x)* (p1.x - p2.x) + (p1.y - p2.y)* (p1.y - p2.y)+ (p1.z - p2.z)* (p1.z - p2.z));
 }
+
+DirectX::XMFLOAT3& operator+(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)
+{
+	DirectX::XMFLOAT3 res = DirectX::XMFLOAT3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+	return res;
+}
+
+DirectX::XMFLOAT3& operator*(DirectX::XMFLOAT3 val, float t)
+{
+	DirectX::XMFLOAT3 res = DirectX::XMFLOAT3(
+		val.x * t,
+		val.y * t,
+		val.z * t);
+	
+	return res;
+}
+
+DirectX::XMFLOAT3& operator*(float t, XMFLOAT3 val)
+{
+	return val * t;
+}
