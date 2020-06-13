@@ -563,6 +563,68 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 	return node;
 }
 
+std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(Scene* scene, float width, float height)
+{
+	std::vector<std::weak_ptr<Node>> top;
+	std::vector<std::weak_ptr<Node>> topMid;
+	std::vector<std::weak_ptr<Node>> botMid;
+	std::vector<std::weak_ptr<Node>> bot;
+	std::shared_ptr<Node> points[4][4];
+
+	for (int i = 0; i < 4; i++)
+	{
+		auto p1 = CreatePoint();
+		auto p2 = CreatePoint();
+		auto p3 = CreatePoint();
+		auto p4 = CreatePoint();
+
+		points[i][0] = p1;
+		points[i][1] = p2;
+		points[i][2] = p3;
+		points[i][3] = p4;
+
+		top.push_back(p1);
+		topMid.push_back(p2);
+		botMid.push_back(p3);
+		bot.push_back(p4);
+
+		scene->AttachObject(p1);
+		scene->AttachObject(p2);
+		scene->AttachObject(p3);
+		scene->AttachObject(p4);
+	}
+
+	float startWidth = -width / 2.f;
+	float startHeight = -height / 2.f;
+		
+	for (int w = 0; w < 4; w++)
+	{
+		for (int h = 0; h < 4; h++)
+		{
+			float curWidth = startWidth + width / 3.f * w;
+			float curHeight = startHeight + height / 3.f * h;
+			points[w][h]->m_object->SetPosition(XMFLOAT3(curWidth, 0.0f, curHeight));
+		}
+	}	
+
+	BezierPatch* patch = new BezierPatch();
+	std::string name = "Bezier Patch";
+	if (m_bezierPatchCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierPatchCounter);
+	}
+
+	patch->m_name = patch->m_defaultName = name;
+
+	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
+	auto object = std::unique_ptr<Object>(patch);
+	node->m_object = move(object);
+	patch->m_nodePtr = node;
+	patch->Initialize(top, topMid, botMid, bot);
+	m_bezierPatchCounter++;
+	return node;
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	std::vector<std::weak_ptr<Node>> top,
 	std::vector<std::weak_ptr<Node>> topMid,

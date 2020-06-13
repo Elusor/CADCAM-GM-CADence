@@ -72,8 +72,9 @@ void Scene::ClearScene()
 
 void Scene::DrawScenePopupMenu()
 {
-	bool imGuiWorkaroundSuggestedByItsAuthor = false;
-	bool imGuiWorkaroundSuggestedByItsAuthorC2 = false;
+	bool displaySurfmodal = false;
+	bool displaySurfC2Modal = false;
+	bool displayPatchModal = false;
 	if (ImGui::BeginPopupContextItem("item context menu##ScenePopup"))
 	{
 		if (ImGui::BeginMenu("Add child object##ScenePopup"))
@@ -86,19 +87,18 @@ void Scene::DrawScenePopupMenu()
 			if (ImGui::MenuItem("Bezier Surface##ScenePopup"))
 			{
 				//m_objectFactory->CreateBezierSurface(this, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f));
-				imGuiWorkaroundSuggestedByItsAuthor = true;								
+				displaySurfmodal = true;								
 			}
 			
 			if (ImGui::MenuItem("Bezier Surface C2##ScenePopup"))
 			{
 				//m_objectFactory->CreateBezierSurface(this, 0, 0, XMFLOAT3(0.0f, 0.0f, 0.0f));
-				imGuiWorkaroundSuggestedByItsAuthorC2 = true;
+				displaySurfC2Modal = true;
 			}
-			/*if (ImGui::MenuItem("Bezier Patch"))
+			if (ImGui::MenuItem("Bezier Patch"))
 			{
-				auto p1 = m_objectFactory->CreateBezierPatch(this);				
-				AttachObject(p1);				
-			}*/
+				displayPatchModal = true;
+			}
 
 			if (ImGui::MenuItem("Point##ScenePopup"))
 			{
@@ -161,7 +161,15 @@ void Scene::DrawScenePopupMenu()
 	// ImGui Cannot Open new modal windows from MenuItems,
 	// as stated here: https://github.com/ocornut/imgui/issues/249
 	// there is currently no official way to do this except workarounds
-	if (imGuiWorkaroundSuggestedByItsAuthor)
+
+	if (displayPatchModal)
+	{
+		ImGui::OpenPopup("Create Bezier Patch");		
+		m_sizeX = 15;
+		m_sizeY = 15;
+	}
+
+	if (displaySurfmodal)
 	{
 		ImGui::OpenPopup("Modal window");			
 		m_sizeU = 1;
@@ -172,7 +180,7 @@ void Scene::DrawScenePopupMenu()
 		m_altDir = false;
 	}
 
-	if (imGuiWorkaroundSuggestedByItsAuthorC2)
+	if (displaySurfC2Modal)
 	{
 		ImGui::OpenPopup("Modal window##C2");
 		m_sizeU = 1;
@@ -183,10 +191,32 @@ void Scene::DrawScenePopupMenu()
 		m_altDir = false;
 	}
 
+	DrawBezierPatchModal();
 	DrawBezierSurfaceModal();
 	DrawBezierSurfaceC2Modal();
 }
 
+void Scene::DrawBezierPatchModal()
+{
+	if (ImGui::BeginPopupModal("Create Bezier Patch"))
+	{
+		ImGui::Text("Choose the size of your surface");
+		ImGui::DragInt("Surface Width", &m_sizeX, 1, 1, 30);
+		ImGui::DragInt("Surface Length", &m_sizeY, 1, 1, 30);
+		if (ImGui::Button("Submit"))
+		{
+			auto p1 = m_objectFactory->CreateBezierPatch(this, m_sizeX, m_sizeY);
+			AttachObject(p1);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}	
+}
 
 void Scene::DrawBezierSurfaceModal()
 {
@@ -366,7 +396,6 @@ void Scene::RenderMiddleMarker(std::unique_ptr<RenderState>& renderState)
 		m_middleMarker->RenderCoordinates(renderState);
 	}
 }
-
 
 void Scene::DrawSceneHierarchy(bool filtered)
 {
