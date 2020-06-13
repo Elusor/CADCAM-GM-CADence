@@ -24,6 +24,17 @@ void ObjectReferences::SubstituteReference(ObjectRef existingRef, ObjectRef newR
 	}
 }
 
+std::vector<ObjectRef> ObjectReferences::GetRefObjects()
+{
+	std::vector<ObjectRef> objects;
+	for (int i = 0; i < m_children.size(); i++)
+	{
+		objects.push_back(m_children[i].m_refered);
+	}
+
+	return objects;
+}
+
 std::vector<Reference>& ObjectReferences::GetAllRef()
 {
 	return m_children;

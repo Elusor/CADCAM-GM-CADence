@@ -19,6 +19,7 @@ public:
 
 	void SubstituteReference(ObjectRef existingRef, ObjectRef newRef);
 
+	std::vector<ObjectRef> GetRefObjects();
 	std::vector<Reference>& GetAllRef();
 	std::vector<Reference>& GetAllRefParents();
 
