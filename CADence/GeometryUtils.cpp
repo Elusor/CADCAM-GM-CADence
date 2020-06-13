@@ -10,15 +10,14 @@ XMFLOAT3 DeCastel(XMFLOAT3 v1, XMFLOAT3 v2, float t)
 	return  (1.f - t) * v1 + t * v2;
 }
 
-DividedCurve& DivideBernsteinCurve(std::vector<std::weak_ptr<Node>> bernsteinCurve, float point)
+DividedCurve* DivideBernsteinCurve(std::vector<std::weak_ptr<Node>> bernsteinCurve, float point)
 {
 	assert(bernsteinCurve.size() == 4);
 
 	float t = point;
 	float u = 1.f - t;
 
-	std::vector<XMFLOAT3> begMid, midEnd;
-	DividedCurve divCurve;
+	DividedCurve* divCurve = new DividedCurve();
 	XMFLOAT3 it0_0, it0_1, it0_2, it0_3;
 	XMFLOAT3 it1_0, it1_1, it1_2;
 	XMFLOAT3 it2_0, it2_1;
@@ -38,18 +37,15 @@ DividedCurve& DivideBernsteinCurve(std::vector<std::weak_ptr<Node>> bernsteinCur
 
 	it3_0 = DeCastel(it2_0, it2_1, t);
 
-	begMid.push_back(it0_0);
-	begMid.push_back(it1_0);
-	begMid.push_back(it2_0);
-	begMid.push_back(it3_0);
+	divCurve->begMid.push_back(it0_0);
+	divCurve->begMid.push_back(it1_0);
+	divCurve->begMid.push_back(it2_0);
+	divCurve->begMid.push_back(it3_0);
 
-	midEnd.push_back(it3_0);
-	midEnd.push_back(it2_1);
-	midEnd.push_back(it1_2);
-	midEnd.push_back(it0_3);
-
-	divCurve.begMid = begMid;
-	divCurve.midEnd = midEnd;
+	divCurve->midEnd.push_back(it3_0);
+	divCurve->midEnd.push_back(it2_1);
+	divCurve->midEnd.push_back(it1_2);
+	divCurve->midEnd.push_back(it0_3);	
 
 	return divCurve;
 }
