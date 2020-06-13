@@ -1,7 +1,9 @@
 #include "ObjectFactory.h"
 #include "Scene.h"
 #include "mathUtils.h"
+#include "GeometryUtils.h"
 #include "ArgumentExceptions.h"
+#include "HoleDetector.h"
 
 std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 	int patchesW, int patchesH, XMFLOAT3 middlePosition,
@@ -716,6 +718,66 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatchC2(
 	patch->Initialize(u0, u1, u2, u3);
 	m_bezierPatchCounter++;
 	return node;
+}
+
+std::shared_ptr<Node> ObjectFactory::CreateGregoryPatch(HoleData hole)
+{	
+
+	std::vector<std::weak_ptr<Node>> patchControlPoints1;
+	std::vector<std::weak_ptr<Node>> patchControlPoints2;
+	std::vector<std::weak_ptr<Node>> patchControlPoints3;
+
+	// Get all 8 points from patch1 in the relevat direction
+	std::vector<std::weak_ptr<Node>> points1;
+	// Get all 8 points from patch2	in the relevat direction
+	std::vector<std::weak_ptr<Node>> points2;
+	// Get all 8 points from patch3	in the relevat direction
+	std::vector<std::weak_ptr<Node>> points3;
+
+	std::vector<std::weak_ptr<Node>> sPoints1;
+	std::vector<std::weak_ptr<Node>> sPrevPoints1;
+	std::vector<std::weak_ptr<Node>> p1Der;
+	
+	std::vector<std::weak_ptr<Node>> sPoints2;
+	std::vector<std::weak_ptr<Node>> sPrevPoints2;
+	std::vector<std::weak_ptr<Node>> p2Der;
+
+	std::vector<std::weak_ptr<Node>> sPoints3;
+	std::vector<std::weak_ptr<Node>> sPrevPoints3;
+	std::vector<std::weak_ptr<Node>> p3Der;
+
+	BezierPatch* pa1 = hole.p1;
+	BezierPatch* pa2 = hole.p2;
+	BezierPatch* pa3 = hole.p3;
+
+	auto divCurve1 = DivideBernsteinCurve(pa1->GetPoints(hole.p1Edge));
+	auto divCurve2 = DivideBernsteinCurve(pa2->GetPoints(hole.p2Edge));
+	auto divCurve3 = DivideBernsteinCurve(pa3->GetPoints(hole.p3Edge));	
+
+	//p1Mid = CalculateMiddle(points1); // point in the middle of the corresponding curve
+	//p2Mid = CalculateMiddle(points1); // point in the middle of the corresponding curve
+	//p3Mid = CalculateMiddle(points1); // point in the middle of the corresponding curve
+
+	//// Calculate sPoints
+	//// Calculate sPrevPoints
+	//// calculate p1Der
+
+	//p1DerMid = (p1Der[1] + p1Der[2]) / 2.f;
+	//p2DerMid = (p2Der[1] + p2Der[2]) / 2.f;
+	//p3DerMid = (p3Der[1] + p3Der[2]) / 2.f;
+
+	//Q1 = (3 * p1DerMid - p1Mid)/2.f;
+	//Q2 = (3 * p2DerMid - p2Mid)/2.f;
+	//Q3 = (3 * p3DerMid - p3Mid)/2.f;
+
+	//pTop = (Q1 + Q2 + Q3) / 3.f;
+
+	//pInner1 = (2* Q1 + pTop) / 3.f;
+	//pInner2 = (2* Q2 + pTop) / 3.f;
+	//pInner3 = (2* Q3 + pTop) / 3.f;
+
+
+	return std::shared_ptr<Node>();
 }
 
 std::shared_ptr<Node> ObjectFactory::CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints)

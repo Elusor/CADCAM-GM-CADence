@@ -5,6 +5,8 @@
 #include "Node.h"
 #include "GroupNode.h"
 
+struct HoleData;
+
 class ObjectFactory
 {
 public:	
@@ -40,6 +42,9 @@ public:
 		std::vector<std::weak_ptr<Node>> bottom = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> left = std::vector<std::weak_ptr<Node>>(),
 		std::vector<std::weak_ptr<Node>> right = std::vector<std::weak_ptr<Node>>());
+
+	std::shared_ptr<Node> CreateGregoryPatch(
+		HoleData hole);
 
 	std::shared_ptr<Node> CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
 
