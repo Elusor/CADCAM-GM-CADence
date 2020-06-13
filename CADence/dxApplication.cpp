@@ -11,6 +11,7 @@
 #include "ObjectFactory.h"
 #include "PointSelector.h"
 #include "IOExceptions.h"
+#include "HoleDetector.h"
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -210,6 +211,30 @@ void DxApplication::InitImguiWindows()
 				{
 					m_pointCollapser->Collapse(p1, p2);
 				}				
+			}
+		}
+
+		if (m_scene->m_selectedNodes.size() == 3)
+		{
+			auto p1 = m_scene->m_selectedNodes[0];
+			auto p2 = m_scene->m_selectedNodes[1];
+			auto p3 = m_scene->m_selectedNodes[2];
+			if (typeid(*p1.lock()->m_object.get()) == typeid(BezierPatch) &&
+				typeid(*p2.lock()->m_object.get()) == typeid(BezierPatch) &&
+				typeid(*p3.lock()->m_object.get()) == typeid(BezierPatch))
+			{
+				auto hole = HoleDetector::DetectHole(
+					(BezierPatch*)p1.lock()->m_object.get(),
+					(BezierPatch*)p2.lock()->m_object.get(),
+					(BezierPatch*)p3.lock()->m_object.get());
+				if (hole.isValid) 
+				{
+					if (ImGui::Button("Fill the hole"))
+					{
+						//m_pointCollapser->Collapse(p1, p2);
+					}
+				}
+				
 			}
 		}
 

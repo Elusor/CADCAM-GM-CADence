@@ -171,6 +171,7 @@
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="GuiManager.h" />
+    <ClInclude Include="HoleDetector.h" />
     <ClInclude Include="IncorrectFileExtensionException.h" />
     <ClInclude Include="IncorrectFileFormatException.h" />
     <ClInclude Include="IncorrectObjectArgumentException.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="generalUtils.cpp" />
     <ClCompile Include="GroupNode.cpp" />
     <ClCompile Include="GuiManager.cpp" />
+    <ClCompile Include="HoleDetector.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
