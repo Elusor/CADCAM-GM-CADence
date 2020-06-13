@@ -169,6 +169,7 @@
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
+    <ClInclude Include="GeometryUtils.h" />
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="GuiManager.h" />
     <ClInclude Include="HoleDetector.h" />
@@ -243,6 +244,7 @@
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="generalUtils.cpp" />
+    <ClCompile Include="GeometryUtils.cpp" />
     <ClCompile Include="GroupNode.cpp" />
     <ClCompile Include="GuiManager.cpp" />
     <ClCompile Include="HoleDetector.cpp" />
