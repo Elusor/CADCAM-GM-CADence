@@ -29,7 +29,8 @@ void Scene::RemoveObject(std::unique_ptr<Object>& object)
 		if (m_nodes[i]->m_object == object)
 		{
 			//object->Cleanup();
-			object.reset();
+			m_nodes[i]->m_object->GetReferences().UnlinkAll();
+			m_nodes[i]->m_object.reset();
 			m_nodes[i].reset();
 			m_nodes.erase(m_nodes.begin() + i);			
 		}
@@ -38,11 +39,27 @@ void Scene::RemoveObject(std::unique_ptr<Object>& object)
 
 void Scene::ClearScene()
 {
+
+	for (auto it = m_nodes.begin(); it != m_nodes.end();)
+	{
+		std::shared_ptr<Node> currentNode = *it;
+		if (typeid(*(currentNode->m_object.get())) != typeid(Point)) {
+			currentNode->m_object.reset();
+			currentNode.reset();
+			it = m_nodes.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}	
+
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		m_nodes[i]->m_object.reset();
 		m_nodes[i].reset();
 	}
+
 	m_objectFactory->ClearScene();
 	m_nodes.clear();
 	m_selectedNodes.clear();
