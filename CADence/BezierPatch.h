@@ -30,16 +30,8 @@ public:
 	// Create a patch and allocates all points on the scene
 	BezierPatch();
 	virtual ~BezierPatch();
-	// Create a patch with given edges (edges with size 0 will be allocated and new points will be created
-	BezierPatch(
-		std::vector<std::weak_ptr<Node>> top,
-		std::vector<std::weak_ptr<Node>> bottom,
-		std::vector<std::weak_ptr<Node>> left, 
-		std::vector<std::weak_ptr<Node>> right,
-		std::vector<std::weak_ptr<Node>> inner);
 
-	BezierPatch(
-		std::vector<std::weak_ptr<Node>> first,
+	void Initialize(std::vector<std::weak_ptr<Node>> first,
 		std::vector<std::weak_ptr<Node>> second,
 		std::vector<std::weak_ptr<Node>> third,
 		std::vector<std::weak_ptr<Node>> fourth);
@@ -57,22 +49,16 @@ public:
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);	
 protected:
-	// Bezier patch unique
-	std::weak_ptr<Node> m_u0[4];
-	std::weak_ptr<Node> m_u1[4];
-	std::weak_ptr<Node> m_u2[4];
-	std::weak_ptr<Node> m_u3[4];
 
 	int m_uSize = 4;
 	int m_vSize = 4;
 
 	bool m_displayPolygon;
 	MeshDescription m_PolygonDesc;
-
 	MeshDescription m_UDesc, m_VDesc;
 
-	void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
-	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);
+	/*void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
+	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);*/
 	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderPatch(std::unique_ptr<RenderState>& renderState);
 	XMMATRIX GetCoordinates(Coord coord);
@@ -82,17 +68,6 @@ class BezierPatchC2 : public BezierPatch {
 public:
 	BezierPatchC2();
 	~BezierPatchC2();
-	BezierPatchC2(
-		std::vector<std::weak_ptr<Node>> top,
-		std::vector<std::weak_ptr<Node>> bottom,
-		std::vector<std::weak_ptr<Node>> left,
-		std::vector<std::weak_ptr<Node>> right,
-		std::vector<std::weak_ptr<Node>> inner);
-	BezierPatchC2(
-		std::vector<std::weak_ptr<Node>> first,
-		std::vector<std::weak_ptr<Node>> second,
-		std::vector<std::weak_ptr<Node>> third,
-		std::vector<std::weak_ptr<Node>> fourth);
 
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	void RenderPatch(std::unique_ptr<RenderState>& renderState) override;

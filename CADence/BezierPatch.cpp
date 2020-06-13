@@ -2,57 +2,48 @@
 #include "imgui.h"
 BezierPatch::BezierPatch()
 {
+	m_displayPolygon = false;
+	std::weak_ptr<Node> empty;
 }
 
 BezierPatch::~BezierPatch()
 {
-	for (int i = 0; i < 4; i++)
-	{
-		if (auto pt = m_u0[i].lock()) {
-			if(pt->m_object != nullptr)
-				pt->m_object->RefRelease();
-		}
-		if (auto pt = m_u1[i].lock()) {
-			if (pt->m_object != nullptr)
-				pt->m_object->RefRelease();
-		}
-		if (auto pt = m_u2[i].lock()) {
-			if (pt->m_object != nullptr)
-				pt->m_object->RefRelease();
-		}
-		if (auto pt = m_u3[i].lock()) {
-			if (pt->m_object != nullptr)
-				pt->m_object->RefRelease();
-		}
-	}
 }
 
-BezierPatch::BezierPatch(
-	std::vector<std::weak_ptr<Node>> top,
-	std::vector<std::weak_ptr<Node>> bottom,
-	std::vector<std::weak_ptr<Node>> left,
-	std::vector<std::weak_ptr<Node>> right,
-	std::vector<std::weak_ptr<Node>> inner)
-{	
-	m_displayPolygon = false;
-	SetPoints(BoundaryDirection::Top, top);	
-	SetPoints(BoundaryDirection::Bottom, bottom);	
-	SetPoints(BoundaryDirection::Left, left);	
-	SetPoints(BoundaryDirection::Right, right);
-	UpdateObject();
-}
-
-BezierPatch::BezierPatch(
+void BezierPatch::Initialize(
 	std::vector<std::weak_ptr<Node>> first, 
 	std::vector<std::weak_ptr<Node>> second, 
 	std::vector<std::weak_ptr<Node>> third, 
 	std::vector<std::weak_ptr<Node>> fourth)
 {
 	m_displayPolygon = false;
-	SetPoints(RowPlace::First, first);
-	SetPoints(RowPlace::Second, second);
-	SetPoints(RowPlace::Third, third);
-	SetPoints(RowPlace::Fourth, fourth);
+	
+	for (int i = 0; i < 4; i++)
+	{
+		GetReferences().LinkRef(first[i]);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		GetReferences().LinkRef(second[i]);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		GetReferences().LinkRef(third[i]);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		GetReferences().LinkRef(fourth[i]);
+	}
+
+
+	auto refs = GetReferences().GetAllRef();
+	for (int i = 0; i < 16; i++)
+	{
+		assert(!refs[i].m_refered.expired());
+	}
 	UpdateObject();
 }
 
@@ -174,33 +165,13 @@ void BezierPatch::UpdateObject()
 	// one of those is the constant parameter - the other one is 
 	std::vector<VertexPositionColor> vertices;
 	std::vector<unsigned short> indicesU;
-	std::vector<unsigned short> indicesV;
-	for (int i = 0; i < 4; i++) {
+	std::vector<unsigned short> indicesV; 
+
+	for (int i = 0; i < 16; i++) {
 		vertices.push_back(VertexPositionColor{
-			m_u0[i].lock()->m_object->GetPosition(),
+			GetReferences().GetAllRef()[i].m_refered.lock()->m_object->GetPosition(),
 			m_meshDesc.m_defaultColor });
 		indicesU.push_back(i);
-	}
-
-	for (int i = 0; i < 4; i++) {
-		vertices.push_back(VertexPositionColor{
-			m_u1[i].lock()->m_object->GetPosition(),
-			m_meshDesc.m_defaultColor });
-		indicesU.push_back(i+4);
-	}
-
-	for (int i = 0; i < 4; i++) {
-		vertices.push_back(VertexPositionColor{
-			m_u2[i].lock()->m_object->GetPosition(),
-			m_meshDesc.m_defaultColor });
-		indicesU.push_back(i+8);
-	}
-
-	for (int i = 0; i < 4; i++) {
-		vertices.push_back(VertexPositionColor{
-			m_u3[i].lock()->m_object->GetPosition(),
-			m_meshDesc.m_defaultColor });
-		indicesU.push_back(i+12);
 	}
 
 	for (int i = 0; i < 4; i++) {
@@ -213,28 +184,11 @@ void BezierPatch::UpdateObject()
 	m_PolygonDesc.vertices.clear();
 	m_PolygonDesc.indices.clear();
 	m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
-	for (int i = 0; i < 4; i++) {
-		m_PolygonDesc.vertices.push_back(VertexPositionColor{
-			m_u0[i].lock()->m_object->GetPosition(),
-			m_PolygonDesc.m_defaultColor });
-	}
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 16; i++) {
 		m_PolygonDesc.vertices.push_back(VertexPositionColor{
-			m_u1[i].lock()->m_object->GetPosition(),
-			m_PolygonDesc.m_defaultColor });
-	}
-
-	for (int i = 0; i < 4; i++) {
-		m_PolygonDesc.vertices.push_back(VertexPositionColor{
-			m_u2[i].lock()->m_object->GetPosition(),
-			m_PolygonDesc.m_defaultColor });
-	}
-
-	for (int i = 0; i < 4; i++) {
-		m_PolygonDesc.vertices.push_back(VertexPositionColor{
-			m_u3[i].lock()->m_object->GetPosition(),
-			m_PolygonDesc.m_defaultColor });
+			GetReferences().GetAllRef()[i].m_refered.lock()->m_object->GetPosition(),
+			m_meshDesc.m_defaultColor });
 	}
 
 	for (int i = 0; i < 4; i++) {
@@ -267,12 +221,10 @@ bool BezierPatch::GetIsModified()
 {
 	bool modified = m_modified;
 
-	for (int i = 0; i < 4; i++)
+	auto points = GetReferences().GetAllRef();
+	for (int i = 0; i < 16; i++)
 	{
-		modified |= m_u0[i].lock()->m_object->GetIsModified();
-		modified |= m_u1[i].lock()->m_object->GetIsModified();
-		modified |= m_u2[i].lock()->m_object->GetIsModified();
-		modified |= m_u3[i].lock()->m_object->GetIsModified();
+		modified |= points[i].m_refered.lock()->m_object->GetIsModified();
 	}
 
 	return modified;
@@ -287,7 +239,6 @@ void BezierPatch::SetDivisions(int divsU, int divsV)
 void BezierPatch::SetPolygonVisible(bool state)
 {
 	m_displayPolygon = state;
-	//SetModified(true);
 }
 
 void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 col)
@@ -302,103 +253,103 @@ void BezierPatch::SetPatchColor(DirectX::XMFLOAT3 col)
 	SetModified(true);
 }
 
-void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points)
-{
-	assert(points.size() == 4);
-	switch (direction) {
-	case BoundaryDirection::Top:
-		m_u0[0] = points[0];
-		m_u0[1] = points[1];
-		m_u0[2] = points[2];
-		m_u0[3] = points[3];
-		break;
-	case BoundaryDirection::Bottom:
-		m_u3[0] = points[0];
-		m_u3[1] = points[1];
-		m_u3[2] = points[2];
-		m_u3[3] = points[3];
-		break;
-	case BoundaryDirection::Left:
-		m_u0[0] = points[0];
-		m_u1[0] = points[1];
-		m_u2[0] = points[2];
-		m_u3[0] = points[3];
-		break;
-	case BoundaryDirection::Right:
-		m_u0[3] = points[0];
-		m_u1[3] = points[1];
-		m_u2[3] = points[2];
-		m_u3[3] = points[3];
-		break;
-	}
-}
+//void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points)
+//{
+//	//assert(points.size() == 4);
+//	//switch (direction) {
+//	//case BoundaryDirection::Top:	
+//	//	m_u0[0] = points[0];
+//	//	m_u0[1] = points[1];
+//	//	m_u0[2] = points[2];
+//	//	m_u0[3] = points[3];
+//	//	break;
+//	//case BoundaryDirection::Bottom:
+//	//	m_u3[0] = points[0];
+//	//	m_u3[1] = points[1];
+//	//	m_u3[2] = points[2];
+//	//	m_u3[3] = points[3];
+//	//	break;
+//	//case BoundaryDirection::Left:
+//	//	m_u0[0] = points[0];
+//	//	m_u1[0] = points[1];
+//	//	m_u2[0] = points[2];
+//	//	m_u3[0] = points[3];
+//	//	break;
+//	//case BoundaryDirection::Right:
+//	//	m_u0[3] = points[0];
+//	//	m_u1[3] = points[1];
+//	//	m_u2[3] = points[2];
+//	//	m_u3[3] = points[3];
+//	//	break;
+//	//}
+//}
 
-void BezierPatch::SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points)
-{
-	assert(points.size() == 4);
-
-	for (int i = 0; i < 4; i++)
-	{
-		points[i].lock()->m_object->RefUse();
-	}
-
-	switch (row) {
-	case RowPlace::First:
-		m_u0[0] = points[0];
-		m_u0[1] = points[1];
-		m_u0[2] = points[2];
-		m_u0[3] = points[3];
-		break;
-	case RowPlace::Second:
-		m_u1[0] = points[0];
-		m_u1[1] = points[1];
-		m_u1[2] = points[2];
-		m_u1[3] = points[3];
-		break;
-	case RowPlace::Third:
-		m_u2[0] = points[0];
-		m_u2[1] = points[1];
-		m_u2[2] = points[2];
-		m_u2[3] = points[3];
-		break;
-	case RowPlace::Fourth:
-		m_u3[0] = points[0];
-		m_u3[1] = points[1];
-		m_u3[2] = points[2];
-		m_u3[3] = points[3];
-		break;
-	}
-}
-
-
+//void BezierPatch::SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points)
+//{
+//	assert(points.size() == 4);
+//
+//	for (int i = 0; i < 4; i++)
+//	{
+//		points[i].lock()->m_object->RefUse();
+//	}
+//
+//	auto& references = GetReferences().GetAllRef();
+//	switch (row) {
+//	case RowPlace::First:
+//		references[0] = points[0];
+//		references[1] = points[1];
+//		references[2] = points[2];
+//		references[3] = points[3];
+//		break;
+//	case RowPlace::Second:
+//		references[4] = points[0];
+//		references[5] = points[1];
+//		references[6] = points[2];
+//		references[7] = points[3];
+//		break;
+//	case RowPlace::Third:
+//		references[8] = points[0];
+//		references[9] = points[1];
+//		references[10] = points[2];
+//		references[11] = points[3];
+//		break;
+//	case RowPlace::Fourth:
+//		references[12] = points[0];
+//		references[13] = points[1];
+//		references[14] = points[2];
+//		references[15] = points[3];
+//		break;
+//	}
+//}
 
 std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direction)
 {
 	std::vector<std::weak_ptr<Node>> points;
+	auto refs = GetReferences().GetAllRef();
 	switch (direction) {
 	case BoundaryDirection::Top:
-		points.push_back(m_u0[0]);
-		points.push_back(m_u0[1]);
-		points.push_back(m_u0[2]);
-		points.push_back(m_u0[3]);
+		points.push_back(refs[0].m_refered);
+		points.push_back(refs[1].m_refered);
+		points.push_back(refs[2].m_refered);
+		points.push_back(refs[3].m_refered);
 		break;
 	case BoundaryDirection::Bottom:
-		points.push_back(m_u3[0]);
-		points.push_back(m_u3[1]);
-		points.push_back(m_u3[2]);
-		points.push_back(m_u3[3]);
+		points.push_back(refs[12].m_refered);
+		points.push_back(refs[13].m_refered);
+		points.push_back(refs[14].m_refered);
+		points.push_back(refs[15].m_refered);
 		break;
 	case BoundaryDirection::Left:
-		points.push_back(m_u0[0]);
-		points.push_back(m_u1[0]);
-		points.push_back(m_u2[0]);
-		points.push_back(m_u3[0]);
+		points.push_back(refs[0].m_refered);
+		points.push_back(refs[4].m_refered);
+		points.push_back(refs[8].m_refered);
+		points.push_back(refs[12].m_refered);
 		break;
 	case BoundaryDirection::Right:
-		points.push_back(m_u0[3]);
-		points.push_back(m_u1[3]);
-		points.push_back(m_u2[3]);
-		points.push_back(m_u3[3]);
+		points.push_back(refs[3].m_refered);
+		points.push_back(refs[7].m_refered);
+		points.push_back(refs[11].m_refered);
+		points.push_back(refs[15].m_refered);
 		break;
 	}
 
@@ -408,30 +359,31 @@ std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direct
 std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(RowPlace row)
 {
 	std::vector<std::weak_ptr<Node>> points;
+	auto refs = GetReferences().GetAllRef();
 	switch (row) {
 	case RowPlace::First:
-		points.push_back(m_u0[0]);
-		points.push_back(m_u0[1]);
-		points.push_back(m_u0[2]);
-		points.push_back(m_u0[3]);
+		points.push_back(refs[0].m_refered);
+		points.push_back(refs[1].m_refered);
+		points.push_back(refs[2].m_refered);
+		points.push_back(refs[3].m_refered);
 		break;
 	case RowPlace::Second:
-		points.push_back(m_u1[0]);
-		points.push_back(m_u1[1]);
-		points.push_back(m_u1[2]);
-		points.push_back(m_u1[3]);
+		points.push_back(refs[4].m_refered);
+		points.push_back(refs[5].m_refered);
+		points.push_back(refs[6].m_refered);
+		points.push_back(refs[7].m_refered);		
 		break;
 	case RowPlace::Third:
-		points.push_back(m_u2[0]);
-		points.push_back(m_u2[1]);
-		points.push_back(m_u2[2]);
-		points.push_back(m_u2[3]);
+		points.push_back(refs[8].m_refered);
+		points.push_back(refs[9].m_refered);
+		points.push_back(refs[10].m_refered);
+		points.push_back(refs[11].m_refered);
 		break;
 	case RowPlace::Fourth:
-		points.push_back(m_u3[0]);
-		points.push_back(m_u3[1]);
-		points.push_back(m_u3[2]);
-		points.push_back(m_u3[3]);
+		points.push_back(refs[12].m_refered);
+		points.push_back(refs[13].m_refered);
+		points.push_back(refs[14].m_refered);
+		points.push_back(refs[15].m_refered);
 		break;
 	}
 
@@ -459,12 +411,13 @@ float GetCoord(std::weak_ptr<Node> point, Coord coord)
 
 XMMATRIX BezierPatch::GetCoordinates(Coord coord)
 {
-	auto ints = GetCoord(m_u0[0], coord);
+
+	auto refs = GetReferences().GetAllRef();
 	XMFLOAT4X4 mat{
-		GetCoord(m_u0[0], coord), GetCoord(m_u0[1], coord), GetCoord(m_u0[2], coord), GetCoord(m_u0[3], coord),
-		GetCoord(m_u1[0], coord), GetCoord(m_u1[1], coord), GetCoord(m_u1[2], coord), GetCoord(m_u1[3], coord),
-		GetCoord(m_u2[0], coord), GetCoord(m_u2[1], coord), GetCoord(m_u2[2], coord), GetCoord(m_u2[3], coord),
-		GetCoord(m_u3[0], coord), GetCoord(m_u3[1], coord), GetCoord(m_u3[2], coord), GetCoord(m_u3[3], coord)
+		GetCoord(refs[0].m_refered, coord), GetCoord(refs[1].m_refered, coord), GetCoord(refs[2].m_refered, coord), GetCoord(refs[3].m_refered, coord),
+		GetCoord(refs[4].m_refered, coord), GetCoord(refs[5].m_refered, coord), GetCoord(refs[6].m_refered, coord), GetCoord(refs[7].m_refered, coord),
+		GetCoord(refs[8].m_refered, coord), GetCoord(refs[9].m_refered, coord), GetCoord(refs[10].m_refered, coord), GetCoord(refs[11].m_refered, coord),
+		GetCoord(refs[12].m_refered, coord), GetCoord(refs[13].m_refered, coord), GetCoord(refs[14].m_refered, coord), GetCoord(refs[15].m_refered, coord)
 	};
 	
 	return XMLoadFloat4x4(&mat);

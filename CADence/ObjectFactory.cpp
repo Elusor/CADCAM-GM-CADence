@@ -592,7 +592,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 		u3.push_back(bot[i]);
 	}
 
-	BezierPatch* patch = new BezierPatch(u0, u1, u2, u3);
+	BezierPatch* patch = new BezierPatch();
 	std::string name = "Bezier Patch";
 	if (m_bezierPatchCounter > 0)
 	{
@@ -604,6 +604,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(patch);
 	node->m_object = move(object);
+	patch->m_nodePtr = node;
+	patch->Initialize(u0, u1, u2, u3);
 	m_bezierPatchCounter++;
 	return node;
 }
@@ -636,7 +638,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatchC2(
 		u3.push_back(bot[i]);
 	}
 
-	BezierPatchC2* patch = new BezierPatchC2(u0, u1, u2, u3);
+	BezierPatchC2* patch = new BezierPatchC2();
 	std::string name = "Bezier Patch";
 	if (m_bezierPatchCounter > 0)
 	{
@@ -648,6 +650,8 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatchC2(
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(patch);
 	node->m_object = move(object);
+	patch->m_nodePtr = node;
+	patch->Initialize(u0, u1, u2, u3);
 	m_bezierPatchCounter++;
 	return node;
 }

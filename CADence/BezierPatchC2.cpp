@@ -1,29 +1,10 @@
 #include "BezierPatchC2.h"
 
-BezierPatchC2::BezierPatchC2()
+BezierPatchC2::BezierPatchC2():BezierPatch()
 {
 }
 
 BezierPatchC2::~BezierPatchC2()
-{
-}
-
-BezierPatchC2::BezierPatchC2(
-	std::vector<std::weak_ptr<Node>> top,
-	std::vector<std::weak_ptr<Node>> bottom,
-	std::vector<std::weak_ptr<Node>> left,
-	std::vector<std::weak_ptr<Node>> right,
-	std::vector<std::weak_ptr<Node>> inner): 
-	BezierPatch(top,bottom,left,right,inner)
-{
-}
-
-BezierPatchC2::BezierPatchC2(
-	std::vector<std::weak_ptr<Node>> first,
-	std::vector<std::weak_ptr<Node>> second,
-	std::vector<std::weak_ptr<Node>> third,
-	std::vector<std::weak_ptr<Node>> fourth):
-	BezierPatch(first,second, third, fourth)
 {
 }
 
