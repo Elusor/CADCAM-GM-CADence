@@ -17,6 +17,11 @@ Scene::Scene()
 	m_middleMarker = std::unique_ptr<Object>(middleMarker);
 }
 
+Scene::~Scene()
+{
+	ClearScene();
+}
+
 void Scene::AttachObject(std::shared_ptr<Node> node)
 {
 	m_nodes.push_back(std::shared_ptr<Node>(node));

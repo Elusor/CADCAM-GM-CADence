@@ -20,7 +20,7 @@ private:
 	std::vector<std::shared_ptr<Node>> m_loadedObjects;
 
 	void ProcessElement(tinyxml2::XMLElement* element);
-
+	void LoadAllPoints(tinyxml2::XMLElement* element);
 	std::string GetName(tinyxml2::XMLElement* element);
 	Transform GetTransform(tinyxml2::XMLElement* element);
 	DirectX::XMFLOAT3 GetFloat3Attribute(tinyxml2::XMLElement* element, std::string attributeName);

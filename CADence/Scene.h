@@ -15,6 +15,7 @@ public:
 	std::vector<std::shared_ptr<Node>> m_nodes;
 
 	Scene();	
+	~Scene();
 
 	void AttachObject(std::shared_ptr<Node> obj);
 	void RemoveObject(std::unique_ptr<Object>& object);

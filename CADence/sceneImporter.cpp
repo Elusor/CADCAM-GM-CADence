@@ -38,6 +38,7 @@ bool SceneImporter::Import(std::wstring wpath)
 			m_loadedObjects.clear();
 		}
 
+		LoadAllPoints(scene);
 		tinyxml2::XMLElement* element = scene->FirstChildElement();
 	
 		while (element != nullptr)
@@ -68,11 +69,11 @@ void SceneImporter::ProcessElement(tinyxml2::XMLElement* element)
 
 	auto name = std::string(element->Name());
 	
-	if (name == "Point")
+	/*if (name == "Point")
 	{
 		LoadPoint(element);
 	}
-	else if (name == "Torus")
+	else*/ if (name == "Torus")
 	{
 		LoadTorus(element);
 	}
@@ -96,6 +97,18 @@ void SceneImporter::ProcessElement(tinyxml2::XMLElement* element)
 	{
 		LoadBezierC2Surface(element);
 	}
+}
+
+void SceneImporter::LoadAllPoints(tinyxml2::XMLElement* scene)
+{
+	tinyxml2::XMLElement* element = scene->FirstChildElement("Point");
+	
+	while (element != nullptr)
+	{
+		LoadPoint(element);
+		element = element->NextSiblingElement("Point");
+	}
+
 }
 
 bool SceneImporter::InvalidateFile(std::wstring path)
