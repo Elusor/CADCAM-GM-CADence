@@ -47,6 +47,23 @@ void PointCollapser::Collapse(std::weak_ptr<Node> p1, std::weak_ptr<Node> p2)
 		parentObject->SetModified(true);
 	}
 
+	auto& points = p3->m_object->GetReferences().GetAllRefParents();
+	for (auto it = points.begin(); it != points.end(); it++)
+	{
+		auto entry = *it;
+		for (auto innerIt = it + 1; innerIt != points.end();)
+		{
+			auto candidate = *innerIt;
+			if(candidate.m_refered.lock() == entry.m_refered.lock())
+			{ 
+				innerIt = points.erase(innerIt);
+			}
+			else {
+				innerIt++;
+			}
+		}
+	}
+
 	// Update scene hierarchy
 
 	// REMOVE p1 and p2 FROM SCENE
