@@ -78,6 +78,19 @@ void ObjectReferences::UnlinkParentRef(ObjectRef reference)
 	}
 }
 
+void ObjectReferences::UnlinkAll()
+{
+	while (m_children.size() > 0)
+	{
+		UnlinkRef(m_children[m_children.size() - 1].m_refered);
+	}
+
+	while (m_parents.size() > 0)
+	{
+		UnlinkParentRef(m_parents[m_parents.size() - 1].m_refered);
+	}
+}
+
 void ObjectReferences::AddRef(ObjectRef reference)
 {
 	assert(!reference.expired());

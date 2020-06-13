@@ -27,6 +27,7 @@ public:
 	void LinkParentRef(ObjectRef reference);
 	void UnlinkRef(ObjectRef reference);
 	void UnlinkParentRef(ObjectRef reference);
+	void UnlinkAll();
 
 	void AddRef(ObjectRef reference);
 	void AddParentRef(ObjectRef reference);
