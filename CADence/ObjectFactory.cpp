@@ -615,13 +615,13 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierPatch(Scene* scene, float width
 	}
 
 	patch->m_name = patch->m_defaultName = name;
-
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(patch);
 	node->m_object = move(object);
 	patch->m_nodePtr = node;
 	patch->Initialize(top, topMid, botMid, bot);
 	m_bezierPatchCounter++;
+	node->SetIsInactive(true);
 	return node;
 }
 
