@@ -1,56 +1,44 @@
-// Input control point
-struct VS_CONTROL_POINT_OUTPUT
-{
-	float3 vPosition : WORLDPOS;
-	// TODO: change/add other stuff
-};
+#include "ShaderStructs.hlsli"
+#include "tesselStructs.hlsli"
+#define NUM_CONTROL_POINTS 20
 
-// Output control point
-struct HS_CONTROL_POINT_OUTPUT
+cbuffer TessellationBuffer : register(b0)
 {
-	float3 vPosition : WORLDPOS; 
+    float uDivisions;
+    float vDivisions;
 };
-
-// Output patch constant data.
-struct HS_CONSTANT_DATA_OUTPUT
-{
-	float EdgeTessFactor[3]			: SV_TessFactor; // e.g. would be [4] for a quad domain
-	float InsideTessFactor			: SV_InsideTessFactor; // e.g. would be Inside[2] for a quad domain
-	// TODO: change/add other stuff
-};
-
-#define NUM_CONTROL_POINTS 3
 
 // Patch Constant Function
-HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
-	InputPatch<VS_CONTROL_POINT_OUTPUT, NUM_CONTROL_POINTS> ip,
+HSOutConst CalcHSPatchConstants(
+	InputPatch<VSOut, NUM_CONTROL_POINTS> patch,
 	uint PatchID : SV_PrimitiveID)
 {
-	HS_CONSTANT_DATA_OUTPUT Output;
+    HSOutConst Output;
 
 	// Insert code to compute Output here
-	Output.EdgeTessFactor[0] = 
-		Output.EdgeTessFactor[1] = 
-		Output.EdgeTessFactor[2] = 
-		Output.InsideTessFactor = 15; // e.g. could calculate dynamic tessellation factors instead
+    Output.EdgeTessFactor[0] = uDivisions;
+    Output.EdgeTessFactor[1] = 64; //uDivisions;
+	//Output.EdgeTessFactor[1] = Output.EdgeTessFactor[3] = 1;//vDivisions;
+	//Output.InsideTessFactor[0] = Output.InsideTessFactor[1] = 16;
 
-	return Output;
+    return Output;
 }
 
-[domain("tri")]
-[partitioning("fractional_odd")]
-[outputtopology("triangle_cw")]
-[outputcontrolpoints(3)]
+[domain("isoline")]
+[partitioning("integer")]
+[outputtopology("line")]
+[outputcontrolpoints(20)]
 [patchconstantfunc("CalcHSPatchConstants")]
-HS_CONTROL_POINT_OUTPUT main( 
-	InputPatch<VS_CONTROL_POINT_OUTPUT, NUM_CONTROL_POINTS> ip, 
+[maxtessfactor(64.0f)]
+HSOutCP main(
+	InputPatch<VSOut, NUM_CONTROL_POINTS> patch,
 	uint i : SV_OutputControlPointID,
-	uint PatchID : SV_PrimitiveID )
+	uint PatchID : SV_PrimitiveID)
 {
-	HS_CONTROL_POINT_OUTPUT Output;
+    HSOutCP Output;
+    Output.pos = patch[i].pos;
+    Output.posL = patch[i].posL;
+    Output.color = patch[i].col;
 
-	// Insert code to compute Output here
-	Output.vPosition = ip[i].vPosition;
-
-	return Output;
+    return Output;
 }
