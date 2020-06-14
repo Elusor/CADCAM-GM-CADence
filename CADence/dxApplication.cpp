@@ -235,10 +235,8 @@ void DxApplication::InitImguiWindows()
 						auto pts1 = p1.lock()->m_object->GetReferences().GetRefObjects();
 						auto pts2 = p2.lock()->m_object->GetReferences().GetRefObjects();
 						auto pts3 = p3.lock()->m_object->GetReferences().GetRefObjects();
-						m_scene->m_objectFactory->CreateGregoryPatch(hole
-							//p1, p2, p3, BoundaryDirection::Bottom, BoundaryDirection::Bottom, BoundaryDirection::Bottom
-						);
-						//m_pointCollapser->Collapse(p1, p2);
+						auto patch = m_scene->m_objectFactory->CreateGregoryPatch(hole);
+						m_scene->AttachObject(patch);
 					}
 				}
 				

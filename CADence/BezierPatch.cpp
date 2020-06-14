@@ -253,75 +253,6 @@ void BezierPatch::SetPatchColor(DirectX::XMFLOAT3 col)
 	SetModified(true);
 }
 
-//void BezierPatch::SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points)
-//{
-//	//assert(points.size() == 4);
-//	//switch (direction) {
-//	//case BoundaryDirection::Top:	
-//	//	m_u0[0] = points[0];
-//	//	m_u0[1] = points[1];
-//	//	m_u0[2] = points[2];
-//	//	m_u0[3] = points[3];
-//	//	break;
-//	//case BoundaryDirection::Bottom:
-//	//	m_u3[0] = points[0];
-//	//	m_u3[1] = points[1];
-//	//	m_u3[2] = points[2];
-//	//	m_u3[3] = points[3];
-//	//	break;
-//	//case BoundaryDirection::Left:
-//	//	m_u0[0] = points[0];
-//	//	m_u1[0] = points[1];
-//	//	m_u2[0] = points[2];
-//	//	m_u3[0] = points[3];
-//	//	break;
-//	//case BoundaryDirection::Right:
-//	//	m_u0[3] = points[0];
-//	//	m_u1[3] = points[1];
-//	//	m_u2[3] = points[2];
-//	//	m_u3[3] = points[3];
-//	//	break;
-//	//}
-//}
-
-//void BezierPatch::SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points)
-//{
-//	assert(points.size() == 4);
-//
-//	for (int i = 0; i < 4; i++)
-//	{
-//		points[i].lock()->m_object->RefUse();
-//	}
-//
-//	auto& references = GetReferences().GetAllRef();
-//	switch (row) {
-//	case RowPlace::First:
-//		references[0] = points[0];
-//		references[1] = points[1];
-//		references[2] = points[2];
-//		references[3] = points[3];
-//		break;
-//	case RowPlace::Second:
-//		references[4] = points[0];
-//		references[5] = points[1];
-//		references[6] = points[2];
-//		references[7] = points[3];
-//		break;
-//	case RowPlace::Third:
-//		references[8] = points[0];
-//		references[9] = points[1];
-//		references[10] = points[2];
-//		references[11] = points[3];
-//		break;
-//	case RowPlace::Fourth:
-//		references[12] = points[0];
-//		references[13] = points[1];
-//		references[14] = points[2];
-//		references[15] = points[3];
-//		break;
-//	}
-//}
-
 std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direction)
 {
 	std::vector<std::weak_ptr<Node>> points;
@@ -350,6 +281,40 @@ std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direct
 		points.push_back(refs[7].m_refered);
 		points.push_back(refs[11].m_refered);
 		points.push_back(refs[15].m_refered);
+		break;
+	}
+
+	return points;
+}
+
+std::vector<std::weak_ptr<Node>> BezierPatch::GetPreBoundaryPoints(BoundaryDirection direction)
+{
+	std::vector<std::weak_ptr<Node>> points;
+	auto refs = GetReferences().GetAllRef();
+	switch (direction) {
+	case BoundaryDirection::Top:
+		points.push_back(refs[4].m_refered);
+		points.push_back(refs[5].m_refered);
+		points.push_back(refs[6].m_refered);
+		points.push_back(refs[7].m_refered);
+		break;
+	case BoundaryDirection::Bottom:
+		points.push_back(refs[8].m_refered);
+		points.push_back(refs[9].m_refered);
+		points.push_back(refs[10].m_refered);
+		points.push_back(refs[1].m_refered);
+		break;
+	case BoundaryDirection::Left:
+		points.push_back(refs[1].m_refered);
+		points.push_back(refs[5].m_refered);
+		points.push_back(refs[9].m_refered);
+		points.push_back(refs[13].m_refered);
+		break;
+	case BoundaryDirection::Right:
+		points.push_back(refs[2].m_refered);
+		points.push_back(refs[6].m_refered);
+		points.push_back(refs[10].m_refered);
+		points.push_back(refs[14].m_refered);
 		break;
 	}
 

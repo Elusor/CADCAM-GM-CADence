@@ -5,6 +5,7 @@
 #include "ParametrizedObject2D.h"
 //Concrete
 #include "BezierPatch.h"
+#include "GregoryPatch.h"
 //#include "BezierPatchC2.h"
 #include "BezierSurfaceC0.h"
 #include "BezierSurfaceC2.h"

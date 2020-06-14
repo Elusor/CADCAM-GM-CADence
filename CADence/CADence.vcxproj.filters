@@ -130,6 +130,9 @@
     <Filter Include="Header Files\Exceptions\ArgumentExceptions">
       <UniqueIdentifier>{d9858829-1cc4-472f-b39f-1c26c86ccf49}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\GregoryPatch">
+      <UniqueIdentifier>{a7239ed0-2c7f-4e3e-9328-fe109fd65374}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -336,6 +339,12 @@
     <ClInclude Include="GeometryUtils.h">
       <Filter>Header Files\CadSpecific</Filter>
     </ClInclude>
+    <ClInclude Include="GregoryPatch.h">
+      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="ArgumentException.h">
+      <Filter>Header Files\Exceptions\ArgumentExceptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -509,6 +518,9 @@
     <ClCompile Include="GeometryUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GregoryPatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ps.hlsl">
@@ -543,6 +555,12 @@
     </FxCompile>
     <FxCompile Include="patchC2DS.hlsl">
       <Filter>Shaders\BezierPatch</Filter>
+    </FxCompile>
+    <FxCompile Include="patchGregDS.hlsl">
+      <Filter>Shaders\GregoryPatch</Filter>
+    </FxCompile>
+    <FxCompile Include="patchGregHS.hlsl">
+      <Filter>Shaders\GregoryPatch</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

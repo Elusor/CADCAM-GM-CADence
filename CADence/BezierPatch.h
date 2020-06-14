@@ -47,6 +47,7 @@ public:
 	void SetPatchColor(DirectX::XMFLOAT3 col);
 
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
+	std::vector<std::weak_ptr<Node>> GetPreBoundaryPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);	
 protected:
 

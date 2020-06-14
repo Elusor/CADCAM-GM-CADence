@@ -51,11 +51,12 @@ void GregoryPatch::Initialize(
 	{
 		GetReferences().LinkRef(edgePrev3[i]);
 	}
+	SetModified(true);
 }
 
 void GregoryPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	RenderPatch(renderState);
+	//RenderPatch(renderState);
 }
 
 bool GregoryPatch::CreateParamsGui()
@@ -159,7 +160,7 @@ void GregoryPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
 	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);
 
-	D3D11_RASTERIZER_DESC esc;
+	D3D11_RASTERIZER_DESC desc;
 	desc.FillMode = D3D11_FILL_WIREFRAME;
 	desc.CullMode = D3D11_CULL_NONE;
 	desc.AntialiasedLineEnable = 0;
@@ -217,9 +218,6 @@ void GregoryPatch::CalculateGergoryPositions()
 	auto corner12 = GetPatchDefiningPointsAtCorner(edge1, edge2, edgePrev1, edgePrev2);
 	auto corner23 = GetPatchDefiningPointsAtCorner(edge3, edge2, edgePrev3, edgePrev2);
 	auto corner13 = GetPatchDefiningPointsAtCorner(edge1, edge3, edgePrev1, edgePrev3);
-
-
-
 }
 
 void GregoryPatch::FillReferences(std::vector<std::weak_ptr<Node>>& edge1, std::vector<std::weak_ptr<Node>>& edgePrev1, std::vector<std::weak_ptr<Node>>& edge2, std::vector<std::weak_ptr<Node>>& edgePrev2, std::vector<std::weak_ptr<Node>>& edge3, std::vector<std::weak_ptr<Node>>& edgePrev3)
@@ -236,10 +234,10 @@ void GregoryPatch::FillReferences(std::vector<std::weak_ptr<Node>>& edge1, std::
 		edgePrev1.push_back(refs[i+4].m_refered);
 
 		edge2.push_back(refs[i+8].m_refered);
-		edgePrev1.push_back(refs[i+12].m_refered);
+		edgePrev2.push_back(refs[i+12].m_refered);
 
 		edge3.push_back(refs[i+16].m_refered);
-		edgePrev1.push_back(refs[i+20].m_refered);
+		edgePrev3.push_back(refs[i+20].m_refered);
 	}	
 }
 

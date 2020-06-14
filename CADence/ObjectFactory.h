@@ -76,4 +76,5 @@ private:
 	int m_bezierCurveCounter = 0;
 	int m_torusCounter = 0;
 	int m_pointCounter = 0;
+	int m_gregPatchCounter = 0;
 };
