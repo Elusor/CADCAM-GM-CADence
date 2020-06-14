@@ -31,9 +31,10 @@ public:
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
 	mini::dx_ptr<ID3D11HullShader> m_patchHullShader;
+	mini::dx_ptr<ID3D11HullShader> m_patchGregHullShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchDomainShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchC2DomainShader;
-
+	mini::dx_ptr<ID3D11DomainShader> m_patchGregDomainShader;
 	mini::dx_ptr<ID3D11InputLayout> m_layout;		
 
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;

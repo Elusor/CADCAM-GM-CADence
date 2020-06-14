@@ -18,6 +18,9 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
 	const auto patchC2DsBytes = DxDevice::LoadByteCode(L"patchC2DS.cso");
 	const auto patchDsBytes = DxDevice::LoadByteCode(L"patchDS.cso");
+	const auto patchGregDsBytes = DxDevice::LoadByteCode(L"patchGregDS.cso");
+	const auto patchGregHsBytes = DxDevice::LoadByteCode(L"patchGregHS.cso");
+
 
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
@@ -28,7 +31,10 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 
 	m_patchC2DomainShader = m_device.CreateDomainShader(patchC2DsBytes);
 	m_patchDomainShader = m_device.CreateDomainShader(patchDsBytes);
+	m_patchGregDomainShader = m_device.CreateDomainShader(patchGregDsBytes);
+
 	m_patchHullShader = m_device.CreateHullShader(patchHsBytes);
+	m_patchGregHullShader = m_device.CreateHullShader(patchGregHsBytes);
 
 	auto elements = VertexPositionColor::GetInputLayoutElements();
 	m_layout = m_device.CreateInputLayout(elements, vsBytes);
