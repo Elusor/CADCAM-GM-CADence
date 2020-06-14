@@ -4,6 +4,7 @@
 #include "exceptions.h"
 #include "ArgumentExceptions.h"
 #include "GeometryUtils.h"
+#include "mathUtils.h"
 GregoryPatch::GregoryPatch()
 {
 }
@@ -218,6 +219,79 @@ void GregoryPatch::CalculateGergoryPositions()
 	auto corner12 = GetPatchDefiningPointsAtCorner(edge1, edge2, edgePrev1, edgePrev2);
 	auto corner23 = GetPatchDefiningPointsAtCorner(edge3, edge2, edgePrev3, edgePrev2);
 	auto corner13 = GetPatchDefiningPointsAtCorner(edge1, edge3, edgePrev1, edgePrev3);
+
+	std::vector<DirectX::XMFLOAT3> innerLeft12, innerRight12;
+	std::vector<DirectX::XMFLOAT3> innerLeft23, innerRight23;
+	std::vector<DirectX::XMFLOAT3> innerLeft13, innerRight13;
+
+	CalculateInnerPoints(corner12, innerLeft12, innerRight12);
+	CalculateInnerPoints(corner23, innerLeft23, innerRight23);
+	CalculateInnerPoints(corner13, innerLeft13, innerRight13);
+
+	XMFLOAT3 Q1, Q2, Q3;
+	// calculate Qs
+	// Determine how to check which corner is which (figure out how to acces the points which are made from the respective curve
+
+	XMFLOAT3 top = (Q1 + Q2 + Q3) * (1.f / 3.f);
+	XMFLOAT3 P1, P2, P3;
+	P1 = (2.f * Q1 + top) * (1.f / 3.f);
+	P2 = (2.f * Q2 + top) * (1.f / 3.f);
+	P3 = (2.f * Q3 + top) * (1.f / 3.f);
+
+	// calculate the last two inner points
+	// this vectors are directed like so 
+	// P0 -------------- ^ --------------- Top ( the arrow in the middle)
+	DirectX::XMFLOAT3 curve1LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),2.f / 3.f);	
+	DirectX::XMFLOAT3 curve2LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),2.f / 3.f);
+	DirectX::XMFLOAT3 curve3LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),2.f / 3.f);
+
+	//Get point in the 2/3rds of the curve to the top and this point +/- vector gives the two points taht should be calculated
+
+	DirectX::XMFLOAT3 twoThirds1 = DirectX::XMFLOAT3(); //Calculate
+	DirectX::XMFLOAT3 twoThirds2 = DirectX::XMFLOAT3(); //Calculate
+	DirectX::XMFLOAT3 twoThirds3 = DirectX::XMFLOAT3(); //Calculate
+
+	// check the orientation of the curves
+	DirectX::XMFLOAT3 patch12LastLeftInner, patch12LastRightInner;
+	DirectX::XMFLOAT3 patch23LastLeftInner, patch23LastRightInner;
+	DirectX::XMFLOAT3 patch13LastLeftInner, patch13LastRightInner;
+
+	// For example if patch 12 has 1 as the left the last inner left will be twoThirds1 + curve1LeftInnerVec 
+	// if the 1 is on the right it will be twoThirds1 - curve1LeftInnerVec
+
+	// Fill draw data for each patch
+	FillPatchDrawData(); // call for patch1
+	FillPatchDrawData(); // call for patch2
+	FillPatchDrawData(); // call for patch3
+}
+
+void GregoryPatch::FillPatchDrawData(
+	std::vector<DirectX::XMFLOAT3> left, 
+	std::vector<DirectX::XMFLOAT3> right, 
+	std::vector<DirectX::XMFLOAT3> innerLeft, 
+	std::vector<DirectX::XMFLOAT3> innerRight, 
+	DirectX::XMFLOAT3 outerLastLeft, DirectX::XMFLOAT3 outerLastRight, 
+	DirectX::XMFLOAT3 innerLastLeft, DirectX::XMFLOAT3 innerLastRight, 
+	DirectX::XMFLOAT3 top)
+{
+	
+}
+
+DirectX::XMFLOAT3 GregoryPatch::CalculateVectorFromVectorField(DirectX::XMFLOAT3 a0, DirectX::XMFLOAT3 b0, DirectX::XMFLOAT3 a3, DirectX::XMFLOAT3 b3, float t)
+{
+	DirectX::XMFLOAT3 vector;
+	DirectX::XMFLOAT3 g0, g1, g2;
+	g0 = (a0 + b0) * 0.5f;
+	g2 = (a3 + b3) * 0.5f;
+	g1 = (g0 + g2) * 0.5f;
+	float u = 1.f - t;
+
+	DirectX::XMFLOAT3 g0p, g1p;
+
+	g0p = u * g0 + t * g1;
+	g1p = u * g1 + t * g2;
+	vector = u * g0p + t * g1p;
+	return vector;
 }
 
 void GregoryPatch::FillReferences(std::vector<std::weak_ptr<Node>>& edge1, std::vector<std::weak_ptr<Node>>& edgePrev1, std::vector<std::weak_ptr<Node>>& edge2, std::vector<std::weak_ptr<Node>>& edgePrev2, std::vector<std::weak_ptr<Node>>& edge3, std::vector<std::weak_ptr<Node>>& edgePrev3)
@@ -239,6 +313,21 @@ void GregoryPatch::FillReferences(std::vector<std::weak_ptr<Node>>& edge1, std::
 		edge3.push_back(refs[i+16].m_refered);
 		edgePrev3.push_back(refs[i+20].m_refered);
 	}	
+}
+
+void GregoryPatch::CalculateInnerPoints(PatchIntersectionDescription& corner,
+	std::vector<DirectX::XMFLOAT3>& innerLeft,
+	std::vector<DirectX::XMFLOAT3>& innerRight)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		auto posL = (2.f * corner.leftRes[i] + (-1.f) * corner.leftPrevRes[i]);
+		innerLeft.push_back(posL);
+
+		auto posR = (2.f * corner.rightRes[i] + (-1.f) * corner.rightPrevRes[i]);
+		innerRight.push_back(posR);
+	}
+
 }
 
 PatchIntersectionDescription GregoryPatch::GetPatchDefiningPointsAtCorner(

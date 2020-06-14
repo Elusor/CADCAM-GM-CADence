@@ -56,6 +56,27 @@ protected:
 
 private:
 	void CalculateGergoryPositions();
+
+
+	void FillPatchDrawData(
+		std::vector<DirectX::XMFLOAT3> left,
+		std::vector<DirectX::XMFLOAT3> right,
+		std::vector<DirectX::XMFLOAT3> innerLeft,
+		std::vector<DirectX::XMFLOAT3> innerRight,
+		DirectX::XMFLOAT3 outerLastLeft,
+		DirectX::XMFLOAT3 outerLastRight,
+		DirectX::XMFLOAT3 innerLastLeft,
+		DirectX::XMFLOAT3 innerLastRight,
+		DirectX::XMFLOAT3 top);
+
+	DirectX::XMFLOAT3 CalculateVectorFromVectorField(
+		DirectX::XMFLOAT3 a0, DirectX::XMFLOAT3 b0, 
+		DirectX::XMFLOAT3 a3, DirectX::XMFLOAT3 b3, float t);
+
+	void CalculateInnerPoints(PatchIntersectionDescription& corner,
+		std::vector<DirectX::XMFLOAT3>& innerLeft,
+		std::vector<DirectX::XMFLOAT3>& innerRight);
+	
 	void FillReferences(
 		std::vector<std::weak_ptr<Node>>& edge1,
 		std::vector<std::weak_ptr<Node>>& edgePrev1,
