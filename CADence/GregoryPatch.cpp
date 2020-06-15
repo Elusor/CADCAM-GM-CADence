@@ -57,8 +57,12 @@ void GregoryPatch::Initialize(
 
 void GregoryPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	//RenderPatch(renderState);
-	RenderPolygon(renderState);
+	RenderPatch(renderState);
+	if (m_renderVectors)
+	{
+		RenderPolygon(renderState);
+
+	}
 }
 
 bool GregoryPatch::CreateParamsGui()
@@ -83,6 +87,9 @@ bool GregoryPatch::CreateParamsGui()
 		m_vSize = 2;
 	if (m_vSize > 64)
 		m_vSize = 64;
+
+
+	patchChanged |= ImGui::Checkbox("Display vectors", &m_renderVectors);
 
 	ImGui::End();
 	return patchChanged;
@@ -393,12 +400,12 @@ void GregoryPatch::CalculateGergoryPositions()
 	FindVectorFieldBase(edge2, edge3, P2, P3, P1, top, patch23LastLeftInnerVec, patch23LastRightInnerVec, corner23.edgesSwapped);
 	FindVectorFieldBase(edge1, edge3, P1, P3, P2, top, patch13LastLeftInnerVec, patch13LastRightInnerVec, corner13.edgesSwapped);
 
-	patch12LastLeftInner = leftTwoThirdsPatch12 + patch12LastLeftInnerVec;
-	patch23LastLeftInner = leftTwoThirdsPatch23 + patch23LastLeftInnerVec;
-	patch13LastLeftInner = leftTwoThirdsPatch13 + patch13LastLeftInnerVec;
-	patch12LastRightInner = rightTwoThirdsPatch12 + patch12LastRightInnerVec;
-	patch23LastRightInner = rightTwoThirdsPatch23 + patch23LastRightInnerVec;
-	patch13LastRightInner = rightTwoThirdsPatch13 + patch13LastRightInnerVec;
+	patch12LastLeftInner = patch12LastOuterLeft + patch12LastLeftInnerVec;
+	patch23LastLeftInner = patch23LastOuterLeft + patch23LastLeftInnerVec;
+	patch13LastLeftInner = patch13LastOuterLeft + patch13LastLeftInnerVec;
+	patch12LastRightInner = patch12LastOuterRight + patch12LastRightInnerVec;
+	patch23LastRightInner = patch23LastOuterRight + patch23LastRightInnerVec;
+	patch13LastRightInner = patch13LastOuterRight + patch13LastRightInnerVec;
 
 	// Fill draw data for each patch
 	FillPatchDrawData(

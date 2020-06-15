@@ -49,6 +49,7 @@ protected:
 	int m_vSize = 4;
 	MeshDescription m_UDesc, m_VDesc;
 	MeshDescription m_vectors;
+	bool m_renderVectors = false;
 
 	std::vector<DirectX::XMFLOAT3> m_patch1Positions;
 	std::vector<DirectX::XMFLOAT3> m_patch2Positions;
