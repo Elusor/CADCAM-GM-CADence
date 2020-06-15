@@ -58,6 +58,13 @@ protected:
 private:
 	void CalculateGergoryPositions();
 
+	XMFLOAT3 CalcBernstein(
+		DirectX::XMFLOAT3 b0,
+		DirectX::XMFLOAT3 b1,
+		DirectX::XMFLOAT3 b2,
+		DirectX::XMFLOAT3 b3,
+		float t);
+
 	void CalculateAuxiliaryPoints(
 		std::vector<DirectX::XMFLOAT3> left,
 		std::vector<DirectX::XMFLOAT3> right,

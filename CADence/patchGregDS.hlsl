@@ -53,6 +53,7 @@ float3 Q22(float3 uPt, float3 vPt, float2 uv)
 
 float3 GregPatchPoint(float3 gregPoints[20], float2 uv)
 {
+    
     float3 controlpoints[16];
     // Calculate the points that are in the middle of the Greg Patch 
     // They are functions of the two control points and uv params
