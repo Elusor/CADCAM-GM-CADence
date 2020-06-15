@@ -217,7 +217,7 @@ void GregoryPatch::CalculateGergoryPositions()
 	// fill these with object fron the ObjectReferences class
 	FillReferences(edge1, edgePrev1, edge2, edgePrev2, edge3, edgePrev3);
 	auto corner12 = GetPatchDefiningPointsAtCorner(edge1, edge2, edgePrev1, edgePrev2);
-	auto corner23 = GetPatchDefiningPointsAtCorner(edge3, edge2, edgePrev3, edgePrev2);
+	auto corner23 = GetPatchDefiningPointsAtCorner(edge2, edge3, edgePrev2, edgePrev3);
 	auto corner13 = GetPatchDefiningPointsAtCorner(edge1, edge3, edgePrev1, edgePrev3);
 
 	std::vector<DirectX::XMFLOAT3> innerLeft12, innerRight12;
@@ -228,15 +228,63 @@ void GregoryPatch::CalculateGergoryPositions()
 	CalculateInnerPoints(corner23, innerLeft23, innerRight23);
 	CalculateInnerPoints(corner13, innerLeft13, innerRight13);
 
+	DirectX::XMFLOAT3 patch12auxLeft, patch12auxRight;
+	DirectX::XMFLOAT3 patch23auxLeft, patch23auxRight;
+	DirectX::XMFLOAT3 patch13auxLeft, patch13auxRight;
+
+	// Calculate "Q" points withour the information about patch direction
+	CalculateAuxiliaryPoints(corner12.leftRes, corner12.rightRes, innerLeft12, innerRight12, patch12auxLeft, patch12auxRight);
+	CalculateAuxiliaryPoints(corner23.leftRes, corner23.rightRes, innerLeft23, innerRight23, patch23auxLeft, patch23auxRight);
+	CalculateAuxiliaryPoints(corner13.leftRes, corner13.rightRes, innerLeft13, innerRight13, patch13auxLeft, patch13auxRight);
+
 	XMFLOAT3 Q1, Q2, Q3;
 	// calculate Qs
 	// Determine how to check which corner is which (figure out how to acces the points which are made from the respective curve
+	if (corner12.edgesSwapped){ 
+		// edge 2 is the left edge
+		Q2 = patch12auxLeft;
+		Q1 = patch12auxRight;
+	} else {
+		// edge 1 is the left edge
+		Q1 = patch12auxLeft;
+		Q2 = patch12auxRight;
+	}
+
+	if (corner23.edgesSwapped){
+		// edge 3 is the left edge
+		Q3 = patch23auxLeft;
+		Q2 = patch23auxRight;
+	} else {
+		// edge 2 is the left edgeS
+		Q2 = patch23auxLeft;
+		Q3 = patch23auxRight;
+	}
+
+	if (corner13.edgesSwapped) {
+		// edge 3 is the left edge
+		Q3 = patch13auxLeft;
+		Q1 = patch13auxRight;
+	} else {
+		// edge 1 is the left edge
+		Q1 = patch13auxLeft;
+		Q3 = patch13auxRight;
+	}
 
 	XMFLOAT3 top = (Q1 + Q2 + Q3) * (1.f / 3.f);
 	XMFLOAT3 P1, P2, P3;
 	P1 = (2.f * Q1 + top) * (1.f / 3.f);
 	P2 = (2.f * Q2 + top) * (1.f / 3.f);
 	P3 = (2.f * Q3 + top) * (1.f / 3.f);
+
+	// Assign p1 p2 and p3 in the patches corresponding places including the info about edge swap
+	DirectX::XMFLOAT3 patch12LastOuterLeft, patch12LastOuterRight;
+	DirectX::XMFLOAT3 patch23LastOuterLeft, patch23LastOuterRight;
+	DirectX::XMFLOAT3 patch13LastOuterLeft, patch13LastOuterRight;
+
+	// calculate  P1 P2 and P3 and assign them to their corresponding patches without knowing the relative patch location
+	CalculateLastOuterPoint(patch12auxLeft, patch12auxRight, top, patch12LastOuterLeft, patch12LastOuterRight);
+	CalculateLastOuterPoint(patch23auxLeft, patch23auxRight, top, patch23LastOuterLeft, patch23LastOuterRight);
+	CalculateLastOuterPoint(patch13auxLeft, patch13auxRight, top, patch13LastOuterLeft, patch13LastOuterRight);
 
 	// calculate the last two inner points
 	// this vectors are directed like so 
@@ -246,7 +294,6 @@ void GregoryPatch::CalculateGergoryPositions()
 	DirectX::XMFLOAT3 curve3LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),XMFLOAT3(),2.f / 3.f);
 
 	//Get point in the 2/3rds of the curve to the top and this point +/- vector gives the two points taht should be calculated
-
 	DirectX::XMFLOAT3 twoThirds1 = DirectX::XMFLOAT3(); //Calculate
 	DirectX::XMFLOAT3 twoThirds2 = DirectX::XMFLOAT3(); //Calculate
 	DirectX::XMFLOAT3 twoThirds3 = DirectX::XMFLOAT3(); //Calculate
@@ -260,9 +307,43 @@ void GregoryPatch::CalculateGergoryPositions()
 	// if the 1 is on the right it will be twoThirds1 - curve1LeftInnerVec
 
 	// Fill draw data for each patch
-	FillPatchDrawData(); // call for patch1
-	FillPatchDrawData(); // call for patch2
-	FillPatchDrawData(); // call for patch3
+	FillPatchDrawData(
+		corner12.leftRes, corner12.rightRes, 
+		innerLeft12, innerRight12, 
+		patch12LastOuterLeft, patch12LastOuterRight,
+		patch12LastLeftInner, patch12LastRightInner, top,
+		m_patch1Positions); // call for patch12
+	FillPatchDrawData(
+		corner23.leftRes, corner23.rightRes, 
+		innerLeft23, innerRight23, 
+		patch23LastOuterLeft, patch23LastOuterRight,
+		patch23LastLeftInner, patch23LastRightInner, top,
+		m_patch2Positions); // call for patch23
+	FillPatchDrawData(
+		corner13.leftRes, corner13.rightRes, 
+		innerLeft13, innerRight13, 
+		patch13LastOuterLeft, patch13LastOuterRight,
+		patch13LastLeftInner, patch13LastRightInner, top,
+		m_patch3Positions); // call for patch13
+}
+
+void GregoryPatch::CalculateAuxiliaryPoints(
+	std::vector<DirectX::XMFLOAT3> left, 
+	std::vector<DirectX::XMFLOAT3> right, 
+	std::vector<DirectX::XMFLOAT3> innerLeft, 
+	std::vector<DirectX::XMFLOAT3> innerRight,
+	DirectX::XMFLOAT3& auxLeft, DirectX::XMFLOAT3& auxRight)
+{
+	auxLeft = (3 * innerLeft[0] + (-1.f) * left[0]) * 0.5f;
+	auxRight = (3 * innerRight[2] + (-1.f) * right[3]) * 0.5f;
+}
+
+void GregoryPatch::CalculateLastOuterPoint(
+	DirectX::XMFLOAT3 auxLeft, DirectX::XMFLOAT3 auxRight, DirectX::XMFLOAT3 top, 
+	DirectX::XMFLOAT3& lastOuterLeft, DirectX::XMFLOAT3& lastOuterRight)
+{
+	lastOuterLeft = (2 * auxLeft + top) * (1.f / 3.f);
+	lastOuterRight = (2 * auxRight + top) * (1.f / 3.f);
 }
 
 void GregoryPatch::FillPatchDrawData(
@@ -272,9 +353,35 @@ void GregoryPatch::FillPatchDrawData(
 	std::vector<DirectX::XMFLOAT3> innerRight, 
 	DirectX::XMFLOAT3 outerLastLeft, DirectX::XMFLOAT3 outerLastRight, 
 	DirectX::XMFLOAT3 innerLastLeft, DirectX::XMFLOAT3 innerLastRight, 
-	DirectX::XMFLOAT3 top)
+	DirectX::XMFLOAT3 top, std::vector<DirectX::XMFLOAT3>& filledPositions)
 {
-	
+	// first row - assumes that the patch corner is in the upper right corner
+	for (int i = 0; i < 4; i++)
+	{
+		filledPositions.push_back(left[i]);
+	}
+
+	// second row
+	filledPositions.push_back(innerLeft[0]);
+	filledPositions.push_back(innerLeft[1]);
+	filledPositions.push_back(innerLeft[1]); // double point 
+	filledPositions.push_back(innerLeft[2]);
+	filledPositions.push_back(innerRight[0]);
+	filledPositions.push_back(right[1]);
+
+	// third row
+	filledPositions.push_back(outerLastLeft);
+	filledPositions.push_back(innerLastLeft);
+	filledPositions.push_back(innerLastRight);
+	filledPositions.push_back(innerRight[1]);
+	filledPositions.push_back(innerRight[1]);
+	filledPositions.push_back(right[2]);
+
+	// fourth row
+	filledPositions.push_back(top);
+	filledPositions.push_back(outerLastRight);
+	filledPositions.push_back(innerRight[2]);
+	filledPositions.push_back(right[3]);
 }
 
 DirectX::XMFLOAT3 GregoryPatch::CalculateVectorFromVectorField(DirectX::XMFLOAT3 a0, DirectX::XMFLOAT3 b0, DirectX::XMFLOAT3 a3, DirectX::XMFLOAT3 b3, float t)
@@ -364,6 +471,7 @@ PatchIntersectionDescription GregoryPatch::GetPatchDefiningPointsAtCorner(
 	}
 	else if (adjacentEdge1[beg].lock() == adjacentEdge2[beg].lock())
 	{
+		res.edgesSwapped = true;
 		res.leftRes = RevertOrder(e2->begMid);
 		res.leftPrevRes = RevertOrder(pe2->begMid);
 
@@ -372,6 +480,7 @@ PatchIntersectionDescription GregoryPatch::GetPatchDefiningPointsAtCorner(
 	}
 	else if (adjacentEdge1[beg].lock() == adjacentEdge2[end].lock())
 	{
+		res.edgesSwapped = true;
 		res.leftRes = e2->midEnd;
 		res.leftPrevRes = pe2->midEnd;
 

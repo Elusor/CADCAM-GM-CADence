@@ -5,6 +5,7 @@ class Node;
 
 struct PatchIntersectionDescription
 {
+	bool edgesSwapped = false;
 	std::vector<DirectX::XMFLOAT3> leftRes;
 	std::vector<DirectX::XMFLOAT3> leftPrevRes;
 	std::vector<DirectX::XMFLOAT3> rightRes;
@@ -57,6 +58,19 @@ protected:
 private:
 	void CalculateGergoryPositions();
 
+	void CalculateAuxiliaryPoints(
+		std::vector<DirectX::XMFLOAT3> left,
+		std::vector<DirectX::XMFLOAT3> right,
+		std::vector<DirectX::XMFLOAT3> innerLeft,
+		std::vector<DirectX::XMFLOAT3> innerRight,
+		DirectX::XMFLOAT3& auxLeft, DirectX::XMFLOAT3& auxRight);
+
+	void CalculateLastOuterPoint(
+		DirectX::XMFLOAT3 auxLeft,
+		DirectX::XMFLOAT3 auxRight,
+		DirectX::XMFLOAT3 top,
+		DirectX::XMFLOAT3& lastOuterLeft,
+		DirectX::XMFLOAT3& lastOuterRight);
 
 	void FillPatchDrawData(
 		std::vector<DirectX::XMFLOAT3> left,
@@ -67,7 +81,8 @@ private:
 		DirectX::XMFLOAT3 outerLastRight,
 		DirectX::XMFLOAT3 innerLastLeft,
 		DirectX::XMFLOAT3 innerLastRight,
-		DirectX::XMFLOAT3 top);
+		DirectX::XMFLOAT3 top,
+		std::vector<DirectX::XMFLOAT3>& filledPositions);
 
 	DirectX::XMFLOAT3 CalculateVectorFromVectorField(
 		DirectX::XMFLOAT3 a0, DirectX::XMFLOAT3 b0, 
