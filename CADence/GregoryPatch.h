@@ -48,13 +48,14 @@ protected:
 	int m_uSize = 4;
 	int m_vSize = 4;
 	MeshDescription m_UDesc, m_VDesc;
+	MeshDescription m_vectors;
 
 	std::vector<DirectX::XMFLOAT3> m_patch1Positions;
 	std::vector<DirectX::XMFLOAT3> m_patch2Positions;
 	std::vector<DirectX::XMFLOAT3> m_patch3Positions;
 
 	virtual void RenderPatch(std::unique_ptr<RenderState>& renderState);
-
+	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 private:
 	void CalculateGergoryPositions();
 

@@ -57,7 +57,8 @@ void GregoryPatch::Initialize(
 
 void GregoryPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	RenderPatch(renderState);
+	//RenderPatch(renderState);
+	RenderPolygon(renderState);
 }
 
 bool GregoryPatch::CreateParamsGui()
@@ -148,6 +149,76 @@ void GregoryPatch::UpdateObject()
 		m_VDesc.indices.push_back(10 + 20 * i);
 		m_VDesc.indices.push_back(16 + 20 * i);
 	}
+
+	m_vectors.indices.clear();
+	m_vectors.vertices.clear();
+	m_vectors.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+	m_vectors.vertices = m_UDesc.vertices;
+	for (int i = 0; i < 3; i++)
+	{
+		// outer edges
+		m_vectors.indices.push_back(0 + 20 * i);
+		m_vectors.indices.push_back(1 + 20 * i);
+
+		m_vectors.indices.push_back(1 + 20 * i);
+		m_vectors.indices.push_back(2 + 20 * i);
+
+		m_vectors.indices.push_back(2 + 20 * i);
+		m_vectors.indices.push_back(3 + 20 * i);
+
+		m_vectors.indices.push_back(3 + 20 * i);
+		m_vectors.indices.push_back(9 + 20 * i);
+
+		m_vectors.indices.push_back(9 + 20 * i);
+		m_vectors.indices.push_back(15 + 20 * i);
+
+		m_vectors.indices.push_back(15 + 20 * i);
+		m_vectors.indices.push_back(19 + 20 * i);
+
+		m_vectors.indices.push_back(19 + 20 * i);
+		m_vectors.indices.push_back(18 + 20 * i);
+
+		m_vectors.indices.push_back(18 + 20 * i);
+		m_vectors.indices.push_back(17 + 20 * i);
+
+		m_vectors.indices.push_back(17 + 20 * i);
+		m_vectors.indices.push_back(16 + 20 * i);
+
+		m_vectors.indices.push_back(16 + 20 * i);
+		m_vectors.indices.push_back(10 + 20 * i);
+
+		m_vectors.indices.push_back(10 + 20 * i);
+		m_vectors.indices.push_back(4 + 20 * i);
+
+		m_vectors.indices.push_back(4 + 20 * i);
+		m_vectors.indices.push_back(0 + 20 * i);
+
+		// inner edges
+		m_vectors.indices.push_back(1 + 20 * i);
+		m_vectors.indices.push_back(6 + 20 * i);
+
+		m_vectors.indices.push_back(2 + 20 * i);
+		m_vectors.indices.push_back(7 + 20 * i);
+
+		m_vectors.indices.push_back(4 + 20 * i);
+		m_vectors.indices.push_back(5 + 20 * i);
+
+		m_vectors.indices.push_back(8 + 20 * i);
+		m_vectors.indices.push_back(9 + 20 * i);
+
+		m_vectors.indices.push_back(10 + 20 * i);
+		m_vectors.indices.push_back(11 + 20 * i);
+
+		m_vectors.indices.push_back(12 + 20 * i);
+		m_vectors.indices.push_back(17 + 20 * i);
+
+		m_vectors.indices.push_back(13 + 20 * i);
+		m_vectors.indices.push_back(18 + 20 * i);
+
+		m_vectors.indices.push_back(14 + 20 * i);
+		m_vectors.indices.push_back(15 + 20 * i);		
+	}
+
 }
 
 bool GregoryPatch::GetIsModified()
@@ -215,6 +286,11 @@ void GregoryPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	context->HSSetShader(nullptr, 0, 0);
 	context->DSSetShader(nullptr, 0, 0);
 	context->RSSetState(nullptr);
+}
+
+void GregoryPatch::RenderPolygon(std::unique_ptr<RenderState>& renderState)
+{
+	RenderMesh(renderState, m_vectors);
 }
 
 void GregoryPatch::CalculateGergoryPositions()
