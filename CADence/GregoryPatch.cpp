@@ -69,13 +69,19 @@ bool GregoryPatch::CreateParamsGui()
 	bool patchChanged = false;	
 	ImGui::Spacing();
 	
-	std::string dimDrag = "Grid density" + GetIdentifier();
+	std::string dimDrag = "Grid density u" + GetIdentifier();
 	patchChanged |= ImGui::DragInt(dimDrag.c_str(), &m_uSize, 1.0f, 2, 64);
-
+	std::string dimDrag2 = "Grid density v" + GetIdentifier();
+	patchChanged |= ImGui::DragInt(dimDrag2.c_str(), &m_vSize, 1.0f, 2, 64);
 	if (m_uSize < 2)
 		m_uSize = 2;
 	if (m_uSize > 64)
 		m_uSize = 64;
+
+	if (m_vSize < 2)
+		m_vSize = 2;
+	if (m_vSize > 64)
+		m_vSize = 64;
 
 	ImGui::End();
 	return patchChanged;
@@ -182,12 +188,10 @@ void GregoryPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	renderState->m_device.m_device->CreateRasterizerState(&desc, &rs);
 	context->RSSetState(rs);
 
-	// TODO : change shaders
 	context->HSSetShader(renderState->m_patchGregHullShader.get(), 0, 0);
 	ID3D11Buffer* hsCb[] = { renderState->m_cbPatchDivisions.get() };
 	context->HSSetConstantBuffers(0, 1, hsCb);
 
-	// TODO : change shaders
 	context->DSSetShader(renderState->m_patchGregDomainShader.get(), 0, 0);
 	context->DSSetConstantBuffers(1, 1, cbs1);
 	ID3D11Buffer* cbs2[] = { renderState->m_cbVP.get() };
