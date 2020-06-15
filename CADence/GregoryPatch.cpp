@@ -305,48 +305,24 @@ void GregoryPatch::CalculateGergoryPositions()
 	// calculate the last two inner points
 	// this vectors are directed like so 
 	// P0 -------------- ^ --------------- Top ( the arrow in the middle)
-	DirectX::XMFLOAT3 curve1LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(), XMFLOAT3(), XMFLOAT3(), XMFLOAT3(), 2.f / 3.f);
-	DirectX::XMFLOAT3 curve2LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(), XMFLOAT3(), XMFLOAT3(), XMFLOAT3(), 2.f / 3.f);
-	DirectX::XMFLOAT3 curve3LeftInnerVec = CalculateVectorFromVectorField(XMFLOAT3(), XMFLOAT3(), XMFLOAT3(), XMFLOAT3(), 2.f / 3.f);
-
 	DirectX::XMFLOAT3 patch12LastLeftInner, patch12LastRightInner;
 	DirectX::XMFLOAT3 patch23LastLeftInner, patch23LastRightInner;
 	DirectX::XMFLOAT3 patch13LastLeftInner, patch13LastRightInner;
 
-	// For example if patch 12 has 1 as the left the last inner left will be twoThirds1 + curve1LeftInnerVec 
-	// if the 1 is on the right it will be twoThirds1 - curve1LeftInnerVec
-	if (corner12.edgesSwapped) {
-		// edge 2 is the left edge
-		patch12LastLeftInner = leftTwoThirdsPatch12 + curve2LeftInnerVec;
-		patch12LastRightInner = rightTwoThirdsPatch12 + (-1.f) * curve1LeftInnerVec;
-	}
-	else {
-		// edge 1 is the left edge
-		patch12LastLeftInner = leftTwoThirdsPatch12 + curve1LeftInnerVec;
-		patch12LastRightInner = rightTwoThirdsPatch12 + (-1.f) * curve2LeftInnerVec;
-	}
+	DirectX::XMFLOAT3 patch12LastLeftInnerVec, patch12LastRightInnerVec;
+	DirectX::XMFLOAT3 patch23LastLeftInnerVec, patch23LastRightInnerVec;
+	DirectX::XMFLOAT3 patch13LastLeftInnerVec, patch13LastRightInnerVec;
 
-	if (corner23.edgesSwapped) {
-		// edge 3 is the left edge
-		patch23LastLeftInner = leftTwoThirdsPatch23 + curve3LeftInnerVec;
-		patch23LastRightInner = rightTwoThirdsPatch23 + (-1.f) * curve2LeftInnerVec;
-	}
-	else {
-		// edge 2 is the left edgeS
-		patch23LastLeftInner = leftTwoThirdsPatch23 + curve2LeftInnerVec;
-		patch23LastRightInner = rightTwoThirdsPatch23 + (-1.f) * curve3LeftInnerVec;
-	}
+	FindVectorFieldBase(edge1, edge2, P1, P2, P3, top, patch12LastLeftInnerVec, patch12LastRightInnerVec, corner12.edgesSwapped);
+	FindVectorFieldBase(edge2, edge3, P2, P3, P1, top, patch23LastLeftInnerVec, patch23LastRightInnerVec, corner23.edgesSwapped);
+	FindVectorFieldBase(edge1, edge3, P1, P3, P2, top, patch13LastLeftInnerVec, patch13LastRightInnerVec, corner13.edgesSwapped);
 
-	if (corner13.edgesSwapped) {
-		// edge 3 is the left edge
-		patch13LastLeftInner = leftTwoThirdsPatch13 + curve3LeftInnerVec;
-		patch13LastRightInner = rightTwoThirdsPatch13 + (-1.f) * curve1LeftInnerVec;
-	}
-	else {
-		// edge 1 is the left edge
-		patch13LastLeftInner = leftTwoThirdsPatch13 + curve1LeftInnerVec;
-		patch13LastRightInner = rightTwoThirdsPatch13 + (-1.f) * curve3LeftInnerVec;
-	}
+	patch12LastLeftInner = leftTwoThirdsPatch12 + patch12LastLeftInnerVec;
+	patch23LastLeftInner = leftTwoThirdsPatch23 + patch23LastLeftInnerVec;
+	patch13LastLeftInner = leftTwoThirdsPatch13 + patch13LastLeftInnerVec;
+	patch12LastRightInner = rightTwoThirdsPatch12 + patch12LastRightInnerVec;
+	patch23LastRightInner = rightTwoThirdsPatch23 + patch23LastRightInnerVec;
+	patch13LastRightInner = rightTwoThirdsPatch13 + patch13LastRightInnerVec;
 
 	// Fill draw data for each patch
 	FillPatchDrawData(
@@ -370,6 +346,66 @@ void GregoryPatch::CalculateGergoryPositions()
 		patch13LastOuterLeft, patch13LastOuterRight,
 		patch13LastLeftInner, patch13LastRightInner, top,
 		m_patch3Positions); // call for patch13
+}
+
+void GregoryPatch::FindVectorFieldBase(
+	std::vector<std::weak_ptr<Node>> edge1, std::vector<std::weak_ptr<Node>> edge2,
+	DirectX::XMFLOAT3 pEdge1, DirectX::XMFLOAT3 pEdge2, DirectX::XMFLOAT3 otherPoint, DirectX::XMFLOAT3 top,
+	DirectX::XMFLOAT3& leftVec, DirectX::XMFLOAT3& rightVec, bool edgesSwapped)
+{
+	XMFLOAT3 a0, b0, a3, b3;
+	// rotate the point in a manner that the end points are the same
+	// TODO SWAP THOSE EDGES
+	std::vector<XMFLOAT3> edge1pos, edge2pos;
+	for (int i = 0; i < 4; i++)
+	{
+		edge1pos.push_back(edge1[i].lock()->m_object->GetPosition());
+		edge2pos.push_back(edge2[i].lock()->m_object->GetPosition());
+	}
+
+	int beg = 0, end = 3;
+	if (edge1[end].lock() == edge2[end].lock()) {
+		// done
+	} else if (edge1[end].lock() == edge2[beg].lock()) {
+		// swap edge2
+		edge2pos = RevertOrder(edge2pos);
+	} else if (edge1[beg].lock() == edge2[end].lock()) {
+		// swap edge1
+		edge1pos = RevertOrder(edge1pos);
+	} else if (edge1[beg].lock() == edge2[beg].lock()) {
+		// swap both
+		edge1pos = RevertOrder(edge1pos);
+		edge2pos = RevertOrder(edge2pos);
+	}
+
+	// Divide the rotated edges
+	// Assume that the edges meet in the "end" that is the last vertex from both is common
+	auto edge1Div = DivideBernsteinCurvePos(edge1pos);
+	auto edge2Div = DivideBernsteinCurvePos(edge2pos);
+
+	// For edge 1 
+	a0 = edge1Div->begMid[3] - edge1Div->begMid[2];
+	b0 = edge1Div->midEnd[1] - edge1Div->midEnd[0];
+	a3 = top - otherPoint;
+	b3 = pEdge2 - top;	
+	auto vec1 = CalculateVectorFromVectorField(a0, b0, a3, b3, 2.f / 3.f);	
+
+	// For edge 2
+	a0 = edge2Div->begMid[3] - edge2Div->begMid[2];
+	b0 = edge2Div->midEnd[1] - edge2Div->midEnd[0];
+	a3 = top - otherPoint;
+	b3 = pEdge1 - top;	
+	auto vec2 =CalculateVectorFromVectorField(a0, b0, a3, b3, 2.f / 3.f);
+
+	if (edgesSwapped)
+	{
+		leftVec = vec2;
+		rightVec = vec1;
+	}
+	else {
+		leftVec = vec1;
+		rightVec = vec2;
+	}
 }
 
 XMFLOAT3 GregoryPatch::CalcBernstein(DirectX::XMFLOAT3 b0, DirectX::XMFLOAT3 b1, DirectX::XMFLOAT3 b2, DirectX::XMFLOAT3 b3, float t)

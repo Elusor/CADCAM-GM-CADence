@@ -58,6 +58,11 @@ protected:
 private:
 	void CalculateGergoryPositions();
 
+	void FindVectorFieldBase(
+		std::vector<std::weak_ptr<Node>> edge1, std::vector<std::weak_ptr<Node>> edge2,
+		DirectX::XMFLOAT3 pEdge1, DirectX::XMFLOAT3 pEdge2, DirectX::XMFLOAT3 pEdge3, DirectX::XMFLOAT3 top,
+		DirectX::XMFLOAT3& leftVec, DirectX::XMFLOAT3& rightVec, bool edgesSwapped);
+
 	XMFLOAT3 CalcBernstein(
 		DirectX::XMFLOAT3 b0,
 		DirectX::XMFLOAT3 b1,

@@ -10,3 +10,4 @@ struct DividedCurve {
 };
 
 DividedCurve* DivideBernsteinCurve(std::vector<std::weak_ptr<Node>> bernsteinCurve, float point = 0.5f);
+DividedCurve* DivideBernsteinCurvePos(std::vector<DirectX::XMFLOAT3> bernsteinCurve, float point = 0.5f);
