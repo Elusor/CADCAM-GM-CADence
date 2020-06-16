@@ -34,6 +34,8 @@ void GroupNode::RemoveChild(std::weak_ptr<Node> child)
 	}
 }
 
+
+
 void GroupNode::RemoveExpiredChildren()
 {
 	auto it = m_children.begin();
@@ -67,7 +69,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 	// REWRITE THIS ASAP
 	std::string hashes = "##";
 	std::string labelName = m_object->m_name + hashes + m_object->m_defaultName;	
-
+	m_children = m_object->GetDisplayChildren();
 	if (m_isRenamed)
 	{
 		DrawRenameGUI();
@@ -131,10 +133,10 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 			std::vector<std::weak_ptr<Node>> nodesToDelete;
 
 			bool removed = false;
-			auto it = m_object->GetReferences().GetAllRef().begin();
-			while (it != m_object->GetReferences().GetAllRef().end())
+			auto it = m_children.begin();
+			while (it != m_children.end())
 			{
-				if (auto node = it->m_refered.lock())
+				if (auto node = it->lock())
 				{
 					ImGuiTreeNodeFlags leaf_flags2 = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 					if (node->GetIsSelected())
@@ -158,7 +160,7 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 						{
 							if (ImGui::Selectable("Remove node"))
 							{
-								std::weak_ptr<Node> deletedNode = it->m_refered;
+								std::weak_ptr<Node> deletedNode = it->lock();
 								nodesToDelete.push_back(deletedNode);
 								//it = m_children.erase(it);
 								/*BezierCurve* c = dynamic_cast<BezierCurve*>(m_object.get());

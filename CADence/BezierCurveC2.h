@@ -19,7 +19,8 @@ public:
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	void AttachChild(std::weak_ptr<Node> controlPoint) override;
 	void RemoveChild(std::weak_ptr<Node> controlPoint) override;
-	void RecalculateBasisPoints(bool overwriteVertices = true);
+	void RecalculateBasisPoints(bool overwriteVertices = true);	
+	std::vector<std::weak_ptr<Node>> GetDisplayChildren() override;
 
 	bool GetIsModified() override;
 	void SetDisplayDeBoorPolygon(bool isDisplayed);

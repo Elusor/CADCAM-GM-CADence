@@ -12,6 +12,7 @@ public:
 
 	void AddChild(std::weak_ptr<Node> child);
 	void RemoveChild(std::weak_ptr<Node> child);
+
 	void RemoveExpiredChildren();
 	void SetChildren(std::vector<std::weak_ptr<Node>> children);
 	void SwapReferences(std::weak_ptr<Node> existingChild, std::weak_ptr<Node> newChild);

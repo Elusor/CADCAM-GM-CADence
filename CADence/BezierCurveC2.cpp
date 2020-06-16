@@ -124,6 +124,11 @@ void BezierCurveC2::RecalculateBasisPoints(bool overwriteVertices)
 	}
 }
 
+std::vector<std::weak_ptr<Node>> BezierCurveC2::GetDisplayChildren()
+{
+	return m_curBasisControlPoints;
+}
+
 bool BezierCurveC2::GetIsModified()
 {
 	auto controlPointRefs = GetReferences().GetAllRef();

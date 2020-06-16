@@ -33,6 +33,8 @@ public:
 	virtual void SetPosition(DirectX::XMFLOAT3 position);
 	virtual void SetRotation(DirectX::XMFLOAT3 rotation);
 	virtual void SetScale(DirectX::XMFLOAT3 scale);
+	virtual std::vector<std::weak_ptr<Node>> GetChildren();
+	virtual std::vector<std::weak_ptr<Node>> GetDisplayChildren();
 
 	DirectX::XMFLOAT3 GetPosition();
 	DirectX::XMFLOAT3 GetRotation();

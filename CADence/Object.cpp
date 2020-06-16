@@ -190,6 +190,16 @@ void Object::SetScale(DirectX::XMFLOAT3 scale)
 	m_transform.SetScale(scale);
 }
 
+std::vector<std::weak_ptr<Node>> Object::GetChildren()
+{
+	return GetReferences().GetRefObjects();
+}
+
+std::vector<std::weak_ptr<Node>> Object::GetDisplayChildren()
+{
+	return GetChildren();
+}
+
 DirectX::XMFLOAT3 Object::GetPosition()
 {
 	return m_transform.GetPosition();
