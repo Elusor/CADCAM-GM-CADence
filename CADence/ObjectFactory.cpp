@@ -331,7 +331,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 
 
 	BezierSurfaceC2* surface = new BezierSurfaceC2(surfPatches, patchesW, patchesH, wrapDir);
-	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	std::string name = "Bezier Surface C2";
 	if (m_bezierSurfaceCounter > 0)
 	{
@@ -342,7 +341,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(surface);
+	object->m_nodePtr = node;
 	node->m_object = move(object);
+	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	scene->AttachObject(node);
 
 	// Relese auxiliary data
@@ -449,7 +450,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector
 	delete[] patches;
 
 	BezierSurfaceC0* surface = new BezierSurfaceC0(surfPatches, patchesW, patchesH, wrapDir);
-	surface->SetPoints(points,wrappedWidth,wrappedHeight);
 	std::string name = "Bezier Surface";
 	if (m_bezierSurfaceCounter > 0)
 	{
@@ -460,7 +460,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(surface);
+	object->m_nodePtr = node;
 	node->m_object = move(object);
+	surface->SetPoints(points,wrappedWidth,wrappedHeight);
 	return node;
 }
 
@@ -550,7 +552,6 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 	delete[] patches;
 
 	BezierSurfaceC2* surface = new BezierSurfaceC2(surfPatches, patchesW, patchesH, wrapDir);
-	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	std::string name = "Bezier Surface C2";
 	if (m_bezierSurfaceCounter > 0)
 	{
@@ -561,7 +562,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 
 	std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node());
 	auto object = std::unique_ptr<Object>(surface);
+	object->m_nodePtr = node;
 	node->m_object = move(object);
+	surface->SetPoints(points, wrappedWidth, wrappedHeight);
 	return node;
 }
 

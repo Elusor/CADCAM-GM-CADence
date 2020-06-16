@@ -30,7 +30,7 @@ public:
 	bool GetDisplayPolygon();
 	SurfaceWrapDirection GetWrapDirection();
 
-	std::vector<std::vector<std::weak_ptr<Node>>> GetPoints();
+	std::vector<std::weak_ptr<Node>> GetPoints(int& height, int& width);
 	void SetPoints(std::shared_ptr<Node>** points, int width, int height);
 	void SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height);
 protected:
@@ -43,6 +43,9 @@ protected:
 	void SetDivisions();
 	int m_patchW;
 	int m_patchH;
+
+	int m_pointHeight;
+	int m_pointWidth;
 
 	int m_divisionsU;
 	int m_divisionsV;

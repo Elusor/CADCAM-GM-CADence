@@ -226,19 +226,19 @@ void SceneExporter::ExportCurvePoints(tinyxml2::XMLElement* object, BezierCurve*
 	}
 }
 
-void SceneExporter::ExportGridPoints(tinyxml2::XMLElement* object, BezierSurfaceC0* curve)
+void SceneExporter::ExportGridPoints(tinyxml2::XMLElement* object, BezierSurfaceC0* surface)
 {
 	auto list = object->InsertNewChildElement("Points");
-	auto points = curve->GetPoints();
-	int width = points.size();
-	int height = points[0].size();
+	int width; 
+	int height;
+	auto points = surface->GetPoints(height, width);
 	
 	
 	for (int h = height-1; h >= 0; h--)
 	{
 		for (int w = 0; w < width; w++)
 		{
-		auto ptObj = points[w][h].lock();
+		auto ptObj = points[h + w * height].lock();
 		auto pointRef = list->InsertNewChildElement("PointRef");
 		pointRef->SetAttribute("Name", ptObj->m_object->m_name.c_str());
 		pointRef->SetAttribute("Row", height -1 - h);

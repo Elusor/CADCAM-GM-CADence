@@ -74,31 +74,38 @@ SurfaceWrapDirection BezierSurfaceC0::GetWrapDirection()
 	return m_wrapDir;
 }
 
-std::vector<std::vector<std::weak_ptr<Node>>> BezierSurfaceC0::GetPoints()
+std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetPoints(int& height, int& width)
 {
-	return m_points;
+	height = m_pointHeight;
+	width = m_pointWidth;
+	return GetReferences().GetRefObjects();
 }
 
 void BezierSurfaceC0::SetPoints(std::shared_ptr<Node>** points, int width, int height)
 {
+	m_pointWidth = width;
+	m_pointHeight = height;
+
 	for (int w = 0; w < width; w++)
 	{
-		m_points.push_back(std::vector<std::weak_ptr<Node>>());
+		//m_points.push_back(std::vector<std::weak_ptr<Node>>());
 		for (int h = 0; h < height; h++)
 		{
-			m_points[w].push_back(points[w][h]);
+			GetReferences().LinkRef(points[w][h]);
+			//m_points[w].push_back();
 		}
 	}
 }
 
 void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height)
 {
+	m_pointWidth = width;
+	m_pointHeight = height;
 	for (int w = 0; w < width; w++)
 	{
-		m_points.push_back(std::vector<std::weak_ptr<Node>>());
 		for (int h = 0; h < height; h++)
 		{
-			m_points[w].push_back(points[w][h]);
+			GetReferences().LinkRef(points[w][h]);
 		}
 	}
 }
