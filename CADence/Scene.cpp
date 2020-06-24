@@ -535,7 +535,9 @@ void Scene::SelectionChanged(Node& node)
 				weakNode = vNode;
 			}
 
-			m_selectedNodes.push_back(weakNode);
+			
+			
+			m_selectedNodes.push_back(obj.m_nodePtr);
 		}
 
 	}

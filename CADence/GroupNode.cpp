@@ -2,6 +2,10 @@
 #include "Scene.h"
 #include "imgui.h"
 
+GroupNode::GroupNode()
+{
+}
+
 GroupNode::GroupNode(std::vector<std::weak_ptr<Node>> children)
 {
 	m_children = children;

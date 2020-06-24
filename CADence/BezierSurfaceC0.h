@@ -29,7 +29,7 @@ public:
 	void SetDisplayPolygon(bool displayPolygon);
 	bool GetDisplayPolygon();
 	SurfaceWrapDirection GetWrapDirection();
-
+	std::vector<std::weak_ptr<Node>> GetDisplayChildren() override;
 	std::vector<std::weak_ptr<Node>> GetPoints(int& height, int& width);
 	void SetPoints(std::shared_ptr<Node>** points, int width, int height);
 	void SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height);

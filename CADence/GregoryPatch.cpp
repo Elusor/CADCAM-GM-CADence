@@ -106,7 +106,7 @@ void GregoryPatch::UpdateObject()
 	{
 		m_UDesc.vertices.push_back(VertexPositionColor{
 			{m_patch1Positions[i]},
-			{XMFLOAT3(1.0f,0.0f,0.0f)} });
+			{m_UDesc.m_defaultColor} });
 		m_UDesc.indices.push_back(i);
 	}
 
@@ -114,7 +114,7 @@ void GregoryPatch::UpdateObject()
 	{
 		m_UDesc.vertices.push_back(VertexPositionColor{
 			{m_patch2Positions[i]},
-			{XMFLOAT3(0.0f,1.0f,0.0f)} });
+			{m_UDesc.m_defaultColor} });
 		m_UDesc.indices.push_back(i + 20);
 	}
 
@@ -122,7 +122,7 @@ void GregoryPatch::UpdateObject()
 	{
 		m_UDesc.vertices.push_back(VertexPositionColor{
 			{m_patch3Positions[i]},
-			{XMFLOAT3(0.0f,0.0f,1.0f)} });
+			m_UDesc.m_defaultColor });
 		m_UDesc.indices.push_back(i + 40);
 	}
 

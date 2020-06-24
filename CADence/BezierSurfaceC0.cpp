@@ -74,6 +74,18 @@ SurfaceWrapDirection BezierSurfaceC0::GetWrapDirection()
 	return m_wrapDir;
 }
 
+std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetDisplayChildren()
+{
+	std::vector<std::weak_ptr<Node>> patches;
+
+	for (int i = 0; i < m_patches.size(); i++)
+	{
+		patches.push_back(m_patches[i]);
+		m_patches[i]->SetIsVirtual(false);
+	}
+	return patches;
+}
+
 std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetPoints(int& height, int& width)
 {
 	height = m_pointHeight;
