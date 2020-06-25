@@ -29,3 +29,30 @@ void Torus::UpdateObject()
 {
 	GetTorusVerticesLineList(this);
 }
+
+DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
+{
+	float x = (m_smallR * cosf(u) + m_bigR) * cosf(v);
+	float y = m_smallR * sinf(u);
+	float z = (m_smallR * cosf(u) + m_bigR) * sinf(v);
+
+	return XMFLOAT3(x,y,z);
+}
+
+DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
+{
+	float x, y, z;
+	
+	if (tangentDir == TangentDir::AlongU) {
+		x = -(m_smallR * sinf(u)) * cosf(v);
+		y = m_smallR * sinf(u);
+		z = -(m_smallR * sinf(u)) * sinf(v);
+	}
+	else {
+		x = -(m_smallR * cosf(u) + m_bigR) * sinf(v);
+		y = 0.f;
+		z = (m_smallR * cosf(u) + m_bigR) * cosf(v);
+	}
+
+	return XMFLOAT3(x, y, z);
+}

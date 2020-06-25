@@ -4,6 +4,7 @@
 #include "BezierPatch.h"
 #include "BezierCurve.h"
 #include "Node.h"
+#include "IParametricSurface.h"
 
 enum SurfaceWrapDirection
 {
@@ -12,7 +13,7 @@ enum SurfaceWrapDirection
 	None
 };
 
-class BezierSurfaceC0 : public MeshObject
+class BezierSurfaceC0 : public MeshObject, public IParametricSurface
 {
 public:
 	BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDirection);
@@ -33,6 +34,11 @@ public:
 	std::vector<std::weak_ptr<Node>> GetPoints(int& height, int& width);
 	void SetPoints(std::shared_ptr<Node>** points, int width, int height);
 	void SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height);
+	std::weak_ptr<Node> GetPatch(int w, int h);
+
+	// Inherited via IParametricSurface
+	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
+	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 protected:
 	std::vector<std::vector<std::weak_ptr<Node>>> m_points;
 	SurfaceWrapDirection m_wrapDir;

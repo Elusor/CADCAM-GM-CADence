@@ -1,9 +1,24 @@
 #include "bezierCalculator.h"
 #include "mathUtils.h"
 
-DirectX::XMFLOAT3 CalculateBezier2(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, float t);
-DirectX::XMFLOAT3 CalculateBezier3(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, float t);
-DirectX::XMFLOAT3 CalculateBezier4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t);
+DirectX::XMFLOAT3 BezierCalculator::CalculateBezier2(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, float t)
+{
+	return WeightedXMFloat3Average(p0, p1, t);
+}
+
+DirectX::XMFLOAT3 BezierCalculator::CalculateBezier3(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, float t)
+{
+	DirectX::XMFLOAT3 t1 = CalculateBezier2(p0, p1, t);
+	DirectX::XMFLOAT3 t2 = CalculateBezier2(p1, p2, t);
+	return  WeightedXMFloat3Average(t1, t2, t);
+}
+
+DirectX::XMFLOAT3 BezierCalculator::CalculateBezier4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t)
+{
+	DirectX::XMFLOAT3 t1 = CalculateBezier3(p0, p1, p2, t);
+	DirectX::XMFLOAT3 t2 = CalculateBezier3(p1, p2, p3, t);
+	return WeightedXMFloat3Average(t1, t2, t);
+}
 
 std::vector<DirectX::XMFLOAT3> BezierCalculator::CalculateBezierDeCasteljau(std::vector<DirectX::XMFLOAT3> knots, int samples)
 {
@@ -50,23 +65,4 @@ std::vector<DirectX::XMFLOAT3> BezierCalculator::CalculateBezierDeCasteljau(std:
 	}
 
 	return values;
-}
-
-DirectX::XMFLOAT3 CalculateBezier2(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, float t)
-{	
-	return WeightedXMFloat3Average(p0,p1,t);
-}
-
-DirectX::XMFLOAT3 CalculateBezier3(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, float t)
-{
-	DirectX::XMFLOAT3 t1 = CalculateBezier2(p0, p1,t);
-	DirectX::XMFLOAT3 t2 = CalculateBezier2(p1, p2,t);
-	return  WeightedXMFloat3Average(t1, t2, t);
-}
-
-DirectX::XMFLOAT3 CalculateBezier4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t)
-{
-	DirectX::XMFLOAT3 t1 = CalculateBezier3(p0, p1, p2,t);
-	DirectX::XMFLOAT3 t2 = CalculateBezier3(p1, p2, p3,t);
-	return WeightedXMFloat3Average(t1, t2, t);
 }

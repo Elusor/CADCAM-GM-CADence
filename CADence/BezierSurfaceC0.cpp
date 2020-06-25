@@ -122,6 +122,13 @@ void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> po
 	}
 }
 
+std::weak_ptr<Node> BezierSurfaceC0::GetPatch(int w, int h)
+{
+	auto points = GetReferences().GetAllRef();
+	return points[h * w + h].m_refered;
+
+}
+
 bool BezierSurfaceC0::CreateParamsGui()
 {
 	ImGui::Begin("Inspector");
@@ -267,4 +274,36 @@ void BezierSurfaceC0::SetDivisions()
 		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
 		patch->SetDivisions(m_divisionsU,m_divisionsV);
 	}
+}
+
+DirectX::XMFLOAT3 BezierSurfaceC0::GetPoint(float u, float v)
+{
+	// u - width
+	// v - height 
+
+	// determine the W and H of a given patch and get the point from this patch
+	int w = (int)(u * (float)m_patchW);
+	int h = (int)(v * (float)m_patchH);
+
+	float newU = (u - (float)w / (float)m_patchW) * m_patchW;
+	float newV = (v - (float)h / (float)m_patchH) * m_patchH;
+
+	auto node = GetPatch(w, h).lock();
+	return ((BezierPatch*)node->m_object.get())->GetPoint(newU, newV);
+}
+
+DirectX::XMFLOAT3 BezierSurfaceC0::GetTangent(float u, float v, TangentDir tangentDir)
+{
+	// u - width
+	// v - height 
+
+	// determine the W and H of a given patch and get the point from this patch
+	int w = (int)(u * (float)m_patchW);
+	int h = (int)(v * (float)m_patchH);
+
+	float newU = (u - (float)w / (float)m_patchW) * m_patchW;
+	float newV = (v - (float)h / (float)m_patchH) * m_patchH;
+
+	auto node = GetPatch(w,h).lock();
+	return ((BezierPatch*)node->m_object.get())->GetTangent(newU, newV, tangentDir);
 }

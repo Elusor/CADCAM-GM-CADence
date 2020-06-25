@@ -180,6 +180,7 @@
     <ClInclude Include="IncorrectObjectArgumentException.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="IOExceptions.h" />
+    <ClInclude Include="IParametricSurface.h" />
     <ClInclude Include="IRenderTarget.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />

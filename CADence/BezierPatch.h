@@ -3,6 +3,8 @@
 #include "Node.h"
 #include <direct.h>
 #include <DirectXMath.h>
+#include "IParametricSurface.h"
+
 using namespace DirectX;
 
 enum Coord {
@@ -25,7 +27,7 @@ enum RowPlace {
 	Fourth
 };
 
-class BezierPatch : public MeshObject {
+class BezierPatch : public MeshObject, public IParametricSurface {
 public:
 	// Create a patch and allocates all points on the scene
 	BezierPatch();
@@ -49,6 +51,10 @@ public:
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPreBoundaryPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);	
+
+	// Inherited via IParametricSurface
+	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
+	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 protected:
 
 	int m_uSize = 4;
@@ -62,7 +68,7 @@ protected:
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);*/
 	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderPatch(std::unique_ptr<RenderState>& renderState);
-	XMMATRIX GetCoordinates(Coord coord);
+	XMMATRIX GetCoordinates(Coord coord);	
 };
 
 class BezierPatchC2 : public BezierPatch {

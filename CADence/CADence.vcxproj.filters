@@ -345,6 +345,9 @@
     <ClInclude Include="ArgumentException.h">
       <Filter>Header Files\Exceptions\ArgumentExceptions</Filter>
     </ClInclude>
+    <ClInclude Include="IParametricSurface.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
