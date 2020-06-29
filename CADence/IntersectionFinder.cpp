@@ -53,6 +53,39 @@ DirectX::XMFLOAT3 IntersectionFinder::FindFirstIntersectionPoint(
 	ParameterPair& surf2Params)
 {
 	// Determine the position of the first intersection point ( Points?) and the parameter values for it 
+	
+	// CalculateHessian(surf1,surf2, x_k)
+		// CalculateABDerivatives()
+		// CalculateAADerivatives()
+		// CalculateSameADerivatives()		
+		// Return Matrix
+
+	// CalculateAlpha(surface1, surface2, p)
+		// grad = CalculateGrad();		
+		// Hf = CalculateHessian(surf1,surf2)
+		// return <-grad,p> / (p * Hf * p);
+
+	// CalculateBeta(r_k+1, r_k)
+		// beta = <r_k+1, (r_k+1 - r_k)>
+		// beta /= <r_k,r_k>
+		// return max(beta, 0)
+
+	// Guess the initial value
+	// x0 = initial value
+	// r0 = -grad(f(x0))
+	// p0 = r0
+
+	bool someCondition = false;
+	while (someCondition)
+	{
+		// alfa = CalculateAlpha
+		// x_k+1 = x_k + alpha * pk
+		// r_k+1 = -grad(f(xk))
+		// beta_k+1 = CalculateBeta according to Polak-Ribben
+		// p_k+1 = r_k+1 + beta_k+1 * p_k
+	}	
+
+	// Return the proper x_k
 	return DirectX::XMFLOAT3();
 }
 
