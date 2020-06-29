@@ -71,6 +71,7 @@ Transform WeightedTransformAverage(Transform p0, Transform p1, float t)
 
 DirectX::XMFLOAT3 WeightedXMFloat3Average(DirectX::XMFLOAT3 f1, DirectX::XMFLOAT3 f2, float t)
 {
+	// TODO : REMOVE
 	return XMF3SUM(XMF3TimesFloat(f1, t), XMF3TimesFloat(f2, 1.0f - t));
 }
 

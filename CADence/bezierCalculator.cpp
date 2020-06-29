@@ -66,3 +66,30 @@ std::vector<DirectX::XMFLOAT3> BezierCalculator::CalculateBezierDeCasteljau(std:
 
 	return values;
 }
+
+BezierCoeffs BezierCalculator::ConvertDeBoorToBezier(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3)
+{
+	BezierCoeffs coeffs;
+
+	DirectX::XMFLOAT3 first, second, third, last;
+
+	auto aux1 = p0 * 1.f / 3.f + p1 * 2.f / 3.f;
+	auto aux2 = p2 * 2.f / 3.f + p3 * 1.f / 3.f;
+	second = p0 * 2.f / 3.f + p1 * 1.f / 3.f;
+	third = p0 * 1.f / 3.f + p1 * 2.f / 3.f;
+	first = (aux1 + second) * 0.5f;
+	last = (third + aux2) * 0.5f;
+
+	coeffs.b0 = first;
+	coeffs.b1 = second;
+	coeffs.b2 = third;
+	coeffs.b3 = last;
+
+	return coeffs;
+}
+
+DirectX::XMFLOAT3 BezierCalculator::CalculateDeBoor4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t)
+{
+	auto coeffs = ConvertDeBoorToBezier(p0, p1, p2, p3);
+	return CalculateBezier4(coeffs.b0, coeffs.b1, coeffs.b2, coeffs.b3, t);
+}
