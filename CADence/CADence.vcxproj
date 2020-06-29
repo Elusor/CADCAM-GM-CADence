@@ -170,6 +170,7 @@
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
+    <ClInclude Include="GeometricFunctions.h" />
     <ClInclude Include="GeometryUtils.h" />
     <ClInclude Include="GregoryPatch.h" />
     <ClInclude Include="GroupNode.h" />
@@ -248,6 +249,7 @@
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="generalUtils.cpp" />
+    <ClCompile Include="GeometricFunctions.cpp" />
     <ClCompile Include="GeometryUtils.cpp" />
     <ClCompile Include="GregoryPatch.cpp" />
     <ClCompile Include="GroupNode.cpp" />
