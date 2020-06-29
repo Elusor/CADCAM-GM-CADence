@@ -124,6 +124,18 @@ bool IntersectionFinder::FindNextPoint(
 	DirectX::XMFLOAT3& pos)
 {
 	DirectX::XMFLOAT3 p0 = surface1->GetPoint(surf1Params.u, surf1Params.v);
+	bool found;
+
+	// DirectX::XMFLOAT4X4 CalculateDerivativeMatrix(IParametricSurface surface1, IParametricSurface surface2, XMFLOAT4 x_k, T)
+		// col1 = [-surface1.GetTangent(u,v, Direction::U), 0]
+		// col2 = [-surface1.GetTangent(u,v, Direction::V), 0]
+		// col3 = [surface2.GetTangent(s,t, Direction::U), dot(surface2.GetTangent(s,t, Direction::U), T)]
+		// col4 = [surface2.GetTangent(s,t, Direction::V), dot(surface2.GetTangent(s,t, Direction::V), T)]
+
+	// Solves Ax = b
+	// DirectX::XMFLOAT4 SolveGEPP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 b)
+		// Implement linear equation system solver 
+		
 
 	auto n1 = GetSurfaceNormal(surface1, surf1Params);
 	auto n2 = GetSurfaceNormal(surface2, surf2Params);
@@ -132,14 +144,25 @@ bool IntersectionFinder::FindNextPoint(
 	float stepDirLen = sqrt(Dot(stepDir, stepDir));
 	auto stepVersor = stepDir / stepDirLen;
 
+	// x0 = surf1Params + surf2Params	
+	// xk = x0;
 
-	// Find the next point using Newton's method to solve linear equation system
+	bool newtonConvergenceCond = true;
+	while (newtonConvergenceCond)
+	{
+		// values = -f(x_k);
+		// derMatrix = CalculateDerivativeMatrix(surface1, surface2, x_k, T);
 
-	// If the point is found - increment the parameters
-		// edit the parameters
-	// else
-		// return false
+		// deltaX = SolveGEPP(derMat, values); 		
 
+		// Find the next point using Newton's method to solve linear equation system
+		// x_k+1 = xk + deltaX;
+
+		// Update convergenceCondition
+		// if(norm(f(x)) < eps)
+			// newtonConvergenceCond = false;
+			// pos = P(x_k+1);
+	}
 
 	return false;
 }
