@@ -348,6 +348,9 @@
     <ClInclude Include="IParametricSurface.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectionFinder.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -522,6 +525,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GregoryPatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IntersectionFinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

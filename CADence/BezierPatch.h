@@ -78,4 +78,8 @@ public:
 
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	void RenderPatch(std::unique_ptr<RenderState>& renderState) override;
+
+	// Inherited via IParametricSurface
+	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
+	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 };

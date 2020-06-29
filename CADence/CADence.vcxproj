@@ -179,6 +179,7 @@
     <ClInclude Include="IncorrectFileFormatException.h" />
     <ClInclude Include="IncorrectObjectArgumentException.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
+    <ClInclude Include="IntersectionFinder.h" />
     <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IParametricSurface.h" />
     <ClInclude Include="IRenderTarget.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="InterpolationBezierCurveC2.cpp" />
+    <ClCompile Include="IntersectionFinder.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="ObjectReferences.cpp" />
