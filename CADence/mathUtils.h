@@ -11,6 +11,14 @@ Transform WeightedTransformAverage(Transform p0, Transform p1, float t);
 DirectX::XMFLOAT3 WeightedXMFloat3Average(DirectX::XMFLOAT3 f1, DirectX::XMFLOAT3 f2, float t);
 float GetDistanceBetweenPoints(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 
+float Mul(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
+DirectX::XMFLOAT3 Mul(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3X3 p2);
+DirectX::XMFLOAT3 Mul(DirectX::XMFLOAT3X3 p1, DirectX::XMFLOAT3 p2);
+
+float Mul(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2);
+DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4X4 p2);
+DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4X4 p1, DirectX::XMFLOAT4 p2);
+
 float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 

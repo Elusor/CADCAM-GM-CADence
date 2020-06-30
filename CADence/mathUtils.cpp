@@ -80,6 +80,84 @@ float GetDistanceBetweenPoints(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 	return sqrtf((p1.x-p2.x)* (p1.x - p2.x) + (p1.y - p2.y)* (p1.y - p2.y)+ (p1.z - p2.z)* (p1.z - p2.z));
 }
 
+float Mul(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
+{
+	return Dot(p1,p2);
+}
+
+DirectX::XMFLOAT3 Mul(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3X3 p2)
+{
+	DirectX::XMFLOAT3 col1, col2, col3;
+
+	col1 = DirectX::XMFLOAT3(p2._11, p2._21, p2._31);
+	col2 = DirectX::XMFLOAT3(p2._12, p2._22, p2._32);
+	col3 = DirectX::XMFLOAT3(p2._13, p2._23, p2._33);
+
+	float dot1, dot2, dot3;
+	dot1 = Mul(p1, col1);
+	dot2 = Mul(p1, col2);
+	dot3 = Mul(p1, col3);
+
+	return DirectX::XMFLOAT3(dot1, dot2, dot3);
+}
+
+DirectX::XMFLOAT3 Mul(DirectX::XMFLOAT3X3 p1, DirectX::XMFLOAT3 p2)
+{
+	DirectX::XMFLOAT3 row1, row2, row3;
+
+	row1 = DirectX::XMFLOAT3(p1._11, p1._12, p1._13);
+	row2 = DirectX::XMFLOAT3(p1._21, p1._22, p1._23);
+	row3 = DirectX::XMFLOAT3(p1._31, p1._32, p1._33);
+
+	float dot1, dot2, dot3;
+	dot1 = Mul(row1, p2);
+	dot2 = Mul(row2, p2);
+	dot3 = Mul(row3, p2);
+
+	return DirectX::XMFLOAT3(dot1, dot2, dot3);
+}
+
+float Mul(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2)
+{	
+	return Dot(p1, p2);
+}
+
+DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4X4 p2)
+{
+	DirectX::XMFLOAT4 col1, col2, col3, col4;
+	
+	col1 = DirectX::XMFLOAT4(p2._11, p2._21, p2._31, p2._41);
+	col2 = DirectX::XMFLOAT4(p2._12, p2._22, p2._32, p2._42);
+	col3 = DirectX::XMFLOAT4(p2._13, p2._23, p2._33, p2._43);
+	col4 = DirectX::XMFLOAT4(p2._14, p2._24, p2._34, p2._44);
+
+	float dot1, dot2, dot3, dot4;
+	dot1 = Mul(p1, col1);
+	dot2 = Mul(p1, col2);
+	dot3 = Mul(p1, col3);
+	dot4 = Mul(p1, col4);
+
+	return DirectX::XMFLOAT4(dot1, dot2, dot3, dot4);
+}
+
+DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4X4 p1, DirectX::XMFLOAT4 p2)
+{
+	DirectX::XMFLOAT4 row1, row2, row3, row4;
+
+	row1 = DirectX::XMFLOAT4(p1._11, p1._12, p1._13, p1._14);
+	row2 = DirectX::XMFLOAT4(p1._21, p1._22, p1._23, p1._24);
+	row3 = DirectX::XMFLOAT4(p1._31, p1._32, p1._33, p1._34);
+	row4 = DirectX::XMFLOAT4(p1._41, p1._42, p1._43, p1._44);
+
+	float dot1, dot2, dot3, dot4;
+	dot1 = Mul(row1, p2);
+	dot2 = Mul(row2, p2);
+	dot3 = Mul(row3, p2);
+	dot4 = Mul(row4, p2);
+
+	return DirectX::XMFLOAT4(dot1, dot2, dot3, dot4);
+}
+
 float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
 	return p1.x * p2.x + p1.y * p2.y + p2.z * p2.z;
