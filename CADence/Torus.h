@@ -13,4 +13,6 @@ public:
 	// Inherited via IParametricSurface
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
+	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;
+	virtual DirectX::XMFLOAT3 GetSecondDarivativeMixed(float u, float v) override;
 };

@@ -56,3 +56,35 @@ DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
 
 	return XMFLOAT3(x, y, z);
 }
+
+DirectX::XMFLOAT3 Torus::GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir)
+{
+	float x, y, z;
+
+	switch (tangentDir)
+	{
+	case TangentDir::AlongU:
+		x = -m_smallR * cosf(u) * cosf(v);
+		y = -m_smallR * sinf(u);
+		z = -m_smallR * cosf(u) * sinf(v);
+		break;
+	case TangentDir::AlongV:
+		x = -(m_smallR * cosf(u) + m_bigR) * cosf(v);
+		y = 0.f;
+		z = -(m_smallR * cosf(u) + m_bigR) * sinf(v);
+		break;
+	}
+
+	return DirectX::XMFLOAT3(x, y, z);
+}
+
+DirectX::XMFLOAT3 Torus::GetSecondDarivativeMixed(float u, float v)
+{
+	float x, y, z;
+
+	x = m_smallR * sinf(u) * sinf(v);
+	y = 0;
+	z = -m_smallR * sinf(u) * cosf(v);
+
+	return DirectX::XMFLOAT3(x,y,z);
+}
