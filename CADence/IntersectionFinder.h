@@ -23,6 +23,19 @@ private:
 	float m_precision;	
 	ObjectFactory* m_factory;
 
+	DirectX::XMFLOAT4X4 CalculateDerivativeMatrix(
+		IParametricSurface* surface1, IParametricSurface* surface2,
+		DirectX::XMFLOAT4 x_k, DirectX::XMFLOAT3 stepDir);
+
+	DirectX::XMFLOAT4 CalculateIntersectionDistanceFunctionValue(
+		IParametricSurface* surface1, ParameterPair& surf1Params,
+		IParametricSurface* surface2, ParameterPair& surf2Params,
+		DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float step);
+
+	DirectX::XMFLOAT3 CalculateStepDirection(
+		IParametricSurface* surface1, ParameterPair surf1Params,
+		IParametricSurface* surface2, ParameterPair surf2Params);
+
 	void DetermineAffectedSurfaces(IParametricSurface* surface1,
 		IParametricSurface* surface2,
 		std::vector<IParametricSurface*>& pSurfs,
@@ -43,7 +56,10 @@ private:
 		IParametricSurface* surface1, ParameterPair& surf1Params,
 		IParametricSurface* surface2, ParameterPair& surf2Params,
 		DirectX::XMFLOAT3 prevPoint,
-		DirectX::XMFLOAT3& pos);
-
+		DirectX::XMFLOAT3& pos);	
+	
+	// Move To IParametric Surface
 	DirectX::XMFLOAT3 GetSurfaceNormal(IParametricSurface* surface, ParameterPair params);
+
+	
 };
