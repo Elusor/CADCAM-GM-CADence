@@ -110,22 +110,30 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 
 	std::vector<DirectX::XMFLOAT3> points;
 	std::vector<IParametricSurface*> pSurfs, qSurfs;
+	
+	qSurfs.push_back(surface1);
+	pSurfs.push_back(surface2);
+	
 	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
 	// TODO: FIND ALL AFFECTED PATCHES
-	DetermineAffectedSurfaces(surface1, surface2, pSurfs, qSurfs);
+	// DetermineAffectedSurfaces(surface1, surface2, pSurfs, qSurfs);
 	
 	for (IParametricSurface* p : pSurfs)
 	{
 		for (IParametricSurface* q : qSurfs)
 		{
+			// Sample p and q in a lot of differnt places and search for Intersection Points
+
 			// For each P, Q			
 			ParameterPair pParams, qParams;
+			DirectX::XMFLOAT3 firstPoint;
 
 			// Calculate first point
-			//auto firstPt = FindFirstIntersectionPoint(p, pParams, q, qParams);
-
-			// Calculate other points
-			//auto points = FindOtherIntersectionPoints(p, pParams, q, qParams, firstPt);
+			if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
+			{
+				// Calculate other points
+				auto points = FindOtherIntersectionPoints(q, qParams, p, pParams, firstPoint);
+			}			
 		}
 	}
 }
@@ -225,7 +233,7 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 	IParametricSurface* qSurface,
 	ParameterPair& qSurfParams,
 	IParametricSurface* pSurface,
-	ParameterPair& pSurfParams ,
+	ParameterPair& pSurfParams,
 	DirectX::XMFLOAT3& point)
 {	
 	bool found = false;
@@ -263,6 +271,14 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 		// Calculate new conjugated direction
 		p_k = r_k + beta * p_k;
 
+		// TODO: replace with a cleaner solution
+		iterationCounter++;
+		if (iterationCounter > 30)
+		{
+			found = false;
+			continueSearch = false;
+		}
+
 		// TODO add the end condition
 		assert(false);
 		if (false)
@@ -272,15 +288,7 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 			qSurfParams = curQParams;
 			pSurfParams = curPParams;
 			point = qSurface->GetPoint(curQParams.u, curQParams.v);
-		}
-
-		// TODO: replace with a cleaner solution
-		iterationCounter++;
-		if (iterationCounter > 30)
-		{
-			found = false;
-			continueSearch = false;
-		}
+		}	
 	}	
 
 	return found;
