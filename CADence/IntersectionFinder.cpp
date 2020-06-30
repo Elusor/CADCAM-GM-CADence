@@ -135,14 +135,44 @@ DirectX::XMFLOAT4X4 CalculateHessian(
 	IParametricSurface* pSurf, ParameterPair pParams)
 {
 	// Assumes function F(x) = <Q(u,v)-P(s,t), Q(u,v)-P(s,t)>
-	// CalculateHessian(surf1,surf2, x_k)
-	// CalculateABDerivatives()
-	// CalculateAADerivatives()
-	// CalculateSameADerivatives()		
-	// Return Matrix
+	float u, v, s, t;
+	u = qParams.u; 
+	v = qParams.v;
+	s = pParams.u;
+	t = pParams.v;
 
-	assert(false);
-	return DirectX::XMFLOAT4X4();
+	DirectX::XMFLOAT4X4 hessian;
+	auto Q = qSurf->GetPoint(u, v);
+	auto P = pSurf->GetPoint(s, t);
+
+	auto Qdu = qSurf->GetTangent(u, v, TangentDir::AlongU);
+	auto Qdv = qSurf->GetTangent(u, v, TangentDir::AlongV);
+	auto Qdudv = qSurf->GetSecondDarivativeMixed(u, v);
+	auto Qdudu = qSurf->GetSecondDarivativeSameDirection(u, v, TangentDir::AlongU);
+	auto Qdvdv = qSurf->GetSecondDarivativeSameDirection(u, v, TangentDir::AlongV);	
+
+	auto Pds = pSurf->GetTangent(s, t, TangentDir::AlongU);
+	auto Pdt = pSurf->GetTangent(s, t, TangentDir::AlongV);
+	auto Pdsdt = pSurf->GetSecondDarivativeMixed(s, t);
+	auto Pdsds = pSurf->GetSecondDarivativeSameDirection(s, t, TangentDir::AlongU);
+	auto Pdtdt = pSurf->GetSecondDarivativeSameDirection(s, t, TangentDir::AlongV);
+
+	// Calculate Mixed derivatives Same Func
+	hessian._21 = hessian._12 = (Dot(Qdudv, Q - P) + Dot(Qdu, Qdv)) * 2.f;
+	hessian._43 = hessian._34 = (Dot(Pdsdt, P - Q) + Dot(Pds, Pdt)) * 2.f;
+	// Calculate Mixed derivates Mixed Func
+	hessian._31 = hessian._13 = -2.f * Dot(Qdu, Pds);
+	hessian._41 = hessian._14 = -2.f * Dot(Qdu, Pdt);
+	hessian._32 = hessian._23 = -2.f * Dot(Qdv, Pds);
+	hessian._42 = hessian._24 = -2.f * Dot(Qdv, Pdt);
+
+	// Calculate Same Derivatives
+	hessian._11 = 2 * (Dot(Qdudu, Q - P) + Dot(Qdu, Qdu));
+	hessian._22 = 2 * (Dot(Qdvdv, Q - P) + Dot(Qdv, Qdv));
+	hessian._33 = 2 * (Dot(Pdsds, P - Q) + Dot(Pds, Pds));
+	hessian._44 = 2 * (Dot(Pdtdt, P - Q) + Dot(Pdt, Pdt));
+
+	return hessian;
 }
 
 DirectX::XMFLOAT4 CalculateGradient(
@@ -156,10 +186,17 @@ DirectX::XMFLOAT4 CalculateGradient(
 	s = pParams.u;
 	t = pParams.v;
 
-	float du = Dot(qSurf->GetTangent(u, v, TangentDir::AlongU), (qSurf->GetPoint(u, v) - 2.f * pSurf->GetPoint(s, t)));
-	float dv = Dot(qSurf->GetTangent(u, v, TangentDir::AlongV), (qSurf->GetPoint(u, v) - 2.f * pSurf->GetPoint(s, t)));
-	float ds = Dot(pSurf->GetTangent(s, t, TangentDir::AlongU), (pSurf->GetPoint(s, t) - 2.f * qSurf->GetPoint(u, v)));
-	float dt = Dot(pSurf->GetTangent(s, t, TangentDir::AlongV), (pSurf->GetPoint(s, t) - 2.f * qSurf->GetPoint(u, v)));
+	auto Q = qSurf->GetPoint(u, v);
+	auto P = pSurf->GetPoint(s, t);
+	auto Qdu = qSurf->GetTangent(u, v, TangentDir::AlongU);
+	auto Qdv = qSurf->GetTangent(u, v, TangentDir::AlongV);
+	auto Pds = pSurf->GetTangent(s, t, TangentDir::AlongU);
+	auto Pdt = pSurf->GetTangent(s, t, TangentDir::AlongV);
+
+	float du = Dot(Qdu, 2 * (Q - P));
+	float dv = Dot(Qdv, 2 * (Q - P));
+	float ds = Dot(Pds, 2 * (P - Q));
+	float dt = Dot(Pdt, 2 * (P - Q));
 
 	return DirectX::XMFLOAT4(du, dv, ds, dt);
 }
@@ -169,8 +206,6 @@ float CalculateAlpha(
 	IParametricSurface* pSurf, ParameterPair pParams, 
 	DirectX::XMFLOAT4 p)
 {
-	// TODO: Use newton rhapson method?
-	assert(false);
 	DirectX::XMFLOAT4X4 Hf = CalculateHessian(qSurf, qParams, pSurf, pParams);
 	DirectX::XMFLOAT4 gradient = CalculateGradient(qSurf, qParams, pSurf, pParams);
 
