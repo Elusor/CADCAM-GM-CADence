@@ -56,14 +56,14 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 }
 
 DirectX::XMFLOAT4 IntersectionFinder::CalculateIntersectionDistanceFunctionValue(
-	IParametricSurface* surface1, ParameterPair& surf1Params, 
-	IParametricSurface* surface2, ParameterPair& surf2Params, 
+	IParametricSurface* qSurface, ParameterPair& qSurfParams, 
+	IParametricSurface* pSurface, ParameterPair& pSurfParams, 
 	DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float step)
 {
 	DirectX::XMFLOAT4 funcVal;
 
-	DirectX::XMFLOAT3 pt1 = surface1->GetPoint(surf1Params.u, surf1Params.v);
-	DirectX::XMFLOAT3 pt2 = surface2->GetPoint(surf2Params.u, surf2Params.v);
+	DirectX::XMFLOAT3 pt1 = qSurface->GetPoint(qSurfParams.u, qSurfParams.v);
+	DirectX::XMFLOAT3 pt2 = pSurface->GetPoint(pSurfParams.u, pSurfParams.v);
 	DirectX::XMFLOAT3 posDiff = pt1 - pt2;
 
 	auto stepDiff = pt2 - prevPoint;
@@ -103,6 +103,11 @@ void IntersectionFinder::DetermineAffectedSurfaces(
 
 void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2)
 {
+	// X0 = u, v, s, t
+	// P(s,t)
+	// Q(u,v)
+
+
 	std::vector<DirectX::XMFLOAT3> points;
 	std::vector<IParametricSurface*> pSurfs, qSurfs;
 	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
@@ -117,55 +122,133 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 			ParameterPair pParams, qParams;
 
 			// Calculate first point
-			auto firstPt = FindFirstIntersectionPoint(p, pParams, q, qParams);
+			//auto firstPt = FindFirstIntersectionPoint(p, pParams, q, qParams);
 
 			// Calculate other points
-			auto points = FindOtherIntersectionPoints(p, pParams, q, qParams, firstPt);
+			//auto points = FindOtherIntersectionPoints(p, pParams, q, qParams, firstPt);
 		}
 	}
 }
 
-DirectX::XMFLOAT3 IntersectionFinder::FindFirstIntersectionPoint(
-	IParametricSurface* surface1,
-	ParameterPair& surf1Params, 
-	IParametricSurface* surface2,
-	ParameterPair& surf2Params)
+DirectX::XMFLOAT4X4 CalculateHessian(
+	IParametricSurface* qSurf, ParameterPair qParams,
+	IParametricSurface* pSurf, ParameterPair pParams)
 {
-	// Determine the position of the first intersection point ( Points?) and the parameter values for it 
-	
+	// Assumes function F(x) = <Q(u,v)-P(s,t), Q(u,v)-P(s,t)>
 	// CalculateHessian(surf1,surf2, x_k)
-		// CalculateABDerivatives()
-		// CalculateAADerivatives()
-		// CalculateSameADerivatives()		
-		// Return Matrix
+	// CalculateABDerivatives()
+	// CalculateAADerivatives()
+	// CalculateSameADerivatives()		
+	// Return Matrix
 
-	// CalculateAlpha(surface1, surface2, p)
-		// grad = CalculateGrad();		
-		// Hf = CalculateHessian(surf1,surf2)
-		// return <-grad,p> / (p * Hf * p);
+	assert(false);
+	return DirectX::XMFLOAT4X4();
+}
 
-	// CalculateBeta(r_k+1, r_k)
-		// beta = <r_k+1, (r_k+1 - r_k)>
-		// beta /= <r_k,r_k>
-		// return max(beta, 0)
+DirectX::XMFLOAT4 CalculateGradient(
+	IParametricSurface* qSurf, ParameterPair qParams,
+	IParametricSurface* pSurf, ParameterPair pParams)
+{
+	// Assumes function F(x) = <Q(u,v)-P(s,t), Q(u,v)-P(s,t)>
+	float u, v, s, t;
+	u = qParams.u;
+	v = qParams.v;
+	s = pParams.u;
+	t = pParams.v;
 
-	// Guess the initial value
-	// x0 = initial value
-	// r0 = -grad(f(x0))
-	// p0 = r0
+	float du = Dot(qSurf->GetTangent(u, v, TangentDir::AlongU), (qSurf->GetPoint(u, v) - 2.f * pSurf->GetPoint(s, t)));
+	float dv = Dot(qSurf->GetTangent(u, v, TangentDir::AlongV), (qSurf->GetPoint(u, v) - 2.f * pSurf->GetPoint(s, t)));
+	float ds = Dot(pSurf->GetTangent(s, t, TangentDir::AlongU), (pSurf->GetPoint(s, t) - 2.f * qSurf->GetPoint(u, v)));
+	float dt = Dot(pSurf->GetTangent(s, t, TangentDir::AlongV), (pSurf->GetPoint(s, t) - 2.f * qSurf->GetPoint(u, v)));
 
-	bool someCondition = false;
-	while (someCondition)
+	return DirectX::XMFLOAT4(du, dv, ds, dt);
+}
+
+float CalculateAlpha(
+	IParametricSurface* qSurf, ParameterPair qParams, 
+	IParametricSurface* pSurf, ParameterPair pParams, 
+	DirectX::XMFLOAT4 p)
+{
+	// TODO: Use newton rhapson method?
+	assert(false);
+	DirectX::XMFLOAT4X4 Hf = CalculateHessian(qSurf, qParams, pSurf, pParams);
+	DirectX::XMFLOAT4 gradient = CalculateGradient(qSurf, qParams, pSurf, pParams);
+
+	float alpha = -1.f * Mul(gradient, p) / Mul(Mul(p, Hf), p);
+	return alpha;
+}
+
+float CalculateBeta(DirectX::XMFLOAT4 r_cur, DirectX::XMFLOAT4 r_prev)
+{
+	float beta;
+	DirectX::XMFLOAT4 rDiff = r_cur = r_prev;
+	beta = Mul(r_cur, rDiff) / Mul(r_prev, r_prev);	
+	return max(beta, 0.0f);
+}
+
+bool IntersectionFinder::FindFirstIntersectionPoint(
+	IParametricSurface* qSurface,
+	ParameterPair& qSurfParams,
+	IParametricSurface* pSurface,
+	ParameterPair& pSurfParams ,
+	DirectX::XMFLOAT3& point)
+{	
+	bool found = false;
+	DirectX::XMFLOAT4 x_k; // x = [ u, v, s, t ]
+
+	// Initialize x_0
+	x_k.x = qSurfParams.u; // u 
+	x_k.y = qSurfParams.v; // v
+	x_k.z = pSurfParams.u; // s 
+	x_k.w = pSurfParams.v; // t
+
+	DirectX::XMFLOAT4 r_k = -1.f * CalculateGradient(qSurface, qSurfParams, pSurface, pSurfParams);
+	DirectX::XMFLOAT4 p_k = r_k;
+
+	// TODO: Add condition so taht it is known if the method diverges
+	int iterationCounter = 0;
+
+	bool continueSearch = true;
+	while (continueSearch)
 	{
-		// alfa = CalculateAlpha
-		// x_k+1 = x_k + alpha * pk
-		// r_k+1 = -grad(f(xk))
-		// beta_k+1 = CalculateBeta according to Polak-Ribben
-		// p_k+1 = r_k+1 + beta_k+1 * p_k
+		ParameterPair prevQParams = ParameterPair{ x_k.x, x_k.y };
+		ParameterPair prevPParams = ParameterPair{ x_k.z, x_k.w };
+
+		float alpha = CalculateAlpha(qSurface, prevQParams, pSurface, prevPParams, p_k);
+
+		// Move in a conjugated direction
+		x_k = x_k + alpha * p_k;
+
+		//CalculateBeta according to Polak-Ribiere
+		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
+		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
+		auto r_prev = r_k;
+		r_k = -1.f * CalculateGradient(qSurface, curQParams, pSurface, curPParams);
+		float beta = CalculateBeta(r_k, r_prev);
+		// Calculate new conjugated direction
+		p_k = r_k + beta * p_k;
+
+		// TODO add the end condition
+		assert(false);
+		if (false)
+		{
+			continueSearch = false;
+			found = true;
+			qSurfParams = curQParams;
+			pSurfParams = curPParams;
+			point = qSurface->GetPoint(curQParams.u, curQParams.v);
+		}
+
+		// TODO: replace with a cleaner solution
+		iterationCounter++;
+		if (iterationCounter > 30)
+		{
+			found = false;
+			continueSearch = false;
+		}
 	}	
 
-	// Return the proper x_k
-	return DirectX::XMFLOAT3();
+	return found;
 }
 
 std::vector<std::shared_ptr<Node>> IntersectionFinder::FindOtherIntersectionPoints(
@@ -209,10 +292,10 @@ bool IntersectionFinder::FindNextPoint(
 	auto stepVersor = CalculateStepDirection(qSurf, qSurfParams, pSurf, pSurfParams);
 	
 	// Initialize x_0
-	x_k.x = qSurfParams.u;
-	x_k.y = qSurfParams.v;
-	x_k.z = pSurfParams.u;
-	x_k.w = pSurfParams.v;
+	x_k.x = qSurfParams.u; // u
+	x_k.y = qSurfParams.v; // v
+	x_k.z = pSurfParams.u; // s
+	x_k.w = pSurfParams.v; // t
 	
 	// TODO: Add condition so taht it is known if the method diverges
 	int iterationCounter = 0;
@@ -228,8 +311,8 @@ bool IntersectionFinder::FindNextPoint(
 			pSurf, curPParams, 
 			prevPoint, stepVersor, m_step);
 
-		// Solution is satisfying
-		if (Dot(funcVal, funcVal) <= m_precision * m_precision) {
+		if (Dot(funcVal, funcVal) <= m_precision * m_precision) 
+		{ // Solution is satisfying
 			continueNewtonCalculation = false;
 			found = true;
 			pos = pSurf->GetPoint(curPParams.u, curPParams.v);

@@ -41,11 +41,12 @@ private:
 		std::vector<IParametricSurface*>& pSurfs,
 		std::vector<IParametricSurface*>& qSurfs);
 
-	DirectX::XMFLOAT3 FindFirstIntersectionPoint(
+	bool FindFirstIntersectionPoint(
 		IParametricSurface* surface1,
 		ParameterPair& surf1Params,
 		IParametricSurface* surface2,
-		ParameterPair& surf2Params);
+		ParameterPair& surf2Params,
+		DirectX::XMFLOAT3& point);
 
 	std::vector<std::shared_ptr<Node>> FindOtherIntersectionPoints(
 		IParametricSurface* surface1, ParameterPair surf1Params,
