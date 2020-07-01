@@ -98,6 +98,11 @@ BezierCoeffs BezierCalculator::ConvertDeBoorToBezier(DirectX::XMFLOAT3 p0, Direc
 	return coeffs;
 }
 
+BezierCoeffs BezierCalculator::ConvertDeBoorToBezier(BezierCoeffs coeffs)
+{
+	return ConvertDeBoorToBezier(coeffs.b0, coeffs.b1, coeffs.b2, coeffs.b3);
+}
+
 DerBezierCoeffs BezierCalculator::GetDerivativeCoefficients(BezierCoeffs coefficients)
 {
 	return GetDerivativeCoefficients(coefficients.b0, coefficients.b1, coefficients.b2, coefficients.b3);
@@ -145,6 +150,11 @@ DerBezierCoeffs BezierCalculator::GetDerivativeCoefficients(DirectX::XMFLOAT3 p0
 	derivatives.b21 = 3 * (p2 - p1);
 	derivatives.b10 = 3 * (p1 - p0);
 	return derivatives;
+}
+
+DirectX::XMFLOAT3 BezierCalculator::CalculateDeBoor4(BezierCoeffs coeffs, float t)
+{
+	return CalculateDeBoor4(coeffs.b0, coeffs.b1, coeffs.b2, coeffs.b3, t);
 }
 
 DirectX::XMFLOAT3 BezierCalculator::CalculateDeBoor4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t)

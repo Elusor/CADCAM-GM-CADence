@@ -79,123 +79,126 @@ DirectX::XMFLOAT3 BezierPatchC2::GetPoint(float u, float v)
 	auto refs = GetReferences().GetAllRef();
 
 	DirectX::XMFLOAT3 aux0, aux1, aux2, aux3;
+	auto points = GetPatchPointPositions();
 
-	DirectX::XMFLOAT3 p00, p01, p02, p03;
-	p00 = refs[0].m_refered.lock()->m_object->GetPosition();
-	p01 = refs[1].m_refered.lock()->m_object->GetPosition();
-	p02 = refs[2].m_refered.lock()->m_object->GetPosition();
-	p03 = refs[3].m_refered.lock()->m_object->GetPosition();
-	aux0 = BezierCalculator::CalculateDeBoor4(p00, p01, p02, p03, u);
-
-	DirectX::XMFLOAT3 p10, p11, p12, p13;
-	p10 = refs[4].m_refered.lock()->m_object->GetPosition();
-	p11 = refs[5].m_refered.lock()->m_object->GetPosition();
-	p12 = refs[6].m_refered.lock()->m_object->GetPosition();
-	p13 = refs[7].m_refered.lock()->m_object->GetPosition();
-	aux1 = BezierCalculator::CalculateDeBoor4(p10, p11, p12, p13, u);
-
-	DirectX::XMFLOAT3 p20, p21, p22, p23;
-	p20 = refs[8].m_refered.lock()->m_object->GetPosition();
-	p21 = refs[9].m_refered.lock()->m_object->GetPosition();
-	p22 = refs[10].m_refered.lock()->m_object->GetPosition();
-	p23 = refs[11].m_refered.lock()->m_object->GetPosition();
-	aux2 = BezierCalculator::CalculateDeBoor4(p20, p21, p22, p23, u);
-
-	DirectX::XMFLOAT3 p30, p31, p32, p33;
-	p30 = refs[12].m_refered.lock()->m_object->GetPosition();
-	p31 = refs[13].m_refered.lock()->m_object->GetPosition();
-	p32 = refs[14].m_refered.lock()->m_object->GetPosition();
-	p33 = refs[15].m_refered.lock()->m_object->GetPosition();
-	aux3 = BezierCalculator::CalculateDeBoor4(p30, p31, p32, p33, u);
+	aux0 = BezierCalculator::CalculateDeBoor4(points.row0, u);
+	aux1 = BezierCalculator::CalculateDeBoor4(points.row1, u);
+	aux2 = BezierCalculator::CalculateDeBoor4(points.row2, u);	
+	aux3 = BezierCalculator::CalculateDeBoor4(points.row3, u);
 
 	return BezierCalculator::CalculateDeBoor4(aux0, aux1, aux2, aux3, v);
 }
 
 DirectX::XMFLOAT3 BezierPatchC2::GetTangent(float u, float v, TangentDir tangentDir)
 {
-	auto refs = GetReferences().GetAllRef();
 	DirectX::XMFLOAT3 aux0, aux1, aux2, aux3;
 
-	DirectX::XMFLOAT3 p00, p01, p02, p03;
-	p00 = refs[0].m_refered.lock()->m_object->GetPosition();
-	p01 = refs[1].m_refered.lock()->m_object->GetPosition();
-	p02 = refs[2].m_refered.lock()->m_object->GetPosition();
-	p03 = refs[3].m_refered.lock()->m_object->GetPosition();
+	auto points = GetPatchPointPositions();
+	
+	DirectX::XMFLOAT3 result;
 
-	DirectX::XMFLOAT3 p10, p11, p12, p13;
-	p10 = refs[4].m_refered.lock()->m_object->GetPosition();
-	p11 = refs[5].m_refered.lock()->m_object->GetPosition();
-	p12 = refs[6].m_refered.lock()->m_object->GetPosition();
-	p13 = refs[7].m_refered.lock()->m_object->GetPosition();
+	if (tangentDir == TangentDir::AlongU)
+	{
+		auto bern0 = BezierCalculator::ConvertDeBoorToBezier(points.row0);
+		auto bern1 = BezierCalculator::ConvertDeBoorToBezier(points.row1);
+		auto bern2 = BezierCalculator::ConvertDeBoorToBezier(points.row2);
+		auto bern3 = BezierCalculator::ConvertDeBoorToBezier(points.row3);
+		
+		// Along U
+		auto der0 = BezierCalculator::GetDerivativeCoefficients(bern0);
+		auto der1 = BezierCalculator::GetDerivativeCoefficients(bern1);
+		auto der2 = BezierCalculator::GetDerivativeCoefficients(bern2);
+		auto der3 = BezierCalculator::GetDerivativeCoefficients(bern3);
 
-	DirectX::XMFLOAT3 p20, p21, p22, p23;
-	p20 = refs[8].m_refered.lock()->m_object->GetPosition();
-	p21 = refs[9].m_refered.lock()->m_object->GetPosition();
-	p22 = refs[10].m_refered.lock()->m_object->GetPosition();
-	p23 = refs[11].m_refered.lock()->m_object->GetPosition();
+		auto derVal0 = BezierCalculator::CalculateBezier3(der0, u);
+		auto derVal1 = BezierCalculator::CalculateBezier3(der1, u);
+		auto derVal2 = BezierCalculator::CalculateBezier3(der2, u);
+		auto derVal3 = BezierCalculator::CalculateBezier3(der3, u);
+		
+		result = BezierCalculator::CalculateDeBoor4(derVal0, derVal1, derVal2, derVal3, v);
+	}
+	else {
+		// Along V
+		aux0 = BezierCalculator::CalculateDeBoor4(points.row0, u);
+		aux1 = BezierCalculator::CalculateDeBoor4(points.row1, u);
+		aux2 = BezierCalculator::CalculateDeBoor4(points.row2, u);
+		aux3 = BezierCalculator::CalculateDeBoor4(points.row3, u);
 
-	DirectX::XMFLOAT3 p30, p31, p32, p33;
-	p30 = refs[12].m_refered.lock()->m_object->GetPosition();
-	p31 = refs[13].m_refered.lock()->m_object->GetPosition();
-	p32 = refs[14].m_refered.lock()->m_object->GetPosition();
-	p33 = refs[15].m_refered.lock()->m_object->GetPosition();
+		// Convert Auxs to Beziers
+		auto auxBerns = BezierCalculator::ConvertDeBoorToBezier(aux0, aux1, aux2, aux3);
+
+		// Calculate diff along V
+		auto derivatives = BezierCalculator::GetDerivativeCoefficients(auxBerns);
+
+		result = BezierCalculator::CalculateBezier3(derivatives,v);
+	}
+
+	return result;
+}
+
+DirectX::XMFLOAT3 BezierPatchC2::GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir)
+{
+	auto points = GetPatchPointPositions();
 
 	DirectX::XMFLOAT3 result;
 
 	if (tangentDir == TangentDir::AlongU)
 	{
+		auto bern0 = BezierCalculator::ConvertDeBoorToBezier(points.row0);
+		auto bern1 = BezierCalculator::ConvertDeBoorToBezier(points.row1);
+		auto bern2 = BezierCalculator::ConvertDeBoorToBezier(points.row2);
+		auto bern3 = BezierCalculator::ConvertDeBoorToBezier(points.row3);
 
-		DirectX::XMFLOAT3 b00, b01, b02, b03;
-		DirectX::XMFLOAT3 b10, b11, b12, b13;
-		DirectX::XMFLOAT3 b20, b21, b22, b23;
-		DirectX::XMFLOAT3 b30, b31, b32, b33;
+		auto dder0 = BezierCalculator::GetSecondDerivativeCoefficients(bern0);
+		auto dder1 = BezierCalculator::GetSecondDerivativeCoefficients(bern1);
+		auto dder2 = BezierCalculator::GetSecondDerivativeCoefficients(bern2);
+		auto dder3 = BezierCalculator::GetSecondDerivativeCoefficients(bern3);
 
-		auto b0 = BezierCalculator::ConvertDeBoorToBezier(p00, p01, p02, p03);
-		auto b1 = BezierCalculator::ConvertDeBoorToBezier(p10, p11, p12, p13);
-		auto b2 = BezierCalculator::ConvertDeBoorToBezier(p20, p21, p22, p23);
-		auto b3 = BezierCalculator::ConvertDeBoorToBezier(p30, p31, p32, p33);
+		auto curvePoint0 = BezierCalculator::CalculateBezier2(dder0.b210, dder0.b321, u);
+		auto curvePoint1 = BezierCalculator::CalculateBezier2(dder1.b210, dder1.b321, u);
+		auto curvePoint2 = BezierCalculator::CalculateBezier2(dder2.b210, dder2.b321, u);
+		auto curvePoint3 = BezierCalculator::CalculateBezier2(dder3.b210, dder3.b321, u);
 
-		b00 = b0.b0; b01 = b0.b1; b02 = b0.b2; b03 = b0.b3;
-		b10 = b1.b0; b11 = b1.b1; b12 = b1.b2; b13 = b1.b3;
-		b20 = b2.b0; b21 = b2.b1; b22 = b2.b2; b23 = b2.b3;
-		b30 = b3.b0; b31 = b3.b1; b32 = b3.b2; b33 = b3.b3;
-
-		// Along U
-		auto aux00 = BezierCalculator::CalculateBezier3(b00, b01, b02, u);
-		auto aux01 = BezierCalculator::CalculateBezier3(b01, b02, b03, u);
-		aux0 = aux01 - aux00;
-
-		auto aux10 = BezierCalculator::CalculateBezier3(b10, b11, b12, u);
-		auto aux11 = BezierCalculator::CalculateBezier3(b11, b12, b13, u);
-		aux1 = aux11 - aux10;
-
-		auto aux20 = BezierCalculator::CalculateBezier3(b20, b21, b22, u);
-		auto aux21 = BezierCalculator::CalculateBezier3(b21, b22, b23, u);
-		aux2 = aux21 - aux20;
-
-		auto aux30 = BezierCalculator::CalculateBezier3(b30, b31, b32, u);
-		auto aux31 = BezierCalculator::CalculateBezier3(b31, b32, b33, u);
-		aux3 = aux31 - aux30;
-
-		result = BezierCalculator::CalculateDeBoor4(aux0, aux1, aux2, aux3, v);
+		result = BezierCalculator::CalculateDeBoor4(curvePoint0, curvePoint1, curvePoint2, curvePoint3, v);
 	}
 	else {
-		// Along V
-		aux0 = BezierCalculator::CalculateDeBoor4(p00, p01, p02, p03, u);
-		aux1 = BezierCalculator::CalculateDeBoor4(p10, p11, p12, p13, u);
-		aux2 = BezierCalculator::CalculateDeBoor4(p20, p21, p22, p23, u);
-		aux3 = BezierCalculator::CalculateDeBoor4(p30, p31, p32, p33, u);
+		auto deBoor0 = BezierCalculator::CalculateDeBoor4(points.row0, u);
+		auto deBoor1 = BezierCalculator::CalculateDeBoor4(points.row1, u);
+		auto deBoor2 = BezierCalculator::CalculateDeBoor4(points.row2, u);
+		auto deBoor3 = BezierCalculator::CalculateDeBoor4(points.row3, u);
 
+		auto vCurve = BezierCalculator::ConvertDeBoorToBezier(deBoor0, deBoor1, deBoor2, deBoor3);			
+		auto vDer = BezierCalculator::GetSecondDerivativeCoefficients(vCurve);
 
-		// Convert Auxs to Beziers
-		auto auxBerns = BezierCalculator::ConvertDeBoorToBezier(aux0, aux1, aux2, aux3);
-
-
-		// Calculate diff along V
-		auto p0 = BezierCalculator::CalculateBezier3(auxBerns.b0, auxBerns.b1, auxBerns.b2, v);
-		auto p1 = BezierCalculator::CalculateBezier3(auxBerns.b1, auxBerns.b2, auxBerns.b3, v);
-		result = p1 - p0;
+		result = BezierCalculator::CalculateBezier2(vDer.b210, vDer.b321, v);
 	}
 
+	return result;
+}
+
+DirectX::XMFLOAT3 BezierPatchC2::GetSecondDarivativeMixed(float u, float v)
+{
+	auto points = GetPatchPointPositions();
+
+	DirectX::XMFLOAT3 result;
+
+	auto bern0 = BezierCalculator::ConvertDeBoorToBezier(points.row0);
+	auto bern1 = BezierCalculator::ConvertDeBoorToBezier(points.row1);
+	auto bern2 = BezierCalculator::ConvertDeBoorToBezier(points.row2);
+	auto bern3 = BezierCalculator::ConvertDeBoorToBezier(points.row3);
+
+	auto bernDu0 = BezierCalculator::GetDerivativeCoefficients(bern0);
+	auto bernDu1 = BezierCalculator::GetDerivativeCoefficients(bern1);
+	auto bernDu2 = BezierCalculator::GetDerivativeCoefficients(bern2);
+	auto bernDu3 = BezierCalculator::GetDerivativeCoefficients(bern3);
+
+	auto der0 = BezierCalculator::CalculateBezier3(bernDu0, u);
+	auto der1 = BezierCalculator::CalculateBezier3(bernDu1, u);
+	auto der2 = BezierCalculator::CalculateBezier3(bernDu2, u);
+	auto der3 = BezierCalculator::CalculateBezier3(bernDu3, u);
+
+	auto bernsteinVCurve = BezierCalculator::ConvertDeBoorToBezier(der0, der1, der2, der3);
+	auto finalPoints = BezierCalculator::GetDerivativeCoefficients(bernsteinVCurve);
+	result = BezierCalculator::CalculateBezier3(finalPoints, v);
 	return result;
 }
