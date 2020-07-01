@@ -4,8 +4,16 @@
 #include <direct.h>
 #include <DirectXMath.h>
 #include "IParametricSurface.h"
-
+#include "bezierCalculator.h"
 using namespace DirectX;
+
+struct BezierPatchPointPos
+{
+	BezierCoeffs row0;
+	BezierCoeffs row1;
+	BezierCoeffs row2;
+	BezierCoeffs row3;
+};
 
 enum Coord {
 	Xpos,
@@ -48,6 +56,7 @@ public:
 	void SetPolygonColor(DirectX::XMFLOAT3 col);
 	void SetPatchColor(DirectX::XMFLOAT3 col);
 
+	BezierPatchPointPos GetPatchPointPositions();
 	std::vector<std::weak_ptr<Node>> GetPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPreBoundaryPoints(BoundaryDirection direction);
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);	
@@ -55,6 +64,8 @@ public:
 	// Inherited via IParametricSurface
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
+	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;
+	virtual DirectX::XMFLOAT3 GetSecondDarivativeMixed(float u, float v) override;
 protected:
 
 	int m_uSize = 4;

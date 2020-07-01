@@ -13,11 +13,21 @@ DirectX::XMFLOAT3 BezierCalculator::CalculateBezier3(DirectX::XMFLOAT3 p0, Direc
 	return  WeightedXMFloat3Average(t1, t2, t);
 }
 
+DirectX::XMFLOAT3 BezierCalculator::CalculateBezier3(DerBezierCoeffs coeffs, float t)
+{
+	return CalculateBezier3(coeffs.b10, coeffs.b21, coeffs.b32, t);
+}
+
 DirectX::XMFLOAT3 BezierCalculator::CalculateBezier4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t)
 {
 	DirectX::XMFLOAT3 t1 = CalculateBezier3(p0, p1, p2, t);
 	DirectX::XMFLOAT3 t2 = CalculateBezier3(p1, p2, p3, t);
 	return WeightedXMFloat3Average(t1, t2, t);
+}
+
+DirectX::XMFLOAT3 BezierCalculator::CalculateBezier4(BezierCoeffs coeffs, float t)
+{
+	return CalculateBezier4(coeffs.b0, coeffs.b1, coeffs.b2, coeffs.b3, t);
 }
 
 std::vector<DirectX::XMFLOAT3> BezierCalculator::CalculateBezierDeCasteljau(std::vector<DirectX::XMFLOAT3> knots, int samples)
@@ -86,6 +96,55 @@ BezierCoeffs BezierCalculator::ConvertDeBoorToBezier(DirectX::XMFLOAT3 p0, Direc
 	coeffs.b3 = last;
 
 	return coeffs;
+}
+
+DerBezierCoeffs BezierCalculator::GetDerivativeCoefficients(BezierCoeffs coefficients)
+{
+	return GetDerivativeCoefficients(coefficients.b0, coefficients.b1, coefficients.b2, coefficients.b3);
+}
+
+// Converts b0 b1 b2 b3 b4 ... to deg(b1-b0), deg(b2-b1), deg(b3-b2), ...
+std::vector<DirectX::XMFLOAT3> BezierCalculator::GetDerivativeCoefficients(std::vector<DirectX::XMFLOAT3> coefficients)
+{
+	std::vector<DirectX::XMFLOAT3> result;
+
+	// Cubic Bezier has 4 coeficcients, Quadratic - 3  and so on
+	int degree = coefficients.size() - 1;
+	for (int i = 0; i < coefficients.size() - 1; i++) {
+		result.push_back(degree * (coefficients[i+1] - coefficients[i]));
+	}
+
+	return result;
+}
+
+SecondDerBezierCoeffs BezierCalculator::GetSecondDerivativeCoefficients(BezierCoeffs coefficients)
+{
+	return GetSecondDerivativeCoefficients(coefficients.b0, coefficients.b1, coefficients.b2, coefficients.b3);
+}
+
+SecondDerBezierCoeffs BezierCalculator::GetSecondDerivativeCoefficients(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3)
+{
+	std::vector<DirectX::XMFLOAT3> curve;
+	curve.push_back(p0);
+	curve.push_back(p1);
+	curve.push_back(p2);
+	curve.push_back(p3);
+
+	// First derivative
+	curve = GetDerivativeCoefficients(curve);
+	// Second derivative
+	curve = GetDerivativeCoefficients(curve);
+
+	return SecondDerBezierCoeffs{ curve[0], curve[1] };
+}
+
+DerBezierCoeffs BezierCalculator::GetDerivativeCoefficients(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3)
+{
+	DerBezierCoeffs derivatives;
+	derivatives.b32 = 3 * (p3 - p2);
+	derivatives.b21 = 3 * (p2 - p1);
+	derivatives.b10 = 3 * (p1 - p0);
+	return derivatives;
 }
 
 DirectX::XMFLOAT3 BezierCalculator::CalculateDeBoor4(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3, float t)

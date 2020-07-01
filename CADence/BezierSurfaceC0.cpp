@@ -129,6 +129,27 @@ std::weak_ptr<Node> BezierSurfaceC0::GetPatch(int w, int h)
 
 }
 
+BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
+{
+
+	// u - width
+	// v - height 
+
+	// determine the W and H of a given patch and get the point from this patch
+	int w = (int)(u * (float)m_patchW);
+	int h = (int)(v * (float)m_patchH);
+
+	float newU = (u - (float)w / (float)m_patchW) * m_patchW;
+	float newV = (v - (float)h / (float)m_patchH) * m_patchH;
+
+	auto node = GetPatch(w, h).lock();
+
+	u = newU;
+	v = newV;
+
+	return (BezierPatch*)(node->m_object).get();
+}
+
 bool BezierSurfaceC0::CreateParamsGui()
 {
 	ImGui::Begin("Inspector");
@@ -278,32 +299,36 @@ void BezierSurfaceC0::SetDivisions()
 
 DirectX::XMFLOAT3 BezierSurfaceC0::GetPoint(float u, float v)
 {
-	// u - width
-	// v - height 
-
-	// determine the W and H of a given patch and get the point from this patch
-	int w = (int)(u * (float)m_patchW);
-	int h = (int)(v * (float)m_patchH);
-
-	float newU = (u - (float)w / (float)m_patchW) * m_patchW;
-	float newV = (v - (float)h / (float)m_patchH) * m_patchH;
-
-	auto node = GetPatch(w, h).lock();
-	return ((BezierPatch*)node->m_object.get())->GetPoint(newU, newV);
+	// Gets the patch at given parameters and sclae u,v to appropriate size
+	float uRef = u;
+	float vRef = v;
+	auto patch = GetPatchAtParameter(uRef, vRef);
+	return patch->GetPoint(uRef, vRef);
 }
 
 DirectX::XMFLOAT3 BezierSurfaceC0::GetTangent(float u, float v, TangentDir tangentDir)
 {
-	// u - width
-	// v - height 
+	// Gets the patch at given parameters and sclae u,v to appropriate size
+	float uRef = u;
+	float vRef = v;
+	auto patch = GetPatchAtParameter(uRef, vRef);
+	return patch->GetTangent(uRef, vRef, tangentDir);
+}
 
-	// determine the W and H of a given patch and get the point from this patch
-	int w = (int)(u * (float)m_patchW);
-	int h = (int)(v * (float)m_patchH);
+DirectX::XMFLOAT3 BezierSurfaceC0::GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir)
+{
+	// Gets the patch at given parameters and sclae u,v to appropriate size
+	float uRef = u;
+	float vRef = v;
+	auto patch = GetPatchAtParameter(uRef, vRef);
+	return patch->GetSecondDarivativeSameDirection(uRef, vRef, tangentDir);
+}
 
-	float newU = (u - (float)w / (float)m_patchW) * m_patchW;
-	float newV = (v - (float)h / (float)m_patchH) * m_patchH;
-
-	auto node = GetPatch(w,h).lock();
-	return ((BezierPatch*)node->m_object.get())->GetTangent(newU, newV, tangentDir);
+DirectX::XMFLOAT3 BezierSurfaceC0::GetSecondDarivativeMixed(float u, float v)
+{
+	// Gets the patch at given parameters and sclae u,v to appropriate size
+	float uRef = u;
+	float vRef = v;
+	auto patch = GetPatchAtParameter(uRef, vRef);
+	return patch->GetSecondDarivativeMixed(uRef, vRef);
 }

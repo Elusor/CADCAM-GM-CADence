@@ -35,18 +35,17 @@ public:
 	void SetPoints(std::shared_ptr<Node>** points, int width, int height);
 	void SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> points, int width, int height);
 	std::weak_ptr<Node> GetPatch(int w, int h);
-
+	
 	// Inherited via IParametricSurface
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
+	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;
+	virtual DirectX::XMFLOAT3 GetSecondDarivativeMixed(float u, float v) override;
 protected:
 	std::vector<std::vector<std::weak_ptr<Node>>> m_points;
 	SurfaceWrapDirection m_wrapDir;
 	std::vector<std::shared_ptr<Node>> m_patches;
-	void SetPolygonColor();
-	void SetDisplayPolygon();
-	void SetMeshColor();
-	void SetDivisions();
+	
 	int m_patchW;
 	int m_patchH;
 
@@ -57,6 +56,12 @@ protected:
 	int m_divisionsV;
 	bool m_displayPatchesPolygon;
 	DirectX::XMFLOAT3 m_polygonsColor;
+
+	void SetPolygonColor();
+	void SetDisplayPolygon();
+	void SetMeshColor();
+	void SetDivisions();
+	BezierPatch* GetPatchAtParameter(float& u, float& v);
 };
 
 class BezierSurfaceC2 : public BezierSurfaceC0
