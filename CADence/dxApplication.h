@@ -21,6 +21,7 @@
 #include "FileManager.h"
 #include "GuiManager.h"
 #include "PointCollapser.h"
+#include "IntersectionFinder.h"
 
 class DxApplication : public mini::WindowApplication
 {
@@ -48,6 +49,7 @@ private:
 	std::unique_ptr<FileManager> m_fileManager;
 	std::unique_ptr<GuiManager> m_guiManager;
 	std::unique_ptr<PointCollapser> m_pointCollapser;
+	std::unique_ptr<IntersectionFinder> m_intersectionFinder;
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
 	IRenderPass* m_activePass;

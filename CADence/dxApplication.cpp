@@ -12,6 +12,8 @@
 #include "PointSelector.h"
 #include "IOExceptions.h"
 #include "HoleDetector.h"
+#include "IntersectionFinder.h"
+
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -42,6 +44,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_exporter = make_unique<SceneExporter>(m_scene.get(), m_guiManager.get());
 	m_fileManager = make_unique<FileManager>();
 	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
+	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene->m_objectFactory.get());
+
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
@@ -211,6 +215,19 @@ void DxApplication::InitImguiWindows()
 				{
 					m_pointCollapser->Collapse(p1, p2);
 				}				
+			}
+
+			IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(p1.lock()->m_object.get());
+			IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(p2.lock()->m_object.get());
+			if(surf1 != nullptr && surf2 != nullptr)
+			{
+				if (ImGui::Button("Intersect surfaces"))
+				{
+					auto pt = m_intersectionFinder->FindInterSection(surf1, surf2);
+					auto point = m_scene->m_objectFactory->CreatePoint();
+					point->m_object->SetPosition(pt);
+					m_scene->AttachObject(point);
+				}
 			}
 		}
 
