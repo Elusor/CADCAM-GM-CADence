@@ -223,10 +223,10 @@ void DxApplication::InitImguiWindows()
 			{
 				if (ImGui::Button("Intersect surfaces"))
 				{
-					auto pt = m_intersectionFinder->FindInterSection(surf1, surf2);
-					auto point = m_scene->m_objectFactory->CreatePoint();
+					m_intersectionFinder->FindInterSection(surf1, surf2);
+					/*auto point = m_scene->m_objectFactory->CreatePoint();
 					point->m_object->SetPosition(pt);
-					m_scene->AttachObject(point);
+					m_scene->AttachObject(point);*/
 				}
 			}
 		}
@@ -272,6 +272,10 @@ void DxApplication::InitImguiWindows()
 	if (ImGui::CollapsingHeader("Grid"))
 	{
 		m_scene->m_grid->CreateParamsGui();
+	}
+	if (ImGui::CollapsingHeader("Intersections"))
+	{
+		m_intersectionFinder->CreateParamsGui();
 	}
 	if (ImGui::CollapsingHeader("Transformations"))
 	{

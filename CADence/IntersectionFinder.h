@@ -17,7 +17,7 @@ public:
 	IntersectionFinder(ObjectFactory* factory);
 	// TODO change return type to intersection curve
 	void FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2);
-
+	void CreateParamsGui();
 private:
 	float m_step;
 	float m_precision;	

@@ -10,6 +10,8 @@
 IntersectionFinder::IntersectionFinder(ObjectFactory* factory)
 {
 	m_factory = factory;
+	m_step = 0.05f;
+	m_precision = 0.05f;
 }
 
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
@@ -101,41 +103,18 @@ void IntersectionFinder::DetermineAffectedSurfaces(
 	assert(false);
 }
 
-void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2)
+void IntersectionFinder::CreateParamsGui()
 {
-	// X0 = u, v, s, t
-	// P(s,t)
-	// Q(u,v)
+	float eps = m_precision;
+	std::string label = "Precision##IntersectionFinder";
+	ImGui::DragFloat(label.c_str(), &eps, 0.05f, 0.05f, 2.f);
 
+	float step = m_step;
+	std::string label2 = "Step size##IntersectionFinder";
+	ImGui::DragFloat(label2.c_str(), &step, 0.05f, 0.05f, 2.f);
 
-	std::vector<DirectX::XMFLOAT3> points;
-	std::vector<IParametricSurface*> pSurfs, qSurfs;
-	
-	qSurfs.push_back(surface1);
-	pSurfs.push_back(surface2);
-	
-	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
-	// TODO: FIND ALL AFFECTED PATCHES
-	// DetermineAffectedSurfaces(surface1, surface2, pSurfs, qSurfs);
-	
-	for (IParametricSurface* p : pSurfs)
-	{
-		for (IParametricSurface* q : qSurfs)
-		{
-			// Sample p and q in a lot of differnt places and search for Intersection Points
-
-			// For each P, Q			
-			ParameterPair pParams, qParams;
-			DirectX::XMFLOAT3 firstPoint;
-
-			// Calculate first point
-			if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
-			{
-				// Calculate other points
-				auto points = FindOtherIntersectionPoints(q, qParams, p, pParams, firstPoint);
-			}			
-		}
-	}
+	m_precision = eps;
+	m_step = step;
 }
 
 DirectX::XMFLOAT4X4 CalculateHessian(
@@ -292,6 +271,43 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 	}	
 
 	return found;
+}
+
+void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2)
+{
+	// X0 = u, v, s, t
+	// P(s,t)
+	// Q(u,v)
+
+
+	std::vector<DirectX::XMFLOAT3> points;
+	std::vector<IParametricSurface*> pSurfs, qSurfs;
+
+	qSurfs.push_back(surface1);
+	pSurfs.push_back(surface2);
+
+	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
+	// TODO: FIND ALL AFFECTED PATCHES
+	// DetermineAffectedSurfaces(surface1, surface2, pSurfs, qSurfs);
+
+	for (IParametricSurface* p : pSurfs)
+	{
+		for (IParametricSurface* q : qSurfs)
+		{
+			// Sample p and q in a lot of differnt places and search for Intersection Points
+
+			// For each P, Q			
+			ParameterPair pParams, qParams;
+			DirectX::XMFLOAT3 firstPoint;
+
+			// Calculate first point
+			if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
+			{
+				// Calculate other points
+				auto points = FindOtherIntersectionPoints(q, qParams, p, pParams, firstPoint);
+			}
+		}
+	}
 }
 
 std::vector<std::shared_ptr<Node>> IntersectionFinder::FindOtherIntersectionPoints(
