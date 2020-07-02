@@ -22,6 +22,8 @@ void IntersectionCurve::Initialize(IParametricSurface* qSurface, std::vector<Dir
 	{
 		m_virtualPointsWeak.push_back(pt);
 	}
+
+	SetModified(true);
 }
 
 std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetParameterList(IntersectedSurface surface)
@@ -81,7 +83,7 @@ void IntersectionCurve::RenderObjectSpecificContextOptions(Scene& scene)
 
 void IntersectionCurve::UpdateObject()
 {	
-	if (m_positions.size() >= 2)
+	if (m_virtualPoints.size() >= 2)
 	{ 
 		UpdateGSData();
 	}
@@ -130,7 +132,7 @@ bool IntersectionCurve::CreateParamsGui()
 
 bool IntersectionCurve::GetIsModified()
 {
-	return false;
+	return m_modified;
 }
 
 std::shared_ptr<Node> IntersectionCurve::CreateVirtualPoint(DirectX::XMFLOAT3 pos, int ptIdx)
