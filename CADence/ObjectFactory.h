@@ -4,6 +4,7 @@
 #include "torusGenerator.h"
 #include "Node.h"
 #include "GroupNode.h"
+#include "IParametricSurface.h"
 
 struct HoleData;
 
@@ -46,6 +47,10 @@ public:
 	std::shared_ptr<Node> CreateGregoryPatch(
 		HoleData hole);
 
+	std::shared_ptr<Node> CreateIntersectionCurve(
+		IParametricSurface* qSurface, std::vector<DirectX::XMFLOAT2> qParameters,
+		IParametricSurface* pSurface, std::vector<DirectX::XMFLOAT2> pParameters);
+
 	std::shared_ptr<Node> CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
 
 	std::shared_ptr<Node> CreateBezierCurveC2(
@@ -77,4 +82,5 @@ private:
 	int m_torusCounter = 0;
 	int m_pointCounter = 0;
 	int m_gregPatchCounter = 0;
+	int m_intersectionCurveCounter = 0;
 };

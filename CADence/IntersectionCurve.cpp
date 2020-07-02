@@ -1,4 +1,7 @@
 #include "IntersectionCurve.h"
+#include "imgui.h"
+#include "Scene.h"
+#include "Node.h"
 
 IntersectionCurve::IntersectionCurve()
 {
@@ -40,4 +43,32 @@ std::vector<DirectX::XMFLOAT3> IntersectionCurve::GetPointPositions()
 	}
 
 	return positions;
+}
+
+void IntersectionCurve::RenderObjectSpecificContextOptions(Scene& scene)
+{
+	if (ImGui::Selectable("Convert to interpolation curve"))
+	{
+		if (auto node = m_nodePtr.lock())
+		{
+			auto factory = scene.m_objectFactory.get();
+			auto positions = m_positions;
+
+			std::vector<std::weak_ptr<Node>> points;
+			for (auto pos : positions)
+			{
+				// Create point and attach it to the scene
+				auto pt = factory->CreatePoint();
+				pt->m_object->SetPosition(pos);
+				scene.AttachObject(pt);
+				points.push_back(pt);
+			}
+
+			auto interpolCurve = factory->CreateInterpolBezierCurveC2(points);
+			// Optionally rename the curve to mark that this is the same object
+			interpolCurve->Rename(m_name);
+			scene.RemoveObject(node->m_object);
+			scene.AttachObject(interpolCurve);
+		}
+	}
 }

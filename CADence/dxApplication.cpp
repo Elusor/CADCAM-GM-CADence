@@ -44,7 +44,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_exporter = make_unique<SceneExporter>(m_scene.get(), m_guiManager.get());
 	m_fileManager = make_unique<FileManager>();
 	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
-	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene->m_objectFactory.get());
+	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
 
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);

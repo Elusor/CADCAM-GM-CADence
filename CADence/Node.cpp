@@ -81,7 +81,6 @@ void Node::DrawNodeGUI(Scene& scene)
 		// Add unique popup id generator
 		if (ImGui::BeginPopupContextItem(labelName.c_str()))
 		{
-			m_object->RenderObjectSpecificContextOptions(scene);
 
 			if (ImGui::Selectable("Rename object"))
 			{
@@ -112,6 +111,9 @@ void Node::DrawNodeGUI(Scene& scene)
 					scene.RemoveObject(m_object);
 				}
 			}			
+
+			m_object->RenderObjectSpecificContextOptions(scene);
+
 			ImGui::EndPopup();
 		}
 	}

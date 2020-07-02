@@ -10,18 +10,20 @@ enum IntersectedSurface
 	SurfaceP
 };
 
-class IntersectionCurve: MeshObject
+class IntersectionCurve: public MeshObject
 {
 public:
 	IntersectionCurve();
 	void Initialize(
 		IParametricSurface* qSurface, std::vector<DirectX::XMFLOAT2> qParameters,
 		IParametricSurface* pSurface, std::vector<DirectX::XMFLOAT2> pParameters);
-	
-	// Object Unique methods
+
+	// Intersection Curve Unique methods
 	std::vector<DirectX::XMFLOAT2> GetParameterList(IntersectedSurface surface);
 	std::vector<DirectX::XMFLOAT3> GetPointPositions();
 
+	// Object methods
+	virtual void RenderObjectSpecificContextOptions(Scene& scene);
 private:
 	IParametricSurface* m_qSurface;
 	IParametricSurface* m_pSurface;

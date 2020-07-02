@@ -16,3 +16,4 @@
 #include "Torus.h"
 #include "SceneGrid.h"
 #include "InterpolationBezierCurveC2.h"
+#include "IntersectionCurve.h"

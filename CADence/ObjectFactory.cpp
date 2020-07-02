@@ -755,6 +755,26 @@ std::shared_ptr<Node> ObjectFactory::CreateGregoryPatch(HoleData hole)
 	return node;
 }
 
+std::shared_ptr<Node> ObjectFactory::CreateIntersectionCurve(IParametricSurface* qSurface, std::vector<DirectX::XMFLOAT2> qParameters, IParametricSurface* pSurface, std::vector<DirectX::XMFLOAT2> pParameters)
+{	
+	IntersectionCurve* interC = new IntersectionCurve();
+	std::string name = "Intersection curve";
+
+	if (m_intersectionCurveCounter > 0)
+	{
+		name = name + " " + std::to_string(m_bezierCurveCounter);
+	}
+	interC->m_name = interC->m_defaultName = name;
+
+
+	std::shared_ptr<Node> node = std::make_shared<Node>();
+	node->m_object = std::unique_ptr<Object>(interC);
+	interC->m_nodePtr = node;
+	m_intersectionCurveCounter++;
+	interC->Initialize(qSurface, qParameters, pSurface, pParameters);
+	return node;
+}
+
 std::shared_ptr<Node> ObjectFactory::CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints)
 {
 	auto points = FilterObjectTypes(typeid(Point), controlPoints);
@@ -914,6 +934,7 @@ void ObjectFactory::ClearScene()
 	m_torusCounter = 0;
 	m_pointCounter = 0;
 	m_gregPatchCounter = 0;
+	m_intersectionCurveCounter = 0;
 }
 
 std::vector<std::weak_ptr<Node>> ObjectFactory::FilterObjectTypes(const type_info& typeId, std::vector<std::weak_ptr<Node>> nodes)
