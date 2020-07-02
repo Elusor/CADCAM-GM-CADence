@@ -14,7 +14,7 @@ struct ParameterPair
 class IntersectionFinder
 {
 public:
-	IntersectionFinder(ObjectFactory* factory);
+	IntersectionFinder(Scene* scene);
 	// TODO change return type to intersection curve
 	void FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2);
 	void CreateParamsGui();
@@ -22,6 +22,7 @@ private:
 	float m_step;
 	float m_precision;	
 	ObjectFactory* m_factory;
+	Scene* m_scene;
 
 	DirectX::XMFLOAT4X4 CalculateDerivativeMatrix(
 		IParametricSurface* surface1, IParametricSurface* surface2,
@@ -48,9 +49,11 @@ private:
 		ParameterPair& surf2Params,
 		DirectX::XMFLOAT3& point);
 
-	std::vector<std::shared_ptr<Node>> FindOtherIntersectionPoints(
+	void FindOtherIntersectionPoints(
 		IParametricSurface* surface1, ParameterPair surf1Params,
+		std::vector<DirectX::XMFLOAT2>& surf1ParamsList,
 		IParametricSurface* surface2, ParameterPair surf2Params,
+		std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
 		DirectX::XMFLOAT3 firstPoint);
 
 	bool FindNextPoint(

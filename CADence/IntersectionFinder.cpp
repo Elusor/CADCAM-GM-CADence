@@ -6,10 +6,12 @@
 #include "ObjectFactory.h"
 #include "Node.h"
 #include "GeometricFunctions.h"
+#include "Scene.h"
 
-IntersectionFinder::IntersectionFinder(ObjectFactory* factory)
+IntersectionFinder::IntersectionFinder(Scene* scene)
 {
-	m_factory = factory;
+	m_scene = scene;
+	m_factory = scene->m_objectFactory.get();
 	m_step = 0.05f;
 	m_precision = 0.05f;
 }
@@ -277,14 +279,15 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 {
 	// X0 = u, v, s, t
 	// P(s,t)
-	// Q(u,v)
-
+	// Q(u,v)	
 
 	std::vector<DirectX::XMFLOAT3> points;
 	std::vector<IParametricSurface*> pSurfs, qSurfs;
 
 	qSurfs.push_back(surface1);
 	pSurfs.push_back(surface2);
+
+	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
 
 	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
 	// TODO: FIND ALL AFFECTED PATCHES
@@ -299,43 +302,43 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 			// For each P, Q			
 			ParameterPair pParams, qParams;
 			DirectX::XMFLOAT3 firstPoint;
-
+			
 			// Calculate first point
 			if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
 			{
-				// Calculate other points
-				auto points = FindOtherIntersectionPoints(q, qParams, p, pParams, firstPoint);
+				qParamsList.push_back(XMFLOAT2(qParams.u, qParams.v));
+				pParamsList.push_back(XMFLOAT2(pParams.u, pParams.v));
+
+				// Calculate other points				
+				FindOtherIntersectionPoints(
+				q, qParams, qParamsList, 
+				p, pParams, pParamsList, firstPoint);
+				
+				// Create the interpolation curve
+				auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+				m_scene->AttachObject(curve);
+				return;
 			}
 		}
 	}
 }
 
-std::vector<std::shared_ptr<Node>> IntersectionFinder::FindOtherIntersectionPoints(
-	IParametricSurface* surface1, ParameterPair surf1Params,
-	IParametricSurface* surface2, ParameterPair surf2Params, 
+void IntersectionFinder::FindOtherIntersectionPoints(
+	IParametricSurface* surface1, ParameterPair surf1Params, std::vector<DirectX::XMFLOAT2>& surf1ParamsList,
+	IParametricSurface* surface2, ParameterPair surf2Params, std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
 	DirectX::XMFLOAT3 firstPoint)
 {
-	std::vector<std::shared_ptr<Node>> result;
 	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	bool nextPointInRange = FindNextPoint(surface1, surf1Params, surface2, surf2Params, firstPoint, position);
 	while(nextPointInRange)
-	{
-		// Construct a point at the fiven location and 
-		auto pt = m_factory->CreatePoint();
-		pt->m_object->SetPosition(position);
-		result.push_back(pt);
-
-		// TODO: Bind the point to the appropriate data structures
-		// For example make a structure that stores intersection data and bind the corresponding point/(u,v) values there.
-
+	{	
+		surf1ParamsList.push_back(XMFLOAT2(surf1Params.u, surf1Params.v));
+		surf2ParamsList.push_back(XMFLOAT2(surf2Params.u, surf2Params.v));
+		
 		// Search for the next point
 		auto prevPos = position;
-		nextPointInRange = FindNextPoint(surface1, surf1Params, surface2, surf2Params, prevPos, position);
+		nextPointInRange = FindNextPoint(surface1, surf1Params, surface2, surf2Params, prevPos, position);		
 	}
-
-
-	// TODO: check if after returning shared_ptrs are not expired/invalid
-	return result;
 }
 
 bool IntersectionFinder::FindNextPoint(
