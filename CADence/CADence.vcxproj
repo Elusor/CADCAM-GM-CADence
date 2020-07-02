@@ -167,6 +167,7 @@
     <ClInclude Include="BezierPatchC2.h" />
     <ClInclude Include="BezierSurfaceC0.h" />
     <ClInclude Include="BezierSurfaceC2.h" />
+    <ClInclude Include="CurveVisualizer.h" />
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
@@ -243,6 +244,7 @@
     <ClCompile Include="BezierSurfaceC2.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="CurveVisualizer.cpp" />
     <ClCompile Include="DefaultRenderPass.cpp" />
     <ClCompile Include="dxApplication.cpp" />
     <ClCompile Include="dxDevice.cpp" />

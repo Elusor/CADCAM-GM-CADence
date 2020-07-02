@@ -357,6 +357,9 @@
     <ClInclude Include="IntersectionCurve.h">
       <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
+    <ClInclude Include="CurveVisualizer.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -540,6 +543,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IntersectionCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CurveVisualizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

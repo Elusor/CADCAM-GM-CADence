@@ -45,7 +45,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_fileManager = make_unique<FileManager>();
 	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
 	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
-
+	m_curveVisualizer = make_unique<CurveVisualizer>(m_guiManager.get(), m_renderState->m_device.m_device.get(), 256, 256);
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
@@ -204,6 +204,19 @@ void DxApplication::InitImguiWindows()
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{		
+
+		if (m_scene->m_selectedNodes.size() == 1)
+		{
+			auto p1 = m_scene->m_selectedNodes[0];
+			if (typeid(*p1.lock()->m_object.get()) == typeid(IntersectionCurve))
+			{
+				if (ImGui::Button("Visualize"))
+				{
+					m_curveVisualizer->VisualizeCurve((IntersectionCurve*)(p1.lock()->m_object.get()), m_renderState);
+				}
+			}
+		}
+
 		if (m_scene->m_selectedNodes.size() == 2)
 		{
 			auto p1 = m_scene->m_selectedNodes[0];
