@@ -40,7 +40,6 @@ private:
 	bool m_stereoChanged;
 	bool m_filterObjects;
 
-	std::unique_ptr<CurveVisualizer> m_curveVisualizer;
 	std::unique_ptr<TransformationController> m_transController;
 	std::unique_ptr<PointSelector> m_pSelector;
 	std::shared_ptr<Scene> m_scene;	

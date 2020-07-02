@@ -55,6 +55,11 @@ std::vector<DirectX::XMFLOAT3> IntersectionCurve::GetPointPositions()
 
 void IntersectionCurve::RenderObjectSpecificContextOptions(Scene& scene)
 {
+	if (ImGui::Selectable("Visualize in parameter space"))
+	{
+		scene.m_curveVisualizer->VisualizeCurve(this);
+	}
+
 	if (ImGui::Selectable("Convert to interpolation curve"))
 	{
 		if (auto node = m_nodePtr.lock())

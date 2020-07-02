@@ -34,18 +34,17 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 		DirectX::XM_PIDIV4, 1.f, 200); // fov, zNear, zFar		
 			
 	m_camController = make_unique<CameraController>(camera);
-	m_scene = make_shared<Scene>();
 	m_renderState = make_unique<RenderState>(m_window, viewport, camera);
-
-	m_pSelector = make_unique<PointSelector>(m_renderState->m_camera);
-	m_transController = make_unique<TransformationController>(m_scene);
 	m_guiManager = make_unique<GuiManager>();
+	m_scene = make_shared<Scene>(m_guiManager.get(), m_renderState.get());
+	m_transController = make_unique<TransformationController>(m_scene);
+	m_pSelector = make_unique<PointSelector>(m_renderState->m_camera);
 	m_importer = make_unique<SceneImporter>(m_scene.get(), m_guiManager.get());
 	m_exporter = make_unique<SceneExporter>(m_scene.get(), m_guiManager.get());
 	m_fileManager = make_unique<FileManager>();
 	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
 	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
-	m_curveVisualizer = make_unique<CurveVisualizer>(m_guiManager.get(), m_renderState->m_device.m_device.get(), 256, 256);
+	
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
@@ -203,19 +202,7 @@ void DxApplication::InitImguiWindows()
 	
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
-	{		
-
-		if (m_scene->m_selectedNodes.size() == 1)
-		{
-			auto p1 = m_scene->m_selectedNodes[0];
-			if (typeid(*p1.lock()->m_object.get()) == typeid(IntersectionCurve))
-			{
-				if (ImGui::Button("Visualize"))
-				{
-					m_curveVisualizer->VisualizeCurve((IntersectionCurve*)(p1.lock()->m_object.get()), m_renderState);
-				}
-			}
-		}
+	{				
 
 		if (m_scene->m_selectedNodes.size() == 2)
 		{

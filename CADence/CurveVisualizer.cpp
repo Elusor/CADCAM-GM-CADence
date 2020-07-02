@@ -1,9 +1,10 @@
 #include "CurveVisualizer.h"
 
-CurveVisualizer::CurveVisualizer(GuiManager* manager, ID3D11Device* device, int width, int height)
+CurveVisualizer::CurveVisualizer(GuiManager* manager, RenderState* renderState, int width, int height)
 {
 	// Initialize the textures (1 for each surface)
-	auto result = InitializeTextures(device, width, height);
+	auto result = InitializeTextures(renderState->m_device.m_device.get(), width, height);
+	m_renderState = renderState;
 	guiManager = manager;
 	m_width = width;
 	m_height = height;
@@ -51,7 +52,7 @@ CurveVisualizer::~CurveVisualizer()
 	return;
 }
 
-void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve, std::unique_ptr<RenderState>& renderState)
+void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve)
 {
 	
 	// Get Parameter lists from the curve
@@ -59,12 +60,11 @@ void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve, std::unique_ptr<R
 	auto params2 = curve->GetParameterList(IntersectedSurface::SurfaceQ);
 
 	// Render the image onto the member texture
-	RenderImage(renderState, m_renderTargetView1, params1);
-	RenderImage(renderState, m_renderTargetView2, params2);
+	RenderImage(m_renderTargetView1, params1);
+	RenderImage(m_renderTargetView2, params2);
 
 	// Call a new Imgui Window with texture section
-	guiManager->EnableTextureWindow("", "Intersection curve", m_shaderResourceView1, m_width, m_height);
-	guiManager->EnableTextureWindow("", "Intersection curve", m_shaderResourceView2, m_width, m_height);
+	guiManager->EnableDoubleTextureWindow("", "Intersection curve in parameter space", m_shaderResourceView1, m_width, m_height, m_shaderResourceView2, m_width, m_height);
 }
 
 ID3D11ShaderResourceView* CurveVisualizer::GetShaderResourceView(IntersectedSurface affectedSurface)
@@ -97,10 +97,10 @@ ID3D11RenderTargetView* CurveVisualizer::GetRenderTargetView(IntersectedSurface 
 	return rtv;
 }
 
-void CurveVisualizer::RenderImage(std::unique_ptr<RenderState>& renderState, ID3D11RenderTargetView* texture, std::vector<DirectX::XMFLOAT2> paramList)
+void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, std::vector<DirectX::XMFLOAT2> paramList)
 {
 	// Clear the previous texture
-	ClearTexture(texture, renderState->m_device.context().get(), renderState->m_depthBuffer.get(), 1.f, 1.f, 1.f, 1.f);
+	ClearTexture(texture, m_renderState->m_device.context().get(), m_renderState->m_depthBuffer.get(), 1.f, 1.f, 1.f, 1.f);
 }
 
 void CurveVisualizer::ClearTexture(ID3D11RenderTargetView* texture,

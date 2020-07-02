@@ -3,9 +3,11 @@
 #include "ObjectFactory.h"
 #include "GroupNode.h"
 #include "generalUtils.h"
-
-Scene::Scene()
+#include <xmemory>
+Scene::Scene(GuiManager* guiManager, RenderState* renderState)
 {
+	m_curveVisualizer = std::make_unique<CurveVisualizer>(guiManager, renderState, 256, 256);
+
 	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
 	std::unique_ptr<Object> spawnMarker = move(m_objectFactory->CreateSpawnMarker()->m_object);
 	m_spawnMarker = std::unique_ptr<SpawnMarker>(dynamic_cast<SpawnMarker *>(spawnMarker.release()));
