@@ -2,11 +2,6 @@
 #include "GroupNode.h"
 
 using namespace DirectX;
-DirectX::XMFLOAT4X4 changeBasisMtx = {
-		1.f, 1.f, 1.f, 1.f,
-		0.f,  1.f / 3.f, 2.f / 3.f, 1.f,
-		0.f, 0.f, 1.f / 3.f, 1.f,
-		0.f, 0.f, 0.f, 1.f };
 
 InterpolationBezierCurveC2::InterpolationBezierCurveC2(): InterpolationBezierCurveC2(std::vector<std::weak_ptr<Node>>())
 {	
@@ -334,7 +329,7 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 
 			DirectX::XMMATRIX vectorMat = DirectX::XMLoadFloat4x4(&mtx);
 
-			auto res = vectorMat * DirectX::XMLoadFloat4x4(&changeBasisMtx);
+			auto res = vectorMat * DirectX::XMLoadFloat4x4(&m_changeBasisMtx);
 
 			DirectX::XMStoreFloat4x4(&resMat, (res));
 			auto k1 = XMFLOAT3(resMat._11, resMat._21, resMat._31);

@@ -25,8 +25,13 @@ protected:
 	bool RemoveExpiredChildren() override;
 
 private:
-	std::vector<std::weak_ptr<Node>> m_displayPoints;
+	DirectX::XMFLOAT4X4 m_changeBasisMtx = {
+			1.f, 1.f, 1.f, 1.f,
+			0.f,  1.f / 3.f, 2.f / 3.f, 1.f,
+			0.f, 0.f, 1.f / 3.f, 1.f,
+			0.f, 0.f, 0.f, 1.f };
 
+	std::vector<std::weak_ptr<Node>> m_displayPoints;
 	std::vector<std::shared_ptr<Node>> m_virtualPoints;
 	
 	// Data concerning the De Boor polygon
