@@ -25,14 +25,14 @@ DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 float Dot(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2);
 //DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 
-DirectX::XMFLOAT3& operator-(XMFLOAT3 a, XMFLOAT3 b);
-DirectX::XMFLOAT3& operator+(XMFLOAT3 a, XMFLOAT3 b);
-DirectX::XMFLOAT3& operator*(XMFLOAT3 val, float t);
-DirectX::XMFLOAT3& operator/(XMFLOAT3 val, float t);
-DirectX::XMFLOAT3& operator*(float t, XMFLOAT3 val);
+DirectX::XMFLOAT3 operator-(XMFLOAT3 a, XMFLOAT3 b);
+DirectX::XMFLOAT3 operator+(XMFLOAT3 a, XMFLOAT3 b);
+DirectX::XMFLOAT3 operator*(XMFLOAT3 val, float t);
+DirectX::XMFLOAT3 operator/(XMFLOAT3 val, float t);
+DirectX::XMFLOAT3 operator*(float t, XMFLOAT3 val);
 
-DirectX::XMFLOAT4& operator+(XMFLOAT4 a, XMFLOAT4 b);
-DirectX::XMFLOAT4& operator-(XMFLOAT4 a, XMFLOAT4 b);
-DirectX::XMFLOAT4& operator*(XMFLOAT4 val, float t);
-DirectX::XMFLOAT4& operator/(XMFLOAT4 val, float t);
-DirectX::XMFLOAT4& operator*(float t, XMFLOAT4 val);
+DirectX::XMFLOAT4 operator+(XMFLOAT4 a, XMFLOAT4 b);
+DirectX::XMFLOAT4 operator-(XMFLOAT4 a, XMFLOAT4 b);
+DirectX::XMFLOAT4 operator*(XMFLOAT4 val, float t);
+DirectX::XMFLOAT4 operator/(XMFLOAT4 val, float t);
+DirectX::XMFLOAT4 operator*(float t, XMFLOAT4 val);

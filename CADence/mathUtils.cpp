@@ -176,18 +176,18 @@ float Dot(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2)
 	return p1.x * p2.x + p1.y * p2.y + p2.z * p2.z + p1.w * p2.w;
 }
 
-DirectX::XMFLOAT3& operator-(XMFLOAT3 a, XMFLOAT3 b)
+DirectX::XMFLOAT3 operator-(XMFLOAT3 a, XMFLOAT3 b)
 {
 	return a + (-1.f) * b;
 }
 
-DirectX::XMFLOAT3& operator+(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)
+DirectX::XMFLOAT3 operator+(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)
 {
 	DirectX::XMFLOAT3 res = DirectX::XMFLOAT3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 	return res;
 }
 
-DirectX::XMFLOAT3& operator*(DirectX::XMFLOAT3 val, float t)
+DirectX::XMFLOAT3 operator*(DirectX::XMFLOAT3 val, float t)
 {
 	DirectX::XMFLOAT3 res = DirectX::XMFLOAT3(
 		val.x * t,
@@ -197,40 +197,40 @@ DirectX::XMFLOAT3& operator*(DirectX::XMFLOAT3 val, float t)
 	return res;
 }
 
-DirectX::XMFLOAT3& operator/(XMFLOAT3 val, float t)
+DirectX::XMFLOAT3 operator/(XMFLOAT3 val, float t)
 {
 	return val * (1.f / t);
 }
 
-DirectX::XMFLOAT3& operator*(float t, XMFLOAT3 val)
+DirectX::XMFLOAT3 operator*(float t, XMFLOAT3 val)
 {
 	return val * t;
 }
 
-DirectX::XMFLOAT4& operator+(XMFLOAT4 a, XMFLOAT4 b)
+DirectX::XMFLOAT4 operator+(XMFLOAT4 a, XMFLOAT4 b)
 {
 	XMFLOAT4 res = XMFLOAT4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 	return res;
 }
 
-DirectX::XMFLOAT4& operator-(XMFLOAT4 a, XMFLOAT4 b)
+DirectX::XMFLOAT4 operator-(XMFLOAT4 a, XMFLOAT4 b)
 {
 	XMFLOAT4 res = a + (b * -1.f);
 	return res;
 }
 
-DirectX::XMFLOAT4& operator*(XMFLOAT4 val, float t)
+DirectX::XMFLOAT4 operator*(XMFLOAT4 val, float t)
 {
 	XMFLOAT4 res = XMFLOAT4(val.x * t, val.y * t, val.z * t, val.w * t);
 	return res;
 }
 
-DirectX::XMFLOAT4& operator/(XMFLOAT4 val, float t)
+DirectX::XMFLOAT4 operator/(XMFLOAT4 val, float t)
 {
 	return val * 1.f / t;
 }
 
-DirectX::XMFLOAT4& operator*(float t, XMFLOAT4 val)
+DirectX::XMFLOAT4 operator*(float t, XMFLOAT4 val)
 {
 	return val * t;
 }
