@@ -132,18 +132,52 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 	std::vector<VertexPositionColor> positions;
 	std::vector<unsigned short> indices;
 
+	int k = indices.size();
+
+	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
+
+	for (float u = 0.1f; u < 1.f; u += 0.1f)
+	{
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(u, 0.0f, 0.2f),
+			gridColor});
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(u, 1.0f, 0.2f),
+			gridColor });
+
+		indices.push_back(k);
+		indices.push_back(k+1);
+		k += 2;
+	}
+	
+	for (float u = 0.1f; u < 1.f; u += 0.1f)
+	{
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(0.0f, u , 0.2f),
+			gridColor });
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(1.0f, u, 0.2f),
+			gridColor });
+		indices.push_back(k);
+		indices.push_back(k + 1);
+		k += 2;
+	}
+
 	for (auto pair : paramList)
 	{
 		positions.push_back(VertexPositionColor{
 			DirectX::XMFLOAT3(pair.x, pair.y, 0.f),
-			DirectX::XMFLOAT3(0.f,0.f,0.f)});		
+			DirectX::XMFLOAT3(0.f,0.f,0.f) });
 	}
+
+	k = indices.size();
 
 	for (int i = 0; i < paramList.size() - 1; i++)
 	{
-		indices.push_back(i);
-		indices.push_back(i+1);
+		indices.push_back(k + i);
+		indices.push_back(k + i + 1);
 	}
+
 
 	auto vertices = m_renderState->m_device.CreateVertexBuffer(positions);
 	auto indicesBuf = m_renderState->m_device.CreateIndexBuffer(indices);
