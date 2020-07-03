@@ -13,6 +13,10 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
 	const auto ssVsBytes = DxDevice::LoadByteCode(L"ssVs.cso");
 	const auto ssPsBytes = DxDevice::LoadByteCode(L"ssPs.cso");
+	const auto texVsBytes = DxDevice::LoadByteCode(L"vsTex.cso");
+	const auto texPsBytes = DxDevice::LoadByteCode(L"psTex.cso");
+	const auto paramSpaceVsBytes = DxDevice::LoadByteCode(L"paramSpaceVS.cso");
+	const auto paramSpacePsBytes = DxDevice::LoadByteCode(L"paramSpacePS.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
 	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
@@ -22,10 +26,14 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto patchGregHsBytes = DxDevice::LoadByteCode(L"patchGregHS.cso");
 
 
+	m_texVS = m_device.CreateVertexShader(texVsBytes);
+	m_texPS = m_device.CreatePixelShader(texPsBytes);
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
 	m_pixelShader = m_device.CreatePixelShader(psBytes);
 	m_screenSpaceVS = m_device.CreateVertexShader(ssVsBytes);
 	m_screenSpacePS = m_device.CreatePixelShader(ssPsBytes);
+	m_paramSpaceVS = m_device.CreateVertexShader(paramSpaceVsBytes);
+	m_paramSpacePS = m_device.CreatePixelShader(paramSpacePsBytes);
 	m_bezierGeometryShader = m_device.CreateGeometryShader(bezierGsBytes);
 	m_patchGeometryShader = m_device.CreateGeometryShader(patchGsBytes);
 

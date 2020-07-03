@@ -12,8 +12,8 @@ StereoscopicRenderPass::StereoscopicRenderPass(const std::unique_ptr<RenderState
 	const auto texVsBytes = DxDevice::LoadByteCode(L"vsTex.cso");
 	const auto texPsBytes = DxDevice::LoadByteCode(L"psTex.cso");
 
-	m_texVS = renderState->m_device.CreateVertexShader(texVsBytes);
-	m_texPS = renderState->m_device.CreatePixelShader(texPsBytes);
+	m_texVS = renderState->m_texVS.get();
+	m_texPS = renderState->m_texPS.get();
 
 	m_tex1->Initialize(device, wndSize.cx, wndSize.cy);
 	m_tex2->Initialize(device, wndSize.cx, wndSize.cy);
@@ -155,8 +155,8 @@ void StereoscopicRenderPass::DrawTexturedQuad(std::unique_ptr<RenderState>& rend
 
 	m_backTarget->SetRenderTarget(context, depthStencil);
 	// set texture blending shaders
-	context->VSSetShader(m_texVS.get(), nullptr, 0);
-	context->PSSetShader(m_texPS.get(), nullptr, 0);
+	context->VSSetShader(m_texVS, nullptr, 0);
+	context->PSSetShader(m_texPS, nullptr, 0);
 	//renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
 
 	auto vp = renderState->m_camera->GetViewProjectionMatrix();

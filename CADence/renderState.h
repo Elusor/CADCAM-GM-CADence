@@ -22,11 +22,17 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_vertexBuffer;
 	mini::dx_ptr<ID3D11Buffer> m_indexBuffer;
 
+	mini::dx_ptr<ID3D11VertexShader> m_texVS;
+	mini::dx_ptr<ID3D11PixelShader> m_texPS;
+
 	mini::dx_ptr<ID3D11VertexShader> m_vertexShader;
 	mini::dx_ptr<ID3D11PixelShader> m_pixelShader;
 
 	mini::dx_ptr<ID3D11VertexShader> m_screenSpaceVS;
 	mini::dx_ptr<ID3D11PixelShader> m_screenSpacePS;
+
+	mini::dx_ptr<ID3D11VertexShader> m_paramSpaceVS;
+	mini::dx_ptr<ID3D11PixelShader> m_paramSpacePS;
 
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;

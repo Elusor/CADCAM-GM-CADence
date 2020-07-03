@@ -133,6 +133,9 @@
     <Filter Include="Shaders\GregoryPatch">
       <UniqueIdentifier>{a7239ed0-2c7f-4e3e-9328-fe109fd65374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\ParameterSpaceRendering">
+      <UniqueIdentifier>{253e6c58-3418-4391-979a-c270a09946d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -588,6 +591,12 @@
     </FxCompile>
     <FxCompile Include="patchGregHS.hlsl">
       <Filter>Shaders\GregoryPatch</Filter>
+    </FxCompile>
+    <FxCompile Include="paramSpaceVS.hlsl">
+      <Filter>Shaders\ParameterSpaceRendering</Filter>
+    </FxCompile>
+    <FxCompile Include="paramSpacePS.hlsl">
+      <Filter>Shaders\ParameterSpaceRendering</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
