@@ -1,12 +1,6 @@
-struct PSIn
-{
-    float4 pos : SV_POSITION;
-    float2 tex : TEXCOORDS0;
-    float3 col : COLOR;
+#include "ShaderStructs.hlsli"
 
-};
-
-float4 main(PSIn i) : SV_TARGET
+float4 main(VSOut i) : SV_TARGET
 { 
-    return float4(i.col, 1.0f);
+    return float4(i.col.xyz, 1.0f);
 }

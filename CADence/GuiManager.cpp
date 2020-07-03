@@ -72,7 +72,7 @@ void GuiManager::DisplayTextureWindow()
 		ImGui::Begin(m_customHeader.c_str());
 		ImGui::Text(m_customMessage.c_str());
 		ImGui::Image((void*)m_tex1, ImVec2(m_texWidth1, m_texHeight1));
-		if (ImGui::Button("Ok"))
+		if (ImGui::Button("Close"))
 		{
 			m_customHeader = std::string();
 			m_customMessage = std::string();
@@ -91,7 +91,7 @@ void GuiManager::DisplayDoubleTextureWindow()
 		ImGui::Image((void*)m_tex1, ImVec2(m_texWidth1, m_texHeight1));
 		ImGui::SameLine();
 		ImGui::Image((void*)m_tex2, ImVec2(m_texWidth2, m_texHeight2));
-		if (ImGui::Button("Ok"))
+		if (ImGui::Button("Close"))
 		{
 			m_customHeader = std::string();
 			m_customMessage = std::string();
