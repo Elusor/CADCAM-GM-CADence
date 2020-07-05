@@ -12,8 +12,9 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 {
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
-	m_step = 0.05f;
-	m_precision = 0.05f;
+	m_step = 0.01f;
+	m_precision = 0.1f;
+	m_alphaPrecision = 0.00001f;
 }
 
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
@@ -197,17 +198,70 @@ float CalculateAlpha(
 {
 	DirectX::XMFLOAT4X4 Hf = CalculateHessian(qSurf, qParams, pSurf, pParams);
 	DirectX::XMFLOAT4 gradient = CalculateGradient(qSurf, qParams, pSurf, pParams);
-
-	float alpha = -1.f * Mul(gradient, p) / Mul(Mul(p, Hf), p);
+	float a = Mul(gradient, p);
+	float b = Mul(Mul(p, Hf), p);
+	float alpha = a / b;
 	return alpha;
 }
+
+bool ParamsOutOfBounds(float u, float v, float s, float t)
+{
+	bool val = !((u >= 0.f && u <= 1.f) && (v >= 0.f && v <= 1.f) && (s >= 0.f && s <= 1.f) && (t >= 0.f && t <= 1.f));
+	return val;
+}
+
 
 float CalculateBeta(DirectX::XMFLOAT4 r_cur, DirectX::XMFLOAT4 r_prev)
 {
 	float beta;
-	DirectX::XMFLOAT4 rDiff = r_cur = r_prev;
-	beta = Mul(r_cur, rDiff) / Mul(r_prev, r_prev);	
-	return max(beta, 0.0f);
+	DirectX::XMFLOAT4 rDiff = r_cur - r_prev;
+	beta = Mul(r_cur, rDiff) / Mul(r_prev, r_prev);
+	return beta;
+}
+
+DirectX::XMFLOAT4 IntersectionFinder::CalculateOptimalPointInDirection(
+	IParametricSurface* qSurf, ParameterPair qParams,
+	IParametricSurface* pSurf, ParameterPair pParams,
+	DirectX::XMFLOAT4 x_k,
+	DirectX::XMFLOAT4 searchDir)
+{
+	auto originalX = x_k;
+	float alpha = 0.f;
+	alpha = CalculateAlpha(qSurf, qParams, pSurf, pParams, searchDir);
+	int newtonIt = 0;
+	x_k = x_k + alpha * searchDir;
+	qParams = ParameterPair{ x_k.x, x_k.y };
+	pParams = ParameterPair{ x_k.z, x_k.w };
+	// TODO do sth if alhpa is too big and hit the iteration limit
+	while ((abs(alpha) > m_alphaPrecision) && !ParamsOutOfBounds(qParams.u, qParams.v, pParams.u, pParams.v))
+	{
+		x_k = x_k + alpha * searchDir;
+		qParams = ParameterPair{ x_k.x, x_k.y };
+		pParams = ParameterPair{ x_k.z, x_k.w };
+		if (!ParamsOutOfBounds(qParams.u, qParams.v, pParams.u, pParams.v))
+		{
+			auto ptQ = qSurf->GetPoint(qParams.u, qParams.v);
+			auto ptP = pSurf->GetPoint(pParams.u, pParams.v);
+			auto dist = sqrtf(Dot(ptQ - ptP, ptQ - ptP));
+			alpha = CalculateAlpha(qSurf, qParams, pSurf, pParams, searchDir);
+		}
+		newtonIt++;
+		if (newtonIt > 250)
+		{
+			break;
+		}
+	}
+
+	return x_k - originalX;
+}
+
+float GetCurrentFuncValue(
+	IParametricSurface* qSurf, ParameterPair qParams,
+	IParametricSurface* pSurf, ParameterPair pParams)
+{
+	auto ptQ = qSurf->GetPoint(qParams.u, qParams.v);
+	auto ptP = pSurf->GetPoint(pParams.u, pParams.v);
+	return sqrtf(Dot(ptQ - ptP, ptQ - ptP));
 }
 
 bool IntersectionFinder::FindFirstIntersectionPoint(
@@ -226,49 +280,87 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 	x_k.z = pSurfParams.u; // s 
 	x_k.w = pSurfParams.v; // t
 
+	// Calculate residual direction and conjugated move direction
 	DirectX::XMFLOAT4 r_k = -1.f * CalculateGradient(qSurface, qSurfParams, pSurface, pSurfParams);
-	DirectX::XMFLOAT4 p_k = r_k;
+	DirectX::XMFLOAT4 d_k = r_k;
+	float dist = GetCurrentFuncValue(qSurface, qSurfParams, pSurface, pSurfParams);
+	float curDist = dist;
 
 	// TODO: Add condition so taht it is known if the method diverges
-	int iterationCounter = 0;
-
+	int iterationCounter = 0;	
+	bool restart = false;
 	bool continueSearch = true;
+
 	while (continueSearch)
 	{
 		ParameterPair prevQParams = ParameterPair{ x_k.x, x_k.y };
-		ParameterPair prevPParams = ParameterPair{ x_k.z, x_k.w };
+		ParameterPair prevPParams = ParameterPair{ x_k.z, x_k.w };		
 
-		float alpha = CalculateAlpha(qSurface, prevQParams, pSurface, prevPParams, p_k);
+		if (restart)
+		{
+			// Reset the method and treat the previous point as a x_0
+			r_k = -1.f * CalculateGradient(qSurface, prevQParams, pSurface, prevPParams);
+			d_k = r_k;
+		}		
 
-		// Move in a conjugated direction
-		x_k = x_k + alpha * p_k;
+		// X_k = x_k-1 + alpha * d_k
+		// Get x_k
+		auto xDiff = CalculateOptimalPointInDirection(qSurface, prevQParams, pSurface, prevPParams, x_k, d_k);	
+		x_k = x_k + xDiff;
 
-		//CalculateBeta according to Polak-Ribiere
 		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
 		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
-		auto r_prev = r_k;
-		r_k = -1.f * CalculateGradient(qSurface, curQParams, pSurface, curPParams);
-		float beta = CalculateBeta(r_k, r_prev);
-		// Calculate new conjugated direction
-		p_k = r_k + beta * p_k;
 
-		// TODO: replace with a cleaner solution
+		// Check if the parameters from next iteration are in bound
+		if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
+		{
+			// Stop the algorithm
+			continueSearch = false;
+			found = false;		
+			break;
+		}
+
+		// Inside bounds
+		   // Get the updated parameters
+		curQParams = ParameterPair{ x_k.x, x_k.y };
+		curPParams = ParameterPair{ x_k.z, x_k.w };
+		curDist = GetCurrentFuncValue(qSurface, prevQParams, pSurface, prevPParams);
+
+		// Store old residual
+		auto r_prev = r_k;
+
+		// Update Residual 
+		r_k = -1.f * CalculateGradient(qSurface, curQParams, pSurface, curPParams);
+
+		//CalculateBeta according to Polak-Ribiere
+		float beta = CalculateBeta(r_k, r_prev);
+
+		// Calculate new conjugated direction
+		d_k = r_k + beta * d_k;
+
+
+		restart = Dot(r_k, d_k) <= 0;
+
+		// After 3 iterations reset the method
 		iterationCounter++;
-		if (iterationCounter > 30)
+		if (iterationCounter > 3000)
 		{
 			found = false;
 			continueSearch = false;
 		}
 
-		// TODO add the end condition
-		assert(false);
-		if (false)
+		if (curDist > dist)
+		{
+			continueSearch = false;
+			found = false;
+		}
+
+		if (curDist <= m_precision)
 		{
 			continueSearch = false;
 			found = true;
 			qSurfParams = curQParams;
 			pSurfParams = curPParams;
-			point = qSurface->GetPoint(curQParams.u, curQParams.v);
 		}	
 	}	
 
@@ -299,25 +391,44 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 		{
 			// Sample p and q in a lot of differnt places and search for Intersection Points
 
-			// For each P, Q			
+			// For each P, Q	
 			ParameterPair pParams, qParams;
+			qParams.v = qParams.u = 0.5f;
+			pParams.v = pParams.u = 0.5f;
 			DirectX::XMFLOAT3 firstPoint;
-			
-			// Calculate first point
-			if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
-			{
-				qParamsList.push_back(XMFLOAT2(qParams.u, qParams.v));
-				pParamsList.push_back(XMFLOAT2(pParams.u, pParams.v));
 
-				// Calculate other points				
-				FindOtherIntersectionPoints(
-				q, qParams, qParamsList, 
-				p, pParams, pParamsList, firstPoint);
-				
-				// Create the interpolation curve
-				auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
-				m_scene->AttachObject(curve);
-				return;
+			for (float u = 0.0f; u <= 1.0f; u += 0.15f)
+			{
+				for (float v = 0.0f; v <= 1.0f; v += 0.15f)
+				{
+					for (float s = 0.0f; s <= 1.0f; s += 0.15f)
+					{
+						for (float t = 0.0f; t <= 1.0f; t += 0.15f)
+						{
+							qParams.u = u;
+							qParams.v = v;
+							pParams.u = s;
+							pParams.v = t;
+
+							// Calculate first point
+							if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
+							{
+								qParamsList.push_back(XMFLOAT2(qParams.u, qParams.v));
+								pParamsList.push_back(XMFLOAT2(pParams.u, pParams.v));
+
+								// Calculate other points				
+								/*FindOtherIntersectionPoints(
+									q, qParams, qParamsList,
+									p, pParams, pParamsList, firstPoint);*/
+
+									// Create the interpolation curve
+								auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+								m_scene->AttachObject(curve);
+								return;
+							}
+						}
+					}
+				}
 			}
 		}
 	}

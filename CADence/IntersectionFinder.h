@@ -20,7 +20,8 @@ public:
 	void CreateParamsGui();
 private:
 	float m_step;
-	float m_precision;	
+	float m_precision;
+	float m_alphaPrecision;
 	ObjectFactory* m_factory;
 	Scene* m_scene;
 
@@ -55,6 +56,12 @@ private:
 		IParametricSurface* surface2, ParameterPair surf2Params,
 		std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
 		DirectX::XMFLOAT3 firstPoint);
+
+	DirectX::XMFLOAT4 CalculateOptimalPointInDirection(
+		IParametricSurface* qSurf, ParameterPair qParams,
+		IParametricSurface* pSurf, ParameterPair pParams,
+		DirectX::XMFLOAT4 x_k,
+		DirectX::XMFLOAT4 searchDir);
 
 	bool FindNextPoint(
 		IParametricSurface* surface1, ParameterPair& surf1Params,

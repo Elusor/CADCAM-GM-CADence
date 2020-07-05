@@ -111,8 +111,8 @@ void Node::DrawNodeGUI(Scene& scene)
 					scene.RemoveObject(m_object);
 				}
 			}			
-
 			m_object->RenderObjectSpecificContextOptions(scene);
+
 
 			ImGui::EndPopup();
 		}
