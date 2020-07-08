@@ -160,7 +160,10 @@ DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4X4 p1, DirectX::XMFLOAT4 p2)
 
 float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
-	return p1.x * p2.x + p1.y * p2.y + p2.z * p2.z;
+	float x = (p1.x * p2.x);
+	float y = (p1.y * p2.y);
+	float z = (p1.z * p2.z);
+	return x+y+z;
 }
 
 DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
