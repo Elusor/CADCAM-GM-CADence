@@ -50,6 +50,13 @@ private:
 		ParameterPair& surf2Params,
 		DirectX::XMFLOAT3& point);
 
+	bool SimpleGradient(
+		IParametricSurface* qSurface,
+		ParameterPair& qSurfParams,
+		IParametricSurface* pSurface,
+		ParameterPair& pSurfParams,
+		DirectX::XMFLOAT3& point);
+
 	void FindOtherIntersectionPoints(
 		IParametricSurface* surface1, ParameterPair surf1Params,
 		std::vector<DirectX::XMFLOAT2>& surf1ParamsList,

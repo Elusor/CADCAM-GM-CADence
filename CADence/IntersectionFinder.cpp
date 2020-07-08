@@ -397,13 +397,13 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 			pParams.v = pParams.u = 0.5f;
 			DirectX::XMFLOAT3 firstPoint;
 
-			for (float u = 0.0f; u <= 1.0f; u += 0.15f)
+			for (float u = 0.0f; u <= 1.0f; u += 0.1f)
 			{
-				for (float v = 0.0f; v <= 1.0f; v += 0.15f)
+				for (float v = 0.0f; v <= 1.0f; v += 0.1f)
 				{
-					for (float s = 0.0f; s <= 1.0f; s += 0.15f)
+					for (float s = 0.0f; s <= 1.0f; s += 0.1f)
 					{
-						for (float t = 0.0f; t <= 1.0f; t += 0.15f)
+						for (float t = 0.0f; t <= 1.0f; t += 0.1f)
 						{
 							qParams.u = u;
 							qParams.v = v;
@@ -411,7 +411,7 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 							pParams.v = t;
 
 							// Calculate first point
-							if (FindFirstIntersectionPoint(q, qParams, p, pParams, firstPoint))
+							if (SimpleGradient(q, qParams, p, pParams, firstPoint))
 							{
 								qParamsList.push_back(XMFLOAT2(qParams.u, qParams.v));
 								pParamsList.push_back(XMFLOAT2(pParams.u, pParams.v));
@@ -522,4 +522,142 @@ DirectX::XMFLOAT3 IntersectionFinder::GetSurfaceNormal(IParametricSurface* surfa
 	DirectX::XMFLOAT3 tv = surface->GetTangent(params.u, params.v, TangentDir::AlongV);
 
 	return Cross(tu, tv);
+}
+
+float CalcFunc(
+	IParametricSurface* qSurface,
+	IParametricSurface* pSurface,
+	DirectX::XMFLOAT4 params,
+	DirectX::XMFLOAT4 dir,
+	float alpha)
+{
+	// Caclulcate < Q - P, Q - P >
+
+	auto movedParams = params + dir * alpha;
+
+	auto q = qSurface->GetPoint(movedParams.x, movedParams.y);
+	auto p = pSurface->GetPoint(movedParams.z, movedParams.w);
+
+	return Dot(q - p, q - p);
+}
+
+float GoldenRatioMethod(
+	IParametricSurface* qSurface,
+	IParametricSurface* pSurface, 
+	float a, float b, 
+	DirectX::XMFLOAT4 x_k, 
+	DirectX::XMFLOAT4 d_k)
+{
+	float eps = 0.0001f;
+
+	// wspó³czynnik z³otego podzia³u
+	float k = (sqrt(5) - 1) / 2;
+
+	// lewa i prawa próbka
+	float xL = b - k * (b - a);
+	float xR = a + k * (b - a);
+
+	// pêtla póki nie zostanie spe³niony warunek stopu
+	while ((b - a) > eps)
+	{
+		auto fL = CalcFunc(qSurface, pSurface, x_k, d_k, xL);
+		auto fR = CalcFunc(qSurface, pSurface, x_k, d_k, xR);
+		// porównaj wartoœci funkcji celu lewej i prawej próbki
+		if (fL < fR)
+		{
+			// wybierz przedzia³ [a, xR]
+			b = xR;
+			xR = xL;
+			xL = b - k * (b - a);
+		}
+		else
+		{
+			// wybierz przedzia³ [xL, b]
+			a = xL;
+			xL = xR;
+			xR = a + k * (b - a);
+		}
+	}
+
+	// zwróæ wartoœæ œrodkow¹ przedzia³u
+	return (a + b) / 2;
+}
+
+
+bool IntersectionFinder::SimpleGradient(
+	IParametricSurface* qSurface,
+	ParameterPair& qSurfParams,
+	IParametricSurface* pSurface,
+	ParameterPair& pSurfParams,
+	DirectX::XMFLOAT3& point)
+{
+	bool found = false;
+	DirectX::XMFLOAT4 x_k; // x = [ u, v, s, t ]
+
+	// Initialize x_0
+	x_k.x = qSurfParams.u; // u 
+	x_k.y = qSurfParams.v; // v
+	x_k.z = pSurfParams.u; // s 
+	x_k.w = pSurfParams.v; // t
+	// Calculate residual direction and conjugated move direction	
+	DirectX::XMFLOAT4 d_k = -1.f * CalculateGradient(qSurface, qSurfParams, pSurface, pSurfParams);
+	float dist = GetCurrentFuncValue(qSurface, qSurfParams, pSurface, pSurfParams);
+	float curDist = dist;
+
+	// TODO: Add condition so taht it is known if the method diverges
+	int iterationCounter = 0;
+	bool restart = false;
+	bool continueSearch = true;
+
+	while (continueSearch)
+	{
+		// X_k = x_k-1 + alpha * d_k
+		// Get x_k
+		float alpha = GoldenRatioMethod(qSurface, pSurface, -0.5f, 0.5f, x_k, d_k);
+		x_k = x_k + alpha * d_k;
+
+		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
+		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
+
+		// Check if the parameters from next iteration are in bound
+		if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
+		{
+			// Stop the algorithm
+			continueSearch = false;
+			found = false;
+			break;
+		}
+
+		// Inside bounds
+		   // Get the updated parameters
+		dist = curDist;
+		curDist = GetCurrentFuncValue(qSurface, curQParams, pSurface, curPParams);
+
+		// Update Residual 
+		d_k = -1.f * CalculateGradient(qSurface, curQParams, pSurface, curPParams);		
+
+		// After 3 iterations reset the method
+		iterationCounter++;
+		if (iterationCounter > 30)
+		{
+			found = false;
+			continueSearch = false;
+		}
+
+		if (curDist >= dist)
+		{
+			continueSearch = false;
+			found = false;
+		}
+
+		if (curDist <= m_precision)
+		{
+			continueSearch = false;
+			found = true;
+			qSurfParams = curQParams;
+			pSurfParams = curPParams;
+		}
+	}
+
+	return found;
 }
