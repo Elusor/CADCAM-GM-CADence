@@ -12,7 +12,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 {
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
-	m_step = 2.75f; 
+	m_step = 2.5f; 
 	m_precision = 0.01f;
 	m_alphaPrecision = 0.0001f;
 }
@@ -34,28 +34,28 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 	auto col3 = -1.0f * surface2->GetTangent(s, t, TangentDir::AlongU);
 	auto col4 = -1.0f * surface2->GetTangent(s, t, TangentDir::AlongV);
 
-	float col1Last = Dot(col1, stepDir);
-	float col2Last = Dot(col2, stepDir);
+	float col3Last = Dot(col3, -1.f * stepDir);
+	float col5Last = Dot(col4, -1.f * stepDir);
 
 	derivatives.m[0][0] = col1.x;
 	derivatives.m[1][0] = col1.y;
 	derivatives.m[2][0] = col1.z;
-	derivatives.m[3][0] = col1Last;
+	derivatives.m[3][0] = 0.0f;
 
 	derivatives.m[0][1] = col2.x;
 	derivatives.m[1][1] = col2.y;
 	derivatives.m[2][1] = col2.z;
-	derivatives.m[3][1] = col2Last;
+	derivatives.m[3][1] = 0.0f;
 
 	derivatives.m[0][2] = col3.x;
 	derivatives.m[1][2] = col3.y;
 	derivatives.m[2][2] = col3.z;
-	derivatives.m[3][2] = 0.0f;
+	derivatives.m[3][2] = col3Last;
 
 	derivatives.m[0][3] = col4.x;
 	derivatives.m[1][3] = col4.y;
 	derivatives.m[2][3] = col4.z;
-	derivatives.m[3][3] = 0.0f;
+	derivatives.m[3][3] = col5Last;
 
 	return derivatives;
 }
@@ -464,7 +464,7 @@ bool IntersectionFinder::FindNextPoint(
 	bool found = false;
 
 	// Calculate Step direction
-	auto stepVersor = -1 * CalculateStepDirection(qSurf, qSurfParams, pSurf, pSurfParams);
+	//auto stepVersor = -1 * CalculateStepDirection(qSurf, qSurfParams, pSurf, pSurfParams);
 	
 	// Initialize x_0
 	x_k.x = qSurfParams.u; // u
@@ -481,6 +481,8 @@ bool IntersectionFinder::FindNextPoint(
 		// Calculate F(x)
 		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
 		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
+		auto stepVersor = -1 * CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
+
 		if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
 		{
 			// Stop the algorithm
