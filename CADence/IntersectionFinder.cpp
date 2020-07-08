@@ -34,8 +34,8 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 	auto col3 = -1.0f * surface2->GetTangent(s, t, TangentDir::AlongU);
 	auto col4 = -1.0f * surface2->GetTangent(s, t, TangentDir::AlongV);
 
-	float col3Last = Dot(col3, -1.f * stepDir);
-	float col5Last = Dot(col4, -1.f * stepDir);
+	float col3Last = Dot(col3, stepDir);
+	float col5Last = Dot(col4, stepDir);
 
 	derivatives.m[0][0] = col1.x;
 	derivatives.m[1][0] = col1.y;
@@ -73,7 +73,7 @@ DirectX::XMFLOAT4 IntersectionFinder::CalculateIntersectionDistanceFunctionValue
 	DirectX::XMFLOAT3 posDiff = pt1 - pt2;
 
 	auto stepDiff = pt2 - prevPoint;
-	float w = Dot(stepDiff, -1 * stepDir) - step;
+	float w = Dot(stepDiff, stepDir) - step;
 
 	funcVal.x = posDiff.x;
 	funcVal.y = posDiff.y;
