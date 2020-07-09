@@ -277,7 +277,7 @@ DirectX::XMFLOAT4 Geom::SolveGETP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 		FindLargestElementInSubMatrix(A, col, diagRow, swapCol, swapRow);
 		SwapRows(A, bVec, diagRow, swapRow);
 		SwapColumns(A, bVec, permutation, col, swapCol);		
-
+		assert(A.m[col][col] != 0);
 		// Reduce the elements below the diagonal
 		for (int row = col+1; row < 4; row++)
 		{

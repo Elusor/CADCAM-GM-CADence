@@ -163,20 +163,25 @@ float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 	float x = (p1.x * p2.x);
 	float y = (p1.y * p2.y);
 	float z = (p1.z * p2.z);
-	return x+y+z;
+	return (x+y+z);
 }
 
 DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
-	float x = p1.y * p2.z - p1.z * p2.y;
-	float y = p1.z * p2.x - p1.x * p2.z;
-	float z = p1.x * p2.y - p1.y * p2.x;
+	float x = (p1.y * p2.z) - (p1.z * p2.y);
+	float y = (p1.z * p2.x) - (p1.x * p2.z);
+	float z = (p1.x * p2.y) - (p1.y * p2.x);
 	return DirectX::XMFLOAT3(x,y,z);
 }
 
 float Dot(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2)
 {
-	return p1.x * p2.x + p1.y * p2.y + p2.z * p2.z + p1.w * p2.w;
+	float x = p1.x * p2.x;
+	float y = p1.y * p2.y;
+	float z = p2.z * p2.z;
+	float w = p1.w * p2.w;
+	float res = x + y + z + w;
+	return res;
 }
 
 DirectX::XMFLOAT3 operator-(XMFLOAT3 a, XMFLOAT3 b)

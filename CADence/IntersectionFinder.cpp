@@ -32,11 +32,11 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 
 	auto col1 = surface1->GetTangent(u, v, TangentDir::AlongU);
 	auto col2 = surface1->GetTangent(u, v, TangentDir::AlongV);
-	auto col3 = -1.0f * surface2->GetTangent(s, t, TangentDir::AlongU);
-	auto col4 = -1.0f * surface2->GetTangent(s, t, TangentDir::AlongV);
+	auto col3 = surface2->GetTangent(s, t, TangentDir::AlongU);
+	auto col4 = surface2->GetTangent(s, t, TangentDir::AlongV);
 
 	float col3Last = Dot(col3, stepDir);
-	float col5Last = Dot(col4, stepDir);
+	float col4Last = Dot(col4, stepDir);
 
 	derivatives.m[0][0] = col1.x;
 	derivatives.m[1][0] = col1.y;
@@ -48,15 +48,15 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 	derivatives.m[2][1] = col2.z;
 	derivatives.m[3][1] = 0.0f;
 
-	derivatives.m[0][2] = col3.x;
-	derivatives.m[1][2] = col3.y;
-	derivatives.m[2][2] = col3.z;
+	derivatives.m[0][2] = -col3.x;
+	derivatives.m[1][2] = -col3.y;
+	derivatives.m[2][2] = -col3.z;
 	derivatives.m[3][2] = col3Last;
 
-	derivatives.m[0][3] = col4.x;
-	derivatives.m[1][3] = col4.y;
-	derivatives.m[2][3] = col4.z;
-	derivatives.m[3][3] = col5Last;
+	derivatives.m[0][3] = -col4.x;
+	derivatives.m[1][3] = -col4.y;
+	derivatives.m[2][3] = -col4.z;
+	derivatives.m[3][3] = col4Last;
 
 	return derivatives;
 }
@@ -540,7 +540,7 @@ bool IntersectionFinder::FindNextPoint(
 			found = false;
 			break;
 		}
-		auto funcVal = -1.f * CalculateIntersectionDistanceFunctionValue(
+		auto funcVal = CalculateIntersectionDistanceFunctionValue(
 			qSurf, curQParams, 
 			pSurf, curPParams, 
 			prevPoint, stepVersor, m_step);
