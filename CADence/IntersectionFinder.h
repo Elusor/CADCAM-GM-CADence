@@ -22,6 +22,7 @@ private:
 	float m_step;
 	float m_precision;
 	float m_alphaPrecision;
+	float m_CGprecision;
 	ObjectFactory* m_factory;
 	Scene* m_scene;
 
@@ -74,7 +75,8 @@ private:
 		IParametricSurface* surface1, ParameterPair& surf1Params,
 		IParametricSurface* surface2, ParameterPair& surf2Params,
 		DirectX::XMFLOAT3 prevPoint,
-		DirectX::XMFLOAT3& pos);	
+		DirectX::XMFLOAT3& pos,
+		bool reverseDirection);
 	
 	// Move To IParametric Surface
 	DirectX::XMFLOAT3 GetSurfaceNormal(IParametricSurface* surface, ParameterPair params);

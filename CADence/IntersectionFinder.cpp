@@ -12,8 +12,9 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 {
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
-	m_step = 2.5f; 
-	m_precision = 0.01f;
+	m_step = 0.5f; 
+	m_precision = 0.05f;
+	m_CGprecision = 10E-7f;
 	m_alphaPrecision = 0.0001f;
 }
 
@@ -356,7 +357,7 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 			found = false;
 		}
 
-		if (curDist <= m_precision)
+		if (curDist <= m_CGprecision)
 		{
 			continueSearch = false;
 			found = true;
@@ -440,25 +441,70 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 	IParametricSurface* surface2, ParameterPair surf2Params, std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
 	DirectX::XMFLOAT3 firstPoint)
 {
+
+	auto params1For = surf1Params;
+	auto params2For = surf2Params;
+	auto params1Back = surf1Params;
+	auto params2Back = surf2Params;
+
+
+	std::vector<DirectX::XMFLOAT2> forwards1;
+	std::vector<DirectX::XMFLOAT2> forwards2;
+	std::vector<DirectX::XMFLOAT2> backwards1;
+	std::vector<DirectX::XMFLOAT2> backwards2;
+
+
 	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	bool nextPointInRange = FindNextPoint(surface1, surf1Params, surface2, surf2Params, firstPoint, position);
-	while(nextPointInRange)
-	{	
-		surf1ParamsList.push_back(XMFLOAT2(surf1Params.u, surf1Params.v));
-		surf2ParamsList.push_back(XMFLOAT2(surf2Params.u, surf2Params.v));
-		
-		// Search for the next point
-		// prevPos is -1000000
+	bool nextPointInRange = FindNextPoint(surface1, params1For, surface2, params2For, firstPoint, position, false);
+	while (nextPointInRange)
+	{
+		forwards1.push_back(XMFLOAT2(params1For.u, params1For.v));
+		forwards2.push_back(XMFLOAT2(params2For.u, params2For.v));
 		auto prevPos = position;
-		nextPointInRange = FindNextPoint(surface1, surf1Params, surface2, surf2Params, prevPos, position);		
+		nextPointInRange = FindNextPoint(surface1, params1For, surface2, params2For, prevPos, position, false);
 	}
+
+	position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, firstPoint, position, true);
+	while (nextPointInRange)
+	{
+		backwards1.push_back(XMFLOAT2(params1Back.u, params1Back.v));
+		backwards2.push_back(XMFLOAT2(params2Back.u, params2Back.v));
+		auto prevPos = position;
+		nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, prevPos, position, true);
+	}
+	std::reverse(forwards1.begin(), forwards1.end());
+	std::reverse(forwards2.begin(), forwards2.end());
+
+	std::vector<DirectX::XMFLOAT2> res1;
+	std::vector<DirectX::XMFLOAT2> res2;
+
+	for (int i = 0; i < forwards1.size(); i++)
+	{
+		res1.push_back(forwards1[i]);
+		res2.push_back(forwards2[i]);
+	}
+
+	res1.push_back(surf1ParamsList[0]);
+	res2.push_back(surf2ParamsList[0]);
+
+	for (int i = 0; i < backwards1.size(); i++)
+	{
+		res1.push_back(backwards1[i]);
+		res2.push_back(backwards2[i]);
+	}
+
+	surf1ParamsList = res1;
+	surf2ParamsList = res2;
+	return;
 }
 
 bool IntersectionFinder::FindNextPoint(
 	IParametricSurface* qSurf, ParameterPair& qSurfParams,
 	IParametricSurface* pSurf, ParameterPair& pSurfParams, 
 	DirectX::XMFLOAT3 prevPoint,
-	DirectX::XMFLOAT3& pos)
+	DirectX::XMFLOAT3& pos,
+	bool reverseDirection)
 {	
 	DirectX::XMFLOAT4 x_k;
 	bool found = false;
@@ -481,7 +527,11 @@ bool IntersectionFinder::FindNextPoint(
 		// Calculate F(x)
 		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
 		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
-		auto stepVersor = -1 * CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
+		auto stepVersor = CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
+		if (reverseDirection)
+		{
+			stepVersor = -1 * stepVersor;
+		}
 
 		if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
 		{
@@ -651,7 +701,7 @@ bool IntersectionFinder::SimpleGradient(
 
 		// After 3 iterations reset the method
 		iterationCounter++;
-		if (iterationCounter > 30)
+		if (iterationCounter > 100)
 		{
 			found = false;
 			continueSearch = false;
@@ -663,7 +713,7 @@ bool IntersectionFinder::SimpleGradient(
 			found = false;
 		}
 
-		if (curDist <= m_precision)
+		if (curDist <= m_CGprecision)
 		{
 			continueSearch = false;
 			found = true;
