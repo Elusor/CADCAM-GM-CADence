@@ -473,7 +473,11 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 
 		// Watch out for cases when something that is not a true loop 
 		// TODO Do a check after finding all the points to detect "trimmable loops"
-		// Those should be connected based on
+		// Those should be connected based on distance in the scene, not parameter space
+		// Maybe determine "loopness" for surfaces individually
+		// Mark boundary looped straight line as looped if the position of boudnary + delta is nearly the same as the other end and distance in r^3 is less than a step
+		// Do we even need to discern between true loops and boundary loops?
+
 		if (dist <= m_step * m_step / 4.f && trueLoop) {
 			// Add points and end the loop 
 			// Add the point as usual
@@ -486,6 +490,7 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 		}
 		else {
 			// Add point normally (no loop or a ribbon with no connecting ends)
+			// TODO: after all calculations check for loops based on distance?
 			forwards1.push_back(XMFLOAT2(params1For.u, params1For.v));
 			forwards2.push_back(XMFLOAT2(params2For.u, params2For.v));
 			auto prevPos = position;
