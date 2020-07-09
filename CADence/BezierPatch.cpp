@@ -154,6 +154,7 @@ bool BezierPatch::CreateParamsGui()
 	if (m_uSize > 64)
 		m_uSize = 64;
 	
+	m_vSize = m_uSize;
 
 	ImGui::End();
 	return patchChanged;
