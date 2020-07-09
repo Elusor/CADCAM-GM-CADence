@@ -248,14 +248,15 @@ DirectX::XMFLOAT4 Geom::SolveGEPP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 	// Reduce the elements abovethe diagonal
 	for (int col = 3; col >= 0; col--)
 	{
+		//Set the element on the diagonal to 1 		
+		DivideRow(A, bVec, col, A.m[col][col]);
+		
 		for (int row = col - 1; row >= 0; row--)
 		{
 			float alpha = A.m[row][col] / A.m[col][col];
 			SubstractRows(A, bVec, row, col, alpha);
 		}
 
-		//Set the element on the diagonal to 1 		
-		DivideRow(A, bVec, col, A.m[col][col]);
 	}
 
 	return bVec;
@@ -288,14 +289,15 @@ DirectX::XMFLOAT4 Geom::SolveGETP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 	// Reduce the elements abovethe diagonal
 	for (int col = 3; col >= 0; col--)
 	{
+		//Set the element on the diagonal to 1 
+		DivideRow(A, bVec, col, A.m[col][col]);
+
 		for (int row = col - 1; row >= 0; row--)
 		{
 			float alpha = A.m[row][col] / A.m[col][col];
 			SubstractRows(A, bVec, row, col, alpha);
 		}
 
-		//Set the element on the diagonal to 1 
-		DivideRow(A, bVec, col, A.m[col][col]);
 	}
 
 	auto res = PermutateVector(bVec, permutation);
