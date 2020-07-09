@@ -560,11 +560,10 @@ bool IntersectionFinder::FindNextPoint(
 		{ // Calculate next iteration
 			// Create a linear equation system and solve it
 			DirectX::XMFLOAT4X4 derMatrix = CalculateDerivativeMatrix(qSurf, pSurf, x_k, stepVersor);
-			auto deltaX = Geom::SolveGEPP(derMatrix, funcVal);
-			auto deltaXGetp = Geom::SolveGETP(derMatrix, funcVal);
-			auto diff = deltaX - deltaXGetp;
+			//auto deltaX = Geom::SolveGEPP(derMatrix, funcVal);
+			auto deltaXGetp = Geom::SolveGETP(derMatrix, funcVal);			
 			// Find the next point using Newton's method to solve linear equation system
-			x_k = x_k + deltaX;
+			x_k = x_k + deltaXGetp;
 			
 		}
 
