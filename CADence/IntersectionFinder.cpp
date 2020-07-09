@@ -540,7 +540,7 @@ bool IntersectionFinder::FindNextPoint(
 			found = false;
 			break;
 		}
-		auto funcVal = CalculateIntersectionDistanceFunctionValue(
+		auto funcVal = -1 * CalculateIntersectionDistanceFunctionValue(
 			qSurf, curQParams, 
 			pSurf, curPParams, 
 			prevPoint, stepVersor, m_step);
@@ -563,7 +563,9 @@ bool IntersectionFinder::FindNextPoint(
 			//auto deltaX = Geom::SolveGEPP(derMatrix, funcVal);
 			auto deltaXGetp = Geom::SolveGETP(derMatrix, funcVal);			
 			// Find the next point using Newton's method to solve linear equation system
-			x_k = x_k + deltaXGetp;
+			// There should not be a minus here, for some reason there is. Check someday. 
+			// This works.
+			x_k = x_k - deltaXGetp;
 			
 		}
 
