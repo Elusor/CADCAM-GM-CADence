@@ -13,7 +13,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 	m_step = 0.5f; 
-	m_precision = 0.05f;
+	m_precision = 10E-5f;
 	m_CGprecision = 10E-7f;
 	m_alphaPrecision = 10E-9f;
 }
