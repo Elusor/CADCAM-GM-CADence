@@ -604,14 +604,14 @@ float CalcFunc(
 	return Dot(q - p, q - p);
 }
 
-float GoldenRatioMethod(
+float IntersectionFinder::GoldenRatioMethod(
 	IParametricSurface* qSurface,
 	IParametricSurface* pSurface, 
 	float a, float b, 
 	DirectX::XMFLOAT4 x_k, 
 	DirectX::XMFLOAT4 d_k)
 {
-	float eps = 0.0001f;
+	float eps = m_alphaPrecision;
 
 	// wspó³czynnik z³otego podzia³u
 	float k = (sqrt(5) - 1) / 2;

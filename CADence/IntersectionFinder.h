@@ -78,6 +78,13 @@ private:
 		DirectX::XMFLOAT3& pos,
 		bool reverseDirection);
 	
+	float GoldenRatioMethod(
+		IParametricSurface* qSurface,
+		IParametricSurface* pSurface,
+		float a, float b,
+		DirectX::XMFLOAT4 x_k,
+		DirectX::XMFLOAT4 d_k);
+
 	// Move To IParametric Surface
 	DirectX::XMFLOAT3 GetSurfaceNormal(IParametricSurface* surface, ParameterPair params);
 
