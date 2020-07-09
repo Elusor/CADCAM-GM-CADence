@@ -15,7 +15,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_step = 0.5f; 
 	m_precision = 0.05f;
 	m_CGprecision = 10E-7f;
-	m_alphaPrecision = 0.0001f;
+	m_alphaPrecision = 10E-9f;
 }
 
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
