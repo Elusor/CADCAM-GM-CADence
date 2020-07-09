@@ -38,45 +38,6 @@ void FindLargestElementInSubMatrix(DirectX::XMFLOAT4X4 matrix, int column, int r
 	}
 }
 
-void SetNthFieldValue(DirectX::XMFLOAT4& vector, int index, float value) {
-	switch (index)
-	{
-	case 0:
-		vector.x = value;
-		break;
-	case 1:
-		vector.y = value;
-		break;
-	case 2:
-		vector.z = value;
-		break;
-	case 3:
-		vector.w = value;
-		break;
-	}
-}
-
-float GetNthFieldValue(DirectX::XMFLOAT4 vector, int index) {
-
-	float res = 0.0f;
-	switch (index)
-	{
-	case 0:
-		res = vector.x;
-		break;
-	case 1:
-		res = vector.y;
-		break;
-	case 2:
-		res = vector.z;
-		break;
-	case 3:
-		res = vector.w;
-		break;
-	}
-	return res;
-}
-
 void SwapValues(DirectX::XMFLOAT4& vector, int index1, int index2)
 {
 	float val1 = GetNthFieldValue(vector, index1);

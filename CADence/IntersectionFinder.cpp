@@ -499,6 +499,70 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 	return;
 }
 
+DirectX::XMFLOAT4 FindClampedPosition(DirectX::XMFLOAT4 x_k, DirectX::XMFLOAT4 x_prev, float step)
+{
+	// Given a point x_prev inside a 4 dimensional cube [0,1]x[0,1]x[0,1]x[0,1] and the next step x_k
+	// Find a point on the boundary of the cube that lies on the line intersecting x_k and x_prev
+
+	auto delta = x_k - x_prev;
+	bool isZeroDist = false;
+	float dist = 20.f;
+	float eps = 10E-5;
+	for (int i = 0; i < 4; i++)
+	{
+		float deltaCoord = GetNthFieldValue(delta, i);
+		if (deltaCoord != 0.0f)
+		{
+			float zeroDist = (0.f - GetNthFieldValue(x_prev, i)) / deltaCoord;
+			float oneDist = (1.f - GetNthFieldValue(x_prev, i)) / deltaCoord;
+
+			float val = 2.0f;
+			float isValZeroDist = false;
+
+			if (zeroDist > 0.0f)
+			{
+				val = zeroDist;
+				isValZeroDist = true;
+			}
+
+			if (oneDist > 0.0f && oneDist <val )
+			{
+				val = oneDist;
+				isValZeroDist = false;
+			}
+			
+			if (val < dist)
+			{
+				dist = val;
+				isZeroDist = isValZeroDist;
+			}
+		}
+	}
+
+	auto normDelta = delta / sqrt(Dot(delta, delta));
+
+	auto res = x_prev + delta * dist;
+
+	for (int i = 0; i < 4; i++)
+	{
+		float val = GetNthFieldValue(delta, i);
+		if (val < eps)
+			val = 0.0f;
+		if (val > 1.f - eps)
+			val = 1.0f;
+		SetNthFieldValue(delta, i, val);
+	}
+	
+	auto modifiedStep = delta * dist;
+
+	if (Dot(modifiedStep, modifiedStep) > step * step)
+	{
+		res = x_k;
+	}
+
+	return res;
+}
+
 bool IntersectionFinder::FindNextPoint(
 	IParametricSurface* qSurf, ParameterPair& qSurfParams,
 	IParametricSurface* pSurf, ParameterPair& pSurfParams, 
@@ -506,40 +570,35 @@ bool IntersectionFinder::FindNextPoint(
 	DirectX::XMFLOAT3& pos,
 	bool reverseDirection)
 {	
-	DirectX::XMFLOAT4 x_k;
+	DirectX::XMFLOAT4 x_k, x_prev;
 	bool found = false;
 
 	// Calculate Step direction
 	//auto stepVersor = -1 * CalculateStepDirection(qSurf, qSurfParams, pSurf, pSurfParams);
-	
+
 	// Initialize x_0
 	x_k.x = qSurfParams.u; // u
 	x_k.y = qSurfParams.v; // v
 	x_k.z = pSurfParams.u; // s
-	x_k.w = pSurfParams.v; // t
-	
+	x_k.w = pSurfParams.v; // t	
+	x_prev = x_k;
+
+	ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
+	ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
+
 	// TODO: Add condition so taht it is known if the method diverges
 	int iterationCounter = 0;
 
 	bool continueNewtonCalculation = true;
 	while (continueNewtonCalculation)
 	{		
-		// Calculate F(x)
-		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
-		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
+		// Calculate F(x)		
 		auto stepVersor = CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
 		if (reverseDirection)
 		{
 			stepVersor = -1 * stepVersor;
 		}
-
-		if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
-		{
-			// Stop the algorithm
-			continueNewtonCalculation = false;
-			found = false;
-			break;
-		}
+		
 		auto funcVal = -1 * CalculateIntersectionDistanceFunctionValue(
 			qSurf, curQParams, 
 			pSurf, curPParams, 
@@ -565,10 +624,38 @@ bool IntersectionFinder::FindNextPoint(
 			// Find the next point using Newton's method to solve linear equation system
 			// There should not be a minus here, for some reason there is. Check someday. 
 			// This works.
+			x_prev = x_k;
 			x_k = x_k - deltaXGetp;
-			
+			curQParams = ParameterPair{ x_k.x, x_k.y };
+			curPParams = ParameterPair{ x_k.z, x_k.w };
+
+			if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
+			{
+				// Check if the distance between clamped params and prev point is smaller than step 
+				//if yes - connect the curve to the patch boundary and flag this end as looped
+
+				auto boundaryPoint = FindClampedPosition(x_k, x_prev, m_step);
+				if (ParamsOutOfBounds(boundaryPoint.x, boundaryPoint.y, boundaryPoint.z, boundaryPoint.w))
+				{
+					// Stop the algorithm
+					continueNewtonCalculation = false;
+					found = false;
+					break;
+				}
+				else {
+					// Solution is satisfying
+					continueNewtonCalculation = false;
+					found = true;
+					pos = pSurf->GetPoint(boundaryPoint.z, boundaryPoint.w);
+
+					// Update structures to hold current parameters data for use outside this func
+					qSurfParams = { boundaryPoint.x, boundaryPoint.y};
+					pSurfParams = { boundaryPoint.z, boundaryPoint.w};
+				}		
+			}
 		}
 
+	
 		// TODO: replace with a cleaner solution
 		iterationCounter++;
 		if (iterationCounter > 30)

@@ -1,5 +1,43 @@
 #include "mathUtils.h"
 
+void SetNthFieldValue(DirectX::XMFLOAT4& vector, int index, float value) {
+	switch (index)
+	{
+	case 0:
+		vector.x = value;
+		break;
+	case 1:
+		vector.y = value;
+		break;
+	case 2:
+		vector.z = value;
+		break;
+	case 3:
+		vector.w = value;
+		break;
+	}
+}
+
+float GetNthFieldValue(DirectX::XMFLOAT4 vector, int index) {
+
+	float res = 0.0f;
+	switch (index)
+	{
+	case 0:
+		res = vector.x;
+		break;
+	case 1:
+		res = vector.y;
+		break;
+	case 2:
+		res = vector.z;
+		break;
+	case 3:
+		res = vector.w;
+		break;
+	}
+	return res;
+}
 
 // https://en.wikibooks.org/wiki/Algorithm_Implementation/Linear_Algebra/Tridiagonal_matrix_algorithm
 //| b0 c0 0 || x0 |  |d0|
@@ -235,7 +273,7 @@ DirectX::XMFLOAT4 operator*(XMFLOAT4 val, float t)
 
 DirectX::XMFLOAT4 operator/(XMFLOAT4 val, float t)
 {
-	return val * 1.f / t;
+	return val * (1.f / t);
 }
 
 DirectX::XMFLOAT4 operator*(float t, XMFLOAT4 val)
