@@ -13,7 +13,7 @@
 #include "IOExceptions.h"
 #include "HoleDetector.h"
 #include "IntersectionFinder.h"
-
+#include "GeometricFunctions.h"
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -58,6 +58,16 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	ImGui_ImplWin32_Init(this->m_window.getHandle());
 	ImGui_ImplDX11_Init(m_renderState->m_device.m_device.get(), m_renderState->m_device.m_context.get());
 	ImGui::StyleColorsDark();
+
+	DirectX::XMFLOAT4X4 A = {
+	1,  2,  5,  1,
+	3, -4,  3, -2,
+	4,  3,  2, -1,
+	1, -2, -4, -1};
+	DirectX::XMFLOAT4 b = { 4, 7 , 1, 2 };
+	auto resgepp = Geom::SolveGEPP(A, b);
+	auto resgecp = Geom::SolveGETP(A, b);
+	int x = 2;
 }
 
 int DxApplication::MainLoop()
