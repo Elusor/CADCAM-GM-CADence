@@ -23,6 +23,7 @@ private:
 	float m_precision;
 	float m_alphaPrecision;
 	float m_CGprecision;
+	float m_loopPrecision;
 	ObjectFactory* m_factory;
 	Scene* m_scene;
 

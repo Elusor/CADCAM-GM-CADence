@@ -13,9 +13,10 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 	m_step = 0.5f; 
+	m_loopPrecision = 0.1f;
 	m_precision = 10E-5f;
 	m_CGprecision = 10E-7f;
-	m_alphaPrecision = 10E-9f;
+	m_alphaPrecision = 10E-7f;
 }
 
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
@@ -453,26 +454,57 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 	std::vector<DirectX::XMFLOAT2> backwards1;
 	std::vector<DirectX::XMFLOAT2> backwards2;
 
-
+	bool looped = false;
 	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	bool nextPointInRange = FindNextPoint(surface1, params1For, surface2, params2For, firstPoint, position, false);
 	while (nextPointInRange)
 	{
-		forwards1.push_back(XMFLOAT2(params1For.u, params1For.v));
-		forwards2.push_back(XMFLOAT2(params2For.u, params2For.v));
-		auto prevPos = position;
-		nextPointInRange = FindNextPoint(surface1, params1For, surface2, params2For, prevPos, position, false);
-	}
+		//Check if found point makes a loop
+		auto diff = firstPoint - position;
+		auto dist = Dot(diff, diff);
 
-	position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, firstPoint, position, true);
-	while (nextPointInRange)
-	{
-		backwards1.push_back(XMFLOAT2(params1Back.u, params1Back.v));
-		backwards2.push_back(XMFLOAT2(params2Back.u, params2Back.v));
-		auto prevPos = position;
-		nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, prevPos, position, true);
+		// TODO: CHECK IF TRUE LOOPED
+		// Check if this is a circle of infinity sign like interjection
+		auto begParams = DirectX::XMFLOAT4(surf1Params.u, surf1Params.v, surf2Params.u, surf2Params.v);
+		auto candidateParams = DirectX::XMFLOAT4(params1For.u, params1For.v, params2For.u, params2For.v);
+		auto paramDiff = begParams - candidateParams;
+		auto paramDiffLen = Dot(paramDiff, paramDiff);
+		bool trueLoop =  paramDiffLen < m_loopPrecision * m_loopPrecision;
+
+		// Watch out for cases when something that is not a true loop 
+		// TODO Do a check after finding all the points to detect "trimmable loops"
+		// Those should be connected based on
+		if (dist <= m_step * m_step / 4.f && trueLoop) {
+			// Add points and end the loop 
+			// Add the point as usual
+			forwards1.push_back(XMFLOAT2(surf1Params.u, surf1Params.v));
+			forwards2.push_back(XMFLOAT2(surf2Params.u, surf2Params.v));
+			// end search
+			nextPointInRange = false;
+			looped = true;	
+			// TODO: return looped info and mark it in the intersection curve structure
+		}
+		else {
+			// Add point normally (no loop or a ribbon with no connecting ends)
+			forwards1.push_back(XMFLOAT2(params1For.u, params1For.v));
+			forwards2.push_back(XMFLOAT2(params2For.u, params2For.v));
+			auto prevPos = position;
+			nextPointInRange = FindNextPoint(surface1, params1For, surface2, params2For, prevPos, position, false);
+		}		
 	}
+	if (!looped)
+	{
+		position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, firstPoint, position, true);
+		while (nextPointInRange)
+		{
+			backwards1.push_back(XMFLOAT2(params1Back.u, params1Back.v));
+			backwards2.push_back(XMFLOAT2(params2Back.u, params2Back.v));
+			auto prevPos = position;
+			nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, prevPos, position, true);
+		}
+	}
+	
 	std::reverse(forwards1.begin(), forwards1.end());
 	std::reverse(forwards2.begin(), forwards2.end());
 
