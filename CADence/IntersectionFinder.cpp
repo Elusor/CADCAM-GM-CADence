@@ -875,6 +875,8 @@ float IntersectionFinder::GoldenRatioMethod(
 	// pêtla póki nie zostanie spe³niony warunek stopu
 	while ((b - a) > eps)
 	{
+		// if x_k + d_k * xL is out of bounds
+		// update bounds and update x_l and calculate fL
 		auto fL = CalcFunc(qSurface, pSurface, x_k, d_k, xL);
 		auto fR = CalcFunc(qSurface, pSurface, x_k, d_k, xR);
 		// porównaj wartoœci funkcji celu lewej i prawej próbki

@@ -15,4 +15,8 @@ public:
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeMixed(float u, float v) override;
+	bool ParamsInsideBounds(float u, float v) override;
+	void GetWrappedParams(float& u, float& v) override;
+	float GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep) override;
+
 };

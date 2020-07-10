@@ -547,3 +547,63 @@ DirectX::XMFLOAT3 BezierPatch::GetSecondDarivativeMixed(float u, float v)
 	// Calculate the other side of the Bezier tensor
 	return BezierCalculator::CalculateBezier3(finalCoeff0, finalCoeff1, finalCoeff2, u);
 }
+
+bool BezierPatch::ParamsInsideBounds(float u, float v)
+{
+	bool UinRange = u >= 0 && u <= 1.f;
+	bool VinRange = v >= 0 && v <= 1.f;
+	return (UinRange && VinRange);
+}
+
+void BezierPatch::GetWrappedParams(float& u, float& v)
+{
+	// nothing to do here
+}
+
+float BezierPatch::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)
+{
+	float res = defStep;
+	DirectX::XMFLOAT2 params = DirectX::XMFLOAT2(u, v);
+	DirectX::XMFLOAT2 movedParams = params + dir * defStep;
+
+	if (ParamsInsideBounds(movedParams.x, movedParams.y) == false)
+	{
+		// check for nearest intersection with u and v edges
+		// Check u edges
+		if (dir.x != 0.0f)
+		{
+			float step0 = (0.f - u) / dir.x;
+			float step1 = (1.f - u) / dir.x;
+
+			if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+			{
+				res = step0;
+			}
+
+			if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+			{
+				res = step1;
+			}
+		}
+
+		// Check v edges
+		if (dir.y != 0.0f)
+		{
+			float step0 = (0.f - v) / dir.y;
+			float step1 = (1.f - v) / dir.y;
+
+			if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+			{
+				res = step0;
+			}
+
+			if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+			{
+				res = step1;
+			}
+		}
+
+	}
+
+	return res;
+}

@@ -91,3 +91,36 @@ DirectX::XMFLOAT3 Torus::GetSecondDarivativeMixed(float u, float v)
 
 	return DirectX::XMFLOAT3(x,y,z);
 }
+
+bool Torus::ParamsInsideBounds(float u, float v)
+{
+	// Torus can be looped in both dimensions so parameters can never be out of bounds
+	return true;
+}
+
+void Torus::GetWrappedParams(float& u, float& v)
+{
+	float uIntPart;
+	float newU = modff(u, &uIntPart);
+
+	float vIntPart;
+	float newV = modff(v, &vIntPart);
+
+	if (newU < 0.f)
+	{
+		newU = 1 + newU;
+	}
+
+	if (newV < 0.f)
+	{
+		newV = 1 + newV;
+	}
+
+	u = newU;
+	v = newV;
+}
+
+float Torus::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)
+{
+	return defStep;
+}

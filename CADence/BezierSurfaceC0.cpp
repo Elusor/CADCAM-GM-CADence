@@ -1,7 +1,7 @@
 #pragma once 
 #include "BezierSurfaceC0.h"
 #include "imgui.h"
-
+#include "mathUtils.h"
 BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDir)
 {
 	m_wrapDir = wrapDir;
@@ -136,8 +136,10 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 	// v - height 
 
 	// determine the W and H of a given patch and get the point from this patch
+	bool UinRange = (u >= 0 && u <= 1.0f);
+	bool VinRange = (v >= 0 && v <= 1.0f);
 
-
+	assert(UinRange && VinRange);
 	int w = (int)(u * (float)m_patchW);
 	int h = (int)(v * (float)m_patchH);
 
@@ -338,4 +340,155 @@ DirectX::XMFLOAT3 BezierSurfaceC0::GetSecondDarivativeMixed(float u, float v)
 	float vRef = v;
 	auto patch = GetPatchAtParameter(uRef, vRef);
 	return patch->GetSecondDarivativeMixed(uRef, vRef);
+}
+
+bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
+{
+	bool res = false;
+	bool UinRange = (u >= 0 && u <= 1);
+	bool VinRange = (v >= 0 && v <= 1);
+
+	if (m_wrapDir == SurfaceWrapDirection::None)
+	{ // None
+		// No wrap check both params
+		res = (UinRange && VinRange);
+	}
+	else {
+		// TODO: Check if v corresponds to height and u to width
+		if (m_wrapDir == SurfaceWrapDirection::Height)
+		{ //Height
+			// Height wrapped so check width
+			res = UinRange;
+		}
+		else 
+		{ //Width
+			// Width wrapped so check height
+			res = VinRange;
+		}
+	}
+
+	return res;
+}
+
+void BezierSurfaceC0::GetWrappedParams(float& u, float& v)
+{		
+	// TODO: Check if v corresponds to height and u to width
+	if (m_wrapDir == SurfaceWrapDirection::Height)
+	{ 
+		float vIntPart;
+		float newV = modff(v, &vIntPart);
+		if (newV < 0.0f)
+		{
+			newV = 1.f + newV;
+		}
+		v = newV;
+	}
+
+	if (m_wrapDir == SurfaceWrapDirection::Width)
+	{ 
+		float uIntPart;
+		float newU = modff(u, &uIntPart);
+		if (newU < 0.0f)
+		{
+			newU = 1.f + newU;
+		}
+		u = newU;
+	}
+}
+
+float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)
+{
+
+	float res = defStep;
+	DirectX::XMFLOAT2 params = DirectX::XMFLOAT2(u, v);
+	DirectX::XMFLOAT2 movedParams = params + dir * defStep;
+
+	if (ParamsInsideBounds(movedParams.x, movedParams.y) == false)
+	{	
+		// parameters are outside bounds
+		switch (m_wrapDir)
+		{
+		case SurfaceWrapDirection::None:
+			// check for nearest intersection with u and v edges
+
+			// Check u edges
+			if (dir.x != 0.0f)
+			{
+				float step0 = (0.f - u) / dir.x;
+				float step1 = (1.f - u) / dir.x;
+
+				if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+				{
+					res = step0;
+				}
+
+				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				{
+					res = step1;
+				}
+			}
+
+			// Check v edges
+			if (dir.y != 0.0f)
+			{
+				float step0 = (0.f - v) / dir.y;
+				float step1 = (1.f - v) / dir.y;
+
+				if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+				{
+					res = step0;
+				}
+
+				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				{
+					res = step1;
+				}
+			}
+
+			break;
+
+		case SurfaceWrapDirection::Width:
+			// check for nearest intersection with v edges
+			if (dir.y != 0.0f)
+			{
+				float step0 = (0.f - v) / dir.y;
+				float step1 = (1.f - v) / dir.y;
+
+				if (step0 * defStep> 0 && abs(step0) < abs(res)) //has the same sign
+				{
+					res = step0;
+				}
+
+				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				{
+					res = step1;
+				}
+			}
+			break;
+
+		case SurfaceWrapDirection::Height:
+			// check for nearest intersection with u edges
+			// Check u edges
+			if (dir.x != 0.0f)
+			{
+				float step0 = (0.f - u) / dir.x;
+				float step1 = (1.f - u) / dir.x;
+
+				if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+				{
+					res = step0;
+				}
+
+				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				{
+					res = step1;
+				}
+			}
+			break;
+		}
+
+
+	}
+
+	return res;
 }
