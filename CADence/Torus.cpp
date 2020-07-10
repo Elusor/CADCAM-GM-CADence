@@ -36,7 +36,10 @@ DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 	float y = m_smallR * sinf(u);
 	float z = (m_smallR * cosf(u) + m_bigR) * sinf(v);
 
-	return XMFLOAT3(x,y,z);
+	auto relativePos = XMFLOAT3(x, y, z);
+	auto scenePos = GetPosition() + relativePos;
+
+	return scenePos;
 }
 
 DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
