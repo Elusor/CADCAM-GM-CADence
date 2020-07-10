@@ -222,6 +222,31 @@ float Dot(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2)
 	return res;
 }
 
+DirectX::XMFLOAT2 operator-(XMFLOAT2 a, XMFLOAT2 b)
+{
+	return DirectX::XMFLOAT2(a.x - b.x, a.y - b.y);
+}
+
+DirectX::XMFLOAT2 operator+(XMFLOAT2 a, XMFLOAT2 b)
+{
+	return DirectX::XMFLOAT2(a.x + b.x, a.y + b.y);
+}
+
+DirectX::XMFLOAT2 operator*(XMFLOAT2 val, float t)
+{
+	return DirectX::XMFLOAT2(val.x * t, val.y * t);
+}
+
+DirectX::XMFLOAT2 operator/(XMFLOAT2 val, float t)
+{
+	return val * (1.f / t);
+}
+
+DirectX::XMFLOAT2 operator*(float t, XMFLOAT2 val)
+{
+	return val * t;
+}
+
 DirectX::XMFLOAT3 operator-(XMFLOAT3 a, XMFLOAT3 b)
 {
 	return a + (-1.f) * b;

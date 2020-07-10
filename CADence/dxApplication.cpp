@@ -228,6 +228,11 @@ void DxApplication::InitImguiWindows()
 					point->m_object->SetPosition(pt);
 					m_scene->AttachObject(point);*/
 				}
+				if (ImGui::Button("Intersect surfaces with cursor"))
+				{
+					auto cursorPos = m_scene->m_spawnMarker->GetPosition();
+					m_intersectionFinder->FindIntersectionWithCursor(surf1, surf2, cursorPos);					
+				}
 			}
 		}
 

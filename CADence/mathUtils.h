@@ -25,6 +25,12 @@ DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 float Dot(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2);
 //DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 
+DirectX::XMFLOAT2 operator-(XMFLOAT2 a, XMFLOAT2 b);
+DirectX::XMFLOAT2 operator+(XMFLOAT2 a, XMFLOAT2 b);
+DirectX::XMFLOAT2 operator*(XMFLOAT2 val, float t);
+DirectX::XMFLOAT2 operator/(XMFLOAT2 val, float t);
+DirectX::XMFLOAT2 operator*(float t, XMFLOAT2 val);
+
 DirectX::XMFLOAT3 operator-(XMFLOAT3 a, XMFLOAT3 b);
 DirectX::XMFLOAT3 operator+(XMFLOAT3 a, XMFLOAT3 b);
 DirectX::XMFLOAT3 operator*(XMFLOAT3 val, float t);

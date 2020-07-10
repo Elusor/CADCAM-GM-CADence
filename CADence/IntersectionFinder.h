@@ -17,12 +17,14 @@ public:
 	IntersectionFinder(Scene* scene);
 	// TODO change return type to intersection curve
 	void FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2);
+	void FindIntersectionWithCursor(IParametricSurface* surface1, IParametricSurface* surface2, DirectX::XMFLOAT3 cursorPos);
 	void CreateParamsGui();
 private:
 	float m_step;
 	float m_precision;
 	float m_alphaPrecision;
 	float m_CGprecision;
+	float m_cursorCGprecision;
 	float m_loopPrecision;
 	ObjectFactory* m_factory;
 	Scene* m_scene;
@@ -35,6 +37,12 @@ private:
 		IParametricSurface* surface1, ParameterPair& surf1Params,
 		IParametricSurface* surface2, ParameterPair& surf2Params,
 		DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float step);
+
+	DirectX::XMFLOAT4 CalculateOptimalPointInDirection(
+		IParametricSurface* qSurf, ParameterPair qParams,
+		IParametricSurface* pSurf, ParameterPair pParams,
+		DirectX::XMFLOAT4 x_k,
+		DirectX::XMFLOAT4 searchDir);
 
 	DirectX::XMFLOAT3 CalculateStepDirection(
 		IParametricSurface* surface1, ParameterPair surf1Params,
@@ -52,25 +60,12 @@ private:
 		ParameterPair& surf2Params,
 		DirectX::XMFLOAT3& point);
 
-	bool SimpleGradient(
-		IParametricSurface* qSurface,
-		ParameterPair& qSurfParams,
-		IParametricSurface* pSurface,
-		ParameterPair& pSurfParams,
-		DirectX::XMFLOAT3& point);
-
 	void FindOtherIntersectionPoints(
 		IParametricSurface* surface1, ParameterPair surf1Params,
 		std::vector<DirectX::XMFLOAT2>& surf1ParamsList,
 		IParametricSurface* surface2, ParameterPair surf2Params,
 		std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
 		DirectX::XMFLOAT3 firstPoint);
-
-	DirectX::XMFLOAT4 CalculateOptimalPointInDirection(
-		IParametricSurface* qSurf, ParameterPair qParams,
-		IParametricSurface* pSurf, ParameterPair pParams,
-		DirectX::XMFLOAT4 x_k,
-		DirectX::XMFLOAT4 searchDir);
 
 	bool FindNextPoint(
 		IParametricSurface* surface1, ParameterPair& surf1Params,
@@ -86,8 +81,26 @@ private:
 		DirectX::XMFLOAT4 x_k,
 		DirectX::XMFLOAT4 d_k);
 
+	float GoldenRatioMethodForCursor(
+		IParametricSurface* qSurface,
+		float a, float b,
+		DirectX::XMFLOAT2 x_k,
+		DirectX::XMFLOAT2 d_k,
+		DirectX::XMFLOAT3 cursorPos);
+
 	// Move To IParametric Surface
 	DirectX::XMFLOAT3 GetSurfaceNormal(IParametricSurface* surface, ParameterPair params);
 
-	
+	bool SimpleGradient(
+		IParametricSurface* qSurface,
+		ParameterPair& qSurfParams,
+		IParametricSurface* pSurface,
+		ParameterPair& pSurfParams,
+		DirectX::XMFLOAT3& point);
+
+	bool SimpleGradientForCursor(
+		IParametricSurface* qSurface,
+		ParameterPair& qSurfParams,
+		DirectX::XMFLOAT3 cursorPos,
+		DirectX::XMFLOAT3& point);
 };
