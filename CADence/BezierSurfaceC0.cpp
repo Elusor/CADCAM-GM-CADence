@@ -417,12 +417,12 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 				float step0 = (0.f - u) / dir.x;
 				float step1 = (1.f - u) / dir.x;
 
-				if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+				if (step0 * defStep >= 0 && abs(step0) < abs(res)) //has the same sign
 				{
 					res = step0;
 				}
 
-				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				if (step1 * defStep >= 0 && abs(step1) < abs(res)) //has the same sign
 				{
 					res = step1;
 				}
@@ -434,12 +434,12 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 				float step0 = (0.f - v) / dir.y;
 				float step1 = (1.f - v) / dir.y;
 
-				if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+				if (step0 * defStep >= 0 && abs(step0) < abs(res)) //has the same sign
 				{
 					res = step0;
 				}
 
-				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				if (step1 * defStep >= 0 && abs(step1) < abs(res)) //has the same sign
 				{
 					res = step1;
 				}
@@ -454,12 +454,12 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 				float step0 = (0.f - v) / dir.y;
 				float step1 = (1.f - v) / dir.y;
 
-				if (step0 * defStep> 0 && abs(step0) < abs(res)) //has the same sign
+				if (step0 * defStep>= 0 && abs(step0) < abs(res)) //has the same sign
 				{
 					res = step0;
 				}
 
-				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				if (step1 * defStep >= 0 && abs(step1) < abs(res)) //has the same sign
 				{
 					res = step1;
 				}
@@ -474,12 +474,12 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 				float step0 = (0.f - u) / dir.x;
 				float step1 = (1.f - u) / dir.x;
 
-				if (step0 * defStep > 0 && abs(step0) < abs(res)) //has the same sign
+				if (step0 * defStep >= 0 && abs(step0) < abs(res)) //has the same sign
 				{
 					res = step0;
 				}
 
-				if (step1 * defStep > 0 && abs(step1) < abs(res)) //has the same sign
+				if (step1 * defStep >= 0 && abs(step1) < abs(res)) //has the same sign
 				{
 					res = step1;
 				}

@@ -619,6 +619,9 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 			backwards2.push_back(XMFLOAT2(params2Back.u, params2Back.v));
 			auto prevPos = position;
 			nextPointInRange = FindNextPoint(surface1, params1Back, surface2, params2Back, prevPos, position, true);
+			// DEBUG PURPOSES ONLY
+			if (backwards1.size() > 2000)
+				break;
 		}
 	}
 	
@@ -769,7 +772,7 @@ bool IntersectionFinder::FindNextPoint(
 			// Create a linear equation system and solve it
 			DirectX::XMFLOAT4X4 derMatrix = CalculateDerivativeMatrix(qSurf, pSurf, x_k, stepVersor);
 			//auto deltaX = Geom::SolveGEPP(derMatrix, funcVal);
-			auto deltaXGetp = Geom::SolveGETP(derMatrix, funcVal);			
+			auto deltaXGetp = Geom::SolveGEPP(derMatrix, funcVal);			
 			// Find the next point using Newton's method to solve linear equation system
 			// There should not be a minus here, for some reason there is. Check someday. 
 			// This works.
@@ -868,6 +871,18 @@ float IntersectionFinder::GoldenRatioMethod(
 	// wspó³czynnik z³otego podzia³u
 	float k = (sqrt(5) - 1) / 2;
 
+
+	auto qDir = DirectX::XMFLOAT2(d_k.x, d_k.y);
+	auto pDir = DirectX::XMFLOAT2(d_k.z, d_k.w);
+
+	float xLq = qSurface->GetFarthestPointInDirection(x_k.x, x_k.y, qDir, b);
+	float xLp = pSurface->GetFarthestPointInDirection(x_k.z, x_k.w, pDir, b);
+	b = abs(xLq) > abs(xLp) ? xLp : xLq;
+
+	float xRq = qSurface->GetFarthestPointInDirection(x_k.x, x_k.y, qDir, a);
+	float xRp = pSurface->GetFarthestPointInDirection(x_k.z, x_k.w, pDir, a);
+	a = abs(xRq) > abs(xRp) ? xRp : xRq;
+
 	// lewa i prawa próbka
 	float xL = b - k * (b - a);
 	float xR = a + k * (b - a);
@@ -876,7 +891,10 @@ float IntersectionFinder::GoldenRatioMethod(
 	while ((b - a) > eps)
 	{
 		// if x_k + d_k * xL is out of bounds
-		// update bounds and update x_l and calculate fL
+		// update bounds and update x_l and calculate fL		
+
+		// TODO if the smallest value is zero then no move can be made 		
+
 		auto fL = CalcFunc(qSurface, pSurface, x_k, d_k, xL);
 		auto fR = CalcFunc(qSurface, pSurface, x_k, d_k, xR);
 		// porównaj wartoœci funkcji celu lewej i prawej próbki
@@ -912,6 +930,9 @@ float IntersectionFinder::GoldenRatioMethodForCursor(
 	// wspó³czynnik z³otego podzia³u
 	float k = (sqrt(5) - 1) / 2;
 
+	b = qSurface->GetFarthestPointInDirection(x_k.x, x_k.y, d_k, b);
+	a = qSurface->GetFarthestPointInDirection(x_k.x, x_k.y, d_k, a);
+
 	// lewa i prawa próbka
 	float xL = b - k * (b - a);
 	float xR = a + k * (b - a);
@@ -919,6 +940,13 @@ float IntersectionFinder::GoldenRatioMethodForCursor(
 	// pêtla póki nie zostanie spe³niony warunek stopu
 	while ((b - a) > eps)
 	{
+
+		// TODO if the smallest value is zero then no move can be made 
+		if (xL * xR == 0.0f)
+		{
+			break;
+		}
+
 		auto fL = CalcFuncForCursor(qSurface, x_k, d_k, cursorPos, xL);
 		auto fR = CalcFuncForCursor(qSurface, x_k, d_k, cursorPos, xR);
 		// porównaj wartoœci funkcji celu lewej i prawej próbki
@@ -978,7 +1006,8 @@ bool IntersectionFinder::SimpleGradient(
 		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
 
 		// Check if the parameters from next iteration are in bound
-		if (ParamsOutOfBounds(curQParams.u, curQParams.v, curPParams.u, curPParams.v))
+		if (!qSurface->ParamsInsideBounds(curQParams.u, curQParams.v) && 
+			!pSurface->ParamsInsideBounds(curPParams.u, curPParams.v))
 		{
 			// Stop the algorithm
 			continueSearch = false;
@@ -1051,7 +1080,7 @@ bool IntersectionFinder::SimpleGradientForCursor(IParametricSurface* qSurface, P
 		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
 
 		// Check if the parameters from next iteration are in bound
-		if (ParamsOutOfBounds(curQParams.u, curQParams.v))
+		if (!qSurface->ParamsInsideBounds(curQParams.u, curQParams.v))		
 		{
 			// Stop the algorithm
 			continueSearch = false;
