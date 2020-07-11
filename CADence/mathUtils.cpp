@@ -196,6 +196,13 @@ DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4X4 p1, DirectX::XMFLOAT4 p2)
 	return DirectX::XMFLOAT4(dot1, dot2, dot3, dot4);
 }
 
+float Dot(DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2)
+{
+	float x = p1.x * p2.x;
+	float y = p1.y * p2.y;
+	return (x+y);
+}
+
 float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
 	float x = (p1.x * p2.x);

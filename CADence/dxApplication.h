@@ -11,6 +11,7 @@
 #include "PointSelector.h"
 #include "renderState.h"
 
+#include "Trimmer.h"
 #include "BackBufferRenderTarget.h"
 #include "TextureRenderTarget.h"
 #include "IRenderPass.h"
@@ -51,6 +52,7 @@ private:
 	std::unique_ptr<GuiManager> m_guiManager;
 	std::unique_ptr<PointCollapser> m_pointCollapser;
 	std::unique_ptr<IntersectionFinder> m_intersectionFinder;
+
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
 	IRenderPass* m_activePass;
