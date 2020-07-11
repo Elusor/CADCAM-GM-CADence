@@ -145,6 +145,180 @@ void Trimmer::DetermineIntersectedEdges(
 	}
 }
 
+#pragma region edgeCases
+void Trimmer::DetermineIntersectedEdgesLastRow(int curU, int curV, int maxU, int maxV, SampleInOutStatus** samples, std::vector<IndexedVertex> intersectingPoints, std::vector<unsigned short>& indices)
+{
+	// Determines which edges of the parametric rectangle were intersected and store info in CornerInOutSamples
+	// If and edge has %2 points do not change the status of the edges but connect them to the intersecting edges
+	float uStep = 1.f / (float)(maxU - 1);
+	float vStep = 1.f / (float)(maxV - 1);
+	int index = maxU * curV + curU;
+	int rightIndex = index + 1;
+	DirectX::XMFLOAT2 curPos = DirectX::XMFLOAT2(uStep * curU, vStep * curV);
+	DirectX::XMFLOAT2 rightPos = DirectX::XMFLOAT2(uStep * (curU + 1.f), vStep * curV);
+	auto curStatus = samples[curU][curV];
+
+	if (intersectingPoints.empty())
+	{
+		// Propagate status - no intersections means that no vertex can leave/enter the area
+		samples[curU + 1][curV] = samples[curU][curV];
+		if (curStatus == SampleInOutStatus::In)
+		{
+			// upper left to upper right
+			indices.push_back(index);
+			indices.push_back(index + 1);
+		}
+	}
+	else
+	{
+		int rightCount = 0;
+		std::vector<IndexedVertex> rightPoints;
+
+		rightPoints.push_back(IndexedVertex{ curPos, index });
+
+		for (int i = 0; i < intersectingPoints.size(); i++)
+		{
+			// count intersections on each edge
+			auto pt = intersectingPoints[i];
+			if (pt.params.x > curPos.x)
+			{
+				rightPoints.push_back(pt);
+			}
+			
+		}
+		rightPoints.push_back({ rightPos, rightIndex });
+
+		rightCount = rightPoints.size();
+
+		// Sort both lists in ascending order by the parameter
+		std::sort(rightPoints.begin(), rightPoints.end(), [](IndexedVertex a, IndexedVertex b) {return a.params.x < b.params.x; });
+
+		// construct all pair across edges
+		std::vector<XMINT2> rightLines, downLines;
+		for (int i = 0; i < rightPoints.size() - 1; i++)
+		{
+			rightLines.push_back(DirectX::XMINT2(
+				rightPoints[i].index,
+				rightPoints[i + 1].index));
+		}
+
+		// based on main sample status take even or odd lines
+		if (curStatus == In)
+		{
+			// Add even indices of lines lists to the indices vector
+			for (int i = 0; i < rightLines.size(); i += 2)
+			{
+				indices.push_back(rightLines[i].x);
+				indices.push_back(rightLines[i].y);
+			}
+
+		}
+		else {
+			// Add odd indices of lines lists to the indices vector
+			for (int i = 1; i < rightLines.size(); i += 2)
+			{
+				indices.push_back(rightLines[i].x);
+				indices.push_back(rightLines[i].y);
+			}
+
+		}
+
+		if (rightCount % 2 != 0) {
+			samples[curU + 1][curV] = GetOppositeStatus(curStatus);
+		}
+		else {
+			samples[curU + 1][curV] = curStatus;
+		}
+	}
+}
+
+void Trimmer::DetermineIntersectedEdgesLastColumn(int curU, int curV, int maxU, int maxV, SampleInOutStatus** samples, std::vector<IndexedVertex> intersectingPoints, std::vector<unsigned short>& indices)
+{
+	// Determines which edges of the parametric rectangle were intersected and store info in CornerInOutSamples
+	// If and edge has %2 points do not change the status of the edges but connect them to the intersecting edges
+	float uStep = 1.f / (float)(maxU - 1);
+	float vStep = 1.f / (float)(maxV - 1);
+	int index = maxU * curV + curU;
+	int downIndex = index + maxU;
+	DirectX::XMFLOAT2 curPos = DirectX::XMFLOAT2(uStep * curU, vStep * curV);
+	DirectX::XMFLOAT2 downPos = DirectX::XMFLOAT2(uStep * curU, vStep * (curV + 1.f));
+	auto curStatus = samples[curU][curV];
+
+	if (intersectingPoints.empty())
+	{
+		// Propagate status - no intersections means that no vertex can leave/enter the area
+		samples[curU][curV + 1] = samples[curU][curV];
+		if (curStatus == SampleInOutStatus::In)
+		{
+			// upper left to lower left
+			indices.push_back(index);
+			indices.push_back(index + maxU);
+		}
+	}
+	else
+	{
+		int downCount = 0;
+		std::vector<IndexedVertex> rightPoints, downPoints;
+
+		downPoints.push_back(IndexedVertex{ curPos, index });
+
+		for (int i = 0; i < intersectingPoints.size(); i++)
+		{
+			// count intersections on each edge
+			auto pt = intersectingPoints[i];
+			if (pt.params.y > curPos.y)
+			{
+				downPoints.push_back(pt);
+			}
+			
+		}
+		downPoints.push_back({ downPos, downIndex });
+
+		downCount = downPoints.size();
+
+		// Sort both lists in ascending order by the parameter
+		std::sort(downPoints.begin(), downPoints.end(), [](IndexedVertex a, IndexedVertex b) {return a.params.y < b.params.y; });
+
+		// construct all pair across edges
+		std::vector<XMINT2>downLines;
+
+		for (int i = 0; i < downPoints.size() - 1; i++)
+		{
+			downLines.push_back(DirectX::XMINT2(
+				downPoints[i].index,
+				downPoints[i + 1].index));
+		}
+
+		// based on main sample status take even or odd lines
+		if (curStatus == In)
+		{
+
+			for (int i = 0; i < downLines.size(); i += 2)
+			{
+				indices.push_back(downLines[i].x);
+				indices.push_back(downLines[i].y);
+			}
+		}
+		else {
+			// Add odd indices of lines lists to the indices vector
+
+			for (int i = 1; i < downLines.size(); i += 2)
+			{
+				indices.push_back(downLines[i].x);
+				indices.push_back(downLines[i].y);
+			}
+		}
+
+		if (downCount % 2 != 0) {
+			samples[curU][curV + 1] = GetOppositeStatus(curStatus);
+		}
+		else {
+			samples[curU][curV + 1] = curStatus;
+		}
+	}
+}
+#pragma endregion
+
 // TODO rewerite to find closest intersection with parameter line that is not pt or nextPt
 DirectX::XMFLOAT2 Trimmer::FindIntersectionwithLine(DirectX::XMFLOAT2 pt, DirectX::XMFLOAT2 nextPt, float step,  bool affectU)
 {
@@ -311,13 +485,14 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 	return addedPoints;
 }
 
-void Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount)
+TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount)
 {
 	// TODO WATCH OUT FOR POINTS THAT ARE EXACTLY ON THE OLD GRID ex. 0.5,0.5 etc.
 	float uStep = 1.f / (float)(uLineCount - 1);
 	float vStep = 1.f / (float)(vLineCount - 1);
 
 	std::vector<unsigned short> indices;
+	std::vector<DirectX::XMFLOAT2> vertices;
 	SampleInOutStatus** samples = new SampleInOutStatus*[uLineCount];
 	for (int i = 0; i < uLineCount; i++)
 	{
@@ -346,7 +521,7 @@ void Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, in
 	}
 
 	// Vertex Lists are prepared
-
+	// Calculate for the wholegrid without the last edge and column
 	for (float u = 0; u < uLineCount-1; u++)
 	{
 		for (float v = 0; v < vLineCount-1; v++)
@@ -374,13 +549,79 @@ void Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, in
 		}
 	}
 	
-	// TODO Determine for last row and last column
+	// Determine for last row and last column
+	for (int u = 0; u < uLineCount -1; u++)
+	{
+		float lowerU = u * uStep;
+		float lowerV = 1.0f;
+		std::vector<IndexedVertex> candidatePoints;
+		for (int i = 0; i < addedPoints.size(); i++)
+		{
+			auto pt = addedPoints[i];
+			float uDiff = pt.params.x - lowerU;
+			float vDiff = pt.params.y - lowerV;
 
-	// Add the whole curve to the vertex and index buffer 
+			if (uDiff < uStep && vDiff < vStep &&
+				uDiff >= 0.0f && vDiff >= 0.0f)
+			{
+				candidatePoints.push_back(pt);
+			}
+		}
+
+		DetermineIntersectedEdgesLastRow(u, vLineCount-1, uLineCount, vLineCount, samples, candidatePoints, indices);
+	}
+
+	for (int v = 0; v < vLineCount -1; v++)
+	{
+		float lowerU = 1.0f;
+		float lowerV = v * uStep;
+		std::vector<IndexedVertex> candidatePoints;
+		for (int i = 0; i < addedPoints.size(); i++)
+		{
+			auto pt = addedPoints[i];
+			float uDiff = pt.params.x - lowerU;
+			float vDiff = pt.params.y - lowerV;
+
+			if (uDiff < uStep && vDiff < vStep &&
+				uDiff >= 0.0f && vDiff >= 0.0f)
+			{
+				candidatePoints.push_back(pt);
+			}
+		}
+
+		DetermineIntersectedEdgesLastColumn(uLineCount -1 , v, uLineCount, vLineCount, samples, candidatePoints, indices);
+	}
+
+	// Add the whole curve to the index buffer 
 	AddCurveToMesh(indexedCurve, indices);
 
-	// TODO DEALLOCATE SAMPLES 
-	int x = 2;
+	// Create vertex data
+	for (int v = 0; v < vLineCount; v++)
+	{
+		for (int u = 0; u < uLineCount; u++)
+		{
+			float uVal = u * uStep;
+			float vVal = v * vStep;
+			vertices.push_back(DirectX::XMFLOAT2(uVal, vVal));
+		}
+	}
+
+	for (int i = 0; i < indexedCurve.size(); i++)
+	{
+		vertices.push_back(indexedCurve[i].params);
+	}
+
+	//Cleanup
+	for (int i = 0; i < uLineCount; i++)
+	{
+		delete[] samples[i];
+	}
+	delete[] samples;
+
+	TrimmedSpace ts;
+	ts.indices = indices;
+	ts.vertices = vertices;
+	return ts;
 }
 
 SampleInOutStatus Trimmer::GetOppositeStatus(SampleInOutStatus status)
