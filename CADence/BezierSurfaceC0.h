@@ -64,7 +64,7 @@ protected:
 	void SetDisplayPolygon();
 	void SetMeshColor();
 	void SetDivisions();
-	BezierPatch* GetPatchAtParameter(float& u, float& v);
+	virtual BezierPatch* GetPatchAtParameter(float& u, float& v);
 };
 
 class BezierSurfaceC2 : public BezierSurfaceC0
@@ -73,4 +73,6 @@ public:
 	BezierSurfaceC2();
 	BezierSurfaceC2(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDirection);
 	virtual ~BezierSurfaceC2();
+protected:
+	BezierPatch* GetPatchAtParameter(float& u, float& v) override;	
 };
