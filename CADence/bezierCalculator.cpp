@@ -83,10 +83,10 @@ BezierCoeffs BezierCalculator::ConvertDeBoorToBezier(DirectX::XMFLOAT3 p0, Direc
 
 	DirectX::XMFLOAT3 first, second, third, last;
 
-	auto aux1 = p0 * 1.f / 3.f + p1 * 2.f / 3.f;
-	auto aux2 = p2 * 2.f / 3.f + p3 * 1.f / 3.f;
-	second = p0 * 2.f / 3.f + p1 * 1.f / 3.f;
-	third = p0 * 1.f / 3.f + p1 * 2.f / 3.f;
+	auto aux1 = (p0 * 1.f / 3.f) + (p1 * 2.f / 3.f);
+	auto aux2 = (p2 * 2.f / 3.f) + (p3 * 1.f / 3.f);
+	second = (p1 * 2.f / 3.f )+ (p2 * 1.f / 3.f);
+	third =  (p1 * 1.f / 3.f )+ (p2 * 2.f / 3.f);
 	first = (aux1 + second) * 0.5f;
 	last = (third + aux2) * 0.5f;
 
