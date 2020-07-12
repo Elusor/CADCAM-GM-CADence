@@ -57,7 +57,7 @@ DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
 
 	if (tangentDir == TangentDir::AlongU) {
 		x = -(m_smallR * sinf(u)) * cosf(v);
-		y = m_smallR * sinf(u);
+		y = m_smallR * cosf(u);
 		z = -(m_smallR * sinf(u)) * sinf(v);
 	}
 	else {
