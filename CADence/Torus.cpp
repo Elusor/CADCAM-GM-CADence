@@ -32,20 +32,29 @@ void Torus::UpdateObject()
 
 DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 {
+	u *= XM_2PI;
+	v *= XM_2PI;
+
 	float x = (m_smallR * cosf(u) + m_bigR) * cosf(v);
 	float y = m_smallR * sinf(u);
 	float z = (m_smallR * cosf(u) + m_bigR) * sinf(v);
 
-	auto relativePos = XMFLOAT3(x, y, z);
-	auto scenePos = GetPosition() + relativePos;
+	auto relativePos = XMFLOAT4(x, y, z, 1.0f);
+	auto mtx = m_transform.GetModelMatrix();
+	DirectX::XMFLOAT4X4 modelMtx;
+	DirectX::XMStoreFloat4x4(&modelMtx, mtx);
+	auto pos = Mul(relativePos, modelMtx);
 
-	return scenePos;
+	return DirectX::XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
 DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
 {
 	float x, y, z;
 	
+	u *= XM_2PI;
+	v *= XM_2PI;
+
 	if (tangentDir == TangentDir::AlongU) {
 		x = -(m_smallR * sinf(u)) * cosf(v);
 		y = m_smallR * sinf(u);
@@ -56,13 +65,22 @@ DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
 		y = 0.f;
 		z = (m_smallR * cosf(u) + m_bigR) * cosf(v);
 	}
+	
+	auto relativePos = XMFLOAT4(x, y, z, 0.0f);
+	auto mtx = m_transform.GetModelMatrix();
+	DirectX::XMFLOAT4X4 modelMtx;
+	DirectX::XMStoreFloat4x4(&modelMtx, mtx);
+	auto pos = Mul(relativePos, modelMtx);
 
-	return XMFLOAT3(x, y, z);
+	return DirectX::XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
 DirectX::XMFLOAT3 Torus::GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir)
 {
 	float x, y, z;
+
+	u *= XM_2PI;
+	v *= XM_2PI;
 
 	switch (tangentDir)
 	{
@@ -78,18 +96,33 @@ DirectX::XMFLOAT3 Torus::GetSecondDarivativeSameDirection(float u, float v, Tang
 		break;
 	}
 
-	return DirectX::XMFLOAT3(x, y, z);
+	auto relativePos = XMFLOAT4(x, y, z, 0.0f);
+	auto mtx = m_transform.GetModelMatrix();
+	DirectX::XMFLOAT4X4 modelMtx;
+	DirectX::XMStoreFloat4x4(&modelMtx, mtx);
+	auto pos = Mul(relativePos, modelMtx);
+
+	return DirectX::XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
 DirectX::XMFLOAT3 Torus::GetSecondDarivativeMixed(float u, float v)
 {
 	float x, y, z;
 
+	u *= XM_2PI;
+	v *= XM_2PI;
+
 	x = m_smallR * sinf(u) * sinf(v);
 	y = 0;
 	z = -m_smallR * sinf(u) * cosf(v);
 
-	return DirectX::XMFLOAT3(x,y,z);
+	auto relativePos = XMFLOAT4(x, y, z, 0.0f);
+	auto mtx = m_transform.GetModelMatrix();
+	DirectX::XMFLOAT4X4 modelMtx;
+	DirectX::XMStoreFloat4x4(&modelMtx, mtx);
+	auto pos = Mul(relativePos, modelMtx);
+
+	return DirectX::XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
 bool Torus::ParamsInsideBounds(float u, float v)
