@@ -223,7 +223,7 @@ float Dot(DirectX::XMFLOAT4 p1, DirectX::XMFLOAT4 p2)
 {
 	float x = p1.x * p2.x;
 	float y = p1.y * p2.y;
-	float z = p2.z * p2.z;
+	float z = p1.z * p2.z;
 	float w = p1.w * p2.w;
 	float res = x + y + z + w;
 	return res;
