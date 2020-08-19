@@ -2,10 +2,14 @@
 #include "vertexStructures.h"
 #include "mathUtils.h"
 
+#include "Trimmer.h"
+
 CurveVisualizer::CurveVisualizer(GuiManager* manager, RenderState* renderState, int width, int height)
 {
 	// Initialize the textures (1 for each surface)
 	auto result = InitializeTextures(renderState->m_device.m_device.get(), width, height);
+	
+	dbg_trimmer = new Trimmer();
 
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0;
@@ -72,8 +76,10 @@ void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve)
 	auto params2 = curve->GetParameterList(IntersectedSurface::SurfaceQ);
 
 	// Render the image onto the member texture
-	RenderImage(m_renderTargetView1, m_shaderResourceView1, params1);
-	RenderImage(m_renderTargetView2, m_shaderResourceView2, params2);
+	/*RenderImage(m_renderTargetView1, m_shaderResourceView1, params1);
+	RenderImage(m_renderTargetView2, m_shaderResourceView2, params2);*/
+	RenderTrimmedSpace(m_renderTargetView1, m_shaderResourceView1, params1);
+	RenderTrimmedSpace(m_renderTargetView2, m_shaderResourceView2, params2);
 
 	// Call a new Imgui Window with texture section
 	guiManager->EnableDoubleTextureWindow("", "Intersection curve in parameter space", m_shaderResourceView1, m_width, m_height, m_shaderResourceView2, m_width, m_height);
@@ -305,10 +311,13 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 {
 	auto context = m_renderState->m_device.m_context.get();
 	auto device = m_renderState->m_device.m_device.get();
-	D3D11_VIEWPORT originalVPs;
+
 	UINT originalVPCount = 1;
+	// Probe the current viewport count
+	context->RSGetViewports(&originalVPCount, NULL);
 	// Get current viewport
-	context->RSGetViewports(&originalVPCount, &originalVPs);
+	D3D11_VIEWPORT* originalVPs = new D3D11_VIEWPORT[originalVPCount];
+	context->RSGetViewports(&originalVPCount, originalVPs);
 	
 	// Set visualizer viewport
 	context->RSSetViewports(1, &m_viewPort);
@@ -329,7 +338,8 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 
 	int k = indices.size();
 	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
-
+	
+	// Set up grid points
 	for (float u = 0.1f; u < 1.f; u += 0.1f)
 	{
 		positions.push_back(VertexPositionColor{
@@ -356,23 +366,7 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 		indices.push_back(k + 1);
 		k += 2;
 	}
-
-	/*for (auto pair : paramList)
-	{
-		positions.push_back(VertexPositionColor{
-			DirectX::XMFLOAT3(pair.x, pair.y, 0.f),
-			DirectX::XMFLOAT3(0.f,0.f,0.f) });
-	}
-
-	k = indices.size();
-
-	for (int i = 0; i < paramList.size() - 1; i++)
-	{
-		indices.push_back(k + i);
-		indices.push_back(k + i + 1);
-	}*/
-
-
+	
 	auto vertices = m_renderState->m_device.CreateVertexBuffer(positions);
 	auto indicesBuf = m_renderState->m_device.CreateIndexBuffer(indices);
 
@@ -407,10 +401,100 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 	m_renderState->m_device.m_context->DrawIndexed(curveDesc.indices.size(), 0, 0);
 
 	// Reset viewport
-	context->RSSetViewports(originalVPCount, &originalVPs);
+	context->RSSetViewports(originalVPCount, originalVPs);
+	delete[] originalVPs;
 
 	// Reset GS
 	m_renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
+}
+
+void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList)
+{
+	auto context = m_renderState->m_device.m_context.get();
+	auto device = m_renderState->m_device.m_device.get();
+	UINT originalVPCount = 0;
+	
+	// Probe the current viewport count
+	context->RSGetViewports(&originalVPCount, NULL);
+	// Get current viewport
+	D3D11_VIEWPORT* originalVPs = new D3D11_VIEWPORT[originalVPCount];
+	context->RSGetViewports(&originalVPCount, originalVPs);
+
+	// Set visualizer viewport
+	context->RSSetViewports(1, &m_viewPort);
+
+	// Clear the previous texture
+	ClearTexture(texture, context, m_renderState->m_depthBuffer.get(), 1.f, 1.f, 1.f, 1.f);
+
+	context->OMSetRenderTargets(1, &texture, m_renderState->m_depthBuffer.get());
+	context->VSSetShader(m_renderState->m_paramSpaceVS.get(), nullptr, 0);
+	context->PSSetShader(m_renderState->m_paramSpacePS.get(), nullptr, 0);
+
+	std::vector<VertexPositionColor> positions;
+	std::vector<unsigned short> indices;
+
+	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
+
+
+	// Set up grid points
+	//for (float u = 0.1f; u < 1.f; u += 0.1f)
+	//{
+	//	positions.push_back(VertexPositionColor{
+	//		DirectX::XMFLOAT3(u, 0.0f, 0.2f),
+	//		gridColor});
+	//	positions.push_back(VertexPositionColor{
+	//		DirectX::XMFLOAT3(u, 1.0f, 0.2f),
+	//		gridColor });
+
+	//	indices.push_back(k);
+	//	indices.push_back(k+1);
+	//	k += 2;
+	//}
+	//
+	//for (float u = 0.1f; u < 1.f; u += 0.1f)
+	//{
+	//	positions.push_back(VertexPositionColor{
+	//		DirectX::XMFLOAT3(0.0f, u , 0.2f),
+	//		gridColor });
+	//	positions.push_back(VertexPositionColor{
+	//		DirectX::XMFLOAT3(1.0f, u, 0.2f),
+	//		gridColor });
+	//	indices.push_back(k);
+	//	indices.push_back(k + 1);
+	//	k += 2;
+	//}
+
+	TrimmedSpace trim = dbg_trimmer->Trim(paramList, 11, 11);
+
+	// Add the trimmed space vertices
+	for (auto pair : trim.vertices)
+	{
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(pair.x, pair.y, 0.1f),
+			DirectX::XMFLOAT3(0.f,0.f,0.f) });
+	}
+
+	int currentIndexOffset = indices.size();
+	for (auto ind : trim.indices)
+	{
+		indices.push_back(currentIndexOffset + ind);
+	}
+
+	auto vertices = m_renderState->m_device.CreateVertexBuffer(positions);
+	auto idxBuff = m_renderState->m_device.CreateIndexBuffer(indices);
+
+	// Draw grid
+	ID3D11Buffer* vertBuff[] = { vertices.get() };
+	UINT strides[] = { sizeof(VertexPositionColor) };
+	UINT offsets[] = { 0 };
+	m_renderState->m_device.context()->IASetVertexBuffers(0, 1, vertBuff, strides, offsets);
+	m_renderState->m_device.context()->IASetIndexBuffer(idxBuff.get(), DXGI_FORMAT_R16_UINT, 0);
+	m_renderState->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	m_renderState->m_device.m_context->DrawIndexed(indices.size(), 0, 0);
+
+	// Reset viewport
+	context->RSSetViewports(originalVPCount, originalVPs);
+	delete[] originalVPs;
 }
 
 void CurveVisualizer::ClearTexture(ID3D11RenderTargetView* texture,

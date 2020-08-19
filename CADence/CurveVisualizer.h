@@ -1,6 +1,9 @@
 #pragma once
 #include "IntersectionCurve.h"
 #include "GuiManager.h"
+
+class Trimmer;
+
 class CurveVisualizer
 {
 public:
@@ -19,6 +22,12 @@ private:
 			0.f, 0.f, 0.f, 1.f };
 
 	int m_width, m_height;
+
+	// DEBUG
+	Trimmer* dbg_trimmer;
+
+	// DEBUG 
+
 	GuiManager* guiManager;
 	RenderState* m_renderState;
 	D3D11_VIEWPORT m_viewPort;
@@ -38,4 +47,7 @@ private:
 	MeshDescription PrepareCurveDrawingData(std::vector<DirectX::XMFLOAT3> bezierPositions);
 	void RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList);
 
+	// DEBUG 
+	void RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList);
+	// DEBUG
 };
