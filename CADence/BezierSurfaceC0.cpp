@@ -125,7 +125,7 @@ void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> po
 std::weak_ptr<Node> BezierSurfaceC0::GetPatch(int w, int h)
 {	
 	auto points = m_patches;
-	return points[m_patchH * w + h];
+	return points[m_patchH * (m_patchW - w - 1) + h];
 
 }
 
@@ -134,7 +134,7 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 
 	// u - width
 	// v - height 
-
+	
 	// determine the W and H of a given patch and get the point from this patch	
 	assert(ParamsInsideBounds(u,v));
 	GetWrappedParams(u, v);
@@ -155,7 +155,7 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 
 	auto node = GetPatch(w, h).lock();
 
-	u = 1.f - newU;
+	u = newU;
 	v = newV;
 
 	return (BezierPatch*)(node->m_object).get();
