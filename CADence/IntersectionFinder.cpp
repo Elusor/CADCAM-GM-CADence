@@ -415,6 +415,38 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
 
+	std::vector<std::vector<DirectX::XMFLOAT3>> pts;
+	std::vector<std::vector<DirectX::XMFLOAT3>> tangentsU;
+	std::vector<std::vector<DirectX::XMFLOAT3>> tangentsV;
+
+	auto surf = dynamic_cast<BezierSurfaceC0*>(surface1);
+	if (surf != nullptr)
+	{
+		
+		int i = 0;
+		for (float u = 0.0f; u <= 1.0f; u += 0.1f)
+		{
+			pts.push_back(std::vector<DirectX::XMFLOAT3>());
+			tangentsU.push_back(std::vector<DirectX::XMFLOAT3>());
+			tangentsV.push_back(std::vector<DirectX::XMFLOAT3>());
+
+			for (float v = 0.0f; v <= 1.0f; v += 0.1f)
+			{
+				pts[(int)i].push_back(surf->GetPoint(u, v));
+				tangentsU[(int)i].push_back(surf->GetTangent(u, v, AlongU));
+				tangentsV[(int)i].push_back(surf->GetTangent(u, v, AlongV));
+			}
+			i++;
+		}
+	}
+	/*for (float u = 0.0f; u <= 1.0f; u += 0.1f)
+	{
+		qParamsList.push_back(XMFLOAT2(u, u));
+		pParamsList.push_back(XMFLOAT2(u, u));
+	}
+	auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+	m_scene->AttachObject(curve);
+	return;*/
 	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
 	// TODO: FIND ALL AFFECTED PATCHES
 	// DetermineAffectedSurfaces(surface1, surface2, pSurfs, qSurfs);
@@ -806,6 +838,7 @@ bool IntersectionFinder::FindNextPoint(
 				}		
 			}
 		}
+
 
 	
 		// TODO: replace with a cleaner solution
