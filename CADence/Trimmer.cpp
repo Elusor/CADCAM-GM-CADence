@@ -99,6 +99,7 @@ void Trimmer::DetermineIntersectedEdges(
 		}
 
 		// based on main sample status take even or odd lines
+		// If the corner is in take the first, third, ... [odd] one next else take the 0th, 2nd, ... [even] ones
 		if (curStatus == In)
 		{
 			// Add even indices of lines lists to the indices vector
@@ -412,8 +413,11 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 		bool inserted = false;
 		DirectX::XMFLOAT2 intersectingPoint;
 
+		// TODO: Check if the point lies exactly on the line intersection
+
 		if (intersectsULine && intersectsVLine)
 		{
+
 			// intersect with close line, the added point should intersect with the next point in the second dimension automatically			
 			DirectX::XMFLOAT2 uLinePoint = FindIntersectionwithLine(pt, nextPt, Ustep, true);
 			DirectX::XMFLOAT2 vLinePoint = FindIntersectionwithLine(pt, nextPt, Vstep,false);
@@ -487,6 +491,8 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 
 TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount)
 {
+
+	//paramCurve = { {0.375f, 0.125f}, {0.625f, 0.625f}, {0.375f, 0.875f}, {0.375f, 0.125f} };
 	// TODO WATCH OUT FOR POINTS THAT ARE EXACTLY ON THE OLD GRID ex. 0.5,0.5 etc.
 	float uStep = 1.f / (float)(uLineCount - 1);
 	float vStep = 1.f / (float)(vLineCount - 1);
@@ -537,8 +543,10 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 				float uDiff = pt.params.x - lowerU;
 				float vDiff = pt.params.y - lowerV;
 
+				
 				if (uDiff < uStep && vDiff < vStep &&
-					uDiff >= 0.0f && vDiff >= 0.0f)
+					uDiff >= 0.0f && vDiff >= 0.0f && 
+					(uDiff == 0.0f || vDiff == 0.0f))
 				{
 					candidatePoints.push_back(pt);
 				}
