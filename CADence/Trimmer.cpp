@@ -537,9 +537,9 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 			float lowerV = v * vStep;
 
 			std::vector<IndexedVertex> candidatePoints;
-			for (int i = 0; i < addedPoints.size(); i++)
+			for (int i = 0; i < indexedCurve.size(); i++)
 			{
-				auto pt = addedPoints[i];
+				auto pt = indexedCurve[i];
 				float uDiff = pt.params.x - lowerU;
 				float vDiff = pt.params.y - lowerV;
 
