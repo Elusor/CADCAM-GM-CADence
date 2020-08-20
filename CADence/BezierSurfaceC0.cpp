@@ -125,7 +125,7 @@ void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> po
 std::weak_ptr<Node> BezierSurfaceC0::GetPatch(int w, int h)
 {	
 	auto points = m_patches;
-	return points[m_patchH * (m_patchW - w - 1) + h];
+	return points[m_patchH * (w) + h];
 
 }
 
@@ -292,6 +292,7 @@ void BezierSurfaceC0::SetDisplayPolygon()
 
 void BezierSurfaceC0::SetMeshColor()
 {
+	
 	for (int i = 0; i < m_patches.size(); i++)
 	{
 		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());

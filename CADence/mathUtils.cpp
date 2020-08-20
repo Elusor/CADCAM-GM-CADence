@@ -102,12 +102,12 @@ DirectX::XMFLOAT3 XMF3TimesFloat(DirectX::XMFLOAT3 vec, float val)
 Transform WeightedTransformAverage(Transform p0, Transform p1, float t)
 {
 	return Transform(
-		F3Lerp(p0.GetPosition(), p1.GetPosition(), t),
-		F3Lerp(p0.GetRotation(), p1.GetRotation(), t),
-		F3Lerp(p0.GetScale(), p1.GetScale(), t));
+		F3BadLerp(p0.GetPosition(), p1.GetPosition(), t),
+		F3BadLerp(p0.GetRotation(), p1.GetRotation(), t),
+		F3BadLerp(p0.GetScale(), p1.GetScale(), t));
 }
 
-DirectX::XMFLOAT3 F3Lerp(DirectX::XMFLOAT3 f1, DirectX::XMFLOAT3 f2, float t)
+DirectX::XMFLOAT3 F3BadLerp(DirectX::XMFLOAT3 f1, DirectX::XMFLOAT3 f2, float t)
 {
 	// TODO : REMOVE
 	return XMF3SUM(XMF3TimesFloat(f1, t), XMF3TimesFloat(f2, 1.0f - t));

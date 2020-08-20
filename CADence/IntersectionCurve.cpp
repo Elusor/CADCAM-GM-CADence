@@ -338,8 +338,8 @@ void IntersectionCurve::GetInterpolationSplineBernsteinPoints()
 		XMFLOAT3 pos1 = m_positions[1];
 
 		resultPos.push_back(pos0);
-		resultPos.push_back(F3Lerp(pos0, pos1, 1.f / 3.f));
-		resultPos.push_back(F3Lerp(pos0, pos1, 2.f / 3.f));
+		resultPos.push_back(F3BadLerp(pos0, pos1, 1.f / 3.f));
+		resultPos.push_back(F3BadLerp(pos0, pos1, 2.f / 3.f));
 		resultPos.push_back(pos1);
 	}
 

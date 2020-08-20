@@ -351,8 +351,8 @@ void InterpolationBezierCurveC2::GetInterpolationSplineBernsteinPoints(std::vect
 		XMFLOAT3 pos1 = interpolationKnots[1].lock()->m_object->GetPosition();
 
 		resultPos.push_back(pos0);
-		resultPos.push_back(F3Lerp(pos0, pos1, 1.f / 3.f));
-		resultPos.push_back(F3Lerp(pos0, pos1, 2.f / 3.f));
+		resultPos.push_back(F3BadLerp(pos0, pos1, 1.f / 3.f));
+		resultPos.push_back(F3BadLerp(pos0, pos1, 2.f / 3.f));
 		resultPos.push_back(pos1);
 	}
 

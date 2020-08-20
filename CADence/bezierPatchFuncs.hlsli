@@ -2,7 +2,7 @@
 
 float3 Bezier2(float3 b0, float3 b1, float t)
 {
-    float3 ptRes = lerp(b0, b1, 1.0f - t);
+    float3 ptRes = lerp(b0, b1, t);
     return ptRes;
 }
 
@@ -10,7 +10,7 @@ float3 Bezier3(float3 b0, float3 b1, float3 b2, float t)
 {
     float3 pt1 = Bezier2(b0, b1, t);
     float3 pt2 = Bezier2(b1, b2, t);
-    float3 ptRes = lerp(pt1, pt2, 1.0 - t);
+    float3 ptRes = lerp(pt1, pt2, t);
     return ptRes;
 }
 
@@ -19,7 +19,7 @@ float3 DeCastel(float3 b0, float3 b1, float3 b2, float3 b3, float t)
 {
     float3 pt1 = Bezier3(b0, b1, b2, t);
     float3 pt2 = Bezier3(b1, b2, b3, t);
-    float3 ptRes = lerp(pt1, pt2, 1.0 - t);
+    float3 ptRes = lerp(pt1, pt2, t);
     return ptRes;
 }
 
