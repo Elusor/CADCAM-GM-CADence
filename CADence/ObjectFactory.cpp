@@ -77,10 +77,24 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(Scene* scene,
 			// determine top bot left and right
 			int startIdxW = 3 * patchW;
 			int startIdxH = 3 * patchH;
-			top = { points[startIdxW][startIdxH + 3], points[startIdxW + 1][startIdxH + 3], points[startIdxW + 2][startIdxH + 3], points[startIdxW + 3][startIdxH + 3] };
-			topMid = { points[startIdxW][startIdxH + 2], points[startIdxW + 1][startIdxH + 2], points[startIdxW + 2][startIdxH + 2], points[startIdxW + 3][startIdxH + 2] };
-			botMid = { points[startIdxW][startIdxH + 1], points[startIdxW + 1][startIdxH + 1], points[startIdxW + 2][startIdxH + 1], points[startIdxW + 3][startIdxH + 1] };
-			bot = { points[startIdxW][startIdxH], points[startIdxW + 1][startIdxH], points[startIdxW + 2][startIdxH], points[startIdxW + 3][startIdxH] };
+			top = { points[startIdxW][startIdxH], 
+				points[startIdxW + 1][startIdxH], 
+				points[startIdxW + 2][startIdxH], 
+				points[startIdxW + 3][startIdxH] };
+			topMid = { points[startIdxW][startIdxH + 1], 
+				points[startIdxW + 1][startIdxH + 1], 
+				points[startIdxW + 2][startIdxH + 1], 
+				points[startIdxW + 3][startIdxH + 1] };
+			botMid = { 
+				points[startIdxW][startIdxH + 2], 
+				points[startIdxW + 1][startIdxH + 2], 
+				points[startIdxW + 2][startIdxH + 2], 
+				points[startIdxW + 3][startIdxH + 2] };
+			bot = { 
+				points[startIdxW][startIdxH + 3], 
+				points[startIdxW + 1][startIdxH + 3], 
+				points[startIdxW + 2][startIdxH + 3], 
+				points[startIdxW + 3][startIdxH + 3] };
 
 			auto patch = CreateBezierPatch(top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
