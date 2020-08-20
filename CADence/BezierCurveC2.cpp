@@ -328,7 +328,7 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 	if (controlPoints.size() >= 4)
 	{		
 		innerControlPoints.push_back(
-			WeightedXMFloat3Average(
+			F3Lerp(
 				deBoorPoints[0],
 				deBoorPoints[1],
 				1.0f / 3.0f));
@@ -336,12 +336,12 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 		// calculate inner control points between deBoor points
 		for (int i = 1; i < deBoorPoints.size() - 2; i++)
 		{
-			auto pos1 = WeightedXMFloat3Average(
+			auto pos1 = F3Lerp(
 				deBoorPoints[i],
 				deBoorPoints[i + 1],
 				2.0f / 3.0f);
 
-			auto pos2 = WeightedXMFloat3Average(
+			auto pos2 = F3Lerp(
 				deBoorPoints[i],
 				deBoorPoints[i + 1],
 				1.0f / 3.0f);
@@ -351,7 +351,7 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 		}
 
 		innerControlPoints.push_back(
-			WeightedXMFloat3Average(
+			F3Lerp(
 				deBoorPoints[deBoorPoints.size() - 2],
 				deBoorPoints[deBoorPoints.size() - 1],
 				2.0f / 3.0f));
@@ -362,7 +362,7 @@ std::vector<DirectX::XMFLOAT3> BezierCurveC2::CalculateBernsteinFromDeBoor()
 			bernsteinPoints.push_back(innerControlPoints[i]);
 			// get 1/2 point between i and i+1
 			bernsteinPoints.push_back(
-				WeightedXMFloat3Average(
+				F3Lerp(
 					innerControlPoints[i],
 					innerControlPoints[i + 1],
 				1.0f / 2.0f));

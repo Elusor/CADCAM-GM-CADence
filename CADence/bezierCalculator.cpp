@@ -3,14 +3,14 @@
 
 DirectX::XMFLOAT3 BezierCalculator::CalculateBezier2(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, float t)
 {
-	return WeightedXMFloat3Average(p0, p1, t);
+	return F3Lerp(p0, p1, t);
 }
 
 DirectX::XMFLOAT3 BezierCalculator::CalculateBezier3(DirectX::XMFLOAT3 p0, DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, float t)
 {
 	DirectX::XMFLOAT3 t1 = CalculateBezier2(p0, p1, t);
 	DirectX::XMFLOAT3 t2 = CalculateBezier2(p1, p2, t);
-	return  WeightedXMFloat3Average(t1, t2, t);
+	return  F3Lerp(t1, t2, t);
 }
 
 DirectX::XMFLOAT3 BezierCalculator::CalculateBezier3(DerBezierCoeffs coeffs, float t)
@@ -22,7 +22,7 @@ DirectX::XMFLOAT3 BezierCalculator::CalculateBezier4(DirectX::XMFLOAT3 p0, Direc
 {
 	DirectX::XMFLOAT3 t1 = CalculateBezier3(p0, p1, p2, t);
 	DirectX::XMFLOAT3 t2 = CalculateBezier3(p1, p2, p3, t);
-	return WeightedXMFloat3Average(t1, t2, t);
+	return F3Lerp(t1, t2, t);
 }
 
 DirectX::XMFLOAT3 BezierCalculator::CalculateBezier4(BezierCoeffs coeffs, float t)
