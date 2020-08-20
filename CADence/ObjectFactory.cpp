@@ -762,7 +762,7 @@ std::shared_ptr<Node> ObjectFactory::CreateIntersectionCurve(IParametricSurface*
 
 	if (m_intersectionCurveCounter > 0)
 	{
-		name = name + " " + std::to_string(m_bezierCurveCounter);
+		name = name + " " + std::to_string(m_intersectionCurveCounter);
 	}
 	interC->m_name = interC->m_defaultName = name;
 
