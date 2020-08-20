@@ -20,6 +20,9 @@ public:
 	bool GetIsInactive();
 	void SetIsVirtual(bool isVirtual);
 	bool GetIsVirtual();
+	void SetIsDeleted(bool isDeleted);
+	bool GetIsDeleted();
+
 	void Rename(std::string name);
 	bool GetIsRenamed();
 	std::string GetLabel();
@@ -39,6 +42,6 @@ protected:
 	bool m_isInactive = false;
 	bool m_isRenamed = false;
 	bool m_isVirtual = false;
-
+	bool m_isDeleted = false;
 	void DrawRenameGUI();	
 };

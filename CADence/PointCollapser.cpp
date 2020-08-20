@@ -20,7 +20,7 @@ void PointCollapser::Collapse(std::weak_ptr<Node> p1, std::weak_ptr<Node> p2)
 	auto parents2 = point2->m_object->GetReferences().GetAllRefParents();
 
 
-	auto pos = XMF3SUM(point1->m_object->GetPosition(), point2->m_object->GetPosition());
+	auto pos = point1->m_object->GetPosition() + point2->m_object->GetPosition();
 	pos.x /= 2.f;
 	pos.y /= 2.f;
 	pos.z /= 2.f;

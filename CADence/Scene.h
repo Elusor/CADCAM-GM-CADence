@@ -24,19 +24,20 @@ public:
 	void RemoveObject(std::unique_ptr<Object>& object);
 	void DrawSceneHierarchy(bool filtered);
 
+	void ClearSelection();
 	void Select(std::weak_ptr<Node> obj, bool unique = true);
 	void Select(std::vector<std::weak_ptr<Node>> obj, bool unique = true);
 	void SelectionChanged(Node& node);
-	void ClearSelection();
 
 	void ClearModifiedTag();
-	void UpdateScene();
-	void LateUpdate();
-	void UpdateSelectedNode();
-	void RenderScene(std::unique_ptr<RenderState> & renderState);
 	void ClearScene();
+	void LateUpdate();
+	void RenderScene(std::unique_ptr<RenderState> & renderState);
+	void UpdateScene();
+	void UpdateSelectedNode();
 	
 private:
+
 	int m_sizeU;
 	int m_sizeV;
 	int m_sizeX;
@@ -44,10 +45,11 @@ private:
 	bool m_altState;
 	bool m_altDir;
 
-	void DrawScenePopupMenu();
-	void DrawNodePopupMenu(const std::shared_ptr<Node> node);
-	void RenderMiddleMarker(std::unique_ptr<RenderState>& renderState);
 	void DrawBezierPatchModal();
 	void DrawBezierSurfaceModal();
 	void DrawBezierSurfaceC2Modal();
+	void DrawNodePopupMenu(const std::shared_ptr<Node> node);
+	void DrawScenePopupMenu();
+	void RemoveSoftDeletedObjects();
+	void RenderMiddleMarker(std::unique_ptr<RenderState>& renderState);
 };
