@@ -31,16 +31,9 @@ void Scene::AttachObject(std::shared_ptr<Node> node)
 
 void Scene::RemoveObject(std::unique_ptr<Object>& object)
 {	
-	for (int i = 0; i < m_nodes.size(); i++)
+	if (auto node = object->m_nodePtr.lock())
 	{
-		if (m_nodes[i]->m_object == object)
-		{
-			//object->Cleanup();
-			m_nodes[i]->m_object->GetReferences().UnlinkAll();
-			m_nodes[i]->m_object.reset();
-			m_nodes[i].reset();
-			m_nodes.erase(m_nodes.begin() + i);			
-		}
+		node->SetIsDeleted(true);
 	}
 }
 
@@ -557,6 +550,28 @@ void Scene::ClearSelection()
 	m_selectedNodes.clear();
 }
 
+void Scene::RemoveSoftDeletedObjects()
+{
+	auto it = m_nodes.begin();
+	while (it != m_nodes.end())
+	{
+		std::shared_ptr<Node> node = (*it);
+		if (node->GetIsDeleted())
+		{
+			// Cleanup object references and release pointers
+			node->m_object->GetReferences().UnlinkAll();
+			node->m_object.reset();
+			node.reset();
+
+			it = m_nodes.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}	
+}
+
 void Scene::RenderScene(std::unique_ptr<RenderState>& renderState)
 {
 	m_grid->RenderObject(renderState);
@@ -613,6 +628,8 @@ void Scene::LateUpdate()
 	{
 		m_nodes[i]->LateUpdate();
 	}
+
+	RemoveSoftDeletedObjects();
 }
 
 void Scene::UpdateSelectedNode()

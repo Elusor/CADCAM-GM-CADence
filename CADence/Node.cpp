@@ -184,3 +184,13 @@ bool Node::GetIsVirtual()
 {
 	return m_isVirtual;
 }
+
+void Node::SetIsDeleted(bool isDeleted)
+{
+	m_isDeleted = isDeleted;
+}
+
+bool Node::GetIsDeleted()
+{
+	return m_isDeleted;
+}
