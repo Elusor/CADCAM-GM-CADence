@@ -65,6 +65,8 @@ protected:
 	void SetMeshColor();
 	void SetDivisions();
 	virtual BezierPatch* GetPatchAtParameter(float& u, float& v);
+
+	void RenderObjectSpecificContextOptions(Scene& scene) override;
 };
 
 class BezierSurfaceC2 : public BezierSurfaceC0

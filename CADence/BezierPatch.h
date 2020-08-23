@@ -84,6 +84,9 @@ protected:
 	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderPatch(std::unique_ptr<RenderState>& renderState);
 	XMMATRIX GetCoordinates(Coord coord);	
+
+	void RenderObjectSpecificContextOptions(Scene& scene) override;
+
 };
 
 class BezierPatchC2 : public BezierPatch {

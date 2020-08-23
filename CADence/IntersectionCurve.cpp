@@ -45,9 +45,15 @@ std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetParameterList(IntersectedSu
 std::vector<DirectX::XMFLOAT3> IntersectionCurve::GetPointPositions()
 {
 	std::vector<DirectX::XMFLOAT3> positions;
+	std::vector<DirectX::XMFLOAT3> positions2;
 	for (auto params : m_pParameters)
 	{
 		positions.push_back(m_pSurface->GetPoint(params.x, params.y));
+	}
+
+	for (auto params : m_qParameters)
+	{
+		positions2.push_back(m_qSurface->GetPoint(params.x, params.y));
 	}
 
 	return positions;

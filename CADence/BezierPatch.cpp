@@ -2,6 +2,9 @@
 #include "imgui.h"
 #include "bezierCalculator.h"
 #include "mathUtils.h"
+#include "Scene.h"
+#include "Transform.h"
+
 BezierPatch::BezierPatch()
 {
 	m_displayPolygon = false;
@@ -103,11 +106,11 @@ void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);	
 	MeshObject::RenderMesh(renderState, m_UDesc);
 
-	divs = XMFLOAT4(m_vSize, 0.0f, 0.f, 0.f);
-	divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
-	ID3D11Buffer* divCBuffer2[] = { divBuff }; //, VPbuffer
-	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer2);
-	MeshObject::RenderMesh(renderState, m_VDesc);
+	//divs = XMFLOAT4(m_vSize, 0.0f, 0.f, 0.f);
+	//divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
+	//ID3D11Buffer* divCBuffer2[] = { divBuff }; //, VPbuffer
+	//renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer2);
+	//MeshObject::RenderMesh(renderState, m_VDesc);
 	context->HSSetShader(nullptr, 0, 0);
 	context->DSSetShader(nullptr, 0, 0);
 	context->RSSetState(nullptr);
@@ -177,18 +180,118 @@ void BezierPatch::UpdateObject()
 		indicesU.push_back(i);
 	}
 
-	for (int i = 0; i < 4; i++) {
+	/*for (int i = 0; i < 4; i++) {
 		indicesV.push_back(i );
 		indicesV.push_back(i + 4);
 		indicesV.push_back(i + 8);
 		indicesV.push_back(i + 12);
-	}
+	}*/
 	
 	m_PolygonDesc.vertices.clear();
 	m_PolygonDesc.indices.clear();
 	m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
-	for (int i = 0; i < 16; i++) {
+	int i = 0;
+	float length = 0.09f;
+
+	for (int u = 0; u <= 10; u++)
+	{
+		for (int v = 0; v <= 10; v++)
+		{
+			float uParam = (float)u / 10.f;
+			float vParam = (float)v / 10.f;
+
+			auto pt = this->GetPoint(uParam, vParam);
+			auto derPt = this->GetTangent(uParam, vParam, TangentDir::AlongU);
+			auto finalPt = pt + length * derPt;
+
+			m_PolygonDesc.vertices.push_back(
+				{
+					{pt},
+					{1.0f,0.0f,0.0f}
+				});
+			m_PolygonDesc.vertices.push_back(
+				{
+					{finalPt},
+					{1.0f,0.0f,0.0f}
+				});
+			m_PolygonDesc.indices.push_back(i);
+			m_PolygonDesc.indices.push_back(i+1);			
+			i += 2;
+
+			auto derPt2 = this->GetTangent(uParam, vParam, TangentDir::AlongV);
+			auto finalPt2 = pt + length * derPt2;
+
+			m_PolygonDesc.vertices.push_back(
+				{
+					{pt},
+					{0.0f,1.0f,0.0f}
+				});
+			m_PolygonDesc.vertices.push_back(
+				{
+					{finalPt2},
+					{0.0f,1.0f,0.0f}
+				});
+			m_PolygonDesc.indices.push_back(i);
+			m_PolygonDesc.indices.push_back(i + 1);
+
+			i += 2;
+
+			/*auto derPt3 = this->GetSecondDarivativeMixed(uParam, vParam);
+			auto finalPt3 = pt + length * derPt3;
+			m_PolygonDesc.vertices.push_back(
+				{
+					{pt},
+					{0.0f,0.0f,1.0f}
+				});
+			m_PolygonDesc.vertices.push_back(
+				{
+					{finalPt3},
+					{0.0f,0.0f,1.0f}
+				});
+			m_PolygonDesc.indices.push_back(i);
+			m_PolygonDesc.indices.push_back(i + 1);
+
+			i += 2;
+
+			auto derPt2U = this->GetSecondDarivativeSameDirection(uParam, vParam, TangentDir::AlongU);
+			auto finalPt2U = pt + length * derPt2U;
+			m_PolygonDesc.vertices.push_back(
+				{
+					{pt},
+					{0.5f,0.0f,0.0f}
+				});
+			m_PolygonDesc.vertices.push_back(
+				{
+					{finalPt2U},
+					{0.5f,0.0f,0.0f}
+				});
+			m_PolygonDesc.indices.push_back(i);
+			m_PolygonDesc.indices.push_back(i + 1);
+
+			i += 2;
+
+			auto derPt2V = this->GetSecondDarivativeSameDirection(uParam, vParam, TangentDir::AlongV);
+			auto finalPt2V = pt + length * derPt2V;
+			m_PolygonDesc.vertices.push_back(
+				{
+					{pt},
+					{0.0f,0.5f,0.0f}
+				});
+			m_PolygonDesc.vertices.push_back(
+				{
+					{finalPt2V},
+					{0.0f,0.5f,0.0f}
+				});
+			m_PolygonDesc.indices.push_back(i);
+			m_PolygonDesc.indices.push_back(i + 1);
+
+			i += 2;*/
+		}
+	}
+
+
+	/*for (int i = 0; i < 16; i++) {
 		m_PolygonDesc.vertices.push_back(VertexPositionColor{
 			GetReferences().GetAllRef()[i].m_refered.lock()->m_object->GetPosition(),
 			m_meshDesc.m_defaultColor });
@@ -210,7 +313,7 @@ void BezierPatch::UpdateObject()
 		m_PolygonDesc.indices.push_back(i + 8);
 		m_PolygonDesc.indices.push_back(i + 8);
 		m_PolygonDesc.indices.push_back(i + 12);
-	}
+	}*/
 
 
 	m_meshDesc.vertices = vertices;
@@ -246,13 +349,13 @@ void BezierPatch::SetPolygonVisible(bool state)
 
 void BezierPatch::SetPolygonColor(DirectX::XMFLOAT3 col)
 {
-	m_PolygonDesc.m_defaultColor = col;
+	m_PolygonDesc.m_adjustableColor = col;
 	SetModified(true);
 }
 
 void BezierPatch::SetPatchColor(DirectX::XMFLOAT3 col)
 {
-	m_meshDesc.m_defaultColor = col;
+	m_meshDesc.m_adjustableColor = col;
 	SetModified(true);
 }
 
@@ -427,6 +530,27 @@ XMMATRIX BezierPatch::GetCoordinates(Coord coord)
 	return XMLoadFloat4x4(&mat);
 }
 
+void BezierPatch::RenderObjectSpecificContextOptions(Scene& scene)
+{
+	if (ImGui::Button("Place debug points"))
+	{
+		for (int u = 0; u <= 10; u++)
+		{
+			for (int v = 0; v <= 10; v++)
+			{
+				float paramV = 1.f / 10.f * (float)v;
+				float paramU = 1.f / 10.f * (float)u;
+
+				auto pos = this->GetPoint(paramU, paramV);
+				Transform t;
+				t.SetPosition(pos);
+				auto pt = scene.m_objectFactory->CreatePoint(t);
+				scene.AttachObject(pt);
+			}
+		}
+	}
+}
+
 DirectX::XMFLOAT3 BezierPatch::GetPoint(float u, float v)
 {
 	auto refs = GetReferences().GetAllRef();
@@ -439,8 +563,8 @@ DirectX::XMFLOAT3 BezierPatch::GetPoint(float u, float v)
 	aux1 = BezierCalculator::CalculateBezier4(points.row1, u);	
 	aux2 = BezierCalculator::CalculateBezier4(points.row2, u);	
 	aux3 = BezierCalculator::CalculateBezier4(points.row3, u);
-
-	return BezierCalculator::CalculateBezier4(aux0, aux1, aux2, aux3, v);
+	auto res = BezierCalculator::CalculateBezier4(aux0, aux1, aux2, aux3, v);
+	return res;
 }
 
 DirectX::XMFLOAT3 BezierPatch::GetTangent(float u, float v, TangentDir tangentDir)

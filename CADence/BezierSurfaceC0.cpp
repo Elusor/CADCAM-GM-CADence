@@ -2,6 +2,9 @@
 #include "BezierSurfaceC0.h"
 #include "imgui.h"
 #include "mathUtils.h"
+#include "Scene.h"
+#include "Transform.h"
+
 BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDir)
 {
 	m_wrapDir = wrapDir;
@@ -494,4 +497,25 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 	}
 
 	return res;
+}
+
+void BezierSurfaceC0::RenderObjectSpecificContextOptions(Scene& scene)
+{
+	if (ImGui::Button("Place debug points"))
+	{
+		for (int u = 0; u <= 10; u++)
+		{
+			for (int v = 0; v <= 10; v++)
+			{
+				float paramV = 1.f / 10.f * (float)v;
+				float paramU = 1.f / 10.f * (float)u;
+
+				auto pos = this->GetPoint(paramU, paramV);
+				Transform t;
+				t.SetPosition(pos);
+				auto pt = scene.m_objectFactory->CreatePoint(t);
+				scene.AttachObject(pt);
+			}
+		}
+	}
 }

@@ -43,8 +43,10 @@ float3 CubicBezierSum(const OutputPatch<HSOutCP, 16> bezpatch, float4 basisU, fl
 	return sum;
 }
 
-[domain("isoline")]
+[domain("quad")]
 VSOut main(
+	in float edgeFactors[4] : SV_TessFactor,
+	in float insideFactors[2] : SV_InsideTessFactor,
 	HSOutConst input,
 	float2 domain : SV_DomainLocation,
 	const OutputPatch<HSOutCP, NUM_CONTROL_POINTS> patch)
@@ -60,12 +62,17 @@ VSOut main(
     
     float u = min(domain.x * (len) / (len - 1), 1.0f);
     float v = min(domain.y * (len) / (len - 1), 1.0f);
-    float2 uv = float2(u, v);
 	
-    float3 p = BezierPatchPoint(controlpoints, uv);    
+    float3 p = BezierPatchPoint(controlpoints, domain);    
+	float3 p1 = lerp(patch[0].posL, patch[3].posL, domain.x);
+	float3 p2 = lerp(patch[12].posL, patch[15].posL, domain.x);
+
+	p = lerp(p1, p2, domain.y);
+	p = BezierPatchPoint(controlpoints, domain);    
 	o.pos = mul(MVP, float4(p, 1.0f));
     o.posL = p;
     o.posW = mul(M, float4(p, 1.0f));
-    o.col = float4(patch[0].color, 1.0f);
+	int idx = (int)(4.f * domain.y);
+	o.col = float4(patch[0].color, 1.0f);
 	return o;
 }

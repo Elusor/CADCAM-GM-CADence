@@ -23,6 +23,7 @@ private:
 	float m_step;
 	float m_precision;
 	float m_alphaPrecision;
+	float m_goldenRatioPrecision;
 	float m_CGprecision;
 	float m_cursorCGprecision;
 	float m_loopPrecision;

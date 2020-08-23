@@ -8,24 +8,22 @@ cbuffer TessellationBuffer: register(b0) {
 };
 
 // Patch Constant Function
-HSOutConst CalcHSPatchConstants(
+HSOutConst2 CalcHSPatchConstants(
 	InputPatch<VSOut, NUM_CONTROL_POINTS> patch,
 	uint PatchID : SV_PrimitiveID)
 {
-	HSOutConst Output;
+	HSOutConst2 Output;
 
 	// Insert code to compute Output here
-	Output.EdgeTessFactor[0] = uDivisions;
-	Output.EdgeTessFactor[1] = 64;//uDivisions;
-	//Output.EdgeTessFactor[1] = Output.EdgeTessFactor[3] = 1;//vDivisions;
-	//Output.InsideTessFactor[0] = Output.InsideTessFactor[1] = 16;
-
+	Output.EdgeTessFactor[0] = Output.EdgeTessFactor[2] = uDivisions;
+	Output.EdgeTessFactor[1] = Output.EdgeTessFactor[3] = uDivisions;//uDivisions;
+	Output.InsideTessFactor[0] = Output.InsideTessFactor[1] = uDivisions;
 	return Output;
 }
 
-[domain("isoline")]
+[domain("quad")]
 [partitioning("integer")]
-[outputtopology("line")]
+[outputtopology("triangle_cw")]
 [outputcontrolpoints(16)]
 [patchconstantfunc("CalcHSPatchConstants")]
 [maxtessfactor(64.0f)]
@@ -37,6 +35,7 @@ HSOutCP main(
 	HSOutCP Output;
     Output.pos = patch[i].pos;
 	Output.posL = patch[i].posL;
+	float col = (float)i / 15.f;
 	Output.color = patch[i].col;
 
 	return Output;
