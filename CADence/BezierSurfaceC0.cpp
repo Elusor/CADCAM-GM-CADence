@@ -153,8 +153,12 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 	float uStep = 1.f / (float)m_patchW;
 	float vStep = 1.f / (float)m_patchH;
 
-	float newU = (u - (float)w / (float)m_patchW) * m_patchW;
-	float newV = (v - (float)h / (float)m_patchH) * m_patchH;
+	float uPatchBoundary = (float)w * uStep;
+	float vPatchBoundary = (float)h * vStep;
+
+	// Scale translated parameters to [0;1]
+	float newU = (u - uPatchBoundary) * m_patchW; 
+	float newV = (v - vPatchBoundary) * m_patchH;
 
 	auto node = GetPatch(w, h).lock();
 
@@ -327,7 +331,19 @@ DirectX::XMFLOAT3 BezierSurfaceC0::GetTangent(float u, float v, TangentDir tange
 	float uRef = u;
 	float vRef = v;
 	auto patch = GetPatchAtParameter(uRef, vRef);
-	return patch->GetTangent(uRef, vRef, tangentDir);
+
+	DirectX::XMFLOAT3 tan = patch->GetTangent(uRef, vRef, tangentDir);
+	DirectX::XMFLOAT3 scaledTan;
+	if (tangentDir == TangentDir::AlongU)
+	{
+		scaledTan = tan * m_patchH;
+	}
+	else 
+	{
+		scaledTan = tan * m_patchW;
+	}
+
+	return scaledTan;
 }
 
 DirectX::XMFLOAT3 BezierSurfaceC0::GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir)

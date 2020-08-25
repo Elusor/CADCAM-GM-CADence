@@ -189,6 +189,8 @@ void SwapColumns(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, Direct
 
 DirectX::XMFLOAT4 Geom::SolveGEPP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 {
+	// TODO Check if GEPP is working Correctly 
+
 	// Reduce elements below the diagonal
 	for (int col = 0; col < 4; col++)
 	{

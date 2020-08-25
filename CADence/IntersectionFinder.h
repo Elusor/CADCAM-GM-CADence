@@ -27,6 +27,7 @@ private:
 	float m_CGprecision;
 	float m_cursorCGprecision;
 	float m_loopPrecision;
+	int m_iterationCounter;
 	ObjectFactory* m_factory;
 	Scene* m_scene;
 
@@ -73,8 +74,17 @@ private:
 		IParametricSurface* surface2, ParameterPair& surf2Params,
 		DirectX::XMFLOAT3 prevPoint,
 		DirectX::XMFLOAT3& pos,
-		bool reverseDirection);
+		bool reverseDirection,
+		float step);
 	
+	bool FindNextPointAdaptiveStep(
+		IParametricSurface* qSurf, ParameterPair& qSurfParams,
+		IParametricSurface* pSurf, ParameterPair& pSurfParams,
+		DirectX::XMFLOAT3 prevPoint,
+		DirectX::XMFLOAT3& pos,
+		bool reverseDirection,
+		float step);
+
 	float GoldenRatioMethod(
 		IParametricSurface* qSurface,
 		IParametricSurface* pSurface,
