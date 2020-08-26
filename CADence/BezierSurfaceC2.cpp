@@ -35,7 +35,7 @@ BezierPatch* BezierSurfaceC2::GetPatchAtParameter(float& u, float& v)
 
 	auto node = GetPatch(w, h).lock();
 
-	u = 1.f - newU;
+	u = newU;
 	v = newV;
 
 	return (BezierPatch*)(node->m_object).get();
