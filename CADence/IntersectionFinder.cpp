@@ -42,25 +42,25 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 	float col3Last = Dot(col3, stepDir);
 	float col4Last = Dot(col4, stepDir);
 
-	derivatives.m[0][0] = col1.x;
-	derivatives.m[1][0] = col1.y;
-	derivatives.m[2][0] = col1.z;
-	derivatives.m[3][0] = 0.0f;
-
-	derivatives.m[0][1] = col2.x;
-	derivatives.m[1][1] = col2.y;
-	derivatives.m[2][1] = col2.z;
-	derivatives.m[3][1] = 0.0f;
-
-	derivatives.m[0][2] = -col3.x;
-	derivatives.m[1][2] = -col3.y;
-	derivatives.m[2][2] = -col3.z;
-	derivatives.m[3][2] = col3Last;
-
-	derivatives.m[0][3] = -col4.x;
-	derivatives.m[1][3] = -col4.y;
-	derivatives.m[2][3] = -col4.z;
-	derivatives.m[3][3] = col4Last;
+	derivatives(0,0) = col1.x;
+	derivatives(1,0) = col1.y;
+	derivatives(2,0) = col1.z;
+	derivatives(3,0) = 0.0f;
+				
+	derivatives(0,1) = col2.x;
+	derivatives(1,1) = col2.y;
+	derivatives(2,1) = col2.z;
+	derivatives(3,1) = 0.0f;
+				
+	derivatives(0,2) = -col3.x;
+	derivatives(1,2) = -col3.y;
+	derivatives(2,2) = -col3.z;
+	derivatives(3,2) = col3Last;
+				
+	derivatives(0,3) = -col4.x;
+	derivatives(1,3) = -col4.y;
+	derivatives(2,3) = -col4.z;
+	derivatives(3,3) = col4Last;
 
 	return derivatives;
 }
@@ -68,20 +68,21 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 DirectX::XMFLOAT4 IntersectionFinder::CalculateIntersectionDistanceFunctionValue(
 	IParametricSurface* qSurface, ParameterPair& qSurfParams, 
 	IParametricSurface* pSurface, ParameterPair& pSurfParams, 
-	DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float step)
+	DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float stepDist)
 {
-	// [Q - P, <P - prev, t> - d ]
+	// [Q - P, <Q - prev, t> - d ]
 	DirectX::XMFLOAT4 funcVal;
 
 	DirectX::XMFLOAT3 Qpt = qSurface->GetPoint(qSurfParams.u, qSurfParams.v);
 	DirectX::XMFLOAT3 Ppt = pSurface->GetPoint(pSurfParams.u, pSurfParams.v);
+	
+	auto len = Dot(stepDir, stepDir);
+	assert(len <= 1.1f);
+
 	DirectX::XMFLOAT3 posDiff = Qpt - Ppt;
 
-	// TODO CHECK IF T IS A VERSOR (NORMALIZED)
-	auto len = Dot(stepDir, stepDir);
-
-	auto stepDiff = Ppt - prevPoint;
-	float w = Dot(stepDiff, stepDir) - step;
+	auto stepDiff = Qpt - prevPoint;
+	float w = Dot(stepDiff, stepDir) - stepDist;
 
 	funcVal.x = posDiff.x;
 	funcVal.y = posDiff.y;
@@ -477,14 +478,35 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 		}
 	}*/
 
-	/*for (float u = 0.0f; u <= 1.0f; u += 0.1f)
-	{
-		qParamsList.push_back(XMFLOAT2(u, u));
-		pParamsList.push_back(XMFLOAT2(u, u));
-	}
-	auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
-	m_scene->AttachObject(curve);
-	return;*/
+
+	
+	//for (float u = 0.0f; u <= 1.1f; u += 0.01f)
+	//{
+	//	qParamsList.push_back(XMFLOAT2(1 + u, u));
+	//	pParamsList.push_back(XMFLOAT2(1 + u, u));
+	//}
+
+	//auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+	//m_scene->AttachObject(curve);
+
+	//return;
+
+	//for (float u = 0.0f; u <= 1.0f; u += 0.1f)
+	//{
+	//	qParamsList.clear();
+	//	pParamsList.clear();
+	//	for (float v = 0.0f; v <= 1.0f; v += 0.1f)
+	//	{
+	//		qParamsList.push_back(XMFLOAT2(u, v));
+	//		pParamsList.push_back(XMFLOAT2(u, v));
+	//	}
+
+	//	auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+	//	m_scene->AttachObject(curve);
+	//}
+
+
+	//return;
 
 
 	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
@@ -531,7 +553,7 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 						auto dist = Dot(ptQ - ptP, ptQ - ptP);
 						assert(dist <= eps * eps);
 
-						//// Calculate other points				
+						////// Calculate other points				
 						FindOtherIntersectionPoints(
 							surface1, qParams, qParamsList,
 							surface2, pParams, pParamsList, firstPoint);
@@ -551,6 +573,8 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 							// Create the interpolation curve
 						auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
 						m_scene->AttachObject(curve);
+						/*auto curve = m_factory->CreateIntersectionCurve(surface2, pParamsList, surface1, qParamsList);
+						m_scene->AttachObject(curve);*/
 						return;
 					}
 				}
@@ -682,6 +706,8 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 	DirectX::XMFLOAT3 firstPoint)
 {
 
+	int maxCap = 3000;
+
 	auto params1For = surf1Params;
 	auto params2For = surf2Params;
 	auto params1Back = surf1Params;
@@ -698,7 +724,7 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 
 
 	//
-	bool nextPointInRange = FindNextPointAdaptiveStep(surface1, params1For, surface2, params2For, firstPoint, position, false, m_step);
+	bool nextPointInRange = FindNextPointAdaptiveStep(surface1, params1For, surface2, params2For, firstPoint, position, false, m_step) && forwards1.size() < maxCap;
 	while (nextPointInRange)
 	{
 		//Check if found point makes a loop
@@ -742,7 +768,7 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 	if (!looped)
 	{
 		position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		nextPointInRange = FindNextPointAdaptiveStep(surface1, params1Back, surface2, params2Back, firstPoint, position, true, m_step);
+		nextPointInRange = FindNextPointAdaptiveStep(surface1, params1Back, surface2, params2Back, firstPoint, position, true, m_step) && backwards1.size() < maxCap;
 		while (nextPointInRange)
 		{
 			backwards1.push_back(XMFLOAT2(params1Back.u, params1Back.v));
@@ -868,16 +894,25 @@ bool IntersectionFinder::FindNextPoint(
 
 	// TODO: Add condition so taht it is known if the method diverges
 	int iterationCounter = 0;
+	
+	auto stepVersor = CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
+	if (reverseDirection)
+	{
+		stepVersor = -1 * stepVersor;
+	}
 
 	bool continueNewtonCalculation = true;
 	while (continueNewtonCalculation)
 	{		
+
+		qSurf->GetWrappedParams(x_k.x, x_k.y);
+		pSurf->GetWrappedParams(x_k.z, x_k.w);
+
+		curQParams = ParameterPair{ x_k.x, x_k.y };
+		curPParams = ParameterPair{ x_k.z, x_k.w };
+
 		// Calculate Step direction
-		auto stepVersor = CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
-		if (reverseDirection)
-		{
-			stepVersor = -1 * stepVersor;
-		}
+		
 		
 		// Calculate F(x)		
 		auto funcVal = CalculateIntersectionDistanceFunctionValue( //Why the minus?
@@ -887,7 +922,8 @@ bool IntersectionFinder::FindNextPoint(
 
 		auto val = Dot(funcVal, funcVal);
 		if (val <= m_precision * m_precision)
-		{ // Solution is satisfying
+		{ 
+			// Solution is satisfying
 			continueNewtonCalculation = false;
 			found = true;
 			pos = pSurf->GetPoint(curPParams.u, curPParams.v);
@@ -903,7 +939,34 @@ bool IntersectionFinder::FindNextPoint(
 			DirectX::XMFLOAT4X4 derMatrix = CalculateDerivativeMatrix(qSurf, pSurf, x_k, stepVersor);
 
 			//auto deltaX = Geom::SolveGEPP(derMatrix, funcVal);
-			auto deltaXGetp = Geom::SolveGEPP(derMatrix, -1 * funcVal);
+			// Look at netwons Method - thus the minus 
+
+			DirectX::XMFLOAT4 deltaXGetp;
+			double m[4][5];
+
+			for (int r = 0; r < 4; r++)
+			{
+				for (int c = 0; c < 4; c++)
+				{
+					m[r][c] = derMatrix(r, c);
+				}
+			}
+
+			for (int i = 0; i < 4; i++)
+			{
+				m[i][4] = -1 * GetNthFieldValue(funcVal, i);
+			}
+
+			//auto deltaXGetp = Geom::SolveGEPP(derMatrix, -1 * funcVal);
+			double b[4];
+
+			bool success = Geom::gaussianElimination<4>(m, b);
+
+			for (int i = 0; i < 4; i++)
+			{
+				SetNthFieldValue(deltaXGetp, i, b[i]);
+			}
+
 			// Find the next point using Newton's method to solve linear equation system
 			// There should not be a minus here, for some reason there is. Check someday. 
 			// This works.
@@ -916,7 +979,7 @@ bool IntersectionFinder::FindNextPoint(
 			{
 				// Check if the distance between clamped params and prev point is smaller than step 
 				//if yes - connect the curve to the patch boundary and flag this end as looped
-
+				
 				auto boundaryPoint = FindClampedPosition(x_k, x_prev, step);
 				if (!qSurf->ParamsInsideBounds(boundaryPoint.x, boundaryPoint.y) || !pSurf->ParamsInsideBounds(boundaryPoint.z, boundaryPoint.w))
 				{
@@ -927,6 +990,8 @@ bool IntersectionFinder::FindNextPoint(
 				}
 				else {
 					// Solution is satisfying
+					// TODO: HERE THE TORUS SOLUTIONS PASS AS SATISFYING SOLUTIONS
+					// TODO: DEBUG THIS
 					continueNewtonCalculation = false;
 					found = true;
 					pos = pSurf->GetPoint(boundaryPoint.z, boundaryPoint.w);
@@ -1172,8 +1237,19 @@ bool IntersectionFinder::SimpleGradient(
 		{
 			continueSearch = false;
 			found = true;
-			qSurfParams = curQParams;
-			pSurfParams = curPParams;
+
+			float u, v;
+			u = curQParams.u;
+			v = curQParams.v;
+			qSurface->GetWrappedParams(u,v);
+
+			float s, t;
+			s = curPParams.u;
+			t = curPParams.v;
+			pSurface->GetWrappedParams(s, t);
+
+			qSurfParams = {u, v};
+			pSurfParams = {s, t};
 			point = qSurface->GetPoint(qSurfParams.u, qSurfParams.v);
 		}
 	}

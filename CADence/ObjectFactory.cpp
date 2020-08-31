@@ -905,8 +905,8 @@ std::shared_ptr<Node> ObjectFactory::CreateTorus(
 	// Move to a section general for all objects
 	t->SetTransform(transform);
 
-	t->m_bigR = bigR;
-	t->m_smallR = smallR;
+	t->m_donutR = bigR;
+	t->m_tubeR = smallR;
 
 	t->m_surParams.densityX = densityX;
 	t->m_surParams.minDensityX = minDensityX;

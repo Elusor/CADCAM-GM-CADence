@@ -268,3 +268,4 @@ DirectX::XMFLOAT4 Geom::SolveGETP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 
 	return res;
 }
+

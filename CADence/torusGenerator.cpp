@@ -5,8 +5,8 @@ unsigned int CalculateIndexForVertex(int x, int y, int innerLoopMaxVal);
 //probably move density X and density Y to some SurfaceParameters class/struct
 void GetTorusVerticesLineList(Torus* torus)
 {
-	float R = torus->m_bigR;
-	float r = torus->m_smallR;
+	float R = torus->m_donutR;
+	float r = torus->m_tubeR;
 
 	Parametrization2DArguments* surfaceParams = &(torus->m_surParams);
 	MeshDescription* surfaceDescription = &(torus->m_meshDesc);

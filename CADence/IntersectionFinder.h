@@ -76,6 +76,14 @@ private:
 		DirectX::XMFLOAT3& pos,
 		bool reverseDirection,
 		float step);
+
+	bool FindNextPointProper(
+		IParametricSurface* surface1, ParameterPair& surf1Params,
+		IParametricSurface* surface2, ParameterPair& surf2Params,
+		DirectX::XMFLOAT3 prevPoint,
+		DirectX::XMFLOAT3& pos,
+		bool reverseDirection,
+		float step);
 	
 	bool FindNextPointAdaptiveStep(
 		IParametricSurface* qSurf, ParameterPair& qSurfParams,

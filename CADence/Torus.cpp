@@ -18,9 +18,9 @@ bool Torus::CreateParamsGui()
 
 
 	ImGui::Text("Main radius");
-	torusChanged |= ImGui::SliderFloat(mainR.c_str(), &(torus->m_bigR), 0.0f, 15.0f);
+	torusChanged |= ImGui::SliderFloat(mainR.c_str(), &(torus->m_donutR), 0.0f, 15.0f);
 	ImGui::Text("Secondary radius");
-	torusChanged |= ImGui::SliderFloat(secR.c_str(), &(torus->m_smallR), 0.0f, 15.0f);
+	torusChanged |= ImGui::SliderFloat(secR.c_str(), &(torus->m_tubeR), 0.0f, 15.0f);
 
 	bool debugTangents = m_displayTangents;
 	ImGui::Text("Display tangents");
@@ -40,7 +40,7 @@ void Torus::UpdateObject()
 	m_debugDesc.indices.clear();
 
 	m_debugDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
-	float length = 0.25f;
+	float length = 1.f;
 	int i = 0;
 	for (int u = 0; u <= 25; u++)
 	{
@@ -52,20 +52,26 @@ void Torus::UpdateObject()
 			auto pt = GetPoint(uParam, vParam);
 			auto derU = this->GetTangent(uParam, vParam, TangentDir::AlongU);
 			auto derV = this->GetTangent(uParam, vParam, TangentDir::AlongV);
+			auto norm = Cross(derV,derU);
 
 			auto ptU = pt + length * derU;
 			auto ptV = pt + length * derV;
+			auto ptNorm = pt + norm / sqrtf(Dot(norm,norm));
+
+			XMFLOAT3 uCol = { 1.0f, uParam, uParam };
+			XMFLOAT3 vCol = { vParam, 1.0f, vParam };
+			XMFLOAT3 nCol = { 0.0f, 0.0f, 1.0f };
 
 			m_debugDesc.vertices.push_back(
 				{
 					{pt},
-					{1.0f, 0.0f, 0.0f}
+					uCol
 				});
 
 			m_debugDesc.vertices.push_back(
 				{
 					{ptU},
-					{1.0f, 0.0f, 0.0f}
+					uCol
 				});
 
 			m_debugDesc.indices.push_back(i);
@@ -75,13 +81,29 @@ void Torus::UpdateObject()
 			m_debugDesc.vertices.push_back(
 				{
 					{pt},
-					{0.0f, 1.0f, 0.0f}
+					vCol
 				});
 
 			m_debugDesc.vertices.push_back(
 				{
 					{ptV},
-					{0.0f, 1.0f, 0.0f}
+					vCol
+				});
+
+			m_debugDesc.indices.push_back(i);
+			m_debugDesc.indices.push_back(i + 1);
+			i += 2;
+
+			m_debugDesc.vertices.push_back(
+				{
+					{pt},
+					nCol
+				});
+
+			m_debugDesc.vertices.push_back(
+				{
+					{ptNorm},
+					nCol
 				});
 
 			m_debugDesc.indices.push_back(i);
@@ -103,9 +125,9 @@ DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 	u *= XM_2PI;
 	v *= XM_2PI;
 
-	float x = (m_smallR * cosf(u) + m_bigR) * cosf(v);
-	float y = m_smallR * sinf(u);
-	float z = (m_smallR * cosf(u) + m_bigR) * sinf(v);
+	float x = (m_donutR + m_tubeR * cosf(v)) * cosf(u);
+	float y = m_tubeR * sinf(v);
+	float z = (m_donutR + m_tubeR * cosf(v)) * sinf(u);
 
 	auto relativePos = XMFLOAT4(x, y, z, 1.0f);
 	auto mtx = m_transform.GetModelMatrix();
@@ -124,14 +146,14 @@ DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
 	v *= XM_2PI;
 
 	if (tangentDir == TangentDir::AlongU) {
-		x = -(m_smallR * sinf(u)) * cosf(v);
-		y = m_smallR * cosf(u);
-		z = -(m_smallR * sinf(u)) * sinf(v);
+		x = -(m_donutR + m_tubeR * cosf(v)) * sinf(u);
+		y = 0.0f;
+		z = (m_donutR + m_tubeR * cosf(v)) * cosf(u);
 	}
 	else {
-		x = -(m_smallR * cosf(u) + m_bigR) * sinf(v);
-		y = 0.f;
-		z = (m_smallR * cosf(u) + m_bigR) * cosf(v);
+		x = -m_tubeR * sinf(v) * cosf(u);
+		y = m_tubeR * cosf(v);
+		z = -m_tubeR * sinf(v) * sinf(u);
 	}
 	
 	auto relativePos = XMFLOAT4(x, y, z, 0.0f);
@@ -153,14 +175,14 @@ DirectX::XMFLOAT3 Torus::GetSecondDarivativeSameDirection(float u, float v, Tang
 	switch (tangentDir)
 	{
 	case TangentDir::AlongU:
-		x = -m_smallR * cosf(u) * cosf(v);
-		y = -m_smallR * sinf(u);
-		z = -m_smallR * cosf(u) * sinf(v);
+		x = -m_tubeR * cosf(u) * cosf(v);
+		y = -m_tubeR * sinf(u);
+		z = -m_tubeR * cosf(u) * sinf(v);
 		break;
 	case TangentDir::AlongV:
-		x = -(m_smallR * cosf(u) + m_bigR) * cosf(v);
+		x = -(m_tubeR * cosf(u) + m_donutR) * cosf(v);
 		y = 0.f;
-		z = -(m_smallR * cosf(u) + m_bigR) * sinf(v);
+		z = -(m_tubeR * cosf(u) + m_donutR) * sinf(v);
 		break;
 	}
 
@@ -180,9 +202,9 @@ DirectX::XMFLOAT3 Torus::GetSecondDarivativeMixed(float u, float v)
 	u *= XM_2PI;
 	v *= XM_2PI;
 
-	x = m_smallR * sinf(u) * sinf(v);
+	x = m_tubeR * sinf(u) * sinf(v);
 	y = 0;
-	z = -m_smallR * sinf(u) * cosf(v);
+	z = -m_tubeR * sinf(u) * cosf(v);
 
 	auto relativePos = XMFLOAT4(x, y, z, 0.0f);
 	auto mtx = m_transform.GetModelMatrix();

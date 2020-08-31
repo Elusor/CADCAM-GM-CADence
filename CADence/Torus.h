@@ -4,8 +4,8 @@
 struct Torus : public ParametrizedObject2D, public IParametricSurface
 {
 public:
-	float m_bigR;
-	float m_smallR;
+	float m_donutR;
+	float m_tubeR;
 	
 
 	bool CreateParamsGui() override;

@@ -68,7 +68,7 @@ void BezierPatchC2::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
 	ID3D11Buffer* divCBuffer2[] = { divBuff }; //, VPbuffer
 	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer2);
-	MeshObject::RenderMesh(renderState, m_VDesc);
+	//MeshObject::RenderMesh(renderState, m_VDesc);
 	context->HSSetShader(nullptr, 0, 0);
 	context->DSSetShader(nullptr, 0, 0);
 	context->RSSetState(nullptr);

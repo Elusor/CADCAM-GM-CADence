@@ -115,8 +115,8 @@ void SceneExporter::ExportTorus(tinyxml2::XMLElement* scene, Torus* torus)
 {
 	auto object = scene->InsertNewChildElement("Torus");
 	object->SetAttribute("Name", torus->m_name.c_str());
-	object->SetAttribute("MajorRadius", torus->m_bigR);
-	object->SetAttribute("MinorRadius", torus->m_smallR);
+	object->SetAttribute("MajorRadius", torus->m_donutR);
+	object->SetAttribute("MinorRadius", torus->m_tubeR);
 	object->SetAttribute("VerticalSlices", torus->m_surParams.densityX);
 	object->SetAttribute("HorizontalSlices", torus->m_surParams.densityY);
 

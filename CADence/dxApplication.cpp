@@ -58,6 +58,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	ImGui_ImplWin32_Init(this->m_window.getHandle());
 	ImGui_ImplDX11_Init(m_renderState->m_device.m_device.get(), m_renderState->m_device.m_context.get());
 	ImGui::StyleColorsDark();
+
 }
 
 int DxApplication::MainLoop()
