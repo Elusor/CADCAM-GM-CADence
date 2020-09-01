@@ -366,6 +366,9 @@
     <ClInclude Include="Trimmer.h">
       <Filter>Header Files\CadSpecific</Filter>
     </ClInclude>
+    <ClInclude Include="ParamUtils.h">
+      <Filter>Header Files\CadSpecific\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -555,6 +558,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Trimmer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParamUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IParametricSurface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

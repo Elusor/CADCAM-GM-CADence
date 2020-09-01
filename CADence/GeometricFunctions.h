@@ -2,6 +2,17 @@
 
 namespace Geom
 {
+
+	enum SolverType
+	{
+		GE,
+		GEPP,
+		GETP
+	};
+
+	// Ax = b - returns x
+	DirectX::XMFLOAT4 SolveLinearEquationSystem(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 b, SolverType solver = SolverType::GE);
+
 	DirectX::XMFLOAT4 SolveGEPP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 b);
 
 	DirectX::XMFLOAT4 SolveGETP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 b);

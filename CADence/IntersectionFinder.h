@@ -3,13 +3,19 @@
 #include <xmemory>
 #include "IParametricSurface.h"
 #include "Node.h"
+#include "ParamUtils.h"
+
 class ObjectFactory;
 
-struct ParameterPair
+struct IntersectionPointSearchData
 {
-	float u;
-	float v;
+	IntersectionPointSearchData();
+
+	bool found = false;
+	ParameterQuad params;
+	DirectX::XMFLOAT3 pos;
 };
+
 
 class IntersectionFinder
 {
@@ -29,16 +35,19 @@ private:
 	float m_loopPrecision;
 	int m_iterationCounter;
 	ObjectFactory* m_factory;
-	Scene* m_scene;
+	Scene* m_scene;	
 
 	DirectX::XMFLOAT4X4 CalculateDerivativeMatrix(
 		IParametricSurface* surface1, IParametricSurface* surface2,
-		DirectX::XMFLOAT4 x_k, DirectX::XMFLOAT3 stepDir);
+		ParameterQuad x_k, DirectX::XMFLOAT3 stepDir);
 
 	DirectX::XMFLOAT4 CalculateIntersectionDistanceFunctionValue(
-		IParametricSurface* surface1, ParameterPair& surf1Params,
-		IParametricSurface* surface2, ParameterPair& surf2Params,
-		DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float step);
+		IParametricSurface* qSurface,
+		IParametricSurface* pSurface,
+		ParameterQuad parameters,
+		DirectX::XMFLOAT3 prevPoint,
+		DirectX::XMFLOAT3 stepDir,
+		float stepDist);
 
 	DirectX::XMFLOAT4 CalculateOptimalPointInDirection(
 		IParametricSurface* qSurf, ParameterPair qParams,
@@ -47,13 +56,17 @@ private:
 		DirectX::XMFLOAT4 searchDir);
 
 	DirectX::XMFLOAT3 CalculateStepDirection(
-		IParametricSurface* surface1, ParameterPair surf1Params,
-		IParametricSurface* surface2, ParameterPair surf2Params);
+		IParametricSurface* qSurf,
+		IParametricSurface* pSurf,
+		ParameterQuad params,
+		bool reverseDirection);
 
-	void DetermineAffectedSurfaces(IParametricSurface* surface1,
-		IParametricSurface* surface2,
-		std::vector<IParametricSurface*>& pSurfs,
-		std::vector<IParametricSurface*>& qSurfs);
+	IntersectionPointSearchData FindBoundaryPoint(
+		ParameterQuad outParams,
+		ParameterQuad inParams,
+		IParametricSurface* qSurface,
+		IParametricSurface* pSurface,
+		float step);
 
 	bool FindFirstIntersectionPoint(
 		IParametricSurface* surface1,
@@ -69,29 +82,25 @@ private:
 		std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
 		DirectX::XMFLOAT3 firstPoint);
 
-	bool FindNextPoint(
-		IParametricSurface* surface1, ParameterPair& surf1Params,
-		IParametricSurface* surface2, ParameterPair& surf2Params,
+	IntersectionPointSearchData FindNextPoint(
+		IParametricSurface* qSurf,
+		IParametricSurface* pSurf,
+		ParameterQuad parameters,
 		DirectX::XMFLOAT3 prevPoint,
-		DirectX::XMFLOAT3& pos,
+		bool reverseDirection, float step);
+	
+	IntersectionPointSearchData FindNextPointAdaptiveStep(
+		IParametricSurface* qSurf,
+		IParametricSurface* pSurf,
+		ParameterQuad parameters,
+		DirectX::XMFLOAT3 prevPoint,
 		bool reverseDirection,
 		float step);
 
-	bool FindNextPointProper(
-		IParametricSurface* surface1, ParameterPair& surf1Params,
-		IParametricSurface* surface2, ParameterPair& surf2Params,
-		DirectX::XMFLOAT3 prevPoint,
-		DirectX::XMFLOAT3& pos,
-		bool reverseDirection,
-		float step);
-	
-	bool FindNextPointAdaptiveStep(
-		IParametricSurface* qSurf, ParameterPair& qSurfParams,
-		IParametricSurface* pSurf, ParameterPair& pSurfParams,
-		DirectX::XMFLOAT3 prevPoint,
-		DirectX::XMFLOAT3& pos,
-		bool reverseDirection,
-		float step);
+	ParameterQuad GetWrappedParameters(
+		IParametricSurface* qSurface,
+		IParametricSurface* pSurface,
+		ParameterQuad parameters);
 
 	float GoldenRatioMethod(
 		IParametricSurface* qSurface,

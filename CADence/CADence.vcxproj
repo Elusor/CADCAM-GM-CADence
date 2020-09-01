@@ -194,6 +194,7 @@
     <ClInclude Include="ObjectReferences.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="ObjectTransformer.h" />
+    <ClInclude Include="ParamUtils.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="PointCollapser.h" />
     <ClInclude Include="PointSelector.h" />
@@ -268,9 +269,11 @@
     <ClCompile Include="InterpolationBezierCurveC2.cpp" />
     <ClCompile Include="IntersectionCurve.cpp" />
     <ClCompile Include="IntersectionFinder.cpp" />
+    <ClCompile Include="IParametricSurface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="ObjectReferences.cpp" />
+    <ClCompile Include="ParamUtils.cpp" />
     <ClCompile Include="PointCollapser.cpp" />
     <ClCompile Include="SceneExporter.cpp" />
     <ClCompile Include="SceneGrid.cpp" />

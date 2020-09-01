@@ -8,6 +8,8 @@
 #include "GeometricFunctions.h"
 #include "Scene.h"
 
+DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step);
+
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
 	m_scene = scene;
@@ -24,20 +26,14 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 	IParametricSurface* surface1, IParametricSurface* surface2,
-	DirectX::XMFLOAT4 x_k, DirectX::XMFLOAT3 stepDir)
+	ParameterQuad x_k, DirectX::XMFLOAT3 stepDir)
 {
 	DirectX::XMFLOAT4X4 derivatives;
-
-	float u, v, s, t;
-	u = x_k.x;
-	v = x_k.y;
-	s = x_k.z;
-	t = x_k.w;
-
-	auto col1 = surface1->GetTangent(u, v, TangentDir::AlongU);
-	auto col2 = surface1->GetTangent(u, v, TangentDir::AlongV);
-	auto col3 = surface2->GetTangent(s, t, TangentDir::AlongU);
-	auto col4 = surface2->GetTangent(s, t, TangentDir::AlongV);
+	
+	auto col1 = surface1->GetTangent(x_k.GetQParams(), TangentDir::AlongU);
+	auto col2 = surface1->GetTangent(x_k.GetQParams(), TangentDir::AlongV);
+	auto col3 = surface2->GetTangent(x_k.GetPParams(), TangentDir::AlongU);
+	auto col4 = surface2->GetTangent(x_k.GetPParams(), TangentDir::AlongV);
 
 	float col3Last = Dot(col3, stepDir);
 	float col4Last = Dot(col4, stepDir);
@@ -66,15 +62,18 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 }
 
 DirectX::XMFLOAT4 IntersectionFinder::CalculateIntersectionDistanceFunctionValue(
-	IParametricSurface* qSurface, ParameterPair& qSurfParams, 
-	IParametricSurface* pSurface, ParameterPair& pSurfParams, 
-	DirectX::XMFLOAT3 prevPoint, DirectX::XMFLOAT3 stepDir, float stepDist)
+	IParametricSurface* qSurface,
+	IParametricSurface* pSurface,
+	ParameterQuad parameters,
+	DirectX::XMFLOAT3 prevPoint, 
+	DirectX::XMFLOAT3 stepDir, 
+	float stepDist)
 {
 	// [Q - P, <Q - prev, t> - d ]
 	DirectX::XMFLOAT4 funcVal;
 
-	DirectX::XMFLOAT3 Qpt = qSurface->GetPoint(qSurfParams.u, qSurfParams.v);
-	DirectX::XMFLOAT3 Ppt = pSurface->GetPoint(pSurfParams.u, pSurfParams.v);
+	DirectX::XMFLOAT3 Qpt = qSurface->GetPoint(parameters.GetQParams());
+	DirectX::XMFLOAT3 Ppt = pSurface->GetPoint(parameters.GetPParams());
 	
 	auto len = Dot(stepDir, stepDir);
 	assert(len <= 1.1f);
@@ -93,27 +92,52 @@ DirectX::XMFLOAT4 IntersectionFinder::CalculateIntersectionDistanceFunctionValue
 }
 
 DirectX::XMFLOAT3 IntersectionFinder::CalculateStepDirection(
-	IParametricSurface* qSurf, ParameterPair qSurfParams, 
-	IParametricSurface* pSurf, ParameterPair pSurfParams)
+	IParametricSurface* qSurf,  
+	IParametricSurface* pSurf, 
+	ParameterQuad params,
+	bool reverseDirection)
 {
-	auto n1 = GetSurfaceNormal(qSurf, qSurfParams);
-	auto n2 = GetSurfaceNormal(pSurf, pSurfParams);
+	auto n1 = GetSurfaceNormal(qSurf, params.GetQParams());
+	auto n2 = GetSurfaceNormal(pSurf, params.GetPParams());
 	auto stepDir = Cross(n1, n2);
 	float stepDirLen = sqrt(Dot(stepDir, stepDir));
 	auto stepVersor = stepDir / stepDirLen;
 
+	if (reverseDirection)
+	{
+		stepVersor = -1.f * stepVersor;
+	}
+
 	return stepVersor;
 }
 
-void IntersectionFinder::DetermineAffectedSurfaces(
-	IParametricSurface* surface1, 
-	IParametricSurface* surface2, 
-	std::vector<IParametricSurface*>& pSurfs, 
-	std::vector<IParametricSurface*>& qSurfs)
+IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
+	ParameterQuad outParams, 
+	ParameterQuad inParams, 
+	IParametricSurface* qSurface,
+	IParametricSurface* pSurface, 
+	float step)
 {
-	// Return two vectors with affected surfaces 
-	// Not implemented
-	assert(false);
+	IntersectionPointSearchData result;
+	result.found = false;
+	result.params = outParams;
+
+	auto boundaryPoint = FindClampedPosition(outParams, inParams, step);
+	ParameterQuad boundaryParams = ParameterQuad(boundaryPoint);
+
+	if (qSurface->ParamsInsideBounds(boundaryParams.GetQParams()) &&
+		pSurface->ParamsInsideBounds(boundaryParams.GetPParams()))			
+	{
+		// Solution is satisfying
+		// TODO: HERE THE TORUS SOLUTIONS PASS AS SATISFYING SOLUTIONS
+		// TODO: DEBUG THIS				
+		
+		result.found = true;
+		result.pos = pSurface->GetPoint(boundaryParams.GetPParams());
+		result.params = boundaryParams;
+	}
+
+	return result;
 }
 
 void IntersectionFinder::CreateParamsGui()
@@ -664,77 +688,96 @@ void IntersectionFinder::FindIntersectionWithCursor(
 	}	
 }
 
-bool IntersectionFinder::FindNextPointAdaptiveStep(
-	IParametricSurface* qSurf, ParameterPair& qSurfParams,
-	IParametricSurface* pSurf, ParameterPair& pSurfParams,
+IntersectionPointSearchData IntersectionFinder::FindNextPointAdaptiveStep(
+	IParametricSurface* qSurf,
+	IParametricSurface* pSurf,
+	ParameterQuad parameters,
 	DirectX::XMFLOAT3 prevPoint,
-	DirectX::XMFLOAT3& pos,
 	bool reverseDirection, 
 	float step)
 {
+	IntersectionPointSearchData result;
+	result.found = false;
+	result.pos = prevPoint;
+	result.params = parameters;	
 
-	ParameterPair tmpParamsQ = qSurfParams;
-	ParameterPair tmpParamsP = pSurfParams;
-	DirectX::XMFLOAT3 tmpPoint = pos;
 	float currentStep = step;
-
 	int maxStepDivisions = 5;
 	int divisionsCounter = 0;
 
-	bool nextPointInRange = FindNextPoint(qSurf, tmpParamsQ, pSurf, tmpParamsP, prevPoint, tmpPoint, reverseDirection, step);
-	while (nextPointInRange == false && maxStepDivisions > divisionsCounter)
+	auto searchRes = FindNextPoint(qSurf, pSurf, parameters, prevPoint, reverseDirection, step);
+	while (searchRes.found == false && maxStepDivisions > divisionsCounter)
 	{
 		currentStep /= 2.f;
 		divisionsCounter++;
-		nextPointInRange = FindNextPoint(qSurf, tmpParamsQ, pSurf, tmpParamsP, prevPoint, tmpPoint, reverseDirection, currentStep);
+		searchRes = FindNextPoint(qSurf, pSurf, parameters, prevPoint, reverseDirection, currentStep);		
 	}
 
-	if (nextPointInRange)
+	if (searchRes.found)
 	{
-		qSurfParams = tmpParamsQ;
-		pSurfParams = tmpParamsP;
-		pos = tmpPoint;
+		result = searchRes;
 	}
 
-	return nextPointInRange;
+	return result;
+}
+
+ParameterQuad IntersectionFinder::GetWrappedParameters(
+	IParametricSurface* qSurface, 
+	IParametricSurface* pSurface, 
+	ParameterQuad parameters)
+{
+	float u = parameters.u;
+	float v = parameters.v;
+	float s = parameters.s;
+	float t = parameters.t;
+
+	qSurface->GetWrappedParams(u, v);
+	pSurface->GetWrappedParams(s, t);
+	
+	ParameterQuad res;
+
+	res.u = u;
+	res.v = v;
+	res.s = s;
+	res.t = t;
+
+	return res;
 }
 
 
 void IntersectionFinder::FindOtherIntersectionPoints(
-	IParametricSurface* surface1, ParameterPair surf1Params, std::vector<DirectX::XMFLOAT2>& surf1ParamsList,
-	IParametricSurface* surface2, ParameterPair surf2Params, std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
+	IParametricSurface* surfaceQ, ParameterPair surfQParams, std::vector<DirectX::XMFLOAT2>& surfQParamsList,
+	IParametricSurface* surfaceP, ParameterPair surfPParams, std::vector<DirectX::XMFLOAT2>& surfPParamsList,
 	DirectX::XMFLOAT3 firstPoint)
 {
 
 	int maxCap = 3000;
 
-	auto params1For = surf1Params;
-	auto params2For = surf2Params;
-	auto params1Back = surf1Params;
-	auto params2Back = surf2Params;
-
-
-	std::vector<DirectX::XMFLOAT2> forwards1;
-	std::vector<DirectX::XMFLOAT2> forwards2;
-	std::vector<DirectX::XMFLOAT2> backwards1;
-	std::vector<DirectX::XMFLOAT2> backwards2;
+	std::vector<DirectX::XMFLOAT2> forwardsQ;
+	std::vector<DirectX::XMFLOAT2> forwardsP;
+	std::vector<DirectX::XMFLOAT2> backwardsQ;
+	std::vector<DirectX::XMFLOAT2> backwardsP;
 
 	bool looped = false;
-	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	ParameterQuad paramsFor, paramsBack;
+	paramsFor.Set(surfQParams, surfPParams);
+	paramsBack.Set(surfQParams, surfPParams);
 
-	//
-	bool nextPointInRange = FindNextPointAdaptiveStep(surface1, params1For, surface2, params2For, firstPoint, position, false, m_step) && forwards1.size() < maxCap;
+	auto searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsFor, firstPoint, false, m_step);
+	auto prevPos = searchRes.pos;
+	paramsFor = searchRes.params;
+	bool nextPointInRange = searchRes.found && forwardsQ.size() < maxCap;
 	while (nextPointInRange)
 	{
 		//Check if found point makes a loop
-		auto diff = firstPoint - position;
+		auto diff = firstPoint - searchRes.pos;
 		auto dist = Dot(diff, diff);
 
 		// TODO: CHECK IF TRUE LOOPED
 		// Check if this is a circle of infinity sign like interjection
-		auto begParams = DirectX::XMFLOAT4(surf1Params.u, surf1Params.v, surf2Params.u, surf2Params.v);
-		auto candidateParams = DirectX::XMFLOAT4(params1For.u, params1For.v, params2For.u, params2For.v);
+		auto begParams = DirectX::XMFLOAT4(surfQParams.u, surfQParams.v, surfPParams.u, surfPParams.v);
+		auto candidateParams = paramsFor.GetVector();
 		auto paramDiff = begParams - candidateParams;
 		auto paramDiffLen = Dot(paramDiff, paramDiff);
 		bool trueLoop =  paramDiffLen < m_loopPrecision * m_loopPrecision;
@@ -749,8 +792,8 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 		if (dist <= m_step * m_step / 4.f && trueLoop) {
 			// Add points and end the loop 
 			// Add the point as usual
-			forwards1.push_back(XMFLOAT2(surf1Params.u, surf1Params.v));
-			forwards2.push_back(XMFLOAT2(surf2Params.u, surf2Params.v));
+			forwardsQ.push_back(XMFLOAT2(surfQParams.u, surfQParams.v));
+			forwardsP.push_back(XMFLOAT2(surfPParams.u, surfPParams.v));
 			// end search
 			nextPointInRange = false;
 			looped = true;	
@@ -759,56 +802,73 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 		else {
 			// Add point normally (no loop or a ribbon with no connecting ends)
 			// TODO: after all calculations check for loops based on distance?
-			forwards1.push_back(XMFLOAT2(params1For.u, params1For.v));
-			forwards2.push_back(XMFLOAT2(params2For.u, params2For.v));
-			auto prevPos = position;
-			nextPointInRange = FindNextPointAdaptiveStep(surface1, params1For, surface2, params2For, prevPos, position, false, m_step);
+
+			auto paramsQFor = paramsFor.GetQParams();
+			auto paramsPFor = paramsFor.GetPParams();
+
+			forwardsQ.push_back(XMFLOAT2(paramsQFor.u, paramsQFor.v));
+			forwardsP.push_back(XMFLOAT2(paramsPFor.u, paramsPFor.v));
+
+			searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsFor, prevPos, false, m_step);
+			prevPos = searchRes.pos;
+			paramsFor = searchRes.params;
+			nextPointInRange = searchRes.found && forwardsQ.size() < maxCap;
 		}		
 	}
+
+
 	if (!looped)
 	{
-		position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		nextPointInRange = FindNextPointAdaptiveStep(surface1, params1Back, surface2, params2Back, firstPoint, position, true, m_step) && backwards1.size() < maxCap;
+		searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsBack, firstPoint, true, m_step);
+		paramsBack = searchRes.params;
+		auto prevPos = searchRes.pos;
+		nextPointInRange = searchRes.found && backwardsQ.size() < maxCap;
 		while (nextPointInRange)
 		{
-			backwards1.push_back(XMFLOAT2(params1Back.u, params1Back.v));
-			backwards2.push_back(XMFLOAT2(params2Back.u, params2Back.v));
-			auto prevPos = position;
-			nextPointInRange = FindNextPointAdaptiveStep(surface1, params1Back, surface2, params2Back, prevPos, position, true, m_step);
-			// DEBUG PURPOSES ONLY
-			if (backwards1.size() > 2000)
-				break;
+			auto paramsQBack = paramsBack.GetQParams();
+			auto paramsPBack = paramsBack.GetPParams();
+
+			backwardsQ.push_back(XMFLOAT2(paramsQBack.u, paramsQBack.v));
+			backwardsP.push_back(XMFLOAT2(paramsPBack.u, paramsPBack.v));
+			searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsBack, prevPos, true, m_step);
+			prevPos = searchRes.pos;
+			paramsBack = searchRes.params;
+			nextPointInRange = searchRes.found && backwardsQ.size() < maxCap;			
 		}
 	}
 	
-	std::reverse(forwards1.begin(), forwards1.end());
-	std::reverse(forwards2.begin(), forwards2.end());
+	std::reverse(forwardsQ.begin(), forwardsQ.end());
+	std::reverse(forwardsP.begin(), forwardsP.end());
 
 	std::vector<DirectX::XMFLOAT2> res1;
 	std::vector<DirectX::XMFLOAT2> res2;
 
-	for (int i = 0; i < forwards1.size(); i++)
+	for (int i = 0; i < forwardsQ.size(); i++)
 	{
-		res1.push_back(forwards1[i]);
-		res2.push_back(forwards2[i]);
+		res1.push_back(forwardsQ[i]);
+		res2.push_back(forwardsP[i]);
 	}
 
-	res1.push_back(surf1ParamsList[0]);
-	res2.push_back(surf2ParamsList[0]);
+	res1.push_back(surfQParamsList[0]);
+	res2.push_back(surfPParamsList[0]);
 
-	for (int i = 0; i < backwards1.size(); i++)
+	for (int i = 0; i < backwardsQ.size(); i++)
 	{
-		res1.push_back(backwards1[i]);
-		res2.push_back(backwards2[i]);
+		res1.push_back(backwardsQ[i]);
+		res2.push_back(backwardsP[i]);
 	}
 
-	surf1ParamsList = res1;
-	surf2ParamsList = res2;
+	surfQParamsList = res1;
+	surfPParamsList = res2;
 	return;
 }
 
-DirectX::XMFLOAT4 FindClampedPosition(DirectX::XMFLOAT4 x_k, DirectX::XMFLOAT4 x_prev, float step)
+DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step)
 {
+
+	DirectX:XMFLOAT4 x_k, x_prev;
+	x_k = x_kQuad.GetVector();
+	x_prev = x_prevQuad.GetVector();
 	// Given a point x_prev inside a 4 dimensional cube [0,1]x[0,1]x[0,1]x[0,1] and the next step x_k
 	// Find a point on the boundary of the cube that lies on the line intersecting x_k and x_prev
 
@@ -871,53 +931,34 @@ DirectX::XMFLOAT4 FindClampedPosition(DirectX::XMFLOAT4 x_k, DirectX::XMFLOAT4 x
 	return res;
 }
 
-bool IntersectionFinder::FindNextPoint(
-	IParametricSurface* qSurf, ParameterPair& qSurfParams,
-	IParametricSurface* pSurf, ParameterPair& pSurfParams, 
+IntersectionPointSearchData IntersectionFinder::FindNextPoint(
+	IParametricSurface* qSurf, 
+	IParametricSurface* pSurf, 
+	ParameterQuad parameters,
 	DirectX::XMFLOAT3 prevPoint,
-	DirectX::XMFLOAT3& pos,
-	bool reverseDirection,
-	float step)
+	bool isReverseStepDirection, float step)
 {	
-	DirectX::XMFLOAT4 x_k, x_prev;
-	bool found = false;
-	
-	// Initialize x_0
-	x_k.x = qSurfParams.u; // u
-	x_k.y = qSurfParams.v; // v
-	x_k.z = pSurfParams.u; // s
-	x_k.w = pSurfParams.v; // t	
-	x_prev = x_k;
-
-	ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
-	ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
-
-	// TODO: Add condition so taht it is known if the method diverges
 	int iterationCounter = 0;
-	
-	auto stepVersor = CalculateStepDirection(qSurf, curQParams, pSurf, curPParams);
-	if (reverseDirection)
-	{
-		stepVersor = -1 * stepVersor;
-	}
+
+	IntersectionPointSearchData result;
+	result.found = false;
+	result.params = parameters;
+	result.pos = prevPoint;
+
+	// Initialize x_0
+	ParameterQuad x_k, x_prev;
+	x_k = parameters;
+	x_prev = x_k = GetWrappedParameters(qSurf, pSurf, x_k);
+
+	// Calculate Step direction
+	auto stepVersor = CalculateStepDirection(qSurf, pSurf, x_k, isReverseStepDirection);	
 
 	bool continueNewtonCalculation = true;
 	while (continueNewtonCalculation)
-	{		
-
-		qSurf->GetWrappedParams(x_k.x, x_k.y);
-		pSurf->GetWrappedParams(x_k.z, x_k.w);
-
-		curQParams = ParameterPair{ x_k.x, x_k.y };
-		curPParams = ParameterPair{ x_k.z, x_k.w };
-
-		// Calculate Step direction
-		
-		
+	{						
 		// Calculate F(x)		
-		auto funcVal = CalculateIntersectionDistanceFunctionValue( //Why the minus?
-			qSurf, curQParams, 
-			pSurf, curPParams, 
+		auto funcVal = CalculateIntersectionDistanceFunctionValue(
+			qSurf, pSurf, x_k,
 			prevPoint, stepVersor, step);
 
 		auto val = Dot(funcVal, funcVal);
@@ -925,96 +966,51 @@ bool IntersectionFinder::FindNextPoint(
 		{ 
 			// Solution is satisfying
 			continueNewtonCalculation = false;
-			found = true;
-			pos = pSurf->GetPoint(curPParams.u, curPParams.v);
 
-			// Update structures to hold current parameters data for use outside this func
-			qSurfParams = curQParams;
-			pSurfParams = curPParams;
+			result.found = true;
+			result.pos = pSurf->GetPoint(x_k.GetPParams());
+			result.params = x_k;
 		}
 		else
 		{
 			// Calculate next iteration
 			// Create a linear equation system and solve it
 			DirectX::XMFLOAT4X4 derMatrix = CalculateDerivativeMatrix(qSurf, pSurf, x_k, stepVersor);
-
-			//auto deltaX = Geom::SolveGEPP(derMatrix, funcVal);
-			// Look at netwons Method - thus the minus 
-
-			DirectX::XMFLOAT4 deltaXGetp;
-			double m[4][5];
-
-			for (int r = 0; r < 4; r++)
-			{
-				for (int c = 0; c < 4; c++)
-				{
-					m[r][c] = derMatrix(r, c);
-				}
-			}
-
-			for (int i = 0; i < 4; i++)
-			{
-				m[i][4] = -1 * GetNthFieldValue(funcVal, i);
-			}
-
-			//auto deltaXGetp = Geom::SolveGEPP(derMatrix, -1 * funcVal);
-			double b[4];
-
-			bool success = Geom::gaussianElimination<4>(m, b);
-
-			for (int i = 0; i < 4; i++)
-			{
-				SetNthFieldValue(deltaXGetp, i, b[i]);
-			}
+			DirectX::XMFLOAT4 deltaXGetp = Geom::SolveLinearEquationSystem(derMatrix, -1 * funcVal, Geom::SolverType::GEPP);
 
 			// Find the next point using Newton's method to solve linear equation system
-			// There should not be a minus here, for some reason there is. Check someday. 
-			// This works.
 			x_prev = x_k;
-			x_k = x_k + deltaXGetp; // Why the minus?
+			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?			
+			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
-			curQParams = ParameterPair{ x_k.x, x_k.y };
-			curPParams = ParameterPair{ x_k.z, x_k.w };
-			if (!qSurf->ParamsInsideBounds(curQParams.u, curQParams.v) || !pSurf->ParamsInsideBounds(curPParams.u, curPParams.v))
+			// Out of bounds - try to find a boundary closing point
+			if ((qSurf->ParamsInsideBounds(x_k.GetQParams()) &&
+				 pSurf->ParamsInsideBounds(x_k.GetPParams())
+				) == false)
 			{
 				// Check if the distance between clamped params and prev point is smaller than step 
 				//if yes - connect the curve to the patch boundary and flag this end as looped
-				
-				auto boundaryPoint = FindClampedPosition(x_k, x_prev, step);
-				if (!qSurf->ParamsInsideBounds(boundaryPoint.x, boundaryPoint.y) || !pSurf->ParamsInsideBounds(boundaryPoint.z, boundaryPoint.w))
-				{
-					// Stop the algorithm
-					continueNewtonCalculation = false;
-					found = false;
-					break;
-				}
-				else {
-					// Solution is satisfying
-					// TODO: HERE THE TORUS SOLUTIONS PASS AS SATISFYING SOLUTIONS
-					// TODO: DEBUG THIS
-					continueNewtonCalculation = false;
-					found = true;
-					pos = pSurf->GetPoint(boundaryPoint.z, boundaryPoint.w);
 
-					// Update structures to hold current parameters data for use outside this func
-					qSurfParams = { boundaryPoint.x, boundaryPoint.y};
-					pSurfParams = { boundaryPoint.z, boundaryPoint.w};
-				}		
+				auto boundarySearchRes = FindBoundaryPoint(x_k, x_prev, qSurf, pSurf, step);
+				if (boundarySearchRes.found)
+				{
+					result = boundarySearchRes;
+				}
+
+				// Boundary solution found or boundary params out of bounds - either way end Newton
+				continueNewtonCalculation = false;
 			}
 		}
-
-
 	
 		// TODO: replace with a cleaner solution
 		iterationCounter++;
 		if (iterationCounter > m_iterationCounter)
 		{
-			found = false;
 			continueNewtonCalculation = false;
 		}
 	}
 
-	return found;
+	return result;
 }
 
 DirectX::XMFLOAT3 IntersectionFinder::GetSurfaceNormal(IParametricSurface* surface, ParameterPair params)
@@ -1331,4 +1327,8 @@ bool IntersectionFinder::SimpleGradientForCursor(IParametricSurface* qSurface, P
 	}
 
 	return found;
+}
+
+IntersectionPointSearchData::IntersectionPointSearchData()
+{
 }

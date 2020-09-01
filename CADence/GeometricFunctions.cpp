@@ -187,6 +187,52 @@ void SwapColumns(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, Direct
 	matrix.m[3][col2] = tmp.w;
 }
 
+DirectX::XMFLOAT4 Geom::SolveLinearEquationSystem(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 b, SolverType solver)
+{
+	DirectX::XMFLOAT4 xResult;
+
+	if (solver == SolverType::GE)
+	{
+		double m[4][5];
+		double bTab[4];
+
+		for (int r = 0; r < 4; r++)
+		{
+			for (int c = 0; c < 4; c++)
+			{
+				m[r][c] = A(r, c);
+			}
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			m[i][4] = -1 * GetNthFieldValue(b, i);
+		}
+
+		//auto deltaXGetp = Geom::SolveGEPP(derMatrix, -1 * funcVal);
+
+		bool success = Geom::gaussianElimination<4>(m, bTab);
+
+		for (int i = 0; i < 4; i++)
+		{
+			SetNthFieldValue(xResult, i, bTab[i]);
+		}
+	}
+
+	if (solver == SolverType::GEPP)
+	{
+		xResult = SolveGEPP(A, b);
+	}
+
+	if (solver == SolverType::GETP)
+	{
+		xResult = SolveGETP(A, b);
+
+	}
+
+	return xResult;
+}
+
 DirectX::XMFLOAT4 Geom::SolveGEPP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 {
 	// TODO Check if GEPP is working Correctly 
@@ -268,4 +314,3 @@ DirectX::XMFLOAT4 Geom::SolveGETP(DirectX::XMFLOAT4X4 A, DirectX::XMFLOAT4 bVec)
 
 	return res;
 }
-
