@@ -30,33 +30,33 @@ DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 {
 	DirectX::XMFLOAT4X4 derivatives;
 	
-	auto col1 = surface1->GetTangent(x_k.GetQParams(), TangentDir::AlongU);
-	auto col2 = surface1->GetTangent(x_k.GetQParams(), TangentDir::AlongV);
-	auto col3 = surface2->GetTangent(x_k.GetPParams(), TangentDir::AlongU);
-	auto col4 = surface2->GetTangent(x_k.GetPParams(), TangentDir::AlongV);
+	auto QdU = surface1->GetTangent(x_k.GetQParams(), TangentDir::AlongU);
+	auto QdV = surface1->GetTangent(x_k.GetQParams(), TangentDir::AlongV);
+	auto PdS = surface2->GetTangent(x_k.GetPParams(), TangentDir::AlongU);
+	auto PdT = surface2->GetTangent(x_k.GetPParams(), TangentDir::AlongV);
 
-	float col3Last = Dot(col3, stepDir);
-	float col4Last = Dot(col4, stepDir);
+	float col1Last = Dot(QdU, stepDir);
+	float col2Last = Dot(QdV, stepDir);
 
-	derivatives(0,0) = col1.x;
-	derivatives(1,0) = col1.y;
-	derivatives(2,0) = col1.z;
-	derivatives(3,0) = 0.0f;
+	derivatives(0,0) = QdU.x;
+	derivatives(1,0) = QdU.y;
+	derivatives(2,0) = QdU.z;
+	derivatives(3,0) = col1Last;
 				
-	derivatives(0,1) = col2.x;
-	derivatives(1,1) = col2.y;
-	derivatives(2,1) = col2.z;
-	derivatives(3,1) = 0.0f;
+	derivatives(0,1) = QdV.x;
+	derivatives(1,1) = QdV.y;
+	derivatives(2,1) = QdV.z;
+	derivatives(3,1) = col2Last;
 				
-	derivatives(0,2) = -col3.x;
-	derivatives(1,2) = -col3.y;
-	derivatives(2,2) = -col3.z;
-	derivatives(3,2) = col3Last;
+	derivatives(0,2) = -PdS.x;
+	derivatives(1,2) = -PdS.y;
+	derivatives(2,2) = -PdS.z;
+	derivatives(3,2) = 0.0f;
 				
-	derivatives(0,3) = -col4.x;
-	derivatives(1,3) = -col4.y;
-	derivatives(2,3) = -col4.z;
-	derivatives(3,3) = col4Last;
+	derivatives(0,3) = -PdT.x;
+	derivatives(1,3) = -PdT.y;
+	derivatives(2,3) = -PdT.z;
+	derivatives(3,3) = 0.0f;
 
 	return derivatives;
 }
@@ -99,7 +99,7 @@ DirectX::XMFLOAT3 IntersectionFinder::CalculateStepDirection(
 {
 	auto n1 = GetSurfaceNormal(qSurf, params.GetQParams());
 	auto n2 = GetSurfaceNormal(pSurf, params.GetPParams());
-	auto stepDir = Cross(n1, n2);
+	auto stepDir = Cross(n2, n1);
 	float stepDirLen = sqrt(Dot(stepDir, stepDir));
 	auto stepVersor = stepDir / stepDirLen;
 
@@ -951,11 +951,11 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 	x_prev = x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
 	// Calculate Step direction
-	auto stepVersor = CalculateStepDirection(qSurf, pSurf, x_k, isReverseStepDirection);	
 
 	bool continueNewtonCalculation = true;
 	while (continueNewtonCalculation)
 	{						
+		auto stepVersor = CalculateStepDirection(qSurf, pSurf, x_k, isReverseStepDirection);	
 		// Calculate F(x)		
 		auto funcVal = CalculateIntersectionDistanceFunctionValue(
 			qSurf, pSurf, x_k,
@@ -976,7 +976,7 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 			// Calculate next iteration
 			// Create a linear equation system and solve it
 			DirectX::XMFLOAT4X4 derMatrix = CalculateDerivativeMatrix(qSurf, pSurf, x_k, stepVersor);
-			DirectX::XMFLOAT4 deltaXGetp = Geom::SolveLinearEquationSystem(derMatrix, -1 * funcVal, Geom::SolverType::GEPP);
+			DirectX::XMFLOAT4 deltaXGetp = Geom::SolveLinearEquationSystem(derMatrix, -1.f * funcVal, Geom::SolverType::GE);
 
 			// Find the next point using Newton's method to solve linear equation system
 			x_prev = x_k;
@@ -1237,12 +1237,12 @@ bool IntersectionFinder::SimpleGradient(
 			float u, v;
 			u = curQParams.u;
 			v = curQParams.v;
-			qSurface->GetWrappedParams(u,v);
+			//qSurface->GetWrappedParams(u,v);
 
 			float s, t;
 			s = curPParams.u;
 			t = curPParams.v;
-			pSurface->GetWrappedParams(s, t);
+			//pSurface->GetWrappedParams(s, t);
 
 			qSurfParams = {u, v};
 			pSurfParams = {s, t};

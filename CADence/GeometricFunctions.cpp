@@ -206,7 +206,7 @@ DirectX::XMFLOAT4 Geom::SolveLinearEquationSystem(DirectX::XMFLOAT4X4 A, DirectX
 
 		for (int i = 0; i < 4; i++)
 		{
-			m[i][4] = -1 * GetNthFieldValue(b, i);
+			m[i][4] = 1 * GetNthFieldValue(b, i);
 		}
 
 		//auto deltaXGetp = Geom::SolveGEPP(derMatrix, -1 * funcVal);
