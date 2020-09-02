@@ -9,7 +9,7 @@ class ObjectFactory;
 
 struct IntersectionPointSearchData
 {
-	IntersectionPointSearchData();
+	IntersectionPointSearchData() {};
 
 	bool found = false;
 	ParameterQuad params;
@@ -26,6 +26,10 @@ public:
 	void FindIntersectionWithCursor(IParametricSurface* surface1, IParametricSurface* surface2, DirectX::XMFLOAT3 cursorPos);
 	void CreateParamsGui();
 private:
+
+	float m_cursorSamples;
+	float m_samples;
+
 	float m_step;
 	float m_precision;
 	float m_alphaPrecision;
@@ -125,9 +129,8 @@ private:
 		IParametricSurface* pSurface,
 		ParameterPair pSurfParams);
 
-	bool SimpleGradientForCursor(
+	IntersectionPointSearchData SimpleGradientForCursor(
 		IParametricSurface* qSurface,
-		ParameterPair& qSurfParams,
-		DirectX::XMFLOAT3 cursorPos,
-		DirectX::XMFLOAT3& point);
+		ParameterPair qSurfParams,
+		DirectX::XMFLOAT3 cursorPos);
 };

@@ -2,10 +2,15 @@
 #include <DirectXMath.h>
 struct ParameterPair
 {
-	ParameterPair() {};
-	ParameterPair(float _u, float _v) : u{ _u }, v{ _v} {};
 	float u;
 	float v;
+
+	ParameterPair() {};
+	ParameterPair(DirectX::XMFLOAT2 uv) : u{ uv.x }, v{ uv.y} {};
+	ParameterPair(float _u, float _v) : u{ _u }, v{ _v} {};
+	
+	DirectX::XMFLOAT2 GetVector();
+
 };
 
 struct ParameterQuad
@@ -27,3 +32,4 @@ struct ParameterQuad
 };
 
 ParameterQuad operator+(ParameterQuad a, ParameterQuad b);
+ParameterPair operator+(ParameterPair a, ParameterPair b);

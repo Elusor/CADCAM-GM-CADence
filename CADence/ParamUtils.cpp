@@ -62,3 +62,17 @@ ParameterQuad operator+(ParameterQuad a, ParameterQuad b)
 	return res;
 }
 
+ParameterPair operator+(ParameterPair a, ParameterPair b)
+{
+	ParameterPair res;
+
+	res.u = a.u + b.u;
+	res.v = a.v + b.v;
+
+	return res;
+}
+
+DirectX::XMFLOAT2 ParameterPair::GetVector()
+{
+	return DirectX::XMFLOAT2(u,v);
+}
