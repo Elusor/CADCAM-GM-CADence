@@ -551,7 +551,7 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 
 void IntersectionFinder::FindIntersectionWithCursor(
 	IParametricSurface* surface1, 
-	IParametricSurface* surface2, 
+	IParametricSurface* surface2,
 	DirectX::XMFLOAT3 cursorPos)
 {
 	ParameterPair pParams, qParams;
@@ -572,9 +572,9 @@ void IntersectionFinder::FindIntersectionWithCursor(
 	float pMaxV = pBoundaries.v;
 
 	// Find closest point on one surface
-	for (float u = 0.0f; u <= qMaxU; u += qMaxU / steps)
+	for (float u = 0.001f; u <= qMaxU; u += qMaxU / steps)
 	{
-		for (float v = 0.0f; v <= qMaxV; v += qMaxV / steps)
+		for (float v = 0.001f; v <= qMaxV; v += qMaxV / steps)
 		{
 			qParams.u = u;
 			qParams.v = v;
