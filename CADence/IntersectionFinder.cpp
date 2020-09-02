@@ -18,10 +18,10 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_loopPrecision = 0.1f;
 	m_precision = 10E-5f;
 	// To allow cursor found soulutions to be found in gradient
-	m_gradientPrecision = 1E-3f;
-	m_cursorCGprecision = 0.1f;
+	m_gradientPrecision = 1E-4f;
+	m_cursorCGprecision = 1E-5f;
 	m_alphaPrecision = 10E-7f;
-	m_goldenRatioPrecision = 10E-7f;
+	m_goldenRatioPrecision = 10E-5f;
 	m_iterationCounter = 100;
 
 	m_samples = 5.0f;
