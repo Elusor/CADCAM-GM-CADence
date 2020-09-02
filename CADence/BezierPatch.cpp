@@ -559,6 +559,12 @@ ParameterPair BezierPatch::GetMaxParameterValues()
 	return res;
 }
 
+ParameterPair BezierPatch::GetNormalizedParams(float u, float v)
+{
+	// Intentional - no need to scale
+	return ParameterPair(u,v);
+}
+
 DirectX::XMFLOAT3 BezierPatch::GetPoint(float u, float v)
 {
 	auto refs = GetReferences().GetAllRef();

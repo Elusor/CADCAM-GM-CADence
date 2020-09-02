@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "Scene.h"
 #include "Node.h"
+#include "IParametricSurface.h"
 
 IntersectionCurve::IntersectionCurve()
 {
@@ -15,7 +16,7 @@ void IntersectionCurve::Initialize(IParametricSurface* qSurface, std::vector<Dir
 	m_qParameters = qParameters;
 	m_pParameters = pParameters;
 
-	m_positions = GetPointPositions();
+	m_positions = GetPointPositions();	
 	GetInterpolationSplineBernsteinPoints();
 
 	for (auto pt : m_virtualPoints)
@@ -40,6 +41,21 @@ std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetParameterList(IntersectedSu
 	}
 
 	return paramsList;
+}
+
+std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetNormalizedParameterList(IntersectedSurface surface)
+{
+	auto surf = surface == IntersectedSurface::SurfaceQ ? m_qSurface : m_pSurface;
+	auto originalParams = surface == IntersectedSurface::SurfaceQ ? m_qParameters : m_pParameters;
+
+	std::vector<DirectX::XMFLOAT2> normalizedParams;
+	for (auto paramPair : originalParams)
+	{
+		auto normalized = m_pSurface->GetNormalizedParams(paramPair.x, paramPair.y);
+		normalizedParams.push_back({ normalized.u, normalized.v});
+	}
+
+	return normalizedParams;
 }
 
 std::vector<DirectX::XMFLOAT3> IntersectionCurve::GetPointPositions()

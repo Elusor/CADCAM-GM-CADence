@@ -72,8 +72,8 @@ void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve)
 {
 	
 	// Get Parameter lists from the curve
-	auto params1 = curve->GetParameterList(IntersectedSurface::SurfaceP);
-	auto params2 = curve->GetParameterList(IntersectedSurface::SurfaceQ);
+	auto params1 = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceP);
+	auto params2 = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceQ);
 
 	// Render the image onto the member texture
 	/*RenderImage(m_renderTargetView1, m_shaderResourceView1, params1);

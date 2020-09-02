@@ -129,6 +129,27 @@ ParameterPair Torus::GetMaxParameterValues()
 	return res;
 }
 
+ParameterPair Torus::GetNormalizedParams(float u, float v)
+{
+	float newU = fmod(u, XM_2PI);
+	float newV = fmod(v, XM_2PI);
+
+	if (newU < 0.f)
+	{
+		newU = XM_2PI + newU;
+	}
+
+	if (newV < 0.f)
+	{
+		newV = XM_2PI + newV;
+	}
+
+	u = newU / XM_2PI;
+	v = newV / XM_2PI;
+
+	return ParameterPair(u,v);
+}
+
 DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 {
 	float x = (m_donutR + m_tubeR * cosf(v)) * cosf(u);
@@ -226,27 +247,7 @@ bool Torus::ParamsInsideBounds(float u, float v)
 
 void Torus::GetWrappedParams(float& u, float& v)
 {
-	/*
-
-
-	float uIntPart;
-	float newU = modff(u, &uIntPart);
-
-	float vIntPart;
-	float newV = modff(v, &vIntPart);
-
-	if (newU < 0.f)
-	{
-		newU = 1 + newU;
-	}
-
-	if (newV < 0.f)
-	{
-		newV = 1 + newV;
-	}
-
-	u = newU;
-	v = newV;*/
+	// Fmod here causes the values to be inexact and give unsatisfying results. Just return the old values.
 }
 
 float Torus::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)

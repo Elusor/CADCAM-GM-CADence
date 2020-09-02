@@ -553,7 +553,7 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 	ParameterPair paramsQ = surface1->GetMaxParameterValues();
 	ParameterPair paramsP = surface2->GetMaxParameterValues();
 
-	float stepCount = 3.0f;
+	float stepCount = 5.0f;
 	float maxU, maxV, maxS, maxT;
 	float uStep, vStep, sStep, tStep;
 
