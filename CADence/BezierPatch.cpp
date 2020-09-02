@@ -208,12 +208,12 @@ void BezierPatch::UpdateObject()
 			m_PolygonDesc.vertices.push_back(
 				{
 					{pt},
-					{1.0f,0.0f,0.0f}
+					{1.0f,uParam,uParam}
 				});
 			m_PolygonDesc.vertices.push_back(
 				{
 					{finalPt},
-					{1.0f,0.0f,0.0f}
+					{1.0f,uParam,uParam}
 				});
 			m_PolygonDesc.indices.push_back(i);
 			m_PolygonDesc.indices.push_back(i+1);			
@@ -225,12 +225,12 @@ void BezierPatch::UpdateObject()
 			m_PolygonDesc.vertices.push_back(
 				{
 					{pt},
-					{0.0f,1.0f,0.0f}
+					{vParam,1.0f,vParam}
 				});
 			m_PolygonDesc.vertices.push_back(
 				{
 					{finalPt2},
-					{0.0f,1.0f,0.0f}
+					{vParam,1.0f,vParam}
 				});
 			m_PolygonDesc.indices.push_back(i);
 			m_PolygonDesc.indices.push_back(i + 1);

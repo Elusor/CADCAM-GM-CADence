@@ -122,9 +122,6 @@ void Torus::RenderObject(std::unique_ptr<RenderState>& renderState)
 
 DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 {
-	u *= XM_2PI;
-	v *= XM_2PI;
-
 	float x = (m_donutR + m_tubeR * cosf(v)) * cosf(u);
 	float y = m_tubeR * sinf(v);
 	float z = (m_donutR + m_tubeR * cosf(v)) * sinf(u);
@@ -140,10 +137,7 @@ DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 
 DirectX::XMFLOAT3 Torus::GetTangent(float u, float v, TangentDir tangentDir)
 {
-	float x, y, z;
-	
-	u *= XM_2PI;
-	v *= XM_2PI;
+	float x, y, z;	
 
 	if (tangentDir == TangentDir::AlongU) {
 		x = -(m_donutR + m_tubeR * cosf(v)) * sinf(u);
@@ -223,6 +217,9 @@ bool Torus::ParamsInsideBounds(float u, float v)
 
 void Torus::GetWrappedParams(float& u, float& v)
 {
+	/*
+
+
 	float uIntPart;
 	float newU = modff(u, &uIntPart);
 
@@ -240,7 +237,7 @@ void Torus::GetWrappedParams(float& u, float& v)
 	}
 
 	u = newU;
-	v = newV;
+	v = newV;*/
 }
 
 float Torus::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)
