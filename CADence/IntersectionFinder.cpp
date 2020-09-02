@@ -17,7 +17,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_step = 0.5f; 
 	m_loopPrecision = 0.1f;
 	m_precision = 10E-5f;
-	m_CGprecision = 10E-7f;
+	m_gradientPrecision = 10E-7f;
 	m_cursorCGprecision = 0.1f;
 	m_alphaPrecision = 10E-7f;
 	m_goldenRatioPrecision = 10E-7f;
@@ -158,7 +158,7 @@ void IntersectionFinder::CreateParamsGui()
 	std::string label4 = "Golden Ratio Prec##IntersectionFinder";
 	ImGui::DragFloat(label4.c_str(), &goldenRation, 0.05f, 0.05f, 2.f, "%.1e");
 
-	float cgprec = m_CGprecision;
+	float cgprec = m_gradientPrecision;
 	std::string label5 = "CG prec##IntersectionFinder";
 	ImGui::DragFloat(label5.c_str(), &cgprec, 0.05f, 0.05f, 2.f, "%.1e");
 
@@ -179,7 +179,7 @@ void IntersectionFinder::CreateParamsGui()
 	m_precision = eps;
 	m_alphaPrecision = alphaprec;
 	m_goldenRatioPrecision = goldenRation;
-	m_CGprecision = cgprec;
+	m_gradientPrecision = cgprec;
 	m_cursorCGprecision = cursCGPrec;
 	m_loopPrecision = loopPrec;
 }
@@ -347,8 +347,8 @@ float GetCurrentFuncValue(
 	IParametricSurface* qSurf, ParameterPair qParams,
 	IParametricSurface* pSurf, ParameterPair pParams)
 {
-	auto ptQ = qSurf->GetPoint(qParams.u, qParams.v);
-	auto ptP = pSurf->GetPoint(pParams.u, pParams.v);
+	auto ptQ = qSurf->GetPoint(qParams);
+	auto ptP = pSurf->GetPoint(pParams);
 	return sqrtf(Dot(ptQ - ptP, ptQ - ptP));
 }
 
@@ -449,7 +449,7 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 			found = false;
 		}
 
-		if (curDist <= m_CGprecision)
+		if (curDist <= m_gradientPrecision)
 		{
 			continueSearch = false;
 			found = true;
@@ -463,93 +463,10 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 
 void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2)
 {
-	// X0 = u, v, s, t
-	// P(s,t)
-	// Q(u,v)	
-
-	std::vector<DirectX::XMFLOAT3> points;
-	std::vector<IParametricSurface*> pSurfs, qSurfs;
-
-	qSurfs.push_back(surface1);
-	pSurfs.push_back(surface2);
 
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
-
-	std::vector<std::vector<DirectX::XMFLOAT3>> pts;
-	std::vector<std::vector<DirectX::XMFLOAT3>> tangentsU;
-	std::vector<std::vector<DirectX::XMFLOAT3>> tangentsV;
-
-
-
-	/*auto surf = dynamic_cast<BezierSurfaceC0*>(surface1);
-	if (surf != nullptr)
-	{
-		
-		int i = 0;
-		for (float u = 0.0f; u <= 1.0f; u += 0.1f)
-		{
-			pts.push_back(std::vector<DirectX::XMFLOAT3>());
-			tangentsU.push_back(std::vector<DirectX::XMFLOAT3>());
-			tangentsV.push_back(std::vector<DirectX::XMFLOAT3>());
-
-			for (float v = 0.0f; v <= 1.0f; v += 0.1f)
-			{
-				pts[(int)i].push_back(surf->GetPoint(u, v));
-				tangentsU[(int)i].push_back(surf->GetTangent(u, v, AlongU));
-				tangentsV[(int)i].push_back(surf->GetTangent(u, v, AlongV));
-			}
-			i++;
-		}
-	}*/
-
-
-	
-	//for (float u = 0.0f; u <= 1.1f; u += 0.01f)
-	//{
-	//	qParamsList.push_back(XMFLOAT2(1 + u, u));
-	//	pParamsList.push_back(XMFLOAT2(1 + u, u));
-	//}
-
-	//auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
-	//m_scene->AttachObject(curve);
-
-	//return;
-
-	//for (float u = 0.0f; u <= 1.0f; u += 0.1f)
-	//{
-	//	qParamsList.clear();
-	//	pParamsList.clear();
-	//	for (float v = 0.0f; v <= 1.0f; v += 0.1f)
-	//	{
-	//		qParamsList.push_back(XMFLOAT2(u, v));
-	//		pParamsList.push_back(XMFLOAT2(u, v));
-	//	}
-
-	//	auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
-	//	m_scene->AttachObject(curve);
-	//}
-
-
-	//return;
-
-
-	// Find All intersecting sections from surface 1 (Ps) and surface 2 (Qs) and Find intersection points for each combination (P,Q)
-	// TODO: FIND ALL AFFECTED PATCHES
-	// DetermineAffectedSurfaces(surface1, surface2, pSurfs, qSurfs);
-
-	
-	// Sample p and q in a lot of differnt places and search for Intersection Points
-
-
-	std::vector<float> distances;
-
-	// For each P, Q	
 	ParameterPair pParams, qParams;
-	qParams.v = qParams.u = 0.5f;
-	pParams.v = pParams.u = 0.5f;
-	DirectX::XMFLOAT3 firstPoint;
 
-	//TODO change to iterate through specific ranges, not [0,1]
 	ParameterPair paramsQ = surface1->GetMaxParameterValues();
 	ParameterPair paramsP = surface2->GetMaxParameterValues();
 
@@ -574,49 +491,39 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 			for (float s = 0.0f; s <= maxS; s += sStep)
 			{
 				for (float t = 0.0f; t <= maxT; t += tStep)
-				{
+				{					
 					qParams.u = u;
 					qParams.v = v;
 					pParams.u = s;
 					pParams.v = t;
 
+					auto firstPt = SimpleGradient(surface1, qParams, surface2, pParams);
 					// Calculate first point
-					if (SimpleGradient(surface1, qParams, surface2, pParams, firstPoint))
-					{					
-						qParamsList.push_back(XMFLOAT2(qParams.u, qParams.v));
-						pParamsList.push_back(XMFLOAT2(pParams.u, pParams.v));
+					if (firstPt.found)
+					{				
+						// Update the search data
+						auto foundPosition = firstPt.pos;
+						auto foundParamsQ = firstPt.params.GetQParams();
+						auto foundParamsP = firstPt.params.GetPParams();
 
-						// Simple gradient seems to work fine 
-						// TODO DOUBLE CHECK IF PARAMETERS ARE SET UP CORRECTLY
-						auto ptQ = surface1->GetPoint(qParams.u, qParams.v);
-						auto ptP = surface2->GetPoint(pParams.u, pParams.v);
-
+						// Validity check
 						float eps = 0.01f;
+						auto ptQ = surface1->GetPoint(foundParamsQ);
+						auto ptP = surface2->GetPoint(foundParamsP);
 						auto dist = Dot(ptQ - ptP, ptQ - ptP);
 						assert(dist <= eps * eps);
 
-						////// Calculate other points				
+						qParamsList.push_back(XMFLOAT2(foundParamsQ.u, foundParamsQ.v));
+						pParamsList.push_back(XMFLOAT2(foundParamsP.u, foundParamsP.v));
+
+						// Calculate other points				
 						FindOtherIntersectionPoints(
-							surface1, qParams, qParamsList,
-							surface2, pParams, pParamsList, firstPoint);
+							surface1, foundParamsQ, qParamsList,
+							surface2, foundParamsP, pParamsList, foundPosition);
 
-
-						for (int i = 0; i < qParamsList.size(); i++)
-						{
-							auto pt1 = surface1->GetPoint(qParamsList[i].x, qParamsList[i].y);
-							auto pt2 = surface2->GetPoint(pParamsList[i].x, pParamsList[i].y);
-
-							auto diff = pt1 - pt2;
-							auto dist = sqrt(Dot(diff, diff));
-							distances.push_back(dist);
-						}
-
-
-							// Create the interpolation curve
+						// Create the interpolation curve
 						auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
 						m_scene->AttachObject(curve);
-						/*auto curve = m_factory->CreateIntersectionCurve(surface2, pParamsList, surface1, qParamsList);
-						m_scene->AttachObject(curve);*/
 						return;
 					}
 				}
@@ -647,6 +554,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 		{
 			qParams.u = u;
 			qParams.v = v;
+
 			if (SimpleGradientForCursor(surface1, qParams, cursorPos, foundPoint)) {
 				// If found point is closer than the previous point, update it
 				auto newDist = sqrtf(Dot(foundPoint-cursorPos, foundPoint - cursorPos));
@@ -685,15 +593,20 @@ void IntersectionFinder::FindIntersectionWithCursor(
 	if (found1 && found2)
 	{
 		// Calculate first point
-		if (SimpleGradient(surface1, endParams1, surface2, endParams2, foundPoint))
+		auto foundPt = SimpleGradient(surface1, endParams1, surface2, endParams2);
+		if (foundPt.found)
 		{
-			qParamsList.push_back(XMFLOAT2(endParams1.u, endParams1.v));
-			pParamsList.push_back(XMFLOAT2(endParams2.u, endParams2.v));
+			XMFLOAT3 foundPtPos = foundPt.pos;
+			auto autoPtParamsQ = foundPt.params.GetQParams();
+			auto autoPtParamsP = foundPt.params.GetPParams();
+
+			qParamsList.push_back(XMFLOAT2(autoPtParamsQ.u, autoPtParamsQ.v));
+			pParamsList.push_back(XMFLOAT2(autoPtParamsP.u, autoPtParamsP.v));
 
 			// Calculate other points				
 			FindOtherIntersectionPoints(
-				surface1, endParams1, qParamsList,
-				surface2, endParams2, pParamsList, foundPoint);
+				surface1, autoPtParamsQ, qParamsList,
+				surface2, autoPtParamsP, pParamsList, foundPtPos);
 
 			// Create the interpolation curve
 			auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
@@ -1180,95 +1093,70 @@ float IntersectionFinder::GoldenRatioMethodForCursor(
 	return (a + b) / 2;
 }
 
-bool IntersectionFinder::SimpleGradient(
+IntersectionPointSearchData IntersectionFinder::SimpleGradient(
 	IParametricSurface* qSurface,
-	ParameterPair& qSurfParams,
+	ParameterPair qSurfParams,
 	IParametricSurface* pSurface,
-	ParameterPair& pSurfParams,
-	DirectX::XMFLOAT3& point)
+	ParameterPair pSurfParams)
 {
-	bool found = false;
-	DirectX::XMFLOAT4 x_k; // x = [ u, v, s, t ]
 
 	// Initialize x_0
-	x_k.x = qSurfParams.u; // u 
-	x_k.y = qSurfParams.v; // v
-	x_k.z = pSurfParams.u; // s 
-	x_k.w = pSurfParams.v; // t
-	// Calculate residual direction and conjugated move direction	
-	DirectX::XMFLOAT4 dir_k = -1.f * CalculateGradient(qSurface, qSurfParams, pSurface, pSurfParams);
-	float dist = GetCurrentFuncValue(qSurface, qSurfParams, pSurface, pSurfParams);
-	float curDist = dist;
+	ParameterQuad x_k;
+	x_k.Set(qSurfParams, pSurfParams);
 
-	// TODO: Add condition so taht it is known if the method diverges
-	int iterationCounter = 0;
-	bool restart = false;
+	IntersectionPointSearchData res;
+	res.found = false;
+	res.params = x_k;
+	res.pos = XMFLOAT3(NAN, NAN, NAN);
+
 	bool continueSearch = true;
+	int iterationCounter = 0;
+
+	DirectX::XMFLOAT4 dir_k;
+	float curDist, prevDist;
+	curDist = prevDist = GetCurrentFuncValue(qSurface, x_k.GetQParams(), pSurface, x_k.GetPParams());
 
 	while (continueSearch)
 	{
-		// X_k = x_k-1 + alpha * d_k
-		// Get x_k
-		float alpha = GoldenRatioMethod(qSurface, pSurface, -0.5f, 0.5f, x_k, dir_k);
+		// Determine residual direction
+		dir_k = -1.f * CalculateGradient(qSurface, x_k.GetQParams(), pSurface, x_k.GetPParams());
+
+		float alpha = GoldenRatioMethod(qSurface, pSurface, -0.5f, 0.5f, x_k.GetVector(), dir_k);
+		// X_k = x_k-1 + (step dist) * (step dir)
 		x_k = x_k + alpha * dir_k;
-
-		ParameterPair curQParams = ParameterPair{ x_k.x, x_k.y };
-		ParameterPair curPParams = ParameterPair{ x_k.z, x_k.w };
-
+		
 		// Check if the parameters from next iteration are in bound
-		if (!qSurface->ParamsInsideBounds(curQParams.u, curQParams.v) ||
-			!pSurface->ParamsInsideBounds(curPParams.u, curPParams.v))
+		if (!qSurface->ParamsInsideBounds(x_k.GetQParams()) ||
+			!pSurface->ParamsInsideBounds(x_k.GetPParams()))
 		{
 			// Stop the algorithm
 			continueSearch = false;
-			found = false;
 			break;
 		}
 
 		// Inside bounds
-		   // Get the updated parameters
-		dist = curDist;
-		curDist = GetCurrentFuncValue(qSurface, curQParams, pSurface, curPParams);
-
-		// Update Residual 
-		dir_k = -1.f * CalculateGradient(qSurface, curQParams, pSurface, curPParams);		
+		// Get the updated parameters
+		prevDist = curDist;
+		curDist = GetCurrentFuncValue(qSurface, x_k.GetQParams(), pSurface, x_k.GetPParams());
 
 		// After 3 iterations reset the method
 		iterationCounter++;
-		if (iterationCounter > 100)
+		if (iterationCounter > 100 ||
+			curDist >= prevDist)
 		{
-			found = false;
 			continueSearch = false;
 		}
-
-		if (curDist >= dist)
+		
+		if (curDist <= m_gradientPrecision)
 		{
 			continueSearch = false;
-			found = false;
-		}
-
-		if (curDist <= m_CGprecision)
-		{
-			continueSearch = false;
-			found = true;
-
-			float u, v;
-			u = curQParams.u;
-			v = curQParams.v;
-			//qSurface->GetWrappedParams(u,v);
-
-			float s, t;
-			s = curPParams.u;
-			t = curPParams.v;
-			//pSurface->GetWrappedParams(s, t);
-
-			qSurfParams = {u, v};
-			pSurfParams = {s, t};
-			point = qSurface->GetPoint(qSurfParams.u, qSurfParams.v);
+			res.found = true;
+			res.params = x_k;
+			res.pos = qSurface->GetPoint(x_k.GetQParams());			
 		}
 	}
 
-	return found;
+	return res;
 }
 
 bool IntersectionFinder::SimpleGradientForCursor(IParametricSurface* qSurface, ParameterPair& qSurfParams, DirectX::XMFLOAT3 cursorPos, DirectX::XMFLOAT3& point)

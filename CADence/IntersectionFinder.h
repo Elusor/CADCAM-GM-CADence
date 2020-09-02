@@ -30,7 +30,7 @@ private:
 	float m_precision;
 	float m_alphaPrecision;
 	float m_goldenRatioPrecision;
-	float m_CGprecision;
+	float m_gradientPrecision;
 	float m_cursorCGprecision;
 	float m_loopPrecision;
 	int m_iterationCounter;
@@ -119,12 +119,11 @@ private:
 	// Move To IParametric Surface
 	DirectX::XMFLOAT3 GetSurfaceNormal(IParametricSurface* surface, ParameterPair params);
 
-	bool SimpleGradient(
+	IntersectionPointSearchData SimpleGradient(
 		IParametricSurface* qSurface,
-		ParameterPair& qSurfParams,
+		ParameterPair qSurfParams,
 		IParametricSurface* pSurface,
-		ParameterPair& pSurfParams,
-		DirectX::XMFLOAT3& point);
+		ParameterPair pSurfParams);
 
 	bool SimpleGradientForCursor(
 		IParametricSurface* qSurface,
