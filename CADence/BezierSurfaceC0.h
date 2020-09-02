@@ -77,6 +77,4 @@ public:
 	BezierSurfaceC2();
 	BezierSurfaceC2(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDirection);
 	virtual ~BezierSurfaceC2();
-protected:
-	BezierPatch* GetPatchAtParameter(float& u, float& v) override;	
 };

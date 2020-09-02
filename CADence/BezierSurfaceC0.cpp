@@ -137,33 +137,25 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 
 	// u - width
 	// v - height 
-	
+
 	// determine the W and H of a given patch and get the point from this patch	
 	assert(ParamsInsideBounds(u,v));
 	GetWrappedParams(u, v);
 
-	int w = (int)(u * (float)m_patchW);
-	int h = (int)(v * (float)m_patchH);
+	float patchW;
+	float patchH;
+	float uParam = modff(u, &patchW);
+	float vParam = modff(v, &patchH);
 
-	if (w == m_patchW)
-		w--;
-	if (h == m_patchH)
-		h--;
+	if (patchW == m_patchW)
+		patchW--;
+	if (patchH == m_patchH)
+		patchH--;
+	
+	auto node = GetPatch(patchW, patchH).lock();
 
-	float uStep = 1.f / (float)m_patchW;
-	float vStep = 1.f / (float)m_patchH;
-
-	float uPatchBoundary = (float)w * uStep;
-	float vPatchBoundary = (float)h * vStep;
-
-	// Scale translated parameters to [0;1]
-	float newU = (u - uPatchBoundary) * m_patchW; 
-	float newV = (v - vPatchBoundary) * m_patchH;
-
-	auto node = GetPatch(w, h).lock();
-
-	u = newU;
-	v = newV;
+	u = uParam;
+	v = vParam;
 
 	return (BezierPatch*)(node->m_object).get();
 }
@@ -320,20 +312,18 @@ ParameterPair BezierSurfaceC0::GetMaxParameterValues()
 {
 	ParameterPair maxParams;
 
-	//maxParams.u = (float) m_patchW;
-	//maxParams.v = (float) m_patchH;
-
-	maxParams.u = (float)1.0f;
-	maxParams.v = (float)1.0f;
+	maxParams.u = (float) m_patchW;
+	maxParams.v = (float) m_patchH;
 
 	return maxParams;
 }
 
 ParameterPair BezierSurfaceC0::GetNormalizedParams(float u, float v)
-{
-	assert(E_NOTIMPL);
-	//TODO : rewrite class to use [0,w] x [0,h] param space and not [0,1] x [0,1] and wrtie implementation here
-	return ParameterPair();
+{	
+	float newU = u / m_patchW;
+	float newV = v / m_patchH;
+
+	return ParameterPair(newU, newV);
 }
 
 DirectX::XMFLOAT3 BezierSurfaceC0::GetPoint(float u, float v)
@@ -356,10 +346,12 @@ DirectX::XMFLOAT3 BezierSurfaceC0::GetTangent(float u, float v, TangentDir tange
 	DirectX::XMFLOAT3 scaledTan;
 	if (tangentDir == TangentDir::AlongU)
 	{
+		//TODO remove?
 		scaledTan = tan * m_patchH;
 	}
 	else 
 	{
+		//TODO remove?
 		scaledTan = tan * m_patchW;
 	}
 
@@ -387,8 +379,10 @@ DirectX::XMFLOAT3 BezierSurfaceC0::GetSecondDarivativeMixed(float u, float v)
 bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
 {
 	bool res = false;
-	bool UinRange = (u >= 0 && u <= 1);
-	bool VinRange = (v >= 0 && v <= 1);
+
+	auto maxParams = GetMaxParameterValues();
+	bool UinRange = (u >= 0 && u <= maxParams.u);
+	bool VinRange = (v >= 0 && v <= maxParams.v);
 
 	if (m_wrapDir == SurfaceWrapDirection::None)
 	{ // None
@@ -396,7 +390,6 @@ bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
 		res = (UinRange && VinRange);
 	}
 	else {
-		// TODO: Check if v corresponds to height and u to width
 		if (m_wrapDir == SurfaceWrapDirection::Height)
 		{ //Height
 			// Height wrapped so check width
@@ -414,31 +407,31 @@ bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
 
 void BezierSurfaceC0::GetWrappedParams(float& u, float& v)
 {		
-
 	auto maxParams = GetMaxParameterValues();
 
-
-	// TODO: Check if v corresponds to height and u to width
 	if (m_wrapDir == SurfaceWrapDirection::Height)
 	{ 
-		float vIntPart;
-		float newV = modff(v, &vIntPart);
-		if (newV < 0.0f)
+		float wrappedV = fmod(v, maxParams.v);
+		if (wrappedV < 0.0f)
 		{
-			newV = 1.f + newV;
+			v = maxParams.v + wrappedV;
 		}
-		v = newV;
+		else
+		{
+			v = wrappedV;
+		}
 	}
 
 	if (m_wrapDir == SurfaceWrapDirection::Width)
 	{ 
-		float uIntPart;
-		float newU = modff(u, &uIntPart);
-		if (newU < 0.0f)
+		float wrappedU = fmod(u, maxParams.u);
+		if (wrappedU < 0.0f)
 		{
-			newU = 1.f + newU;
+			u = maxParams.u + wrappedU;
 		}
-		u = newU;
+		else {
+			u = wrappedU;
+		}
 	}
 }
 
@@ -448,6 +441,8 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 	float res = defStep;
 	DirectX::XMFLOAT2 params = DirectX::XMFLOAT2(u, v);
 	DirectX::XMFLOAT2 movedParams = params + dir * defStep;
+
+	auto bounds = GetMaxParameterValues();
 
 	if (ParamsInsideBounds(movedParams.x, movedParams.y) == false)
 	{	
@@ -461,7 +456,7 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 			if (dir.x != 0.0f)
 			{
 				float step0 = (0.f - u) / dir.x;
-				float step1 = (1.f - u) / dir.x;
+				float step1 = (bounds.u - u) / dir.x;
 
 				if (step0 * defStep >= 0 && abs(step0) < abs(res)) //has the same sign
 				{
@@ -478,7 +473,7 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 			if (dir.y != 0.0f)
 			{
 				float step0 = (0.f - v) / dir.y;
-				float step1 = (1.f - v) / dir.y;
+				float step1 = (bounds.v - v) / dir.y;
 
 				if (step0 * defStep >= 0 && abs(step0) < abs(res)) //has the same sign
 				{
@@ -498,7 +493,7 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 			if (dir.y != 0.0f)
 			{
 				float step0 = (0.f - v) / dir.y;
-				float step1 = (1.f - v) / dir.y;
+				float step1 = (bounds.v - v) / dir.y;
 
 				if (step0 * defStep>= 0 && abs(step0) < abs(res)) //has the same sign
 				{
@@ -518,7 +513,7 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 			if (dir.x != 0.0f)
 			{
 				float step0 = (0.f - u) / dir.x;
-				float step1 = (1.f - u) / dir.x;
+				float step1 = (bounds.u - u) / dir.x;
 
 				if (step0 * defStep >= 0 && abs(step0) < abs(res)) //has the same sign
 				{

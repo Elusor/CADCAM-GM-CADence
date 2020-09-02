@@ -51,7 +51,7 @@ std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetNormalizedParameterList(Int
 	std::vector<DirectX::XMFLOAT2> normalizedParams;
 	for (auto paramPair : originalParams)
 	{
-		auto normalized = m_pSurface->GetNormalizedParams(paramPair.x, paramPair.y);
+		auto normalized = surf->GetNormalizedParams(paramPair.x, paramPair.y);
 		normalizedParams.push_back({ normalized.u, normalized.v});
 	}
 
