@@ -549,13 +549,31 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 	pParams.v = pParams.u = 0.5f;
 	DirectX::XMFLOAT3 firstPoint;
 
-	for (float u = 0.0f; u <= 1.0f; u += 0.1f)
+	//TODO change to iterate through specific ranges, not [0,1]
+	ParameterPair paramsQ = surface1->GetMaxParameterValues();
+	ParameterPair paramsP = surface2->GetMaxParameterValues();
+
+	float stepCount = 3.0f;
+	float maxU, maxV, maxS, maxT;
+	float uStep, vStep, sStep, tStep;
+
+	maxU = paramsQ.u;
+	maxV = paramsQ.v;
+	maxS = paramsP.u;
+	maxT = paramsP.v;
+
+	uStep = maxU / stepCount;
+	vStep = maxV / stepCount;
+	sStep = maxS / stepCount;
+	tStep = maxT / stepCount;
+
+	for (float u = 0.0f; u <= maxU; u += uStep)
 	{
-		for (float v = 0.0f; v <= 1.0f; v += 0.1f)
+		for (float v = 0.0f; v <= maxV; v += vStep)
 		{
-			for (float s = 0.0f; s <= 1.0f; s += 0.1f)
+			for (float s = 0.0f; s <= maxS; s += sStep)
 			{
-				for (float t = 0.0f; t <= 1.0f; t += 0.1f)
+				for (float t = 0.0f; t <= maxT; t += tStep)
 				{
 					qParams.u = u;
 					qParams.v = v;

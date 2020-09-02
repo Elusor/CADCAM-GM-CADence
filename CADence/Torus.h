@@ -16,6 +16,7 @@ public:
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 
 	// Inherited via IParametricSurface
+	virtual ParameterPair GetMaxParameterValues() override;
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;

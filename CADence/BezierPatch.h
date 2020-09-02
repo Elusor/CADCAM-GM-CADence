@@ -62,6 +62,7 @@ public:
 	std::vector<std::weak_ptr<Node>> GetPoints(RowPlace row);	
 
 	// Inherited via IParametricSurface
+	virtual ParameterPair GetMaxParameterValues() override;
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;

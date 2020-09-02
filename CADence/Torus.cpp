@@ -120,6 +120,15 @@ void Torus::RenderObject(std::unique_ptr<RenderState>& renderState)
 		RenderMesh(renderState, m_debugDesc);
 }
 
+ParameterPair Torus::GetMaxParameterValues()
+{
+	ParameterPair res;
+	res.u = XM_2PI;
+	res.v = XM_2PI;
+
+	return res;
+}
+
 DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 {
 	float x = (m_donutR + m_tubeR * cosf(v)) * cosf(u);

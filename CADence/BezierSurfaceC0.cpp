@@ -316,6 +316,19 @@ void BezierSurfaceC0::SetDivisions()
 	}
 }
 
+ParameterPair BezierSurfaceC0::GetMaxParameterValues()
+{
+	ParameterPair maxParams;
+
+	//maxParams.u = (float) m_patchW;
+	//maxParams.v = (float) m_patchH;
+
+	maxParams.u = (float)1.0f;
+	maxParams.v = (float)1.0f;
+
+	return maxParams;
+}
+
 DirectX::XMFLOAT3 BezierSurfaceC0::GetPoint(float u, float v)
 {
 	// Gets the patch at given parameters and sclae u,v to appropriate size
@@ -394,6 +407,9 @@ bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
 
 void BezierSurfaceC0::GetWrappedParams(float& u, float& v)
 {		
+
+	auto maxParams = GetMaxParameterValues();
+
 	// TODO: Check if v corresponds to height and u to width
 	if (m_wrapDir == SurfaceWrapDirection::Height)
 	{ 

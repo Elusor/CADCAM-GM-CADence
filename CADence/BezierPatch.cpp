@@ -551,6 +551,14 @@ void BezierPatch::RenderObjectSpecificContextOptions(Scene& scene)
 	}
 }
 
+ParameterPair BezierPatch::GetMaxParameterValues()
+{
+	ParameterPair res;
+	res.u = 1.0f;
+	res.v = 1.0f;
+	return res;
+}
+
 DirectX::XMFLOAT3 BezierPatch::GetPoint(float u, float v)
 {
 	auto refs = GetReferences().GetAllRef();
