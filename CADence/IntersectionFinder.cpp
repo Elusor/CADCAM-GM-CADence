@@ -25,7 +25,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_iterationCounter = 100;
 
 	m_samples = 5.0f;
-	m_cursorSamples = 25.f;
+	m_cursorSamples = 10.f;
 }
 
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
