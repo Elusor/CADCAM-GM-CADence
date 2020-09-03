@@ -693,9 +693,9 @@ bool BezierPatch::ParamsInsideBounds(float u, float v)
 	return (UinRange && VinRange);
 }
 
-void BezierPatch::GetWrappedParams(float& u, float& v)
+ParameterPair BezierPatch::GetWrappedParams(float u, float v)
 {
-	// nothing to do here
+	return ParameterPair(u, v);
 }
 
 float BezierPatch::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)

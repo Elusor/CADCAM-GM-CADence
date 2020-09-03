@@ -140,12 +140,12 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 
 	// determine the W and H of a given patch and get the point from this patch	
 	assert(ParamsInsideBounds(u,v));
-	GetWrappedParams(u, v);
+	auto wrappedParams = GetWrappedParams(u, v);
 
 	float patchW;
 	float patchH;
-	float uParam = modff(u, &patchW);
-	float vParam = modff(v, &patchH);
+	float uParam = modff(wrappedParams.u, &patchW);
+	float vParam = modff(wrappedParams.v, &patchH);
 
 	if (patchW == m_patchW)
 		patchW--;
@@ -405,34 +405,25 @@ bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
 	return res;
 }
 
-void BezierSurfaceC0::GetWrappedParams(float& u, float& v)
+ParameterPair BezierSurfaceC0::GetWrappedParams(float u, float v)
 {		
 	auto maxParams = GetMaxParameterValues();
+
+	float resU = u, resV = v;
 
 	if (m_wrapDir == SurfaceWrapDirection::Height)
 	{ 
 		float wrappedV = fmod(v, maxParams.v);
-		if (wrappedV < 0.0f)
-		{
-			v = maxParams.v + wrappedV;
-		}
-		else
-		{
-			v = wrappedV;
-		}
+		resV = wrappedV >= 0.0f ? wrappedV : maxParams.v + wrappedV;
 	}
 
 	if (m_wrapDir == SurfaceWrapDirection::Width)
 	{ 
 		float wrappedU = fmod(u, maxParams.u);
-		if (wrappedU < 0.0f)
-		{
-			u = maxParams.u + wrappedU;
-		}
-		else {
-			u = wrappedU;
-		}
+		resU = wrappedU >= 0.0f ? wrappedU : maxParams.u + wrappedU;
 	}
+
+	return ParameterPair(resU, resV);
 }
 
 float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)

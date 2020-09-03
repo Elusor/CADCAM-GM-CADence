@@ -245,9 +245,10 @@ bool Torus::ParamsInsideBounds(float u, float v)
 	return true;
 }
 
-void Torus::GetWrappedParams(float& u, float& v)
+ParameterPair Torus::GetWrappedParams(float u, float v)
 {
 	// Fmod here causes the values to be inexact and give unsatisfying results. Just return the old values.
+	return ParameterPair(u, v);
 }
 
 float Torus::GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep)

@@ -694,16 +694,11 @@ ParameterQuad IntersectionFinder::GetWrappedParameters(
 	float s = parameters.s;
 	float t = parameters.t;
 
-	qSurface->GetWrappedParams(u, v);
-	pSurface->GetWrappedParams(s, t);
+	auto wrappedQParams = qSurface->GetWrappedParams(u, v);
+	auto wrappedPParams = pSurface->GetWrappedParams(s, t);
 	
 	ParameterQuad res;
-
-	res.u = u;
-	res.v = v;
-	res.s = s;
-	res.t = t;
-
+	res.Set(wrappedQParams, wrappedPParams);
 	return res;
 }
 
