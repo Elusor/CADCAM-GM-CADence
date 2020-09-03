@@ -204,7 +204,6 @@ void DxApplication::InitImguiWindows()
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{				
-
 		if (m_scene->m_selectedNodes.size() == 2)
 		{
 			auto p1 = m_scene->m_selectedNodes[0];
@@ -218,21 +217,17 @@ void DxApplication::InitImguiWindows()
 				}				
 			}
 
-			IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(p1.lock()->m_object.get());
-			IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(p2.lock()->m_object.get());
-			if(surf1 != nullptr && surf2 != nullptr)
+			if(m_intersectionFinder->AreObjectIntersectable(p1,p2))
 			{
 				if (ImGui::Button("Intersect surfaces"))
 				{
-					m_intersectionFinder->FindInterSection(surf1, surf2);
-					/*auto point = m_scene->m_objectFactory->CreatePoint();
-					point->m_object->SetPosition(pt);
-					m_scene->AttachObject(point);*/
+					m_intersectionFinder->FindInterSection(p1, p2);
 				}
+
 				if (ImGui::Button("Intersect surfaces with cursor"))
 				{
 					auto cursorPos = m_scene->m_spawnMarker->GetPosition();
-					m_intersectionFinder->FindIntersectionWithCursor(surf1, surf2, cursorPos);					
+					m_intersectionFinder->FindIntersectionWithCursor(p1, p2, cursorPos);
 				}
 			}
 		}
@@ -250,6 +245,7 @@ void DxApplication::InitImguiWindows()
 					(BezierPatch*)p1.lock()->m_object.get(),
 					(BezierPatch*)p2.lock()->m_object.get(),
 					(BezierPatch*)p3.lock()->m_object.get());
+
 				if (hole.isValid) 
 				{
 					if (ImGui::Button("Fill the hole"))

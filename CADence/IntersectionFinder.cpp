@@ -28,6 +28,44 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_cursorSamples = 10.f;
 }
 
+bool IntersectionFinder::AreObjectIntersectable(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2)
+{
+	IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(obj1.lock()->m_object.get());
+	IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(obj2.lock()->m_object.get());
+
+	// Check if surf1 and surf2 are child and parent
+	auto p1Str = obj1.lock();
+	auto p2Str = obj2.lock();
+
+	// Check if p2 has p1Str
+	// Check if p1 has p2Str
+	auto p1Children = p1Str->GetChildren();
+	auto p2Children = p2Str->GetChildren();
+
+	bool isP1Child = false, isP2Child = false;
+	auto p1It = p1Children.begin();
+	while (p1It != p1Children.end())
+	{
+		auto tmp = p1It->lock();
+		isP1Child |= obj2.lock() == tmp;
+		p1It++;
+	}
+	 
+	auto p2It = p2Children.begin();
+	while (p2It != p2Children.end())
+	{
+		auto tmp = p2It->lock();
+		isP2Child |= obj1.lock() == tmp;
+		p2It++;
+	}
+
+	bool areParamericSurfaces = surf1 != nullptr && surf2 != nullptr;
+	bool areNotFamily = (isP1Child == false && isP2Child == false);
+		
+
+	return areParamericSurfaces && areNotFamily;
+}
+
 DirectX::XMFLOAT4X4 IntersectionFinder::CalculateDerivativeMatrix(
 	IParametricSurface* surface1, IParametricSurface* surface2,
 	ParameterQuad x_k, DirectX::XMFLOAT3 stepDir)
@@ -478,6 +516,13 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 	return found;
 }
 
+void IntersectionFinder::FindInterSection(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2)
+{
+	IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(obj1.lock()->m_object.get());
+	IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(obj2.lock()->m_object.get());
+	return FindInterSection(surf1, surf2);
+}
+
 void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2)
 {
 
@@ -547,6 +592,13 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 			}
 		}
 	}		
+}
+
+void IntersectionFinder::FindIntersectionWithCursor(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2, DirectX::XMFLOAT3 cursorPos)
+{
+	IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(obj1.lock()->m_object.get());
+	IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(obj2.lock()->m_object.get());
+	return FindIntersectionWithCursor(surf1, surf2, cursorPos);
 }
 
 void IntersectionFinder::FindIntersectionWithCursor(
