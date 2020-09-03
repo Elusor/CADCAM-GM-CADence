@@ -8,6 +8,14 @@ struct VertexPositionColor
 	static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayoutElements();
 };
 
+struct VertexParameterColor
+{
+	DirectX::XMFLOAT2 parameters;
+	DirectX::XMFLOAT3 color;
+	static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayoutElements();
+};
+
+
 struct ConstantParameters
 {
 	DirectX::XMFLOAT2 uv;

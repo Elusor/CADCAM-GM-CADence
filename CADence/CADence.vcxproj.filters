@@ -136,6 +136,12 @@
     <Filter Include="Shaders\ParameterSpaceRendering">
       <UniqueIdentifier>{253e6c58-3418-4391-979a-c270a09946d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Curves">
+      <UniqueIdentifier>{861b4a7e-d5cf-402c-b919-7b5ca899c27d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Parametric">
+      <UniqueIdentifier>{05ff1f11-7e4e-48f5-95df-7fa49cd1f035}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -574,17 +580,11 @@
     <FxCompile Include="vs.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="bezierGs.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="psTex.hlsl">
       <Filter>Shaders\Texture Rendering</Filter>
     </FxCompile>
     <FxCompile Include="vsTex.hlsl">
       <Filter>Shaders\Texture Rendering</Filter>
-    </FxCompile>
-    <FxCompile Include="patchGS.hlsl">
-      <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="patchDS.hlsl">
       <Filter>Shaders\BezierPatch</Filter>
@@ -612,6 +612,18 @@
     </FxCompile>
     <FxCompile Include="paramSpacePS.hlsl">
       <Filter>Shaders\ParameterSpaceRendering</Filter>
+    </FxCompile>
+    <FxCompile Include="bezierGs.hlsl">
+      <Filter>Shaders\Curves</Filter>
+    </FxCompile>
+    <FxCompile Include="patchGS.hlsl">
+      <Filter>Shaders\BezierPatch</Filter>
+    </FxCompile>
+    <FxCompile Include="paramVS.hlsl">
+      <Filter>Shaders\Parametric</Filter>
+    </FxCompile>
+    <FxCompile Include="torusGS.hlsl">
+      <Filter>Shaders\Parametric</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -22,6 +22,8 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_vertexBuffer;
 	mini::dx_ptr<ID3D11Buffer> m_indexBuffer;
 
+	mini::dx_ptr<ID3D11VertexShader> m_paramVS;
+
 	mini::dx_ptr<ID3D11VertexShader> m_texVS;
 	mini::dx_ptr<ID3D11PixelShader> m_texPS;
 
@@ -34,6 +36,7 @@ public:
 	mini::dx_ptr<ID3D11VertexShader> m_paramSpaceVS;
 	mini::dx_ptr<ID3D11PixelShader> m_paramSpacePS;
 
+	mini::dx_ptr<ID3D11GeometryShader> m_torusGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
 	mini::dx_ptr<ID3D11HullShader> m_patchHullShader;
@@ -42,6 +45,7 @@ public:
 	mini::dx_ptr<ID3D11DomainShader> m_patchC2DomainShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchGregDomainShader;
 	mini::dx_ptr<ID3D11InputLayout> m_layout;		
+	mini::dx_ptr<ID3D11InputLayout> m_parameterLayout;
 
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;
 

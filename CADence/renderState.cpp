@@ -11,12 +11,14 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");
+	const auto paramVsBytes = DxDevice::LoadByteCode(L"paramVS.cso");
 	const auto ssVsBytes = DxDevice::LoadByteCode(L"ssVs.cso");
 	const auto ssPsBytes = DxDevice::LoadByteCode(L"ssPs.cso");
 	const auto texVsBytes = DxDevice::LoadByteCode(L"vsTex.cso");
 	const auto texPsBytes = DxDevice::LoadByteCode(L"psTex.cso");
 	const auto paramSpaceVsBytes = DxDevice::LoadByteCode(L"paramSpaceVS.cso");
 	const auto paramSpacePsBytes = DxDevice::LoadByteCode(L"paramSpacePS.cso");
+	const auto torusGSBytes = DxDevice::LoadByteCode(L"torusGS.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
 	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
@@ -25,7 +27,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto patchGregDsBytes = DxDevice::LoadByteCode(L"patchGregDS.cso");
 	const auto patchGregHsBytes = DxDevice::LoadByteCode(L"patchGregHS.cso");
 
-
+	m_paramSpaceVS = m_device.CreateVertexShader(paramVsBytes);
 	m_texVS = m_device.CreateVertexShader(texVsBytes);
 	m_texPS = m_device.CreatePixelShader(texPsBytes);
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
@@ -36,17 +38,21 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_paramSpacePS = m_device.CreatePixelShader(paramSpacePsBytes);
 	m_bezierGeometryShader = m_device.CreateGeometryShader(bezierGsBytes);
 	m_patchGeometryShader = m_device.CreateGeometryShader(patchGsBytes);
+	m_torusGeometryShader = m_device.CreateGeometryShader(torusGSBytes);
 
 	m_patchC2DomainShader = m_device.CreateDomainShader(patchC2DsBytes);
 	m_patchDomainShader = m_device.CreateDomainShader(patchDsBytes);
 	m_patchGregDomainShader = m_device.CreateDomainShader(patchGregDsBytes);
+	
 
 	m_patchHullShader = m_device.CreateHullShader(patchHsBytes);
 	m_patchGregHullShader = m_device.CreateHullShader(patchGregHsBytes);
 
 	auto elements = VertexPositionColor::GetInputLayoutElements();
-	m_layout = m_device.CreateInputLayout(elements, vsBytes);
+	auto paramElements = VertexParameterColor::GetInputLayoutElements();
 
+	m_layout = m_device.CreateInputLayout(elements, vsBytes);
+	m_parameterLayout = m_device.CreateInputLayout(paramElements, paramVsBytes);
 	m_cbCamPos = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbFogBuffer = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbM = m_device.CreateConstantBuffer<XMFLOAT4X4>();
