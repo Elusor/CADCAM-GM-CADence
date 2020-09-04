@@ -2,12 +2,12 @@
 
 cbuffer transformations : register(b0)
 {
-	matrix VP; // view projection matrix
+    matrix M; // model matrix
 }
 
 cbuffer transformations : register(b1)
 {
-	matrix M; // model matrix
+	matrix VP; // view projection matrix
 }
 
 cbuffer TorusData : register(b2)
@@ -30,7 +30,7 @@ float4 GetTorusPosition(float2 params)
 	return float4(x, y, z, 1.f);
 }
 
-[instance(20)]
+[instance(1)]
 [maxvertexcount(10)]
 void main(
 	line VSOutParams input[2] : SV_POSITION,
@@ -39,15 +39,16 @@ void main(
 	)
 {	
 	
+    // TO MAKE TORUS MORE SMOOTH INCREASE SUBSTEPS ( <= 5) AND INSTANCES (<= 32)
 	matrix MVP = mul(VP, M); // tranposed order
-	int currentGSIntances = 20;
-	int subSteps = 5;
+	int currentGSIntances = 1;
+	int subSteps = 2;
 	
 	float step = 1.0f / (float) (currentGSIntances);
 	float subStep = step / (float) subSteps;		
 	
-	float4 begPos = GetTorusPosition(input[0].params);
-	float4 endPos = GetTorusPosition(input[1].params);
+    float2 paramBeg = input[0].params;
+    float2 paramEnd = input[1].params;	
 	
 	float instanceBegParams = step * (float) InstanceID;	
 	
@@ -56,8 +57,8 @@ void main(
 		float substepBeg = instanceBegParams + (float) i * subStep;
 		float substepEnd = instanceBegParams + (float) (i + 1) * subStep;		
 	
-		float4 begPosL = lerp(begPos, endPos, substepBeg);
-		float4 endPosL = lerp(begPos, endPos, substepEnd);
+        float4 begPosL = GetTorusPosition(lerp(paramBeg, paramEnd, substepBeg));
+        float4 endPosL = GetTorusPosition(lerp(paramBeg, paramEnd, substepEnd));
 		float4 begCol = lerp(input[0].col, input[1].col, substepBeg);
 		float4 endCol = lerp(input[0].col, input[1].col, substepEnd);
 					

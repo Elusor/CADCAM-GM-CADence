@@ -11,6 +11,16 @@
 #include "InputLayoutManager.h"
 using namespace DirectX;
 
+
+struct ShaderPreset
+{
+	ID3D11VertexShader* vertexShader;
+	ID3D11PixelShader* pixelShader;
+	ID3D11DomainShader* domainShader;
+	ID3D11HullShader* hullShader;
+	ID3D11GeometryShader* geometryShader;
+};
+
 // Used to pass render data to objects so they can be drawn independently
 // TODO: rework this class 
 class RenderState
@@ -54,6 +64,7 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_cbVP;
 	mini::dx_ptr<ID3D11Buffer> m_cbM;
 	mini::dx_ptr<ID3D11Buffer> m_cbGSData;
+	mini::dx_ptr<ID3D11Buffer> m_cbTorusData;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData1;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
@@ -63,6 +74,9 @@ public:
 	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
 	
 	ID3D11InputLayout* GetLayout(std::type_index vertexDataTypeIndex);
+
+	ShaderPreset GetCurrentShaderPreset();
+	void SetShaderPreset(ShaderPreset preset);
 
 	template <class T>
 	void RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode);

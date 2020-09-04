@@ -115,9 +115,62 @@ void Torus::UpdateObject()
 
 void Torus::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	RenderMesh(renderState, m_meshDesc);
+//	RenderMesh(renderState, m_meshDesc);
+	RenderTorus(renderState);
 	if(m_displayTangents)
 		RenderMesh(renderState, m_debugDesc);
+}
+
+void Torus::RenderTorus(std::unique_ptr<RenderState>& renderState)
+{
+	auto context = renderState->m_device.context().get();
+
+	auto desc = m_meshDesc;
+	context->IASetPrimitiveTopology(desc.m_primitiveTopology);
+	auto inputLayout = renderState->GetLayout(desc.GetVertexDataTypeIdx());
+	renderState->m_device.context()->IASetInputLayout(inputLayout);
+
+	auto prevPreset = renderState->GetCurrentShaderPreset();
+	ShaderPreset preset;
+	preset.vertexShader = renderState->m_paramVS.get();
+	preset.pixelShader = renderState->m_pixelShader.get();
+	preset.geometryShader = renderState->m_torusGeometryShader.get();
+	preset.hullShader = nullptr;
+	preset.domainShader = nullptr;
+	renderState->SetShaderPreset(preset);
+
+	//Set constant buffer
+	XMMATRIX m = m_transform.GetModelMatrix();
+	XMMATRIX VP = renderState->m_camera->GetViewProjectionMatrix();
+	XMFLOAT4 torusData = { 10.f, 3.f, 0.0f, 0.0f };
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), VP);
+	auto Torusbuffer = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbTorusData.get(), torusData);
+
+	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
+	ID3D11Buffer* cbs2[] = { VPbuffer}; //, VPbuffer
+	ID3D11Buffer* cbsTorus[] = { Torusbuffer }; //, VPbuffer
+
+	context->GSSetConstantBuffers(0, 1, cbs1);
+	context->GSSetConstantBuffers(1, 1, cbs2);
+	context->GSSetConstantBuffers(2, 1, cbsTorus);
+
+	// Update Vertex and index buffers
+	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(desc.vertices));
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(desc.indices));
+	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
+
+	//Update strides and offets based on the vertex class
+	UINT strides[] = { sizeof(VertexParameterColor) };
+	UINT offsets[] = { 0 };
+
+	context->IASetVertexBuffers(0, 1, vbs, strides, offsets);
+
+	// Watch out for meshes that cannot be covered by ushort
+	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	context->DrawIndexed(desc.indices.size(), 0, 0);
+
+	renderState->SetShaderPreset(prevPreset);
 }
 
 ParameterPair Torus::GetMaxParameterValues()

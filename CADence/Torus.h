@@ -14,6 +14,7 @@ public:
 	MeshDescription<VertexPositionColor> m_debugDesc;
 	
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
+	void RenderTorus(std::unique_ptr<RenderState>& renderState);
 
 	// Inherited via IParametricSurface
 	virtual ParameterPair GetMaxParameterValues() override;

@@ -27,7 +27,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto patchGregDsBytes = DxDevice::LoadByteCode(L"patchGregDS.cso");
 	const auto patchGregHsBytes = DxDevice::LoadByteCode(L"patchGregHS.cso");
 
-	m_paramSpaceVS = m_device.CreateVertexShader(paramVsBytes);
+	m_paramVS = m_device.CreateVertexShader(paramVsBytes);
 	m_texVS = m_device.CreateVertexShader(texVsBytes);
 	m_texPS = m_device.CreatePixelShader(texPsBytes);
 	m_vertexShader = m_device.CreateVertexShader(vsBytes);
@@ -56,6 +56,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_cbM = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_cbVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_cbGSData = m_device.CreateConstantBuffer<XMFLOAT4>();
+	m_cbTorusData = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbPatchData = m_device.CreateConstantBuffer<XMMATRIX>();
 	m_cbPatchData1 = m_device.CreateConstantBuffer<XMMATRIX>();
 	m_cbPatchData2 = m_device.CreateConstantBuffer<XMMATRIX>();
@@ -65,4 +66,47 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 ID3D11InputLayout* RenderState::GetLayout(std::type_index vertexDataTypeIndex)
 {
 	return m_layoutManager.GetLayout(vertexDataTypeIndex);
+}
+
+ShaderPreset RenderState::GetCurrentShaderPreset()
+{
+	auto context = m_device.context().get();
+
+	ShaderPreset preset;
+	ID3D11VertexShader* vertexShader;
+	ID3D11PixelShader* pixelShader;
+	ID3D11DomainShader* domainShader;
+	ID3D11HullShader* hullShader;
+	ID3D11GeometryShader* geometryShader;
+
+	UINT count = 0;
+	context->VSGetShader(&vertexShader, nullptr, &count);
+	context->PSGetShader(&pixelShader, nullptr, &count);
+	context->HSGetShader(&hullShader, nullptr, &count);
+	context->DSGetShader(&domainShader, nullptr, &count);
+	context->GSGetShader(&geometryShader, nullptr, &count);
+
+	preset.vertexShader	= vertexShader;
+	preset.pixelShader = pixelShader;
+	preset.domainShader	= domainShader;
+	preset.hullShader = hullShader;
+	preset.geometryShader = geometryShader;
+
+	return preset;
+}
+
+void RenderState::SetShaderPreset(ShaderPreset preset)
+{
+	auto context = m_device.context().get();
+	ID3D11VertexShader* vertexShader = preset.vertexShader;
+	ID3D11PixelShader* pixelShader = preset.pixelShader;
+	ID3D11DomainShader* domainShader = preset.domainShader;
+	ID3D11HullShader* hullShader = preset.hullShader;
+	ID3D11GeometryShader* geometryShader = preset.geometryShader;
+
+	context->VSSetShader(vertexShader, nullptr, 0);
+	context->PSSetShader(pixelShader, nullptr, 0);
+	context->HSSetShader(hullShader, nullptr, 0);
+	context->DSSetShader(domainShader, nullptr, 0);
+	context->GSSetShader(geometryShader, nullptr, 0);
 }

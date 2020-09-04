@@ -9,13 +9,13 @@ void GetTorusVerticesLineList(Torus* torus)
 	float r = torus->m_tubeR;
 
 	Parametrization2DArguments* surfaceParams = &(torus->m_surParams);
-	MeshDescription<VertexPositionColor> * surfaceDescription = &(torus->m_meshDesc);
+	MeshDescription<VertexParameterColor> * surfaceDescription = &(torus->m_meshDesc);
 
 	surfaceDescription->vertices.clear();
 	surfaceDescription->indices.clear();
 	// Get the points from torus parametrization
-	float maxRotMainRadius = 2.0f * M_PI;
-	float maxRotSmallRadius = 2.0f * M_PI;
+	float maxRotMainRadius = 2 * XM_PI;
+	float maxRotSmallRadius = 2 * XM_PI;
 
 	float densityX = (float)surfaceParams->densityX;
 	float densityY = (float)surfaceParams->densityY;
@@ -25,7 +25,7 @@ void GetTorusVerticesLineList(Torus* torus)
 
 	torus->m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
-	std::vector<VertexPositionColor> vertices;
+	std::vector<VertexParameterColor> vertices;
 	
 	float colorFrac = 0.85f;
 
@@ -37,10 +37,11 @@ void GetTorusVerticesLineList(Torus* torus)
 			colorFrac = (float)x / (float)densityX;
 			float curX = bigRotStep * x;
 			float curY = smallRotStep * y;
-			VertexPositionColor v11 = CalculateTorusVertex(R, r, curX, curY, colorFrac);
-			v11.color = surfaceDescription->m_defaultColor;
-			surfaceDescription->vertices.push_back(v11);
-
+			VertexParameterColor v = {
+				{curX, curY},
+				surfaceDescription->m_defaultColor
+			};
+			surfaceDescription->vertices.push_back(v);
 			//Add indices representing edges
 			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, y, densityY));
 			surfaceDescription->indices.push_back(CalculateIndexForVertex((x + 1) % (int)densityX, y, densityY));
