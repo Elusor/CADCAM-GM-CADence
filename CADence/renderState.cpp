@@ -47,12 +47,10 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 
 	m_patchHullShader = m_device.CreateHullShader(patchHsBytes);
 	m_patchGregHullShader = m_device.CreateHullShader(patchGregHsBytes);
+	
+	RegisterLayout<VertexPositionColor>(VertexPositionColor::GetInputLayoutElements(), vsBytes);
+	RegisterLayout<VertexParameterColor>(VertexParameterColor::GetInputLayoutElements(), paramVsBytes);
 
-	auto elements = VertexPositionColor::GetInputLayoutElements();
-	auto paramElements = VertexParameterColor::GetInputLayoutElements();
-
-	m_layout = m_device.CreateInputLayout(elements, vsBytes);
-	m_parameterLayout = m_device.CreateInputLayout(paramElements, paramVsBytes);
 	m_cbCamPos = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbFogBuffer = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbM = m_device.CreateConstantBuffer<XMFLOAT4X4>();

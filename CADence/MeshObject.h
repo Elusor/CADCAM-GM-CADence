@@ -14,13 +14,14 @@ struct MeshDescription
 	DirectX::XMFLOAT3 m_adjustableColor = m_defaultColor;
 };
 
+template <class T>
 struct MeshObject : Object
 {
 	virtual ~MeshObject() = default;
-	MeshDescription m_meshDesc;
+	MeshDescription<T> m_meshDesc;
 
 	void SetIsSelected(bool isSelected) override;
-	virtual void RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescription desc);
+	virtual void RenderMesh(std::unique_ptr<RenderState>& renderState, MeshDescription<T> desc);
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	bool CreateParamsGui() override;
 };

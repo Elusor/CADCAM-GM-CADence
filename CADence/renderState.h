@@ -1,10 +1,14 @@
 #pragma once
 #include <DirectXMath.h>
+#include <unordered_map>
+#include <typeindex>
+#include <stdexcept>
+
 #include "dxDevice.h"
 #include "camera.h"
 #include "window.h"
 #include "vertexStructures.h"
-
+#include "InputLayoutManager.h"
 using namespace DirectX;
 
 // Used to pass render data to objects so they can be drawn independently
@@ -12,11 +16,9 @@ using namespace DirectX;
 class RenderState
 {
 public:
-	RenderState(mini::Window& window);
-	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
-
-	std::shared_ptr<Camera> m_camera;
+	InputLayoutManager m_layoutManager;
 	DxDevice m_device;
+	std::shared_ptr<Camera> m_camera;
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;
 	mini::dx_ptr<ID3D11DepthStencilView> m_depthBuffer;
 	mini::dx_ptr<ID3D11Buffer> m_vertexBuffer;
@@ -44,9 +46,7 @@ public:
 	mini::dx_ptr<ID3D11DomainShader> m_patchDomainShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchC2DomainShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchGregDomainShader;
-	mini::dx_ptr<ID3D11InputLayout> m_layout;		
-	mini::dx_ptr<ID3D11InputLayout> m_parameterLayout;
-
+	
 	DirectX::XMFLOAT4X4 m_modelMat, m_viewMat, m_projMat;
 
 	mini::dx_ptr<ID3D11Buffer> m_cbCamPos;
@@ -59,11 +59,31 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchDivisions;
 
+	RenderState(mini::Window& window);
+	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
+
+	template <class T>
+	ID3D11InputLayout* GetLayout();
+	template <class T>
+	void RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode);
+
 	template <typename T>
 	ID3D11Buffer* SetConstantBuffer(ID3D11Buffer* buffer, T writeData);
 	template <typename T>
 	ID3D11Buffer* SetConstantBuffer(ID3D11Buffer* buffer, T* writeData, int count);
 };
+
+template<class T>
+inline ID3D11InputLayout* RenderState::GetLayout()
+{
+	return m_layoutManager.GetLayout<T>();
+}
+
+template<class T>
+inline void RenderState::RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode)
+{
+	m_layoutManager.RegisterLayout<T>(inputLayoutElements, vsCode, m_device);
+}
 
 template<typename T>
 ID3D11Buffer* RenderState::SetConstantBuffer(ID3D11Buffer* buffer, T writeData)
@@ -87,6 +107,9 @@ inline ID3D11Buffer* RenderState::SetConstantBuffer(ID3D11Buffer* buffer, T* wri
 	ID3D11Buffer* cbs = buffer;
 	return cbs;
 }
+
+
+
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX* writeData, int count);
 template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR* writeData, int count);
 
