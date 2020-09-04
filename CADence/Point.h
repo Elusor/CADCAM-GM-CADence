@@ -1,7 +1,7 @@
 #pragma once
 #include "MeshObject.h"
 
-struct Point : public MeshObject
+struct Point : public MeshObject<VertexPositionColor>
 {
 public:
 	Point(float m_size = 0.3f);

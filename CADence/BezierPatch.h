@@ -35,7 +35,7 @@ enum RowPlace {
 	Fourth
 };
 
-class BezierPatch : public MeshObject, public IParametricSurface {
+class BezierPatch : public MeshObject<VertexPositionColor>, public IParametricSurface {
 public:
 	// Create a patch and allocates all points on the scene
 	BezierPatch();
@@ -78,8 +78,8 @@ protected:
 	int m_vSize = 4;
 
 	bool m_displayPolygon;
-	MeshDescription m_PolygonDesc;
-	MeshDescription m_UDesc, m_VDesc;
+	MeshDescription<VertexPositionColor> m_PolygonDesc;
+	MeshDescription<VertexPositionColor> m_UDesc, m_VDesc;
 
 	/*void SetPoints(BoundaryDirection direction, std::vector<std::weak_ptr<Node>> points);
 	void SetPoints(RowPlace row, std::vector<std::weak_ptr<Node>> points);*/

@@ -36,7 +36,7 @@ private:
 	
 	// Data concerning the De Boor polygon
 	bool m_renderDeBoorPolygon;
-	MeshDescription m_deBoorPolyDesc;
+	MeshDescription<VertexPositionColor> m_deBoorPolyDesc;
 
 	void RecalculateIfModified();
 	void GetInterpolationSplineBernsteinPoints(std::vector<std::weak_ptr<Node>> interpolationKnots);

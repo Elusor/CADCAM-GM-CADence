@@ -577,12 +577,12 @@ bool CurveVisualizer::InitializeTextures(ID3D11Device* device, int width, int he
 	return true;
 }
 
-MeshDescription CurveVisualizer::PrepareCurveDrawingData(std::vector<DirectX::XMFLOAT3> bezierPositions)
+MeshDescription<VertexPositionColor> CurveVisualizer::PrepareCurveDrawingData(std::vector<DirectX::XMFLOAT3> bezierPositions)
 {	
 	auto lastVertexDuplicationCount = 0;
 	DirectX::XMFLOAT3 curveColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	MeshDescription desc;
+	MeshDescription<VertexPositionColor> desc;
 
 	std::vector<VertexPositionColor> vertices;
 	std::vector<unsigned short> indices;

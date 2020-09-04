@@ -61,9 +61,9 @@ public:
 
 	RenderState(mini::Window& window);
 	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
+	
+	ID3D11InputLayout* GetLayout(std::type_index vertexDataTypeIndex);
 
-	template <class T>
-	ID3D11InputLayout* GetLayout();
 	template <class T>
 	void RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode);
 
@@ -72,12 +72,6 @@ public:
 	template <typename T>
 	ID3D11Buffer* SetConstantBuffer(ID3D11Buffer* buffer, T* writeData, int count);
 };
-
-template<class T>
-inline ID3D11InputLayout* RenderState::GetLayout()
-{
-	return m_layoutManager.GetLayout<T>();
-}
 
 template<class T>
 inline void RenderState::RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode)

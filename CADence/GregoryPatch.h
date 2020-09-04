@@ -25,7 +25,7 @@ struct PatchIntersectionDescription
 //				     3  4
 // In this situation .1 - B is consideres left res and B -.2 is considered right res
 
-class GregoryPatch : public MeshObject
+class GregoryPatch : public MeshObject<VertexPositionColor>
 {
 public:
 	GregoryPatch();
@@ -47,8 +47,8 @@ public:
 protected:
 	int m_uSize = 4;
 	int m_vSize = 4;
-	MeshDescription m_UDesc, m_VDesc;
-	MeshDescription m_vectors;
+	MeshDescription<VertexPositionColor> m_UDesc, m_VDesc;
+	MeshDescription<VertexPositionColor> m_vectors;
 	bool m_renderVectors = false;
 
 	std::vector<DirectX::XMFLOAT3> m_patch1Positions;

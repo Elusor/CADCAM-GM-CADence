@@ -375,6 +375,9 @@
     <ClInclude Include="ParamUtils.h">
       <Filter>Header Files\CadSpecific\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="InputLayoutManager.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -570,6 +573,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IParametricSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayoutManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

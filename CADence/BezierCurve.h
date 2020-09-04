@@ -4,7 +4,7 @@
 class Node; 
 class Scene;
 
-struct BezierCurve : MeshObject
+struct BezierCurve : public MeshObject<VertexPositionColor>
 {
 public:
 	BezierCurve();
@@ -39,7 +39,7 @@ protected:
 	bool m_renderPolygon;
 	int m_adaptiveRenderingSamples;
 	int m_lastVertexDuplicationCount;
-	MeshDescription m_PolygonDesc;
+	MeshDescription<VertexPositionColor> m_PolygonDesc;
 	
 	virtual bool RemoveExpiredChildren();
 	virtual void CalculateAdaptiveRendering(std::vector<std::weak_ptr<Node>> points, std::unique_ptr<RenderState>& renderState);

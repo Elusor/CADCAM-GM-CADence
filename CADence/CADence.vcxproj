@@ -180,6 +180,7 @@
     <ClInclude Include="IncorrectFileExtensionException.h" />
     <ClInclude Include="IncorrectFileFormatException.h" />
     <ClInclude Include="IncorrectObjectArgumentException.h" />
+    <ClInclude Include="InputLayoutManager.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="IntersectionCurve.h" />
     <ClInclude Include="IntersectionFinder.h" />
@@ -266,6 +267,7 @@
     <ClCompile Include="imgui_impl_dx11.cpp" />
     <ClCompile Include="imgui_impl_win32.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="InputLayoutManager.cpp" />
     <ClCompile Include="InterpolationBezierCurveC2.cpp" />
     <ClCompile Include="IntersectionCurve.cpp" />
     <ClCompile Include="IntersectionFinder.cpp" />

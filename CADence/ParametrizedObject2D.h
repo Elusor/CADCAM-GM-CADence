@@ -12,8 +12,9 @@ struct Parametrization2DArguments
 	int maxDensityY;
 };
 
-struct ParametrizedObject2D : MeshObject
+class ParametrizedObject2D : public MeshObject<VertexPositionColor>
 {
+public:
 	Parametrization2DArguments m_surParams;
 	bool CreateParamsGui() override;
 };

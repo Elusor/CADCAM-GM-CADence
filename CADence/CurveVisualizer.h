@@ -44,7 +44,7 @@ private:
 		float r, float g, float b, float alpha, float depth = 1.0f);
 	std::vector<DirectX::XMFLOAT3> GetInterpolationCurvePoints(std::vector<DirectX::XMFLOAT2> parameters);
 	bool InitializeTextures(ID3D11Device* device, int width, int height);
-	MeshDescription PrepareCurveDrawingData(std::vector<DirectX::XMFLOAT3> bezierPositions);
+	MeshDescription<VertexPositionColor> PrepareCurveDrawingData(std::vector<DirectX::XMFLOAT3> bezierPositions);
 	void RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList);
 
 	// DEBUG 

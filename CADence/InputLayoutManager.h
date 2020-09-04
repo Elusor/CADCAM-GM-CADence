@@ -9,8 +9,7 @@
 class InputLayoutManager
 {
 public:
-	template <class T>
-	ID3D11InputLayout* GetLayout();
+	ID3D11InputLayout* GetLayout(std::type_index VertexDataTypeIndex);
 
 	template <class T>
 	void RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode, const DxDevice& device);
@@ -18,24 +17,6 @@ public:
 private:
 	std::unordered_map<std::type_index, mini::dx_ptr<ID3D11InputLayout>> m_layouts;
 };
-
-template<class T>
-inline ID3D11InputLayout* InputLayoutManager::GetLayout()
-{
-	ID3D11InputLayout* correspondingLayout = nullptr;
-	std::type_index key = std::type_index(typeid(T));
-	try
-	{
-		auto layout = m_layouts.at(key).get();
-		correspondingLayout = layout;
-	}
-	catch (const std::out_of_range & oorEx)
-	{
-		assert("Corresponding layout not registered" && false);
-	}
-
-	return correspondingLayout;
-}
 
 template<class T>
 inline void InputLayoutManager::RegisterLayout(std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutElements, const std::vector<BYTE> vsCode, const DxDevice& device)

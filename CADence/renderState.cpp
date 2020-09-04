@@ -61,3 +61,8 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_cbPatchData2 = m_device.CreateConstantBuffer<XMMATRIX>();
 	m_cbPatchDivisions = m_device.CreateConstantBuffer<XMFLOAT4>();
 }
+
+ID3D11InputLayout* RenderState::GetLayout(std::type_index vertexDataTypeIndex)
+{
+	return m_layoutManager.GetLayout(vertexDataTypeIndex);
+}

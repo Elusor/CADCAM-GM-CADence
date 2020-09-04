@@ -7,7 +7,7 @@ enum BezierBasis
 	BSpline
 };
 
-struct BezierCurveC2 : BezierCurve
+struct BezierCurveC2 : public BezierCurve
 {
 public:
 	BezierCurveC2();
@@ -34,7 +34,7 @@ private:
 	BezierBasis m_basis;
 	// Data concerning the De Boor polygon
 	bool m_renderDeBoorPolygon;
-	MeshDescription m_deBoorPolyDesc;
+	MeshDescription<VertexPositionColor> m_deBoorPolyDesc;
 
 	// Holds nodes displayed in the group node
 	std::vector<std::weak_ptr<Node>> m_curBasisControlPoints;

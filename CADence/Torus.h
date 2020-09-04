@@ -11,7 +11,7 @@ public:
 	bool CreateParamsGui() override;
 	void UpdateObject() override;
 
-	MeshDescription m_debugDesc;
+	MeshDescription<VertexPositionColor> m_debugDesc;
 	
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 

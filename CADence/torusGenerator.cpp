@@ -9,7 +9,7 @@ void GetTorusVerticesLineList(Torus* torus)
 	float r = torus->m_tubeR;
 
 	Parametrization2DArguments* surfaceParams = &(torus->m_surParams);
-	MeshDescription* surfaceDescription = &(torus->m_meshDesc);
+	MeshDescription<VertexPositionColor> * surfaceDescription = &(torus->m_meshDesc);
 
 	surfaceDescription->vertices.clear();
 	surfaceDescription->indices.clear();

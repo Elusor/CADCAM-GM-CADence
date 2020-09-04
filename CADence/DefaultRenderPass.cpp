@@ -78,7 +78,7 @@ void DefaultRenderPass::Render(std::unique_ptr<RenderState>& renderState, Scene*
 	renderState->m_device.context()->VSSetShader(renderState->m_vertexShader.get(), nullptr, 0);
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
 
-	renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
+	renderState->m_device.context()->IASetInputLayout(renderState->GetLayout(std::type_index(typeid(VertexPositionColor))));
 
 	// Render Actual scene
 	scene->RenderScene(renderState);

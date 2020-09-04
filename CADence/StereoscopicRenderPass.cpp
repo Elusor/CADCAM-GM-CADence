@@ -84,8 +84,7 @@ void StereoscopicRenderPass::Execute(std::unique_ptr<RenderState>& renderState, 
 	renderState->m_device.context()->OMSetBlendState(m_blendState.get(), facs, 0xffffffff);
 	renderState->m_device.context()->VSSetShader(renderState->m_vertexShader.get(), nullptr, 0);
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
-	renderState->m_device.context()->IASetInputLayout(renderState->m_layout.get());
-
+	renderState->m_device.context()->IASetInputLayout(renderState->GetLayout(std::type_index(typeid(VertexPositionColor))));
 	//Update Cam buffer
 	XMFLOAT4 camPos = renderState->m_camera->GetCameraPosition();
 	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbCamPos.get(), camPos);
