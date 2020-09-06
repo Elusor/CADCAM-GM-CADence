@@ -48,6 +48,7 @@ public:
 	mini::dx_ptr<ID3D11VertexShader> m_paramSpaceVS;
 	mini::dx_ptr<ID3D11PixelShader> m_paramSpacePS;
 
+	mini::dx_ptr<ID3D11GeometryShader> m_patchParamGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_torusGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
@@ -69,7 +70,7 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData1;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchDivisions;
-
+	mini::dx_ptr<ID3D11Buffer> m_cbPatchPoints;
 	RenderState(mini::Window& window);
 	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
 	
@@ -117,9 +118,9 @@ inline ID3D11Buffer* RenderState::SetConstantBuffer(ID3D11Buffer* buffer, T* wri
 }
 
 
-
-template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX* writeData, int count);
-template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR* writeData, int count);
-
-template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX writeData);
-template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR writeData);
+//template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR* writeData, int count);
+//template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX* writeData, int count);
+//template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR* writeData, int count);
+//
+//template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMMATRIX>(ID3D11Buffer* buffer, DirectX::XMMATRIX writeData);
+//template ID3D11Buffer* RenderState::SetConstantBuffer<DirectX::XMVECTOR>(ID3D11Buffer* buffer, DirectX::XMVECTOR writeData);

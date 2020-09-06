@@ -46,6 +46,12 @@ public:
 
 	mini::dx_ptr<ID3D11Buffer> CreateConstantBuffer(size_t size) const;
 
+	template<class T> mini::dx_ptr<ID3D11Buffer> CreateConstantBuffer(unsigned int instances)
+	{
+		auto desc = BufferDescription::ConstantBufferDescription(sizeof(T) * instances);
+		return CreateBuffer(nullptr, desc);
+	}
+
 	template<class T> mini::dx_ptr<ID3D11Buffer> CreateConstantBuffer()
 	{
 		auto desc = BufferDescription::ConstantBufferDescription(sizeof(T));
