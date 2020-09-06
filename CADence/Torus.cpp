@@ -41,7 +41,7 @@ void Torus::UpdateObject()
 	
 	if (m_intersectionData.intersectionCurve.expired() == false)
 	{	
-		auto space = GetTrimmedMesh(m_surParams.densityX, m_surParams.densityY);
+		auto space = GetTrimmedMesh(m_surParams.densityX+1, m_surParams.densityY+1);
 		auto curColor = m_meshDesc.vertices[0].color;
 		m_meshDesc.vertices.clear();
 		for (auto params : space.vertices)

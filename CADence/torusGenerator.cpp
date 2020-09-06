@@ -29,32 +29,38 @@ void GetTorusVerticesLineList(Torus* torus)
 	
 	float colorFrac = 0.85f;
 
+	for (int u = 0; u <= densityX; u++)
+	{
+		for (int v = 0; v <= densityY; v++)
+		{
+			float uParam = (float)u / densityX;
+			float vParam = (float)v / densityY;
+
+			VertexParameterColor vertex = {
+				{uParam, vParam},
+				surfaceDescription->m_defaultColor
+			};
+			surfaceDescription->vertices.push_back(vertex);
+		}
+	}
+
 	for (int x = 0; x < densityX; x++)
 	{
 		for (int y = 0; y < densityY; y++)
-		{
-			//Add vertices 
-			colorFrac = (float)x / (float)densityX;
-			float curX = bigRotStep * x;
-			float curY = smallRotStep * y;
-			VertexParameterColor v = {
-				{curX, curY},
-				surfaceDescription->m_defaultColor
-			};
-			surfaceDescription->vertices.push_back(v);
+		{			
 			//Add indices representing edges
 			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, y, densityY));
-			surfaceDescription->indices.push_back(CalculateIndexForVertex((x + 1) % (int)densityX, y, densityY));
+			surfaceDescription->indices.push_back(CalculateIndexForVertex(x + 1, y, densityY));
 
 			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, y, densityY));
-			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, (y + 1) % (int)densityY, densityY));
+			surfaceDescription->indices.push_back(CalculateIndexForVertex(x, (y + 1), densityY));
 		}
 	}
 }
 
-unsigned int CalculateIndexForVertex(int x, int y, int innerLoopMaxVal)
+unsigned int CalculateIndexForVertex(int x, int y, int maxUcount)
 {
-	return x * innerLoopMaxVal + y;
+	return x * (maxUcount+1) + y;
 }
 
 VertexPositionColor CalculateTorusVertex(float bigR, float smallR, float bigRRot, float smallRRot, float colorFrac)
