@@ -6,6 +6,7 @@
 #include "ParamUtils.h"
 
 class ObjectFactory;
+enum IntersectedSurface;
 
 struct IntersectionPointSearchData
 {
@@ -13,9 +14,8 @@ struct IntersectionPointSearchData
 
 	bool found = false;
 	ParameterQuad params;
-	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 pos = { 0.f, 0.f, 0.f };
 };
-
 
 class IntersectionFinder
 {

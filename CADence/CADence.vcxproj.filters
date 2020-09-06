@@ -142,6 +142,9 @@
     <Filter Include="Shaders\Parametric">
       <UniqueIdentifier>{05ff1f11-7e4e-48f5-95df-7fa49cd1f035}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CadSpecific\Intersections">
+      <UniqueIdentifier>{d1b40484-8aec-4d19-9ac9-8acbc6d0d699}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -357,14 +360,8 @@
     <ClInclude Include="IParametricSurface.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="IntersectionFinder.h">
-      <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
     <ClInclude Include="GeometricFunctions.h">
       <Filter>Header Files\CadSpecific</Filter>
-    </ClInclude>
-    <ClInclude Include="IntersectionCurve.h">
-      <Filter>Header Files\CadSpecific\Objects\Concrete</Filter>
     </ClInclude>
     <ClInclude Include="CurveVisualizer.h">
       <Filter>Header Files\CadSpecific</Filter>
@@ -377,6 +374,18 @@
     </ClInclude>
     <ClInclude Include="InputLayoutManager.h">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionCurve.h">
+      <Filter>Header Files\CadSpecific\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionData.h">
+      <Filter>Header Files\CadSpecific\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectedSurface.h">
+      <Filter>Header Files\CadSpecific\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionFinder.h">
+      <Filter>Header Files\CadSpecific\Intersections</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

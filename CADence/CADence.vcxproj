@@ -182,7 +182,9 @@
     <ClInclude Include="IncorrectObjectArgumentException.h" />
     <ClInclude Include="InputLayoutManager.h" />
     <ClInclude Include="InterpolationBezierCurveC2.h" />
+    <ClInclude Include="IntersectedSurface.h" />
     <ClInclude Include="IntersectionCurve.h" />
+    <ClInclude Include="IntersectionData.h" />
     <ClInclude Include="IntersectionFinder.h" />
     <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IParametricSurface.h" />

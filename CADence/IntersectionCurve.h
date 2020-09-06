@@ -4,12 +4,7 @@
 #include "IParametricSurface.h"
 #include "MeshObject.h"
 #include "BezierCurve.h"
-
-enum IntersectedSurface
-{
-	SurfaceQ,
-	SurfaceP
-};
+#include "IntersectedSurface.h"
 
 class IntersectionCurve: public BezierCurve
 {
@@ -20,6 +15,7 @@ public:
 		IParametricSurface* pSurface, std::vector<DirectX::XMFLOAT2> pParameters);
 
 	// Intersection Curve Unique methods
+	IParametricSurface* GetParametricSurface(IntersectedSurface surface);
 	std::vector<DirectX::XMFLOAT2> GetParameterList(IntersectedSurface surface);
 	std::vector<DirectX::XMFLOAT2> GetNormalizedParameterList(IntersectedSurface surface);
 	std::vector<DirectX::XMFLOAT3> GetPointPositions();

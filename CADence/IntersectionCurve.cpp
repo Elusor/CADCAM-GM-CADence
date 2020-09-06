@@ -27,6 +27,12 @@ void IntersectionCurve::Initialize(IParametricSurface* qSurface, std::vector<Dir
 	SetModified(true);
 }
 
+IParametricSurface* IntersectionCurve::GetParametricSurface(IntersectedSurface surface)
+{
+	auto* res = surface == SurfaceP ? m_pSurface : m_qSurface;
+	return res;
+}
+
 std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetParameterList(IntersectedSurface surface)
 {
 	std::vector<DirectX::XMFLOAT2> paramsList;
