@@ -20,6 +20,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto paramSpacePsBytes = DxDevice::LoadByteCode(L"paramSpacePS.cso");
 	const auto torusGSBytes = DxDevice::LoadByteCode(L"torusGS.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
+	const auto patchParamGSBytes = DxDevice::LoadByteCode(L"patchParamGS.cso");
 	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
 	const auto patchC2DsBytes = DxDevice::LoadByteCode(L"patchC2DS.cso");
@@ -37,6 +38,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_paramSpaceVS = m_device.CreateVertexShader(paramSpaceVsBytes);
 	m_paramSpacePS = m_device.CreatePixelShader(paramSpacePsBytes);
 	m_bezierGeometryShader = m_device.CreateGeometryShader(bezierGsBytes);
+	m_patchParamGeometryShader = m_device.CreateGeometryShader(patchParamGSBytes);
 	m_patchGeometryShader = m_device.CreateGeometryShader(patchGsBytes);
 	m_torusGeometryShader = m_device.CreateGeometryShader(torusGSBytes);
 
@@ -57,9 +59,12 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_cbVP = m_device.CreateConstantBuffer<XMFLOAT4X4>();
 	m_cbGSData = m_device.CreateConstantBuffer<XMFLOAT4>();
 	m_cbTorusData = m_device.CreateConstantBuffer<XMFLOAT4>();
-	m_cbPatchData = m_device.CreateConstantBuffer<XMMATRIX>();
-	m_cbPatchData1 = m_device.CreateConstantBuffer<XMMATRIX>();
-	m_cbPatchData2 = m_device.CreateConstantBuffer<XMMATRIX>();
+
+	m_cbPatchData = m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	m_cbPatchData1 = m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	m_cbPatchData2 = m_device.CreateConstantBuffer<XMFLOAT4X4>();
+	m_cbPatchData3 = m_device.CreateConstantBuffer<XMFLOAT4X4>();
+
 	m_cbPatchDivisions = m_device.CreateConstantBuffer<XMFLOAT4>();
 }
 

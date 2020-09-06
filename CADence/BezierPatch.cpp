@@ -63,57 +63,64 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 
 void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 {
-
 	auto context = renderState->m_device.context().get();
-	XMMATRIX x = GetCoordinates(Coord::Xpos);
-	XMMATRIX y = GetCoordinates(Coord::Ypos);
-	XMMATRIX z = GetCoordinates(Coord::Zpos);
 
-	XMMATRIX mat = m_transform.GetModelMatrix();
-	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), mat);
+	auto desc = m_meshDesc;
+	context->IASetPrimitiveTopology(desc.m_primitiveTopology);
+	auto inputLayout = renderState->GetLayout(desc.GetVertexDataTypeIdx());
+	renderState->m_device.context()->IASetInputLayout(inputLayout);
+
+	auto prevPreset = renderState->GetCurrentShaderPreset();
+	ShaderPreset preset;
+	preset.vertexShader = renderState->m_paramVS.get();
+	preset.pixelShader = renderState->m_pixelShader.get();
+	preset.geometryShader = renderState->m_patchParamGeometryShader.get();
+	preset.hullShader = nullptr;
+	preset.domainShader = nullptr;
+	renderState->SetShaderPreset(preset);
+
+	//Set constant buffer
+	XMMATRIX m = m_transform.GetModelMatrix();
+	XMMATRIX VP = renderState->m_camera->GetViewProjectionMatrix();
+	auto positions = GetPatchPointPositions();
+	XMFLOAT4X4 row1 = GetRowAsFloat4x4(positions.row0);	
+	XMFLOAT4X4 row2 = GetRowAsFloat4x4(positions.row1);
+	XMFLOAT4X4 row3 = GetRowAsFloat4x4(positions.row2); 
+	XMFLOAT4X4 row4 = GetRowAsFloat4x4(positions.row3);
+	XMFLOAT4X4 rows[4] = { row1, row2, row3, row4 };
+
+	auto CPbuffer1 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData.get(), row1);
+	auto CPbuffer2 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData1.get(), row2);
+	auto CPbuffer3 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData2.get(), row3);
+	auto CPbuffer4 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData3.get(), row4);
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), VP);
+
 	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
-	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);
+	ID3D11Buffer* cbs2[] = { VPbuffer }; //, VPbuffer
+	ID3D11Buffer* cbsControlPoint[] = { CPbuffer1,CPbuffer2,CPbuffer3,CPbuffer4 }; //, VPbuffer
 
-	D3D11_RASTERIZER_DESC desc;
-	desc.FillMode = D3D11_FILL_WIREFRAME;
-	desc.CullMode = D3D11_CULL_NONE;
-	desc.AntialiasedLineEnable = 0;
-	desc.DepthBias = 0;
-	desc.DepthBiasClamp = 0;
-	desc.DepthClipEnable = true;
-	desc.FrontCounterClockwise = 0;
-	desc.MultisampleEnable = 0;
-	desc.ScissorEnable = 0;
-	desc.SlopeScaledDepthBias = 0;
+	context->GSSetConstantBuffers(0, 1, cbs1);
+	context->GSSetConstantBuffers(1, 1, cbs2);
+	context->GSSetConstantBuffers(2, 4, cbsControlPoint);
 
-	ID3D11RasterizerState* rs;
+	// Update Vertex and index buffers
+	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(desc.vertices));
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(desc.indices));
+	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
 
-	renderState->m_device.m_device->CreateRasterizerState(&desc, &rs);
-	context->RSSetState(rs);
+	//Update strides and offets based on the vertex class
+	UINT strides[] = { sizeof(VertexParameterColor) };
+	UINT offsets[] = { 0 };
 
-	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);
-	ID3D11Buffer* hsCb[] = { renderState->m_cbPatchDivisions.get() };
-	context->HSSetConstantBuffers(0, 1, hsCb);
+	context->IASetVertexBuffers(0, 1, vbs, strides, offsets);
 
-	context->DSSetShader(renderState->m_patchDomainShader.get(), 0, 0);
-	context->DSSetConstantBuffers(1, 1, cbs1);
-	ID3D11Buffer* cbs2[] = { renderState->m_cbVP.get() };
-	context->DSSetConstantBuffers(0, 1, cbs2);
+	// Watch out for meshes that cannot be covered by ushort
+	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	context->DrawIndexed(desc.indices.size(), 0, 0);
 
-	XMFLOAT4 divs = XMFLOAT4(m_uSize, 0.0f, 0.f, 0.f);
-	auto divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
-	ID3D11Buffer* divCBuffer[] = { divBuff }; //, VPbuffer
-	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);	
-	MeshObject::RenderMesh(renderState, m_UDesc);
+	renderState->SetShaderPreset(prevPreset);
 
-	//divs = XMFLOAT4(m_vSize, 0.0f, 0.f, 0.f);
-	//divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
-	//ID3D11Buffer* divCBuffer2[] = { divBuff }; //, VPbuffer
-	//renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer2);
-	//MeshObject::RenderMesh(renderState, m_VDesc);
-	context->HSSetShader(nullptr, 0, 0);
-	context->DSSetShader(nullptr, 0, 0);
-	context->RSSetState(nullptr);
 }
 
 void BezierPatch::RenderPolygon(std::unique_ptr<RenderState>& renderState)
@@ -165,133 +172,84 @@ bool BezierPatch::CreateParamsGui()
 
 void BezierPatch::UpdateObject()
 {	
-	m_VDesc.m_primitiveTopology = m_UDesc.m_primitiveTopology = m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
-
+	m_VDesc.m_primitiveTopology = m_UDesc.m_primitiveTopology =  D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
+	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 	// pass an (u,v) line to the shader
 	// one of those is the constant parameter - the other one is 
 	std::vector<VertexPositionColor> vertices;
 	std::vector<unsigned short> indicesU;
 	std::vector<unsigned short> indicesV; 
 
-	for (int i = 0; i < 16; i++) {
-		vertices.push_back(VertexPositionColor{
-			GetReferences().GetAllRef()[i].m_refered.lock()->m_object->GetPosition(),
-			m_meshDesc.m_defaultColor });
-		indicesU.push_back(i);
+// TODO : move to a namespace and make it static
+#pragma region mesh generation
+
+	int densityX = m_uSize;
+	int densityY = m_vSize;
+	m_meshDesc.vertices.clear();
+	m_meshDesc.indices.clear();
+	for (int u = 0; u <= densityX; u++)
+	{
+		for (int v = 0; v <= densityY; v++)
+		{
+			float uParam = (float)u / densityX;
+			float vParam = (float)v / densityY;
+
+			VertexParameterColor vertex = {
+				{uParam, vParam},
+				m_meshDesc.m_defaultColor
+			};
+			m_meshDesc.vertices.push_back(vertex);
+		}
 	}
 
-	/*for (int i = 0; i < 4; i++) {
-		indicesV.push_back(i );
-		indicesV.push_back(i + 4);
-		indicesV.push_back(i + 8);
-		indicesV.push_back(i + 12);
-	}*/
-	
+	auto calcIdx = [densityY](int u, int v) {return u * (densityY +1) + v; };
+	for (int x = 0; x < densityX; x++)
+	{
+		for (int y = 0; y < densityY; y++)
+		{
+			//Add indices representing edges
+			m_meshDesc.indices.push_back(calcIdx(x,y));
+			m_meshDesc.indices.push_back(calcIdx(x+1, y));
+
+			m_meshDesc.indices.push_back(calcIdx(x, y));
+			m_meshDesc.indices.push_back(calcIdx(x, y+1));
+		}
+	}
+
+	for (int x = 0; x < densityX; x++)
+	{
+		m_meshDesc.indices.push_back(calcIdx(x, densityY));
+		m_meshDesc.indices.push_back(calcIdx(x + 1, densityY));
+	}
+
+	for (int y = 0; y < densityY; y++)
+	{
+		m_meshDesc.indices.push_back(calcIdx(densityX, y));
+		m_meshDesc.indices.push_back(calcIdx(densityX, y+1));
+	}
+#pragma endregion
+
+	if (m_intersectionData.intersectionCurve.expired() == false)
+	{
+		auto space = GetTrimmedMesh(densityX + 1, densityY + 1);
+		auto curColor = m_meshDesc.vertices[0].color;
+		m_meshDesc.vertices.clear();
+		for (auto params : space.vertices)
+		{
+			m_meshDesc.vertices.push_back({
+				params,
+				curColor });
+
+		}
+		m_meshDesc.indices = space.indices;
+	}
+
+
 	m_PolygonDesc.vertices.clear();
 	m_PolygonDesc.indices.clear();
 	m_PolygonDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
-	int i = 0;
-	float length = 0.09f;
-
-	for (int u = 0; u <= 10; u++)
-	{
-		for (int v = 0; v <= 10; v++)
-		{
-			float uParam = (float)u / 10.f;
-			float vParam = (float)v / 10.f;
-
-			auto pt = this->GetPoint(uParam, vParam);
-			auto derPt = this->GetTangent(uParam, vParam, TangentDir::AlongU);
-			auto finalPt = pt + length * derPt;
-
-			m_PolygonDesc.vertices.push_back(
-				{
-					{pt},
-					{1.0f,uParam,uParam}
-				});
-			m_PolygonDesc.vertices.push_back(
-				{
-					{finalPt},
-					{1.0f,uParam,uParam}
-				});
-			m_PolygonDesc.indices.push_back(i);
-			m_PolygonDesc.indices.push_back(i+1);			
-			i += 2;
-
-			auto derPt2 = this->GetTangent(uParam, vParam, TangentDir::AlongV);
-			auto finalPt2 = pt + length * derPt2;
-
-			m_PolygonDesc.vertices.push_back(
-				{
-					{pt},
-					{vParam,1.0f,vParam}
-				});
-			m_PolygonDesc.vertices.push_back(
-				{
-					{finalPt2},
-					{vParam,1.0f,vParam}
-				});
-			m_PolygonDesc.indices.push_back(i);
-			m_PolygonDesc.indices.push_back(i + 1);
-
-			i += 2;
-
-			/*auto derPt3 = this->GetSecondDarivativeMixed(uParam, vParam);
-			auto finalPt3 = pt + length * derPt3;
-			m_PolygonDesc.vertices.push_back(
-				{
-					{pt},
-					{0.0f,0.0f,1.0f}
-				});
-			m_PolygonDesc.vertices.push_back(
-				{
-					{finalPt3},
-					{0.0f,0.0f,1.0f}
-				});
-			m_PolygonDesc.indices.push_back(i);
-			m_PolygonDesc.indices.push_back(i + 1);
-
-			i += 2;
-
-			auto derPt2U = this->GetSecondDarivativeSameDirection(uParam, vParam, TangentDir::AlongU);
-			auto finalPt2U = pt + length * derPt2U;
-			m_PolygonDesc.vertices.push_back(
-				{
-					{pt},
-					{0.5f,0.0f,0.0f}
-				});
-			m_PolygonDesc.vertices.push_back(
-				{
-					{finalPt2U},
-					{0.5f,0.0f,0.0f}
-				});
-			m_PolygonDesc.indices.push_back(i);
-			m_PolygonDesc.indices.push_back(i + 1);
-
-			i += 2;
-
-			auto derPt2V = this->GetSecondDarivativeSameDirection(uParam, vParam, TangentDir::AlongV);
-			auto finalPt2V = pt + length * derPt2V;
-			m_PolygonDesc.vertices.push_back(
-				{
-					{pt},
-					{0.0f,0.5f,0.0f}
-				});
-			m_PolygonDesc.vertices.push_back(
-				{
-					{finalPt2V},
-					{0.0f,0.5f,0.0f}
-				});
-			m_PolygonDesc.indices.push_back(i);
-			m_PolygonDesc.indices.push_back(i + 1);
-
-			i += 2;*/
-		}
-	}
-
-
-	/*for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 16; i++) {
 		m_PolygonDesc.vertices.push_back(VertexPositionColor{
 			GetReferences().GetAllRef()[i].m_refered.lock()->m_object->GetPosition(),
 			m_meshDesc.m_defaultColor });
@@ -313,10 +271,8 @@ void BezierPatch::UpdateObject()
 		m_PolygonDesc.indices.push_back(i + 8);
 		m_PolygonDesc.indices.push_back(i + 8);
 		m_PolygonDesc.indices.push_back(i + 12);
-	}*/
+	}
 
-
-	m_meshDesc.vertices = vertices;
 	m_UDesc.vertices = m_VDesc.vertices = vertices;
 	m_UDesc.indices = indicesU;
 	m_VDesc.indices = indicesV;
@@ -528,6 +484,33 @@ XMMATRIX BezierPatch::GetCoordinates(Coord coord)
 	};
 	
 	return XMLoadFloat4x4(&mat);
+}
+
+XMFLOAT4X4 BezierPatch::GetRowAsFloat4x4(BezierCoeffs row)
+{
+	XMFLOAT4X4 rowMat;
+
+	rowMat._11 = row.b0.x;
+	rowMat._21 = row.b0.y;
+	rowMat._31 = row.b0.z;
+	rowMat._41 = 1.0f;
+
+	rowMat._12 = row.b1.x;
+	rowMat._22 = row.b1.y;
+	rowMat._32 = row.b1.z;
+	rowMat._42 = 1.0f;
+
+	rowMat._13 = row.b2.x;
+	rowMat._23 = row.b2.y;
+	rowMat._33 = row.b2.z;
+	rowMat._43 = 1.0f;
+
+	rowMat._14 = row.b3.x;
+	rowMat._24 = row.b3.y;
+	rowMat._34 = row.b3.z;
+	rowMat._44 = 1.0f;
+
+	return rowMat;
 }
 
 void BezierPatch::RenderObjectSpecificContextOptions(Scene& scene)

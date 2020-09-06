@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include "IParametricSurface.h"
 #include "bezierCalculator.h"
+#include "IntersectableSurface.h"
 using namespace DirectX;
 
 struct BezierPatchPointPos
@@ -35,7 +36,7 @@ enum RowPlace {
 	Fourth
 };
 
-class BezierPatch : public MeshObject<VertexPositionColor>, public IParametricSurface {
+class BezierPatch : public MeshObject<VertexParameterColor>, public IParametricSurface, public IntersectableSurface {
 public:
 	// Create a patch and allocates all points on the scene
 	BezierPatch();
@@ -86,7 +87,7 @@ protected:
 	virtual void RenderPolygon(std::unique_ptr<RenderState>& renderState);
 	virtual void RenderPatch(std::unique_ptr<RenderState>& renderState);
 	XMMATRIX GetCoordinates(Coord coord);	
-
+	XMFLOAT4X4 GetRowAsFloat4x4(BezierCoeffs row);
 	void RenderObjectSpecificContextOptions(Scene& scene) override;
 
 };

@@ -69,8 +69,10 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData1;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
+	mini::dx_ptr<ID3D11Buffer> m_cbPatchData3;
+
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchDivisions;
-	mini::dx_ptr<ID3D11Buffer> m_cbPatchPoints;
+	
 	RenderState(mini::Window& window);
 	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
 	
