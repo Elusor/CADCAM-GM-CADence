@@ -7,6 +7,7 @@
 #include "Node.h"
 #include "GeometricFunctions.h"
 #include "Scene.h"
+#include "ObjectReferences.h"
 
 DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step);
 
@@ -516,21 +517,16 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 	return found;
 }
 
-void IntersectionFinder::FindInterSection(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2)
+void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNode)
 {
-	IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(obj1.lock()->m_object.get());
-	IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(obj2.lock()->m_object.get());
-	return FindInterSection(surf1, surf2);
-}
-
-void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2)
-{
+	IParametricSurface* qSurface = dynamic_cast<IParametricSurface*>(qSurfNode.lock()->m_object.get());
+	IParametricSurface* pSurface = dynamic_cast<IParametricSurface*>(pSurfNode.lock()->m_object.get());
 
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
 	ParameterPair pParams, qParams;
 
-	ParameterPair paramsQ = surface1->GetMaxParameterValues();
-	ParameterPair paramsP = surface2->GetMaxParameterValues();
+	ParameterPair paramsQ = qSurface->GetMaxParameterValues();
+	ParameterPair paramsP = pSurface->GetMaxParameterValues();
 
 	float stepCount = m_samples;
 	float maxU, maxV, maxS, maxT;
@@ -559,7 +555,7 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 					pParams.u = s;
 					pParams.v = t;
 
-					auto firstPt = SimpleGradient(surface1, qParams, surface2, pParams);
+					auto firstPt = SimpleGradient(qSurface, qParams, pSurface, pParams);
 					// Calculate first point
 					if (firstPt.found)
 					{				
@@ -570,8 +566,8 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 
 						// Validity check
 						float eps = 0.01f;
-						auto ptQ = surface1->GetPoint(foundParamsQ);
-						auto ptP = surface2->GetPoint(foundParamsP);
+						auto ptQ = qSurface->GetPoint(foundParamsQ);
+						auto ptP = pSurface->GetPoint(foundParamsP);
 						auto dist = Dot(ptQ - ptP, ptQ - ptP);
 						assert(dist <= eps * eps);
 
@@ -580,11 +576,11 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 
 						// Calculate other points				
 						FindOtherIntersectionPoints(
-							surface1, foundParamsQ, qParamsList,
-							surface2, foundParamsP, pParamsList, foundPosition);
+							qSurface, foundParamsQ, qParamsList,
+							pSurface, foundParamsP, pParamsList, foundPosition);
 
 						// Create the interpolation curve
-						auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+						auto curve = m_factory->CreateIntersectionCurve(qSurfNode, qParamsList, pSurfNode, pParamsList);
 						m_scene->AttachObject(curve);
 						return;
 					}
@@ -594,18 +590,14 @@ void IntersectionFinder::FindInterSection(IParametricSurface* surface1, IParamet
 	}		
 }
 
-void IntersectionFinder::FindIntersectionWithCursor(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2, DirectX::XMFLOAT3 cursorPos)
-{
-	IParametricSurface* surf1 = dynamic_cast<IParametricSurface*>(obj1.lock()->m_object.get());
-	IParametricSurface* surf2 = dynamic_cast<IParametricSurface*>(obj2.lock()->m_object.get());
-	return FindIntersectionWithCursor(surf1, surf2, cursorPos);
-}
-
 void IntersectionFinder::FindIntersectionWithCursor(
-	IParametricSurface* surface1, 
-	IParametricSurface* surface2,
+	ObjectRef qNode, 
+	ObjectRef pNode,
 	DirectX::XMFLOAT3 cursorPos)
 {
+	IParametricSurface* qSurface = dynamic_cast<IParametricSurface*>(qNode.lock()->m_object.get());
+	IParametricSurface* pSurface = dynamic_cast<IParametricSurface*>(pNode.lock()->m_object.get());
+
 	ParameterPair pParams, qParams;
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;	
 
@@ -615,11 +607,11 @@ void IntersectionFinder::FindIntersectionWithCursor(
 
 	float steps = m_cursorSamples;
 
-	auto qBoundaries = surface1->GetMaxParameterValues();
+	auto qBoundaries = qSurface->GetMaxParameterValues();
 	float qMaxU = qBoundaries.u;
 	float qMaxV = qBoundaries.v;
 
-	auto pBoundaries = surface2->GetMaxParameterValues();
+	auto pBoundaries = pSurface->GetMaxParameterValues();
 	float pMaxU = pBoundaries.u;
 	float pMaxV = pBoundaries.v;
 
@@ -631,7 +623,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			qParams.u = u;
 			qParams.v = v;
 
-			auto nearestPt = SimpleGradientForCursor(surface1, qParams, cursorPos);
+			auto nearestPt = SimpleGradientForCursor(qSurface, qParams, cursorPos);
 			if (nearestPt.found) {
 				DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
 				// If found point is closer than the previous point, update it
@@ -657,7 +649,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			pParams.u = u;
 			pParams.v = v;
 
-			auto nearestPt = SimpleGradientForCursor(surface2, pParams, cursorPos);
+			auto nearestPt = SimpleGradientForCursor(pSurface, pParams, cursorPos);
 			if (nearestPt.found)
 			{
 				DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
@@ -677,7 +669,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 	if (found1 && found2)
 	{
 		// Calculate first point
-		auto foundPt = SimpleGradient(surface1, endParams1, surface2, endParams2);
+		auto foundPt = SimpleGradient(qSurface, endParams1, pSurface, endParams2);
 		if (foundPt.found)
 		{
 			XMFLOAT3 foundPtPos = foundPt.pos;
@@ -689,11 +681,11 @@ void IntersectionFinder::FindIntersectionWithCursor(
 
 			// Calculate other points				
 			FindOtherIntersectionPoints(
-				surface1, autoPtParamsQ, qParamsList,
-				surface2, autoPtParamsP, pParamsList, foundPtPos);
+				qSurface, autoPtParamsQ, qParamsList,
+				pSurface, autoPtParamsP, pParamsList, foundPtPos);
 
 			// Create the interpolation curve
-			auto curve = m_factory->CreateIntersectionCurve(surface1, qParamsList, surface2, pParamsList);
+			auto curve = m_factory->CreateIntersectionCurve(qNode, qParamsList, pNode, pParamsList);
 			m_scene->AttachObject(curve);
 			return;
 		}

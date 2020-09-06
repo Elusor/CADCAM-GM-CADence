@@ -4,6 +4,7 @@
 #include "IParametricSurface.h"
 #include "Node.h"
 #include "ParamUtils.h"
+#include "ObjectReferences.h"
 
 class ObjectFactory;
 enum IntersectedSurface;
@@ -23,10 +24,8 @@ public:
 	IntersectionFinder(Scene* scene);
 	bool AreObjectIntersectable(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2);
 	// TODO change return type to intersection curve
-	void FindInterSection(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2);
-	void FindInterSection(IParametricSurface* surface1, IParametricSurface* surface2);
-	void FindIntersectionWithCursor(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2, DirectX::XMFLOAT3 cursorPos);
-	void FindIntersectionWithCursor(IParametricSurface* surface1, IParametricSurface* surface2, DirectX::XMFLOAT3 cursorPos);
+	void FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNode);
+	void FindIntersectionWithCursor(ObjectRef obj1, ObjectRef obj2, DirectX::XMFLOAT3 cursorPos);
 	void CreateParamsGui();
 private:
 

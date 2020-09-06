@@ -9,7 +9,6 @@ CurveVisualizer::CurveVisualizer(GuiManager* manager, RenderState* renderState, 
 	// Initialize the textures (1 for each surface)
 	auto result = InitializeTextures(renderState->m_device.m_device.get(), width, height);
 	
-	dbg_trimmer = new Trimmer();
 
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0;
@@ -68,9 +67,16 @@ CurveVisualizer::~CurveVisualizer()
 	return;
 }
 
-void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve)
+void CurveVisualizer::VisualizeCurve(ObjectRef curveRef)
 {
-	
+	IntersectionCurve* curve = nullptr;
+	if (auto curveNode = curveRef.lock())
+	{
+		curve = dynamic_cast<IntersectionCurve*>(curveNode->m_object.get());
+	}
+
+	assert(curve != nullptr && "Invalid intersection curve object");
+
 	// Get Parameter lists from the curve
 	auto params1 = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceP);
 	auto params2 = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceQ);
@@ -80,7 +86,7 @@ void CurveVisualizer::VisualizeCurve(IntersectionCurve* curve)
 	RenderImage(m_renderTargetView2, m_shaderResourceView2, params2);*/
 	RenderTrimmedSpace(m_renderTargetView1, m_shaderResourceView1, params1);
 	RenderTrimmedSpace(m_renderTargetView2, m_shaderResourceView2, params2);
-
+	
 	// Call a new Imgui Window with texture section
 	guiManager->EnableDoubleTextureWindow("", "Intersection curve in parameter space", m_shaderResourceView1, m_width, m_height, m_shaderResourceView2, m_width, m_height);
 }
@@ -464,7 +470,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	//	k += 2;
 	//}
 
-	TrimmedSpace trim = dbg_trimmer->Trim(paramList, 11, 11);
+	TrimmedSpace trim = Trimmer::Trim(paramList, 11, 11);
 
 	// Add the trimmed space vertices
 	for (auto pair : trim.vertices)

@@ -8,7 +8,7 @@ IntersectionCurve::IntersectionCurve()
 {
 }
 
-void IntersectionCurve::Initialize(IParametricSurface* qSurface, std::vector<DirectX::XMFLOAT2> qParameters, IParametricSurface* pSurface, std::vector<DirectX::XMFLOAT2> pParameters)
+void IntersectionCurve::Initialize(ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters)
 {
 	m_qSurface = qSurface;
 	m_pSurface = pSurface;
@@ -27,9 +27,9 @@ void IntersectionCurve::Initialize(IParametricSurface* qSurface, std::vector<Dir
 	SetModified(true);
 }
 
-IParametricSurface* IntersectionCurve::GetParametricSurface(IntersectedSurface surface)
+ObjectRef IntersectionCurve::GetParametricSurface(IntersectedSurface surface)
 {
-	auto* res = surface == SurfaceP ? m_pSurface : m_qSurface;
+	auto res = surface == SurfaceP ? m_pSurface : m_qSurface;
 	return res;
 }
 
@@ -51,15 +51,21 @@ std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetParameterList(IntersectedSu
 
 std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetNormalizedParameterList(IntersectedSurface surface)
 {
-	auto surf = surface == IntersectedSurface::SurfaceQ ? m_qSurface : m_pSurface;
+	auto surfRef = surface == IntersectedSurface::SurfaceQ ? m_qSurface : m_pSurface;
 	auto originalParams = surface == IntersectedSurface::SurfaceQ ? m_qParameters : m_pParameters;
 
 	std::vector<DirectX::XMFLOAT2> normalizedParams;
-	for (auto paramPair : originalParams)
+
+	if (auto surfNode = surfRef.lock())
 	{
-		auto normalized = surf->GetNormalizedParams(paramPair.x, paramPair.y);
-		normalizedParams.push_back({ normalized.u, normalized.v});
+		auto surf = dynamic_cast<IParametricSurface*>(surfNode->m_object.get());
+		for (auto paramPair : originalParams)
+		{
+			auto normalized = surf->GetNormalizedParams(paramPair.x, paramPair.y);
+			normalizedParams.push_back({ normalized.u, normalized.v });
+		}
 	}
+	
 
 	return normalizedParams;
 }
@@ -68,14 +74,24 @@ std::vector<DirectX::XMFLOAT3> IntersectionCurve::GetPointPositions()
 {
 	std::vector<DirectX::XMFLOAT3> positions;
 	std::vector<DirectX::XMFLOAT3> positions2;
-	for (auto params : m_pParameters)
-	{
-		positions.push_back(m_pSurface->GetPoint(params.x, params.y));
-	}
 
-	for (auto params : m_qParameters)
-	{
-		positions2.push_back(m_qSurface->GetPoint(params.x, params.y));
+	if(m_qSurface.expired() == false && m_pSurface.expired() == false)
+	{ 
+		auto qNode = m_qSurface.lock();
+		auto pNode = m_pSurface.lock();
+
+		auto qSurf = dynamic_cast<IParametricSurface*>(qNode->m_object.get());
+		auto pSurf = dynamic_cast<IParametricSurface*>(pNode->m_object.get());
+
+		for (auto params : m_qParameters)
+		{
+			positions.push_back(qSurf->GetPoint(params.x, params.y));
+		}
+
+		for (auto params : m_pParameters)
+		{
+			positions2.push_back(pSurf->GetPoint(params.x, params.y));
+		}
 	}
 
 	return positions;
@@ -83,10 +99,19 @@ std::vector<DirectX::XMFLOAT3> IntersectionCurve::GetPointPositions()
 
 void IntersectionCurve::RenderObjectSpecificContextOptions(Scene& scene)
 {
-	if (ImGui::Selectable("Visualize in parameter space"))
+	if (!m_qSurface.expired() && !m_pSurface.expired())
 	{
-		scene.m_curveVisualizer->VisualizeCurve(this);
+		if (ImGui::Selectable("Trim"))
+		{
+			TrimAffectedSurfaces();
+		}
+
+		if (ImGui::Selectable("Visualize in parameter space"))
+		{
+			scene.m_curveVisualizer->VisualizeCurve(this->m_nodePtr);
+		}
 	}
+
 
 	if (ImGui::Selectable("Convert to interpolation curve"))
 	{
@@ -444,4 +469,57 @@ void IntersectionCurve::UpdateGSData()
 	m_meshDesc.vertices = vertices;
 	m_meshDesc.indices = indices;
 	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+}
+
+void IntersectionCurve::TrimAffectedSurfaces()
+{
+	auto curveRef = m_nodePtr;
+
+	auto qSurf = GetParametricSurface(IntersectedSurface::SurfaceQ);
+	auto pSurf = GetParametricSurface(IntersectedSurface::SurfaceP);
+
+
+	if (m_qSurface.expired() == false && m_pSurface.expired() == false)
+	{
+		auto qNode = m_qSurface.lock();
+		auto pNode = m_pSurface.lock();
+
+		auto qSurf = dynamic_cast<IParametricSurface*>(qNode->m_object.get());
+		auto pSurf = dynamic_cast<IParametricSurface*>(pNode->m_object.get());
+
+		try {
+			IntersectionData data;
+			data.affectedSurface = IntersectedSurface::SurfaceQ;
+			data.intersectionCurve = curveRef;
+			auto intersectable = dynamic_cast<IntersectableSurface*>(qSurf);
+			if (intersectable != nullptr)
+				intersectable->SetIntersectionData(data);
+
+			auto qObject = dynamic_cast<Object*>(qSurf);
+			if (qObject != nullptr)
+				qObject->SetModified(true);
+		}
+		catch (std::bad_cast bc)
+		{
+			assert(false && "Invalid surface. Could not trim.");
+		}
+
+		try {
+			IntersectionData data;
+			data.affectedSurface = IntersectedSurface::SurfaceP;
+			data.intersectionCurve = curveRef;
+			auto intersectable = dynamic_cast<IntersectableSurface*>(pSurf);
+			if (intersectable != nullptr)
+				intersectable->SetIntersectionData(data);
+
+			auto pObject = dynamic_cast<Object*>(pSurf);
+			if (pObject != nullptr)
+				pObject->SetModified(true);
+		}
+		catch (std::bad_cast bc)
+		{
+			assert(false && "Invalid surface. Could not trim.");
+		}
+		
+	}
 }

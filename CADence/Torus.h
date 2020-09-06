@@ -1,12 +1,15 @@
 #pragma once
 #include "ParametrizedObject2D.h"
 #include "IParametricSurface.h"
-struct Torus : public ParametrizedObject2D, public IParametricSurface
+#include "IntersectionData.h"
+#include "IntersectableSurface.h"
+
+struct Torus : public ParametrizedObject2D, public IParametricSurface, public IntersectableSurface
 {
 public:
+
 	float m_donutR;
 	float m_tubeR;
-	
 
 	bool CreateParamsGui() override;
 	void UpdateObject() override;
@@ -14,7 +17,7 @@ public:
 	MeshDescription<VertexPositionColor> m_debugDesc;
 	
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
-	void RenderTorus(std::unique_ptr<RenderState>& renderState);
+	void RenderTorus(std::unique_ptr<RenderState>& renderState);	
 
 	// Inherited via IParametricSurface
 	virtual ParameterPair GetMaxParameterValues() override;
@@ -28,6 +31,7 @@ public:
 	float GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep) override;
 
 private:
+	
 	bool m_displayTangents = false;
 
 };

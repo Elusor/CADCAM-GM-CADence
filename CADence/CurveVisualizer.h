@@ -9,7 +9,7 @@ class CurveVisualizer
 public:
 	CurveVisualizer(GuiManager* guiManager, RenderState* renderState, int width, int height);
 	~CurveVisualizer();
-	void VisualizeCurve(IntersectionCurve* curve);
+	void VisualizeCurve(ObjectRef curveRef);
 
 	ID3D11ShaderResourceView* GetShaderResourceView(IntersectedSurface affectedSurface);
 	ID3D11RenderTargetView* GetRenderTargetView(IntersectedSurface affectedSurface);
@@ -22,10 +22,7 @@ private:
 			0.f, 0.f, 0.f, 1.f };
 
 	int m_width, m_height;
-
-	// DEBUG
-	Trimmer* dbg_trimmer;
-
+	
 	// DEBUG 
 
 	GuiManager* guiManager;

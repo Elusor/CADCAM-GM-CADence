@@ -15,10 +15,12 @@ cbuffer TorusData : register(b2)
 	float4 torusData;
 }
 
+static const float PI = 3.14159265f;
+
 float4 GetTorusPosition(float2 params)
 {
-	float u = params.x;
-	float v = params.y;
+	float u = params.x * 2.f * PI;
+    float v = params.y * 2.f * PI; 
 	
 	float donutR = torusData.x;
 	float tubeR = torusData.y;

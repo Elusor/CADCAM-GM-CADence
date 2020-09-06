@@ -14,8 +14,8 @@ void GetTorusVerticesLineList(Torus* torus)
 	surfaceDescription->vertices.clear();
 	surfaceDescription->indices.clear();
 	// Get the points from torus parametrization
-	float maxRotMainRadius = 2 * XM_PI;
-	float maxRotSmallRadius = 2 * XM_PI;
+	float maxRotMainRadius = 1.0f;
+	float maxRotSmallRadius = 1.0f;
 
 	float densityX = (float)surfaceParams->densityX;
 	float densityY = (float)surfaceParams->densityY;

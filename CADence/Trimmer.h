@@ -29,26 +29,26 @@ struct TrimmedSpace
 	std::vector<DirectX::XMFLOAT2> vertices;
 };
 
-class Trimmer
+static class Trimmer
 {
 public:
-	void AddCurveToMesh(std::vector<IndexedVertex> curve, std::vector<unsigned short>& indices);
-	void ConnectPointsWithIntersections();
-	void DetermineIntersectedEdges( 
+	static TrimmedSpace Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount);
+private:
+	static SampleInOutStatus GetOppositeStatus(SampleInOutStatus status);
+	static void AddCurveToMesh(std::vector<IndexedVertex> curve, std::vector<unsigned short>& indices);
+	static void ConnectPointsWithIntersections();
+	static void DetermineIntersectedEdges(
 		int curU, int curV, int maxU, int maxV, SampleInOutStatus** samples,
 		std::vector<IndexedVertex> intersectingPoints, std::vector<unsigned short>& indices);
-	void DetermineIntersectedEdgesLastRow(
+	static void DetermineIntersectedEdgesLastRow(
 		int curU, int curV, int maxU, int maxV, SampleInOutStatus** samples,
 		std::vector<IndexedVertex> intersectingPoints, std::vector<unsigned short>& indices);
-	void DetermineIntersectedEdgesLastColumn(
+	static void DetermineIntersectedEdgesLastColumn(
 		int curU, int curV, int maxU, int maxV, SampleInOutStatus** samples,
 		std::vector<IndexedVertex> intersectingPoints, std::vector<unsigned short>& indices);
 
-	DirectX::XMFLOAT2 FindIntersectionwithLine(
-		DirectX::XMFLOAT2 pt, DirectX::XMFLOAT2 nextPt, 
+	static DirectX::XMFLOAT2 FindIntersectionwithLine(
+		DirectX::XMFLOAT2 pt, DirectX::XMFLOAT2 nextPt,
 		float step, bool affectU);
-	std::vector<IndexedVertex> IntersectCurveWithGrid(std::vector<IndexedVertex>& paramCurve, float Ustep, float Vstep);
-	TrimmedSpace Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount);
-private:
-	SampleInOutStatus GetOppositeStatus(SampleInOutStatus status);
+	static std::vector<IndexedVertex> IntersectCurveWithGrid(std::vector<IndexedVertex>& paramCurve, float Ustep, float Vstep);
 };

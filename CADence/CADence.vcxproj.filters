@@ -387,6 +387,9 @@
     <ClInclude Include="IntersectionFinder.h">
       <Filter>Header Files\CadSpecific\Intersections</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectableSurface.h">
+      <Filter>Header Files\CadSpecific\Intersections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -585,6 +588,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InputLayoutManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IntersectableSurface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

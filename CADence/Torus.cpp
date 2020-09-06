@@ -1,6 +1,8 @@
 #include "Torus.h"
 #include "imgui.h"
 #include "torusGenerator.h"
+#include "IntersectionCurve.h"
+#include "Trimmer.h"
 
 bool Torus::CreateParamsGui()
 {
@@ -36,6 +38,22 @@ bool Torus::CreateParamsGui()
 void Torus::UpdateObject()
 {
 	GetTorusVerticesLineList(this);
+	
+	if (m_intersectionData.intersectionCurve.expired() == false)
+	{	
+		auto space = GetTrimmedMesh(m_surParams.densityX, m_surParams.densityY);
+		auto curColor = m_meshDesc.vertices[0].color;
+		m_meshDesc.vertices.clear();
+		for (auto params : space.vertices)
+		{
+			m_meshDesc.vertices.push_back({
+				params,
+				curColor});
+
+		}
+		m_meshDesc.indices = space.indices;
+	}
+
 	m_debugDesc.vertices.clear();
 	m_debugDesc.indices.clear();
 
@@ -142,7 +160,9 @@ void Torus::RenderTorus(std::unique_ptr<RenderState>& renderState)
 	//Set constant buffer
 	XMMATRIX m = m_transform.GetModelMatrix();
 	XMMATRIX VP = renderState->m_camera->GetViewProjectionMatrix();
-	XMFLOAT4 torusData = { 10.f, 3.f, 0.0f, 0.0f };
+	
+	
+	XMFLOAT4 torusData = {m_donutR, m_tubeR , 0.0f, 0.0f };
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
 	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), VP);
 	auto Torusbuffer = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbTorusData.get(), torusData);
