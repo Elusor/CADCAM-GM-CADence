@@ -7,8 +7,7 @@
 
 BezierPatch::BezierPatch()
 {
-	m_displayPolygon = false;
-	std::weak_ptr<Node> empty;
+	m_displayPolygon = false;	
 }
 
 BezierPatch::~BezierPatch()

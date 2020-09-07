@@ -23,55 +23,63 @@ void BezierPatchC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 void BezierPatchC2::RenderPatch(std::unique_ptr<RenderState>& renderState)
 {
 	auto context = renderState->m_device.context().get();
-	XMMATRIX x = GetCoordinates(Coord::Xpos);
-	XMMATRIX y = GetCoordinates(Coord::Ypos);
-	XMMATRIX z = GetCoordinates(Coord::Zpos);
 
-	XMMATRIX mat = m_transform.GetModelMatrix();
-	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), mat);
+	auto desc = m_meshDesc;
+	context->IASetPrimitiveTopology(desc.m_primitiveTopology);
+	auto inputLayout = renderState->GetLayout(desc.GetVertexDataTypeIdx());
+	renderState->m_device.context()->IASetInputLayout(inputLayout);
+
+	auto prevPreset = renderState->GetCurrentShaderPreset();
+	ShaderPreset preset;
+	preset.vertexShader = renderState->m_paramVS.get();
+	preset.pixelShader = renderState->m_pixelShader.get();
+	preset.geometryShader = renderState->m_patchC2ParamGeometryShader.get();
+	preset.hullShader = nullptr;
+	preset.domainShader = nullptr;
+	renderState->SetShaderPreset(preset);
+
+	//Set constant buffer
+	XMMATRIX m = m_transform.GetModelMatrix();
+	XMMATRIX VP = renderState->m_camera->GetViewProjectionMatrix();
+	auto positions = GetPatchPointPositions();
+	XMFLOAT4X4 row1 = GetRowAsFloat4x4(positions.row0);
+	XMFLOAT4X4 row2 = GetRowAsFloat4x4(positions.row1);
+	XMFLOAT4X4 row3 = GetRowAsFloat4x4(positions.row2);
+	XMFLOAT4X4 row4 = GetRowAsFloat4x4(positions.row3);
+	XMFLOAT4X4 rows[4] = { row1, row2, row3, row4 };
+
+	auto CPbuffer1 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData.get(), row1);
+	auto CPbuffer2 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData1.get(), row2);
+	auto CPbuffer3 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData2.get(), row3);
+	auto CPbuffer4 = renderState->SetConstantBuffer<XMFLOAT4X4>(renderState->m_cbPatchData3.get(), row4);
+	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), VP);
+
 	ID3D11Buffer* cbs1[] = { Mbuffer }; //, VPbuffer
-	renderState->m_device.context()->VSSetConstantBuffers(1, 1, cbs1);
+	ID3D11Buffer* cbs2[] = { VPbuffer }; //, VPbuffer
+	ID3D11Buffer* cbsControlPoint[] = { CPbuffer1,CPbuffer2,CPbuffer3,CPbuffer4 }; //, VPbuffer
 
-	D3D11_RASTERIZER_DESC desc;
-	desc.FillMode = D3D11_FILL_WIREFRAME;
-	desc.CullMode = D3D11_CULL_NONE;
-	desc.AntialiasedLineEnable = 0;
-	desc.DepthBias = 0;
-	desc.DepthBiasClamp = 0;
-	desc.DepthClipEnable = true;
-	desc.FrontCounterClockwise = 0;
-	desc.MultisampleEnable = 0;
-	desc.ScissorEnable = 0;
-	desc.SlopeScaledDepthBias = 0;
+	context->GSSetConstantBuffers(0, 1, cbs1);
+	context->GSSetConstantBuffers(1, 1, cbs2);
+	context->GSSetConstantBuffers(2, 4, cbsControlPoint);
 
-	ID3D11RasterizerState* rs;
+	// Update Vertex and index buffers
+	renderState->m_vertexBuffer = (renderState->m_device.CreateVertexBuffer(desc.vertices));
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(desc.indices));
+	ID3D11Buffer* vbs[] = { renderState->m_vertexBuffer.get() };
 
-	renderState->m_device.m_device->CreateRasterizerState(&desc, &rs);
-	context->RSSetState(rs);
+	//Update strides and offets based on the vertex class
+	UINT strides[] = { sizeof(VertexParameterColor) };
+	UINT offsets[] = { 0 };
 
-	context->HSSetShader(renderState->m_patchHullShader.get(), 0, 0);
-	ID3D11Buffer* hsCb[] = { renderState->m_cbPatchDivisions.get() };
-	context->HSSetConstantBuffers(0, 1, hsCb);
+	context->IASetVertexBuffers(0, 1, vbs, strides, offsets);
 
-	context->DSSetShader(renderState->m_patchC2DomainShader.get(), 0, 0);
-	context->DSSetConstantBuffers(1, 1, cbs1);
-	ID3D11Buffer* cbs2[] = { renderState->m_cbVP.get() };
-	context->DSSetConstantBuffers(0, 1, cbs2);
+	// Watch out for meshes that cannot be covered by ushort
+	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	context->DrawIndexed(desc.indices.size(), 0, 0);
 
-	XMFLOAT4 divs = XMFLOAT4(m_uSize, 0.0f, 0.f, 0.f);
-	auto divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
-	ID3D11Buffer* divCBuffer[] = { divBuff }; //, VPbuffer
-	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer);
-	MeshObject::RenderMesh(renderState, m_UDesc);
+	renderState->SetShaderPreset(prevPreset);
 
-	divs = XMFLOAT4(m_vSize, 0.0f, 0.f, 0.f);
-	divBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbPatchDivisions.get(), divs);
-	ID3D11Buffer* divCBuffer2[] = { divBuff }; //, VPbuffer
-	renderState->m_device.context()->HSSetConstantBuffers(0, 1, divCBuffer2);
-	//MeshObject::RenderMesh(renderState, m_VDesc);
-	context->HSSetShader(nullptr, 0, 0);
-	context->DSSetShader(nullptr, 0, 0);
-	context->RSSetState(nullptr);
 }
 
 DirectX::XMFLOAT3 BezierPatchC2::GetPoint(float u, float v)

@@ -21,6 +21,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto torusGSBytes = DxDevice::LoadByteCode(L"torusGS.cso");
 	const auto bezierGsBytes = DxDevice::LoadByteCode(L"bezierGs.cso");
 	const auto patchParamGSBytes = DxDevice::LoadByteCode(L"patchParamGS.cso");
+	const auto patchC2ParamGSBytes = DxDevice::LoadByteCode(L"patchC2ParamGS.cso");
 	const auto patchGsBytes = DxDevice::LoadByteCode(L"patchGS.cso");
 	const auto patchHsBytes = DxDevice::LoadByteCode(L"patchHS.cso");
 	const auto patchC2DsBytes = DxDevice::LoadByteCode(L"patchC2DS.cso");
@@ -39,6 +40,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_paramSpacePS = m_device.CreatePixelShader(paramSpacePsBytes);
 	m_bezierGeometryShader = m_device.CreateGeometryShader(bezierGsBytes);
 	m_patchParamGeometryShader = m_device.CreateGeometryShader(patchParamGSBytes);
+	m_patchC2ParamGeometryShader = m_device.CreateGeometryShader(patchC2ParamGSBytes);
 	m_patchGeometryShader = m_device.CreateGeometryShader(patchGsBytes);
 	m_torusGeometryShader = m_device.CreateGeometryShader(torusGSBytes);
 
