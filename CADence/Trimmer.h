@@ -3,8 +3,8 @@
 #include <vector>
 enum SampleInOutStatus
 {
-	In,
-	Out
+	Out,
+	In
 };
 
 // Assumes that when viewed - the parametric space is 
@@ -32,9 +32,9 @@ struct TrimmedSpace
 static class Trimmer
 {
 public:
-	static TrimmedSpace Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount);
-private:
+	static TrimmedSpace Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount, SampleInOutStatus remainingSide);
 	static SampleInOutStatus GetOppositeStatus(SampleInOutStatus status);
+private:
 	static void AddCurveToMesh(std::vector<IndexedVertex> curve, std::vector<unsigned short>& indices);
 	static void ConnectPointsWithIntersections();
 	static void DetermineIntersectedEdges(

@@ -14,7 +14,7 @@ enum SurfaceWrapDirection
 	None
 };
 
-class BezierSurfaceC0 : public MeshObject<VertexPositionColor>, public IParametricSurface, public IntersectableSurface
+class BezierSurfaceC0 : public MeshObject<VertexPositionColor>, public IParametricSurface, public TrimmableSurface
 {
 public:
 	BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDirection);

@@ -30,6 +30,8 @@ bool Torus::CreateParamsGui()
 
 	m_displayTangents = debugTangents;
 
+	torusChanged |= CreateTrimSwitchGui(GetIdentifier());;
+
 	ImGui::End();
 
 	return torusChanged;

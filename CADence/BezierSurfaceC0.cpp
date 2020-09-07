@@ -240,7 +240,8 @@ bool BezierSurfaceC0::CreateParamsGui()
 		SetDivisions();
 	}
 
-	patchChanged |= divsChanged || divsChanged2;
+	patchChanged |= divsChanged || divsChanged2;	
+	patchChanged |= CreateTrimSwitchGui(GetIdentifier());;
 
 	ImGui::Spacing();
 
@@ -261,11 +262,10 @@ void BezierSurfaceC0::UpdateObject()
 		if (m_intersectionData.intersectionCurve.expired() == false)
 		{
 			auto curve = dynamic_cast<IntersectionCurve*>(m_intersectionData.intersectionCurve.lock()->m_object.get());
-			auto intersectionParams =  curve->GetNormalizedParameterList(m_intersectionData.affectedSurface);
-			auto trimmedSpace = Trimmer::Trim(intersectionParams, (m_divisionsU) * m_patchW +1, m_divisionsV * m_patchH +1);
+			auto intersectionParams =  curve->GetNormalizedParameterList(m_intersectionData.affectedSurface);			
+			auto trimmedSpace = Trimmer::Trim(intersectionParams, (m_divisionsU) * m_patchW +1, m_divisionsV * m_patchH +1, GetCurrentTrimSide());
 			UpdateTrimmedChildrenMeshes(trimmedSpace);
 		}
-
 	}
 }
 

@@ -4,7 +4,7 @@
 #include "IntersectionData.h"
 #include "IntersectableSurface.h"
 
-struct Torus : public ParametrizedObject2D, public IParametricSurface, public IntersectableSurface
+struct Torus : public ParametrizedObject2D, public IParametricSurface, public TrimmableSurface
 {
 public:
 

@@ -11,13 +11,14 @@ BezierPatchC2::~BezierPatchC2()
 
 void BezierPatchC2::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-
-	RenderPatch(renderState);
+	if(m_meshDesc.indices.size() > 0)
+	{
+		RenderPatch(renderState);
+	}
 	if (m_displayPolygon)
 	{
 		RenderPolygon(renderState);
 	}
-
 }
 
 void BezierPatchC2::RenderPatch(std::unique_ptr<RenderState>& renderState)

@@ -491,7 +491,7 @@ void IntersectionCurve::TrimAffectedSurfaces()
 			IntersectionData data;
 			data.affectedSurface = IntersectedSurface::SurfaceQ;
 			data.intersectionCurve = curveRef;
-			auto intersectable = dynamic_cast<IntersectableSurface*>(qSurf);
+			auto intersectable = dynamic_cast<TrimmableSurface*>(qSurf);
 			if (intersectable != nullptr)
 				intersectable->SetIntersectionData(data);
 
@@ -508,7 +508,7 @@ void IntersectionCurve::TrimAffectedSurfaces()
 			IntersectionData data;
 			data.affectedSurface = IntersectedSurface::SurfaceP;
 			data.intersectionCurve = curveRef;
-			auto intersectable = dynamic_cast<IntersectableSurface*>(pSurf);
+			auto intersectable = dynamic_cast<TrimmableSurface*>(pSurf);
 			if (intersectable != nullptr)
 				intersectable->SetIntersectionData(data);
 

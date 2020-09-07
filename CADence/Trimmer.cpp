@@ -42,7 +42,7 @@ void Trimmer::DetermineIntersectedEdges(
 		// Propagate status - no intersections means that no vertex can leave/enter the area
 		samples[curU + 1][curV] = samples[curU][curV];
 		samples[curU][curV + 1] = samples[curU][curV];
-		if (curStatus == SampleInOutStatus::In)
+		if (curStatus == SampleInOutStatus::Out)
 		{
 			// upper left to upper right
 			indices.push_back(index);
@@ -100,7 +100,7 @@ void Trimmer::DetermineIntersectedEdges(
 
 		// based on main sample status take even or odd lines
 		// If the corner is in take the first, third, ... [odd] one next else take the 0th, 2nd, ... [even] ones
-		if (curStatus == In)
+		if (curStatus == Out)
 		{
 			// Add even indices of lines lists to the indices vector
 			for (int i = 0; i < rightLines.size(); i += 2)
@@ -163,7 +163,7 @@ void Trimmer::DetermineIntersectedEdgesLastRow(int curU, int curV, int maxU, int
 	{
 		// Propagate status - no intersections means that no vertex can leave/enter the area
 		samples[curU + 1][curV] = samples[curU][curV];
-		if (curStatus == SampleInOutStatus::In)
+		if (curStatus == SampleInOutStatus::Out)
 		{
 			// upper left to upper right
 			indices.push_back(index);
@@ -204,7 +204,7 @@ void Trimmer::DetermineIntersectedEdgesLastRow(int curU, int curV, int maxU, int
 		}
 
 		// based on main sample status take even or odd lines
-		if (curStatus == In)
+		if (curStatus == Out)
 		{
 			// Add even indices of lines lists to the indices vector
 			for (int i = 0; i < rightLines.size(); i += 2)
@@ -249,7 +249,7 @@ void Trimmer::DetermineIntersectedEdgesLastColumn(int curU, int curV, int maxU, 
 	{
 		// Propagate status - no intersections means that no vertex can leave/enter the area
 		samples[curU][curV + 1] = samples[curU][curV];
-		if (curStatus == SampleInOutStatus::In)
+		if (curStatus == SampleInOutStatus::Out)
 		{
 			// upper left to lower left
 			indices.push_back(index);
@@ -291,7 +291,7 @@ void Trimmer::DetermineIntersectedEdgesLastColumn(int curU, int curV, int maxU, 
 		}
 
 		// based on main sample status take even or odd lines
-		if (curStatus == In)
+		if (curStatus == Out)
 		{
 
 			for (int i = 0; i < downLines.size(); i += 2)
@@ -489,7 +489,7 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 	return addedPoints;
 }
 
-TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount)
+TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineCount, int vLineCount, SampleInOutStatus trimmedSide)
 {
 
 	//paramCurve = { {0.375f, 0.125f}, {0.625f, 0.625f}, {0.375f, 0.875f}, {0.375f, 0.125f} };
@@ -504,7 +504,7 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 	{
 		samples[i] = new SampleInOutStatus[vLineCount];
 	}
-	samples[0][0] = In;
+	samples[0][0] = trimmedSide;
 
 	std::vector<IndexedVertex> indexedCurve;
 	for (int i = 0; i < paramCurve.size(); i++)
@@ -634,12 +634,12 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 
 SampleInOutStatus Trimmer::GetOppositeStatus(SampleInOutStatus status)
 {
-	if (status == SampleInOutStatus::Out)
+	if (status == SampleInOutStatus::In)
 	{
-		return SampleInOutStatus::In;
+		return SampleInOutStatus::Out;
 	}
 	else
 	{
-		return SampleInOutStatus::Out;
+		return SampleInOutStatus::In;
 	}
 }

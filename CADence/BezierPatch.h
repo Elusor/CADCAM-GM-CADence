@@ -36,7 +36,7 @@ enum RowPlace {
 	Fourth
 };
 
-class BezierPatch : public MeshObject<VertexParameterColor>, public IParametricSurface, public IntersectableSurface {
+class BezierPatch : public MeshObject<VertexParameterColor>, public IParametricSurface, public TrimmableSurface {
 public:
 	// Create a patch and allocates all points on the scene
 	BezierPatch();

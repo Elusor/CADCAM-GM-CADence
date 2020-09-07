@@ -53,7 +53,10 @@ void BezierPatch::Initialize(
 
 void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 {
-	RenderPatch(renderState);
+	if (m_meshDesc.indices.size() > 0)
+	{
+		RenderPatch(renderState);
+	}
 	if (m_displayPolygon)
 	{
 		RenderPolygon(renderState);
@@ -164,6 +167,8 @@ bool BezierPatch::CreateParamsGui()
 		m_uSize = 64;
 	
 	m_vSize = m_uSize;
+
+	patchChanged |= CreateTrimSwitchGui(GetIdentifier());;
 
 	ImGui::End();
 	return patchChanged;

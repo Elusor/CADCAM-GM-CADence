@@ -45,6 +45,6 @@ private:
 	void RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList);
 
 	// DEBUG 
-	void RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList);
+	void RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, IntersectionCurve* curve, IntersectedSurface affectedSurf);
 	// DEBUG
 };

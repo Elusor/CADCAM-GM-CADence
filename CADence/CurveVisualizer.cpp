@@ -77,15 +77,11 @@ void CurveVisualizer::VisualizeCurve(ObjectRef curveRef)
 
 	assert(curve != nullptr && "Invalid intersection curve object");
 
-	// Get Parameter lists from the curve
-	auto params1 = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceP);
-	auto params2 = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceQ);
-
 	// Render the image onto the member texture
 	/*RenderImage(m_renderTargetView1, m_shaderResourceView1, params1);
 	RenderImage(m_renderTargetView2, m_shaderResourceView2, params2);*/
-	RenderTrimmedSpace(m_renderTargetView1, m_shaderResourceView1, params1);
-	RenderTrimmedSpace(m_renderTargetView2, m_shaderResourceView2, params2);
+	RenderTrimmedSpace(m_renderTargetView1, m_shaderResourceView1, curve, IntersectedSurface::SurfaceP);
+	RenderTrimmedSpace(m_renderTargetView2, m_shaderResourceView2, curve, IntersectedSurface::SurfaceQ);
 	
 	// Call a new Imgui Window with texture section
 	guiManager->EnableDoubleTextureWindow("", "Intersection curve in parameter space", m_shaderResourceView1, m_width, m_height, m_shaderResourceView2, m_width, m_height);
@@ -414,8 +410,15 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 	m_renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
 }
 
-void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList)
+void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, IntersectionCurve* curve, IntersectedSurface affectedSurf)
 {
+
+	auto surface = curve->GetParametricSurface(affectedSurf);
+	assert(surface.expired() == false);
+	auto trimmableSurf = dynamic_cast<TrimmableSurface*>(surface.lock()->m_object.get());
+	// Get Parameter lists from the curve
+	auto paramList = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceP);
+
 	auto context = m_renderState->m_device.m_context.get();
 	auto device = m_renderState->m_device.m_device.get();
 	UINT originalVPCount = 0;
@@ -441,36 +444,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 
 	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
 
-
-	// Set up grid points
-	//for (float u = 0.1f; u < 1.f; u += 0.1f)
-	//{
-	//	positions.push_back(VertexPositionColor{
-	//		DirectX::XMFLOAT3(u, 0.0f, 0.2f),
-	//		gridColor});
-	//	positions.push_back(VertexPositionColor{
-	//		DirectX::XMFLOAT3(u, 1.0f, 0.2f),
-	//		gridColor });
-
-	//	indices.push_back(k);
-	//	indices.push_back(k+1);
-	//	k += 2;
-	//}
-	//
-	//for (float u = 0.1f; u < 1.f; u += 0.1f)
-	//{
-	//	positions.push_back(VertexPositionColor{
-	//		DirectX::XMFLOAT3(0.0f, u , 0.2f),
-	//		gridColor });
-	//	positions.push_back(VertexPositionColor{
-	//		DirectX::XMFLOAT3(1.0f, u, 0.2f),
-	//		gridColor });
-	//	indices.push_back(k);
-	//	indices.push_back(k + 1);
-	//	k += 2;
-	//}
-
-	TrimmedSpace trim = Trimmer::Trim(paramList, 11, 11);
+	TrimmedSpace trim = Trimmer::Trim(paramList, 11, 11, trimmableSurf->GetCurrentTrimSide());
 
 	// Add the trimmed space vertices
 	for (auto pair : trim.vertices)
