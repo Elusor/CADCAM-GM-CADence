@@ -145,9 +145,11 @@ BezierPatch* BezierSurfaceC0::GetPatchAtParameter(float& u, float& v)
 
 	float patchW;
 	float patchH;
-	float uParam = modff(wrappedParams.u, &patchW);
-	float vParam = modff(wrappedParams.v, &patchH);
+	modff(wrappedParams.u, &patchW);
+	modff(wrappedParams.v, &patchH);
 
+	float uParam = wrappedParams.u - patchW;
+	float vParam = wrappedParams.v - patchH;
 	if (patchW == m_patchW)
 		patchW--;
 	if (patchH == m_patchH)

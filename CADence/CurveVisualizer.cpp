@@ -417,7 +417,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	assert(surface.expired() == false);
 	auto trimmableSurf = dynamic_cast<TrimmableSurface*>(surface.lock()->m_object.get());
 	// Get Parameter lists from the curve
-	auto paramList = curve->GetNormalizedParameterList(IntersectedSurface::SurfaceP);
+	auto paramList = curve->GetNormalizedParameterList(affectedSurf);
 
 	auto context = m_renderState->m_device.m_context.get();
 	auto device = m_renderState->m_device.m_device.get();
