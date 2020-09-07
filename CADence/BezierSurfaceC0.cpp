@@ -4,6 +4,7 @@
 #include "mathUtils.h"
 #include "Scene.h"
 #include "Transform.h"
+#include "MeshObject.h"
 
 BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDir)
 {
@@ -256,6 +257,15 @@ void BezierSurfaceC0::UpdateObject()
 		{
 			patch->UpdateObject();
 		}		
+		
+		if (m_intersectionData.intersectionCurve.expired() == false)
+		{
+			auto curve = dynamic_cast<IntersectionCurve*>(m_intersectionData.intersectionCurve.lock()->m_object.get());
+			auto intersectionParams =  curve->GetNormalizedParameterList(m_intersectionData.affectedSurface);
+			auto trimmedSpace = Trimmer::Trim(intersectionParams, (m_divisionsU) * m_patchW +1, m_divisionsV * m_patchH +1);
+			UpdateTrimmedChildrenMeshes(trimmedSpace);
+		}
+
 	}
 }
 
@@ -544,4 +554,123 @@ void BezierSurfaceC0::RenderObjectSpecificContextOptions(Scene& scene)
 			}
 		}
 	}
+}
+
+void BezierSurfaceC0::UpdateTrimmedChildrenMeshes(TrimmedSpace trimmedMesh)
+{
+	std::vector<VertexParameterColor> vertices;
+	for (auto params : trimmedMesh.vertices)
+	{
+		params.x *= m_patchW;
+		params.y *= m_patchH;
+		vertices.push_back({
+			params,
+			m_meshDesc.m_defaultColor
+			});
+	}
+
+	for (int u = 0; u < m_patchW; u++)
+	{
+		for (int v = 0; v < m_patchH; v++)
+		{
+			auto patchMesh = dynamic_cast<BezierPatch*>(GetPatch(u, v).lock()->m_object.get());
+		 	patchMesh->m_meshDesc.vertices = ScaleVerticesForPatch(vertices,u,v);
+			patchMesh->m_meshDesc.indices = DetermineIndicesForPatch(vertices, trimmedMesh.indices, u, v);;
+		}
+	}	
+}
+
+std::vector<unsigned short> BezierSurfaceC0::DetermineIndicesForPatch(std::vector<VertexParameterColor> vertices, std::vector<unsigned short> indices, int patchW, int patchH)
+{
+	std::vector<unsigned short> res;
+	int patchCountW = m_patchW;
+	int patchCountH = m_patchH;
+	auto VertexInsidePatch = [patchCountW, patchCountH](VertexParameterColor vertex, int patchWIdx, int patchHIdx)
+	{
+		float eps = 0.0000;
+		auto params = vertex.parameters;
+		float scaledU = params.x;
+		float scaledV = params.y;		
+
+		float lowerUBound = (float)patchWIdx;
+		float upperUBound = (float)(patchWIdx + 1);
+
+		float lowerVBound = (float)patchHIdx;
+		float upperVBound = (float)(patchHIdx + 1);
+
+		bool uInBounds = scaledU >= (lowerUBound-eps) && scaledU <= (upperUBound + eps);
+		bool vInBounds = scaledV >= (lowerVBound-eps) && scaledV <= (upperVBound + eps);
+
+		return uInBounds && vInBounds;
+	};
+
+	auto ValidIndexes = [VertexInsidePatch, vertices, patchW, patchH, patchCountW, patchCountH]
+	(unsigned short idxBeg, unsigned short idxEnd) 
+	{
+		auto vertex1 = vertices[idxBeg];
+		auto vertex2 = vertices[idxEnd];
+
+		bool v1InsideBounds = VertexInsidePatch(vertex1, patchW, patchH);
+		bool v2InsideBounds = VertexInsidePatch(vertex2, patchW, patchH);
+		return v1InsideBounds && v2InsideBounds;
+	};
+
+	for (int i = 0; i < indices.size() - 1; i += 2)
+	{
+		unsigned short idxBeg = indices[i];
+		unsigned short idxEnd = indices[i+1];
+
+		if (ValidIndexes(idxBeg, idxEnd))
+		{			
+			res.push_back(idxBeg);
+			res.push_back(idxEnd);
+		}
+	}
+	return res;
+}
+
+std::vector<VertexParameterColor> BezierSurfaceC0::ScaleVerticesForPatch(std::vector<VertexParameterColor> vertices, int patchW, int patchH)
+{
+	std::vector<VertexParameterColor> res;
+	int patchCountW = m_patchW;
+	int patchCountH = m_patchH;
+	auto VertexInsidePatch = [patchCountW, patchCountH](VertexParameterColor vertex, int patchWIdx, int patchHIdx)
+	{
+		float eps = 0.0000;
+		auto params = vertex.parameters;
+		float scaledU = params.x;
+		float scaledV = params.y;
+
+		float lowerUBound = (float)patchWIdx;
+		float upperUBound = (float)(patchWIdx + 1);
+
+		float lowerVBound = (float)patchHIdx;
+		float upperVBound = (float)(patchHIdx + 1);
+
+		bool uInBounds = scaledU >= (lowerUBound - eps) && scaledU <= (upperUBound + eps);
+		bool vInBounds = scaledV >= (lowerVBound - eps) && scaledV <= (upperVBound + eps);
+
+		return uInBounds && vInBounds;
+	};
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		auto vertex = vertices[i];
+		if (VertexInsidePatch(vertex, patchW, patchH))
+		{
+			float u = vertex.parameters.x;
+			float v = vertex.parameters.y;
+			float modu = u;
+			float modv = v;
+
+			modu -= patchW;
+			modv -= patchH;
+
+			vertex.parameters.x = modu;
+			vertex.parameters.y = modv;
+		}	
+		res.push_back(vertex);
+	}
+
+	return res;
 }

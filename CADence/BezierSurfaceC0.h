@@ -5,6 +5,7 @@
 #include "BezierCurve.h"
 #include "Node.h"
 #include "IParametricSurface.h"
+#include "IntersectableSurface.h"
 
 enum SurfaceWrapDirection
 {
@@ -13,7 +14,7 @@ enum SurfaceWrapDirection
 	None
 };
 
-class BezierSurfaceC0 : public MeshObject<VertexPositionColor>, public IParametricSurface
+class BezierSurfaceC0 : public MeshObject<VertexPositionColor>, public IParametricSurface, public IntersectableSurface
 {
 public:
 	BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDirection);
@@ -69,6 +70,12 @@ protected:
 	virtual BezierPatch* GetPatchAtParameter(float& u, float& v);
 
 	void RenderObjectSpecificContextOptions(Scene& scene) override;
+	void UpdateTrimmedChildrenMeshes(TrimmedSpace trimmedMesh);
+	std::vector<unsigned short> DetermineIndicesForPatch(
+		std::vector<VertexParameterColor> vertices, 
+		std::vector<unsigned short> indices, int patchW, int patchH);
+	std::vector<VertexParameterColor> ScaleVerticesForPatch(
+		std::vector<VertexParameterColor> vertices, int patchW, int patchH);
 };
 
 class BezierSurfaceC2 : public BezierSurfaceC0
