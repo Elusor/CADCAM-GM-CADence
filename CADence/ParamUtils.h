@@ -31,5 +31,6 @@ struct ParameterQuad
 
 };
 
+ParameterQuad operator-(ParameterQuad a, ParameterQuad b);
 ParameterQuad operator+(ParameterQuad a, ParameterQuad b);
 ParameterPair operator+(ParameterPair a, ParameterPair b);

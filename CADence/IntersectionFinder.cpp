@@ -10,7 +10,7 @@
 #include "ObjectReferences.h"
 #include "IntersectionSearchResult.h"
 
-DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step);
+ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP);
 
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
@@ -162,20 +162,53 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 	IParametricSurface* pSurface, 
 	float step)
 {
+	
 	IntersectionPointSearchData result;
-	result.found = false;
 	result.params = outParams;
 
-	auto boundaryPoint = FindClampedPosition(outParams, inParams, step);
-	ParameterQuad boundaryParams = ParameterQuad(boundaryPoint);
+	bool initialQIn = qSurface->ParamsInsideBounds(outParams.GetQParams());
+	bool initialPIn = pSurface->ParamsInsideBounds(outParams.GetPParams());	
+
+	auto boundaryPointData = FindClampedPosition(outParams, inParams, step, initialQIn, initialPIn);
+	ParameterQuad boundaryParams = ParameterQuad(boundaryPointData.params);
+
 
 	if (qSurface->ParamsInsideBounds(boundaryParams.GetQParams()) &&
 		pSurface->ParamsInsideBounds(boundaryParams.GetPParams()))			
 	{
-		// Solution is satisfying
-		// TODO: HERE THE TORUS SOLUTIONS PASS AS SATISFYING SOLUTIONS
-		// TODO: DEBUG THIS				
+		//TODO return from here an information that a point has intersected a border
 		
+		if (initialPIn && !initialQIn)
+		{
+			result.qPointOnBorder = true;
+		}
+		
+		if (!initialPIn && initialQIn)
+		{
+			result.pPointOnBorder = true;
+		}
+
+		if (!initialPIn && !initialQIn)
+		{			
+			auto distances = boundaryPointData.distances;
+			auto minQStep = min(abs(distances.x), abs(distances.y));
+			auto minPStep = min(abs(distances.z), abs(distances.w));
+
+			if (minQStep > minPStep)
+			{
+				result.pPointOnBorder = true;
+			}
+			else if(minQStep < minPStep)
+			{
+				result.qPointOnBorder = true;
+			}
+			else {
+				result.pPointOnBorder = true;
+				result.qPointOnBorder = true;
+			}
+
+		}
+
 		result.found = true;
 		result.pos = pSurface->GetPoint(boundaryParams.GetPParams());
 		result.params = boundaryParams;
@@ -865,8 +898,9 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	return searchResult;
 }
 
-DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step)
+ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP)
 {
+	ClampedPointData res;
 
 	DirectX:XMFLOAT4 x_k, x_prev;
 	x_k = x_kQuad.GetVector();
@@ -878,8 +912,12 @@ DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_pre
 	bool isZeroDist = false;
 	float dist = 20.f;
 	float eps = 10E-5;
+
+	DirectX::XMFLOAT4 distances;
 	for (int i = 0; i < 4; i++)
 	{
+		SetNthFieldValue(distances, i, FLT_MAX);
+
 		float deltaCoord = GetNthFieldValue(delta, i);
 		if (deltaCoord != 0.0f)
 		{
@@ -901,6 +939,7 @@ DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_pre
 				isValZeroDist = false;
 			}
 			
+			SetNthFieldValue(distances, i, val);
 			if (val < dist)
 			{
 				dist = val;
@@ -909,9 +948,21 @@ DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_pre
 		}
 	}
 
-	auto normDelta = delta / sqrt(Dot(delta, delta));
+	float minQDist = min(abs(distances.x), abs(distances.y));
+	float minPDist = min(abs(distances.z), abs(distances.w));
+	// by default dist is the smallest value, but this value can be discarded here
+	if (xkInQ)
+	{
+		dist = minPDist;
+	}
 
-	auto res = x_prev + delta * dist;
+	if (xkInP)
+	{
+		dist = minQDist;
+	}
+
+	auto normDelta = delta / sqrt(Dot(delta, delta));
+	auto resParams = x_prev + delta * dist;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -927,9 +978,11 @@ DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_pre
 
 	if (Dot(modifiedStep, modifiedStep) > step * step)
 	{
-		res = x_k;
+		resParams = x_k;
 	}
 
+	res.params = resParams;
+	res.distances = distances;
 	return res;
 }
 
@@ -943,7 +996,6 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 	int iterationCounter = 0;
 
 	IntersectionPointSearchData result;
-	result.found = false;
 	result.params = parameters;
 	result.pos = prevPoint;
 
@@ -952,11 +1004,10 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 	x_k = parameters;
 	x_prev = x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
-	// Calculate Step direction
-
 	bool continueNewtonCalculation = true;
 	while (continueNewtonCalculation)
 	{						
+		// Calculate Step direction
 		auto stepVersor = CalculateStepDirection(qSurf, pSurf, x_k, isReverseStepDirection);	
 		// Calculate F(x)		
 		auto funcVal = CalculateIntersectionDistanceFunctionValue(
@@ -966,9 +1017,9 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 		auto val = Dot(funcVal, funcVal);
 		if (val <= m_precision * m_precision)
 		{ 
-			// Solution is satisfying
+			// Solution is satisfying, is not on a parameter border
 			continueNewtonCalculation = false;
-
+			
 			result.found = true;
 			result.pos = pSurf->GetPoint(x_k.GetPParams());
 			result.params = x_k;
@@ -985,7 +1036,7 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?			
 			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
-			// Out of bounds - try to find a boundary closing point
+			// One or more surfaces are out of bounds - try to find a boundary closing point
 			if ((qSurf->ParamsInsideBounds(x_k.GetQParams()) &&
 				 pSurf->ParamsInsideBounds(x_k.GetPParams())
 				) == false)

@@ -50,6 +50,18 @@ DirectX::XMFLOAT4 ParameterQuad::GetVector()
 	return res;
 }
 
+ParameterQuad operator-(ParameterQuad a, ParameterQuad b)
+{
+	ParameterQuad res;
+
+	res.u = a.u - b.u;
+	res.v = a.v - b.v;
+	res.s = a.s - b.s;
+	res.t = a.t - b.t;
+
+	return res;
+}
+
 ParameterQuad operator+(ParameterQuad a, ParameterQuad b)
 {
 	ParameterQuad res;

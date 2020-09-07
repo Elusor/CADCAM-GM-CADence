@@ -10,11 +10,20 @@
 class ObjectFactory;
 enum IntersectedSurface;
 
+struct ClampedPointData
+{
+	DirectX::XMFLOAT4 params;
+	DirectX::XMFLOAT4 distances;
+};
+
 struct IntersectionPointSearchData
 {
 	IntersectionPointSearchData() {};
 
 	bool found = false;
+	bool qPointOnBorder = false;
+	bool pPointOnBorder = false;
+
 	ParameterQuad params;
 	DirectX::XMFLOAT3 pos = { 0.f, 0.f, 0.f };
 };
