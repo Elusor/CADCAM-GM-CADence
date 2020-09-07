@@ -5,6 +5,7 @@
 #include "Node.h"
 #include "ParamUtils.h"
 #include "ObjectReferences.h"
+#include "IntersectionSearchResult.h"
 
 class ObjectFactory;
 enum IntersectedSurface;
@@ -81,11 +82,9 @@ private:
 		ParameterPair& surf2Params,
 		DirectX::XMFLOAT3& point);
 
-	void FindOtherIntersectionPoints(
-		IParametricSurface* surface1, ParameterPair surf1Params,
-		std::vector<DirectX::XMFLOAT2>& surf1ParamsList,
-		IParametricSurface* surface2, ParameterPair surf2Params,
-		std::vector<DirectX::XMFLOAT2>& surf2ParamsList,
+	IntersectionSearchResult FindOtherIntersectionPoints(
+		IParametricSurface* surfaceQ, ParameterPair surfQParams,
+		IParametricSurface* surfaceP, ParameterPair surfPParams,
 		DirectX::XMFLOAT3 firstPoint);
 
 	IntersectionPointSearchData FindNextPoint(

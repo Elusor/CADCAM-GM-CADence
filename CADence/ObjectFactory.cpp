@@ -786,8 +786,8 @@ std::shared_ptr<Node> ObjectFactory::CreateGregoryPatch(HoleData hole)
 }
 
 std::shared_ptr<Node> ObjectFactory::CreateIntersectionCurve(
-	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, 
-	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters)
+	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qClosedIntersection,
+	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pClosedIntersection)
 {	
 	IntersectionCurve* interC = new IntersectionCurve();
 	std::string name = "Intersection curve";
@@ -803,7 +803,9 @@ std::shared_ptr<Node> ObjectFactory::CreateIntersectionCurve(
 	node->m_object = std::unique_ptr<Object>(interC);
 	interC->m_nodePtr = node;
 	m_intersectionCurveCounter++;
-	interC->Initialize(qSurface, qParameters, pSurface, pParameters);
+	interC->Initialize(
+		qSurface, qParameters, qClosedIntersection, 
+		pSurface, pParameters, pClosedIntersection);
 	return node;
 }
 

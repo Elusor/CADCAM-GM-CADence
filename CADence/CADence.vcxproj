@@ -187,6 +187,7 @@
     <ClInclude Include="IntersectionCurve.h" />
     <ClInclude Include="IntersectionData.h" />
     <ClInclude Include="IntersectionFinder.h" />
+    <ClInclude Include="IntersectionSearchResult.h" />
     <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IParametricSurface.h" />
     <ClInclude Include="IRenderTarget.h" />

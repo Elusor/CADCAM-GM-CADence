@@ -8,6 +8,7 @@
 #include "GeometricFunctions.h"
 #include "Scene.h"
 #include "ObjectReferences.h"
+#include "IntersectionSearchResult.h"
 
 DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step);
 
@@ -569,18 +570,18 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 						auto ptQ = qSurface->GetPoint(foundParamsQ);
 						auto ptP = pSurface->GetPoint(foundParamsP);
 						auto dist = Dot(ptQ - ptP, ptQ - ptP);
-						assert(dist <= eps * eps);
-
-						qParamsList.push_back(XMFLOAT2(foundParamsQ.u, foundParamsQ.v));
-						pParamsList.push_back(XMFLOAT2(foundParamsP.u, foundParamsP.v));
+						assert(dist <= eps * eps);						
 
 						// Calculate other points				
-						FindOtherIntersectionPoints(
-							qSurface, foundParamsQ, qParamsList,
-							pSurface, foundParamsP, pParamsList, foundPosition);
+						auto result = FindOtherIntersectionPoints(
+							qSurface, foundParamsQ,
+							pSurface, foundParamsP, foundPosition);
 
 						// Create the interpolation curve
-						auto curve = m_factory->CreateIntersectionCurve(qSurfNode, qParamsList, pSurfNode, pParamsList);
+						auto curve = m_factory->CreateIntersectionCurve(
+							qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed,
+							pSurfNode, result.surfPParamsList, result.m_pIntersectionClosed);
+
 						m_scene->AttachObject(curve);
 						return;
 					}
@@ -639,8 +640,6 @@ void IntersectionFinder::FindIntersectionWithCursor(
 		}
 	}
 
-
-
 	// Find closest point on the second surface
 	for (float u = 0.0f; u <= pMaxU; u += pMaxU / steps)
 	{
@@ -680,12 +679,14 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			pParamsList.push_back(XMFLOAT2(autoPtParamsP.u, autoPtParamsP.v));
 
 			// Calculate other points				
-			FindOtherIntersectionPoints(
-				qSurface, autoPtParamsQ, qParamsList,
-				pSurface, autoPtParamsP, pParamsList, foundPtPos);
+			auto result = FindOtherIntersectionPoints(
+				qSurface, autoPtParamsQ,
+				pSurface, autoPtParamsP, foundPtPos);
 
 			// Create the interpolation curve
-			auto curve = m_factory->CreateIntersectionCurve(qNode, qParamsList, pNode, pParamsList);
+			auto curve = m_factory->CreateIntersectionCurve(
+				qNode, result.surfQParamsList, result.m_qIntersectionClosed,
+				pNode, result.surfPParamsList, result.m_pIntersectionClosed);
 			m_scene->AttachObject(curve);
 			return;
 		}
@@ -747,20 +748,23 @@ ParameterQuad IntersectionFinder::GetWrappedParameters(
 }
 
 
-void IntersectionFinder::FindOtherIntersectionPoints(
-	IParametricSurface* surfaceQ, ParameterPair surfQParams, std::vector<DirectX::XMFLOAT2>& surfQParamsList,
-	IParametricSurface* surfaceP, ParameterPair surfPParams, std::vector<DirectX::XMFLOAT2>& surfPParamsList,
+IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
+	IParametricSurface* surfaceQ, ParameterPair surfQParams,
+	IParametricSurface* surfaceP, ParameterPair surfPParams,
 	DirectX::XMFLOAT3 firstPoint)
 {
-
-	int maxCap = 3000;
+	int oneDirectionPointCap = 500;
+	IntersectionSearchResult searchResult;
+	searchResult.m_pIntersectionClosed = searchResult.m_qIntersectionClosed = false;
 
 	std::vector<DirectX::XMFLOAT2> forwardsQ;
 	std::vector<DirectX::XMFLOAT2> forwardsP;
 	std::vector<DirectX::XMFLOAT2> backwardsQ;
 	std::vector<DirectX::XMFLOAT2> backwardsP;
-
 	bool looped = false;
+
+	auto firstQParams = surfQParams.GetVector();
+	auto firstPParams = surfPParams.GetVector();
 
 	ParameterQuad paramsFor, paramsBack;
 	paramsFor.Set(surfQParams, surfPParams);
@@ -769,7 +773,7 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 	auto searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsFor, firstPoint, false, m_step);
 	auto prevPos = searchRes.pos;
 	paramsFor = searchRes.params;
-	bool nextPointInRange = searchRes.found && forwardsQ.size() < maxCap;
+	bool nextPointInRange = searchRes.found && forwardsQ.size() < oneDirectionPointCap;
 	while (nextPointInRange)
 	{
 		//Check if found point makes a loop
@@ -814,7 +818,7 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 			searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsFor, prevPos, false, m_step);
 			prevPos = searchRes.pos;
 			paramsFor = searchRes.params;
-			nextPointInRange = searchRes.found && forwardsQ.size() < maxCap;
+			nextPointInRange = searchRes.found && forwardsQ.size() < oneDirectionPointCap;
 		}		
 	}
 
@@ -824,7 +828,7 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 		searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsBack, firstPoint, true, m_step);
 		paramsBack = searchRes.params;
 		auto prevPos = searchRes.pos;
-		nextPointInRange = searchRes.found && backwardsQ.size() < maxCap;
+		nextPointInRange = searchRes.found && backwardsQ.size() < oneDirectionPointCap;
 		while (nextPointInRange)
 		{
 			auto paramsQBack = paramsBack.GetQParams();
@@ -832,37 +836,33 @@ void IntersectionFinder::FindOtherIntersectionPoints(
 
 			backwardsQ.push_back(XMFLOAT2(paramsQBack.u, paramsQBack.v));
 			backwardsP.push_back(XMFLOAT2(paramsPBack.u, paramsPBack.v));
+
 			searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsBack, prevPos, true, m_step);
 			prevPos = searchRes.pos;
 			paramsBack = searchRes.params;
-			nextPointInRange = searchRes.found && backwardsQ.size() < maxCap;			
+			nextPointInRange = searchRes.found && backwardsQ.size() < oneDirectionPointCap;			
 		}
 	}
 	
 	std::reverse(forwardsQ.begin(), forwardsQ.end());
 	std::reverse(forwardsP.begin(), forwardsP.end());
 
-	std::vector<DirectX::XMFLOAT2> res1;
-	std::vector<DirectX::XMFLOAT2> res2;
-
 	for (int i = 0; i < forwardsQ.size(); i++)
 	{
-		res1.push_back(forwardsQ[i]);
-		res2.push_back(forwardsP[i]);
+		searchResult.surfQParamsList.push_back(forwardsQ[i]);
+		searchResult.surfPParamsList.push_back(forwardsP[i]);
 	}
 
-	res1.push_back(surfQParamsList[0]);
-	res2.push_back(surfPParamsList[0]);
+	searchResult.surfQParamsList.push_back(firstQParams);
+	searchResult.surfPParamsList.push_back(firstPParams);
 
 	for (int i = 0; i < backwardsQ.size(); i++)
 	{
-		res1.push_back(backwardsQ[i]);
-		res2.push_back(backwardsP[i]);
+		searchResult.surfQParamsList.push_back(backwardsQ[i]);
+		searchResult.surfPParamsList.push_back(backwardsP[i]);
 	}
 
-	surfQParamsList = res1;
-	surfPParamsList = res2;
-	return;
+	return searchResult;
 }
 
 DirectX::XMFLOAT4 FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step)

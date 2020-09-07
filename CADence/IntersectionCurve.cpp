@@ -8,13 +8,18 @@ IntersectionCurve::IntersectionCurve()
 {
 }
 
-void IntersectionCurve::Initialize(ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters)
+void IntersectionCurve::Initialize(
+	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qClosedIntersection,
+	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pClosedIntersection)
 {
 	m_qSurface = qSurface;
 	m_pSurface = pSurface;
 
 	m_qParameters = qParameters;
 	m_pParameters = pParameters;
+
+	m_qIsClosedIntersection = qClosedIntersection;
+	m_pIsClosedIntersection = pClosedIntersection;
 
 	m_positions = GetPointPositions();	
 	GetInterpolationSplineBernsteinPoints();

@@ -11,8 +11,8 @@ class IntersectionCurve: public BezierCurve
 public:
 	IntersectionCurve();
 	void Initialize(
-		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters,
-		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters);
+		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qClosedIntersection,
+		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pClosedIntersection);
 
 	// Intersection Curve Unique methods
 	ObjectRef GetParametricSurface(IntersectedSurface surface);
@@ -41,6 +41,9 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_qParameters;
 	std::vector<DirectX::XMFLOAT2> m_pParameters;
 	std::vector<DirectX::XMFLOAT3> m_positions;	
+
+	bool m_qIsClosedIntersection = false;
+	bool m_pIsClosedIntersection = false;
 
 	std::vector<std::shared_ptr<Node>> m_virtualPoints;
 	std::vector<std::weak_ptr<Node>> m_virtualPointsWeak;

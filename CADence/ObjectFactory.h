@@ -48,8 +48,8 @@ public:
 		HoleData hole);
 
 	std::shared_ptr<Node> CreateIntersectionCurve(
-		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, 
-		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters);
+		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qClosedIntersection,
+		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pClosedIntersection);
 
 	std::shared_ptr<Node> CreateInterpolBezierCurveC2(std::vector<std::weak_ptr<Node>> controlPoints = std::vector<std::weak_ptr<Node>>());
 

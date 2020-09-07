@@ -390,6 +390,9 @@
     <ClInclude Include="IntersectableSurface.h">
       <Filter>Header Files\CadSpecific\Intersections</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectionSearchResult.h">
+      <Filter>Header Files\CadSpecific\Intersections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
