@@ -6,6 +6,7 @@
 #include "ParamUtils.h"
 #include "ObjectReferences.h"
 #include "IntersectionSearchResult.h"
+#include "IntersectionSearchResultOneDir.h"
 
 class ObjectFactory;
 enum IntersectedSurface;
@@ -96,8 +97,9 @@ private:
 		IParametricSurface* surfaceP, ParameterPair surfPParams,
 		DirectX::XMFLOAT3 firstPoint);
 
-	IntersectionSearchResultOneDir FindPointsInDirection(IParametricSurface* qSurface, IParametricSurface* pSurface,
-		ParameterQuad startParams, bool direction, bool checkLooped, int pointCap, XMFLOAT3 firstPoint);
+	IntersectionSearchResultOneDir FindPointsInDirection(
+		IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad startParams,
+		bool direction, bool checkLooped, int pointCap, DirectX::XMFLOAT3 firstPoint);
 
 	IntersectionPointSearchData FindNextPoint(
 		IParametricSurface* qSurf,

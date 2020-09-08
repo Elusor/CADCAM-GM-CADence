@@ -18,7 +18,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 	m_step = 0.5f; 
-	m_loopPrecision = 0.1f;
+	m_loopPrecision = 0.029;
 	m_precision = 10E-5f;
 	// To allow cursor found soulutions to be found in gradient
 	m_gradientPrecision = 1E-4f;
@@ -785,10 +785,25 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 	IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad startParams, 
 	bool direction, bool checkLooped, int pointCap, XMFLOAT3 firstPoint)
 {	
+	ParameterQuad wrappedStartParams = GetWrappedParameters(qSurface, pSurface, startParams);
 	IntersectionSearchResultOneDir result;
-	auto GetParamSpaceDistance = [](ParameterPair params1, ParameterPair params2)
+
+	auto GetNormalizedParams = [](IParametricSurface* surface, ParameterPair params)
 	{
-		auto diff = params1.GetVector() - params2.GetVector();
+		ParameterPair res;
+		auto maxParams = surface->GetMaxParameterValues();
+		float maxU = maxParams.u;
+		float maxV = maxParams.v;
+		res.u = params.u / maxU;
+		res.v = params.v / maxV;
+		return res;
+	};
+
+	auto GetParamSpaceDistance = [GetNormalizedParams](IParametricSurface* surface, ParameterPair params1, ParameterPair params2)
+	{
+		auto norm1Params = GetNormalizedParams(surface, params1);
+		auto norm2Params = GetNormalizedParams(surface, params2);
+		auto diff = norm1Params.GetVector() - norm2Params.GetVector();
 		return sqrt(Dot(diff, diff));
 	};
 
@@ -797,7 +812,8 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 	IntersectionPointSearchData curSearchData;
 	curSearchData.found = false;
 	curSearchData.pos = firstPoint;
-	curSearchData.params = startParams;
+	curSearchData.params = wrappedStartParams;
+
 
 	// Find the first point
 	curSearchData = FindNextPointAdaptiveStep(qSurface, pSurface, curSearchData.params, curSearchData.pos, direction, m_step);
@@ -806,8 +822,9 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 		loopData.m_pOnBorder = curSearchData.pPointOnBorder;
 		loopData.m_qOnBorder = curSearchData.qPointOnBorder;
 		borderPoint = loopData.m_pOnBorder || loopData.m_qOnBorder;
-	}				  
+	}
 
+	float minDistTotal = FLT_MAX;
 	//TODO stop if result is on the border?
 	bool sizeNotCapped = result.surfQParamsList.size() < pointCap;
 	while (curSearchData.found && sizeNotCapped && !borderPoint)
@@ -821,13 +838,17 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 			bool trueLoop = false;
 
 			//Check if parameters are close to each other
-			auto qParamDiff = GetParamSpaceDistance(startParams.GetQParams(), curSearchData.params.GetQParams());
-			auto pParamDiff = GetParamSpaceDistance(startParams.GetPParams(), curSearchData.params.GetPParams());
+			auto qParamDiff = GetParamSpaceDistance(qSurface, wrappedStartParams.GetQParams(), curSearchData.params.GetQParams());
+			auto pParamDiff = GetParamSpaceDistance(pSurface, wrappedStartParams.GetPParams(), curSearchData.params.GetPParams());
+			
 			trueLoop = min(qParamDiff, pParamDiff) < m_loopPrecision;
-
+			minDistTotal = min(minDistTotal, min(qParamDiff, pParamDiff));
 			if (dist <= m_step / 2.f && trueLoop) {
 				result.surfQParamsList.push_back(curSearchData.params.GetQParams().GetVector());
 				result.surfPParamsList.push_back(curSearchData.params.GetPParams().GetVector());
+				result.surfQParamsList.push_back(wrappedStartParams.GetQParams().GetVector());
+				result.surfPParamsList.push_back(wrappedStartParams.GetPParams().GetVector());
+
 
 				curSearchData.found = false;
 				if (qParamDiff < m_loopPrecision)
@@ -869,117 +890,52 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 {
 	int oneDirectionPointCap = 500;
 	IntersectionSearchResult algorithmResult;
+	IntersectionSearchResultOneDir resForward, resBackward;
+	ParameterQuad startParams;
+	startParams.Set(surfQParams, surfPParams);
+	
+	resForward = FindPointsInDirection(
+		surfaceQ, surfaceP, startParams, false, true, oneDirectionPointCap, firstPoint);
 
-	std::vector<DirectX::XMFLOAT2> qParamsList;
-	std::vector<DirectX::XMFLOAT2> forwardsP;
-	std::vector<DirectX::XMFLOAT2> backwardsQ;
-	std::vector<DirectX::XMFLOAT2> backwardsP;
-	bool looped = false;
-
-	// TODO update these fields on the last found point
-	bool qClosed1 = false;
-	bool qClosed2 = false;
-	bool pClosed1 = false;
-	bool pClosed2 = false;
-
-	auto firstQParams = surfQParams.GetVector();
-	auto firstPParams = surfPParams.GetVector();
-
-	ParameterQuad paramsFor, paramsBack;
-	paramsFor.Set(surfQParams, surfPParams);
-	paramsBack.Set(surfQParams, surfPParams);
-
-	auto searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsFor, firstPoint, false, m_step);
-	auto prevPos = searchRes.pos;
-	paramsFor = searchRes.params;
-
-	bool nextPointInRange = searchRes.found && qParamsList.size() < oneDirectionPointCap;
-	while (nextPointInRange)
+	if (resForward.m_loopData.GetIsLooped() == false)
 	{
-		//Check if found point makes a loop
-		auto diff = firstPoint - searchRes.pos;
-		auto dist = Dot(diff, diff);
-
-		// TODO: CHECK IF TRUE LOOPED
-		// Check if this is a circle of infinity sign like interjection
-		auto begParams = DirectX::XMFLOAT4(surfQParams.u, surfQParams.v, surfPParams.u, surfPParams.v);
-		auto candidateParams = paramsFor.GetVector();
-		auto paramDiff = begParams - candidateParams;
-		auto paramDiffLen = Dot(paramDiff, paramDiff);
-		bool trueLoop = paramDiffLen < m_loopPrecision * m_loopPrecision;
-
-		// Watch out for cases when something that is not a true loop 
-		// TODO Do a check after finding all the points to detect "trimmable loops"
-		// Those should be connected based on distance in the scene, not parameter space
-		// Maybe determine "loopness" for surfaces individually
-		// Mark boundary looped straight line as looped if the position of boudnary + delta is nearly the same as the other end and distance in r^3 is less than a step
-		// Do we even need to discern between true loops and boundary loops?
-
-		if (dist <= m_step * m_step / 4.f && trueLoop) {
-			// Add points and end the loop 
-			// Add the point as usual
-			qParamsList.push_back(XMFLOAT2(surfQParams.u, surfQParams.v));
-			forwardsP.push_back(XMFLOAT2(surfPParams.u, surfPParams.v));
-			// end search
-			nextPointInRange = false;
-			looped = true;
-			// TODO: return looped info and mark it in the intersection curve structure
-		}
-		else {
-			// Add point normally (no loop or a ribbon with no connecting ends)
-			// TODO: after all calculations check for loops based on distance?
-
-			auto paramsQFor = paramsFor.GetQParams();
-			auto paramsPFor = paramsFor.GetPParams();
-
-			qParamsList.push_back(XMFLOAT2(paramsQFor.u, paramsQFor.v));
-			forwardsP.push_back(XMFLOAT2(paramsPFor.u, paramsPFor.v));
-
-			searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsFor, prevPos, false, m_step);
-			prevPos = searchRes.pos;
-			paramsFor = searchRes.params;
-			nextPointInRange = searchRes.found && qParamsList.size() < oneDirectionPointCap;
-		}
+		resBackward = FindPointsInDirection(
+			surfaceQ, surfaceP, startParams, true, false, oneDirectionPointCap, firstPoint);
 	}
+	
+	// Copy Param list Data
+	std::vector<DirectX::XMFLOAT2>& forwardsQ = resForward.surfQParamsList;
+	std::vector<DirectX::XMFLOAT2>& forwardsP = resForward.surfPParamsList;
+	std::vector<DirectX::XMFLOAT2>& backwardsQ = resBackward.surfQParamsList;
+	std::vector<DirectX::XMFLOAT2>& backwardsP = resBackward.surfPParamsList;
 
-	if (!looped)
-	{
-		searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsBack, firstPoint, true, m_step);
-		paramsBack = searchRes.params;
-		auto prevPos = searchRes.pos;
-		nextPointInRange = searchRes.found && backwardsQ.size() < oneDirectionPointCap;
-		while (nextPointInRange)
-		{
-			auto paramsQBack = paramsBack.GetQParams();
-			auto paramsPBack = paramsBack.GetPParams();
-
-			backwardsQ.push_back(XMFLOAT2(paramsQBack.u, paramsQBack.v));
-			backwardsP.push_back(XMFLOAT2(paramsPBack.u, paramsPBack.v));
-
-			searchRes = FindNextPointAdaptiveStep(surfaceQ, surfaceP, paramsBack, prevPos, true, m_step);
-			prevPos = searchRes.pos;
-			paramsBack = searchRes.params;
-			nextPointInRange = searchRes.found && backwardsQ.size() < oneDirectionPointCap;
-		}
-	}
-
-	std::reverse(qParamsList.begin(), qParamsList.end());
+	std::reverse(forwardsQ.begin(), forwardsQ.end());
 	std::reverse(forwardsP.begin(), forwardsP.end());
 
-	for (int i = 0; i < qParamsList.size(); i++)
+	for (int i = 0; i < forwardsQ.size(); i++)
 	{
-		algorithmResult.surfQParamsList.push_back(qParamsList[i]);
+		algorithmResult.surfQParamsList.push_back(forwardsQ[i]);
 		algorithmResult.surfPParamsList.push_back(forwardsP[i]);
 	}
 
-	algorithmResult.surfQParamsList.push_back(firstQParams);
-	algorithmResult.surfPParamsList.push_back(firstPParams);
+	algorithmResult.surfQParamsList.push_back(surfQParams.GetVector());
+	algorithmResult.surfPParamsList.push_back(surfPParams.GetVector());
 
 	for (int i = 0; i < backwardsQ.size(); i++)
 	{
 		algorithmResult.surfQParamsList.push_back(backwardsQ[i]);
 		algorithmResult.surfPParamsList.push_back(backwardsP[i]);
 	}
+
+
+	// Copy Loop Data
+	bool qClosed = resForward.m_loopData.m_qOnBorder && resBackward.m_loopData.m_qOnBorder;
+	bool pClosed = resForward.m_loopData.m_pOnBorder && resBackward.m_loopData.m_pOnBorder;
+	bool qLooped = resForward.m_loopData.m_qLooped || resBackward.m_loopData.m_qLooped;
+	bool pLooped = resForward.m_loopData.m_pLooped || resBackward.m_loopData.m_pLooped;
+
+	algorithmResult.m_qIntersectionClosed = qClosed || qLooped;
+	algorithmResult.m_pIntersectionClosed = pClosed || pLooped;
 
 	return algorithmResult;
 }

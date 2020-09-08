@@ -6,4 +6,8 @@ struct LoopData
 	bool m_pOnBorder = false;
 	bool m_qLooped = false;
 	bool m_pLooped = false;
+
+	bool GetIsLooped() {
+		return m_qLooped || m_pLooped;
+	}
 };
