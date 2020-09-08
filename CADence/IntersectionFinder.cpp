@@ -837,6 +837,7 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 			auto dist = Dot(diff, diff);
 			bool trueLoop = false;
 
+			// TODO check distance here based on PROPER WRAPPED PARAM SPACE 
 			//Check if parameters are close to each other
 			auto qParamDiff = GetParamSpaceDistance(qSurface, wrappedStartParams.GetQParams(), curSearchData.params.GetQParams());
 			auto pParamDiff = GetParamSpaceDistance(pSurface, wrappedStartParams.GetPParams(), curSearchData.params.GetPParams());
@@ -955,7 +956,7 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 
 	auto delta = x_k - x_prev;
 	bool isZeroDist = false;
-	float dist = 20.f;
+	float dist = FLT_MAX;
 	float eps = 10E-5;
 
 	DirectX::XMFLOAT4 distances;
@@ -969,7 +970,7 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 			float zeroDist = (0.f - GetNthFieldValue(x_prev, i)) / deltaCoord;
 			float oneDist = (1.f - GetNthFieldValue(x_prev, i)) / deltaCoord;
 
-			float val = 2.0f;
+			float val = FLT_MAX;
 			float isValZeroDist = false;
 
 			if (zeroDist > 0.0f)
@@ -1005,6 +1006,8 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 	{
 		dist = minQDist;
 	}
+
+	assert(dist != FLT_MAX);
 
 	auto normDelta = delta / sqrt(Dot(delta, delta));
 	auto resParams = x_prev + delta * dist;
