@@ -853,10 +853,12 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 
 
 				curSearchData.found = false;
-				if (qParamDiff < m_loopPrecision * 1.5f)
-					loopData.m_qLooped= true;
+				loopData.m_qLooped = true;
+				loopData.m_pLooped = true;
+				/*if (qParamDiff < m_loopPrecision * 1.5f)
+					
 				if (pParamDiff < m_loopPrecision * 1.5f)
-					loopData.m_pLooped = true;
+				*/	
 				looped = true;
 			}
 
