@@ -800,11 +800,12 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 	};
 
 	auto GetParamSpaceDistance = [GetNormalizedParams](IParametricSurface* surface, ParameterPair params1, ParameterPair params2)
-	{
-		auto norm1Params = GetNormalizedParams(surface, params1);
-		auto norm2Params = GetNormalizedParams(surface, params2);
-		auto diff = norm1Params.GetVector() - norm2Params.GetVector();
-		return sqrt(Dot(diff, diff));
+	{	
+		auto maxParams = surface->GetMaxParameterValues();
+		auto paramDist = surface->GetParameterSpaceDistance(params1, params2);
+	
+		XMFLOAT2 scaledDist = { paramDist.x / maxParams.u, paramDist.y / maxParams.v };
+		return sqrt(Dot(scaledDist, scaledDist));
 	};
 
 	bool borderPoint = false;
@@ -827,7 +828,7 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 	float minDistTotal = FLT_MAX;
 	//TODO stop if result is on the border?
 	bool sizeNotCapped = result.surfQParamsList.size() < pointCap;
-	while (curSearchData.found && sizeNotCapped && !borderPoint)
+	while (curSearchData.found && sizeNotCapped)
 	{
 		bool looped = false;
 		if (checkLooped)
@@ -852,9 +853,9 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 
 
 				curSearchData.found = false;
-				if (qParamDiff < m_loopPrecision)
+				if (qParamDiff < m_loopPrecision * 1.5f)
 					loopData.m_qLooped= true;
-				if (pParamDiff < m_loopPrecision)
+				if (pParamDiff < m_loopPrecision * 1.5f)
 					loopData.m_pLooped = true;
 				looped = true;
 			}
@@ -871,6 +872,11 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 				loopData.m_pOnBorder = curSearchData.pPointOnBorder;
 				loopData.m_qOnBorder = curSearchData.qPointOnBorder;
 				borderPoint = loopData.m_pOnBorder || loopData.m_qOnBorder;
+				if (borderPoint)
+				{
+					result.surfQParamsList.push_back(curSearchData.params.GetQParams().GetVector());
+					result.surfPParamsList.push_back(curSearchData.params.GetPParams().GetVector());
+				}
 			}
 		}
 
