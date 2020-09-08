@@ -51,4 +51,5 @@ private:
 	void GetInterpolationSplineBernsteinPoints();
 	void UpdateGSData();
 	void TrimAffectedSurfaces();
+	void TrimSurface(IntersectedSurface surface);
 };

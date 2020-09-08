@@ -106,10 +106,17 @@ void IntersectionCurve::RenderObjectSpecificContextOptions(Scene& scene)
 {
 	if (!m_qSurface.expired() && !m_pSurface.expired())
 	{
-		if (ImGui::Selectable("Trim"))
+		if (!m_qIsClosedIntersection && !m_pIsClosedIntersection)
 		{
-			TrimAffectedSurfaces();
+			ImGui::Text("Cannot trim");
 		}
+		else {
+			if (ImGui::Selectable("Trim"))
+			{
+				TrimAffectedSurfaces();
+			}
+		}
+		
 
 		if (ImGui::Selectable("Visualize in parameter space"))
 		{
@@ -478,53 +485,39 @@ void IntersectionCurve::UpdateGSData()
 
 void IntersectionCurve::TrimAffectedSurfaces()
 {
+	if(m_qIsClosedIntersection)
+		TrimSurface(IntersectedSurface::SurfaceQ);
+
+	if(m_pIsClosedIntersection)
+		TrimSurface(IntersectedSurface::SurfaceP);	
+}
+
+void IntersectionCurve::TrimSurface(IntersectedSurface surface)
+{
 	auto curveRef = m_nodePtr;
+	auto surfRef = GetParametricSurface(surface);	
+	bool surfValidForTrimming = surfRef.expired() == false;
 
-	auto qSurf = GetParametricSurface(IntersectedSurface::SurfaceQ);
-	auto pSurf = GetParametricSurface(IntersectedSurface::SurfaceP);
-
-
-	if (m_qSurface.expired() == false && m_pSurface.expired() == false)
+	if(surfValidForTrimming)
 	{
-		auto qNode = m_qSurface.lock();
-		auto pNode = m_pSurface.lock();
-
-		auto qSurf = dynamic_cast<IParametricSurface*>(qNode->m_object.get());
-		auto pSurf = dynamic_cast<IParametricSurface*>(pNode->m_object.get());
+		auto surfNode = surfRef.lock();
+		auto surf = dynamic_cast<IParametricSurface*>(surfNode->m_object.get());
 
 		try {
 			IntersectionData data;
-			data.affectedSurface = IntersectedSurface::SurfaceQ;
+			data.affectedSurface = surface;
 			data.intersectionCurve = curveRef;
-			auto intersectable = dynamic_cast<TrimmableSurface*>(qSurf);
+			auto intersectable = dynamic_cast<TrimmableSurface*>(surf);
 			if (intersectable != nullptr)
 				intersectable->SetIntersectionData(data);
 
-			auto qObject = dynamic_cast<Object*>(qSurf);
-			if (qObject != nullptr)
-				qObject->SetModified(true);
+			auto object = dynamic_cast<Object*>(surf);
+			if (object != nullptr)
+				object->SetModified(true);
 		}
 		catch (std::bad_cast bc)
 		{
 			assert(false && "Invalid surface. Could not trim.");
 		}
-
-		try {
-			IntersectionData data;
-			data.affectedSurface = IntersectedSurface::SurfaceP;
-			data.intersectionCurve = curveRef;
-			auto intersectable = dynamic_cast<TrimmableSurface*>(pSurf);
-			if (intersectable != nullptr)
-				intersectable->SetIntersectionData(data);
-
-			auto pObject = dynamic_cast<Object*>(pSurf);
-			if (pObject != nullptr)
-				pObject->SetModified(true);
-		}
-		catch (std::bad_cast bc)
-		{
-			assert(false && "Invalid surface. Could not trim.");
-		}
-		
 	}
 }
