@@ -225,6 +225,26 @@ ParameterPair Torus::GetNormalizedParams(float u, float v)
 	return ParameterPair(u,v);
 }
 
+XMFLOAT2 Torus::GetParameterSpaceDistance(ParameterPair point1, ParameterPair point2)
+{
+	auto wrappedP1 = GetWrappedParams(point1.u, point1.v);
+	auto wrappedP2 = GetWrappedParams(point2.u, point2.v);
+
+	float u1 = wrappedP1.u;
+	float u2 = wrappedP2.u;
+	float v1 = wrappedP1.v;
+	float v2 = wrappedP2.v;
+
+	float distU = abs(u1 - u2);
+	float distV = abs(v1 - v2);
+
+	distU = min(distU, XM_2PI - distU);
+	distV = min(distV, XM_2PI - distV);
+
+	XMFLOAT2 distUV = { distU, distV };	
+	return distUV;
+}
+
 DirectX::XMFLOAT3 Torus::GetPoint(float u, float v)
 {
 	float x = (m_donutR + m_tubeR * cosf(v)) * cosf(u);

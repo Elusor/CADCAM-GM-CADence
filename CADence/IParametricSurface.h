@@ -14,6 +14,7 @@ public:
 	virtual float GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep) = 0;
 	virtual ParameterPair GetMaxParameterValues() = 0;
 	virtual ParameterPair GetNormalizedParams(float u, float v) = 0;
+	virtual DirectX::XMFLOAT2 GetParameterSpaceDistance(ParameterPair point1, ParameterPair point2) = 0;
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) = 0;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) = 0;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) = 0;

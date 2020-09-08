@@ -338,6 +338,30 @@ ParameterPair BezierSurfaceC0::GetNormalizedParams(float u, float v)
 	return ParameterPair(newU, newV);
 }
 
+DirectX::XMFLOAT2 BezierSurfaceC0::GetParameterSpaceDistance(ParameterPair point1, ParameterPair point2)
+{
+	auto wrappedP1 = GetWrappedParams(point1.u, point1.v);
+	auto wrappedP2 = GetWrappedParams(point2.u, point2.v);
+
+	auto maxParams = GetMaxParameterValues();
+
+	float u1 = wrappedP1.u;
+	float v1 = wrappedP1.v;
+	float u2 = wrappedP2.u;
+	float v2 = wrappedP2.v;
+
+	float distU = abs(u1 - u2);
+	float distV = abs(v1 - v2);
+
+	if (m_wrapDir == SurfaceWrapDirection::Width)
+		distU = min(distU, maxParams.u - distU);
+	if (m_wrapDir == SurfaceWrapDirection::Height)
+		distV = min(distV, maxParams.v - distV);
+
+	XMFLOAT2 distUV = { distU, distV };
+	return distUV;
+}
+
 DirectX::XMFLOAT3 BezierSurfaceC0::GetPoint(float u, float v)
 {
 	// Gets the patch at given parameters and sclae u,v to appropriate size

@@ -552,6 +552,25 @@ ParameterPair BezierPatch::GetNormalizedParams(float u, float v)
 	return ParameterPair(u,v);
 }
 
+DirectX::XMFLOAT2 BezierPatch::GetParameterSpaceDistance(ParameterPair point1, ParameterPair point2)
+{
+	auto wrappedP1 = GetWrappedParams(point1.u, point1.v);
+	auto wrappedP2 = GetWrappedParams(point2.u, point2.v);
+
+	auto maxParams = GetMaxParameterValues();
+
+	float u1 = wrappedP1.u;
+	float v1 = wrappedP1.v;
+	float u2 = wrappedP2.u;
+	float v2 = wrappedP2.v;
+
+	float distU = abs(u1 - u2);
+	float distV = abs(v1 - v2);	
+
+	XMFLOAT2 distUV = { distU, distV };
+	return distUV;
+}
+
 DirectX::XMFLOAT3 BezierPatch::GetPoint(float u, float v)
 {
 	auto refs = GetReferences().GetAllRef();

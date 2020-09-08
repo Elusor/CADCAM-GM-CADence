@@ -65,6 +65,7 @@ public:
 	// Inherited via IParametricSurface
 	virtual ParameterPair GetMaxParameterValues() override;
 	virtual ParameterPair GetNormalizedParams(float u, float v) override;
+	DirectX::XMFLOAT2 GetParameterSpaceDistance(ParameterPair point1, ParameterPair point2);
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) override;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;
