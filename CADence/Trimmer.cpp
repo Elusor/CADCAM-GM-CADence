@@ -509,6 +509,7 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 	std::vector<IndexedVertex> indexedCurve;
 	for (int i = 0; i < paramCurve.size(); i++)
 	{
+		assert(paramCurve[i].x >= 0 && paramCurve[i].y >= 0);
 		indexedCurve.push_back(IndexedVertex{ paramCurve[i], 0 });
 	}
 
@@ -582,7 +583,7 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 	for (int v = 0; v < vLineCount -1; v++)
 	{
 		float lowerU = 1.0f;
-		float lowerV = v * uStep;
+		float lowerV = v * vStep;
 		std::vector<IndexedVertex> candidatePoints;
 		for (int i = 0; i < addedPoints.size(); i++)
 		{

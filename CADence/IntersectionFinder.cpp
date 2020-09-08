@@ -893,7 +893,8 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	IntersectionSearchResultOneDir resForward, resBackward;
 	ParameterQuad startParams;
 	startParams.Set(surfQParams, surfPParams);
-	
+	startParams = GetWrappedParameters(surfaceQ, surfaceP, startParams);
+
 	resForward = FindPointsInDirection(
 		surfaceQ, surfaceP, startParams, false, true, oneDirectionPointCap, firstPoint);
 
@@ -904,13 +905,15 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	}
 	
 	// Copy Param list Data
-	std::vector<DirectX::XMFLOAT2>& forwardsQ = resForward.surfQParamsList;
-	std::vector<DirectX::XMFLOAT2>& forwardsP = resForward.surfPParamsList;
-	std::vector<DirectX::XMFLOAT2>& backwardsQ = resBackward.surfQParamsList;
-	std::vector<DirectX::XMFLOAT2>& backwardsP = resBackward.surfPParamsList;
+	std::vector<DirectX::XMFLOAT2> forwardsQ = resForward.surfQParamsList;
+	std::vector<DirectX::XMFLOAT2> forwardsP = resForward.surfPParamsList;
+	std::vector<DirectX::XMFLOAT2> backwardsQ = resBackward.surfQParamsList;
+	std::vector<DirectX::XMFLOAT2> backwardsP = resBackward.surfPParamsList;
 
 	std::reverse(forwardsQ.begin(), forwardsQ.end());
 	std::reverse(forwardsP.begin(), forwardsP.end());
+
+	
 
 	for (int i = 0; i < forwardsQ.size(); i++)
 	{
@@ -918,8 +921,8 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 		algorithmResult.surfPParamsList.push_back(forwardsP[i]);
 	}
 
-	algorithmResult.surfQParamsList.push_back(surfQParams.GetVector());
-	algorithmResult.surfPParamsList.push_back(surfPParams.GetVector());
+	algorithmResult.surfQParamsList.push_back(startParams.GetQParams().GetVector());
+	algorithmResult.surfPParamsList.push_back(startParams.GetPParams().GetVector());
 
 	for (int i = 0; i < backwardsQ.size(); i++)
 	{

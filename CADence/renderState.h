@@ -14,11 +14,11 @@ using namespace DirectX;
 
 struct ShaderPreset
 {
-	ID3D11VertexShader* vertexShader;
-	ID3D11PixelShader* pixelShader;
-	ID3D11DomainShader* domainShader;
-	ID3D11HullShader* hullShader;
-	ID3D11GeometryShader* geometryShader;
+	ID3D11VertexShader* vertexShader = nullptr;
+	ID3D11PixelShader* pixelShader = nullptr;
+	ID3D11DomainShader* domainShader = nullptr;
+	ID3D11HullShader* hullShader = nullptr;
+	ID3D11GeometryShader* geometryShader = nullptr;
 };
 
 // Used to pass render data to objects so they can be drawn independently

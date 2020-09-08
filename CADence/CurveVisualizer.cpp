@@ -412,6 +412,11 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 
 void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, IntersectionCurve* curve, IntersectedSurface affectedSurf)
 {
+	ShaderPreset currentPreset = m_renderState->GetCurrentShaderPreset();
+
+	ShaderPreset preset;
+	preset.vertexShader = m_renderState->m_paramSpaceVS.get();
+	preset.pixelShader = m_renderState->m_paramSpacePS.get();
 
 	auto surface = curve->GetParametricSurface(affectedSurf);
 	assert(surface.expired() == false);
@@ -436,8 +441,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	ClearTexture(texture, context, m_renderState->m_depthBuffer.get(), 1.f, 1.f, 1.f, 1.f);
 
 	context->OMSetRenderTargets(1, &texture, m_renderState->m_depthBuffer.get());
-	context->VSSetShader(m_renderState->m_paramSpaceVS.get(), nullptr, 0);
-	context->PSSetShader(m_renderState->m_paramSpacePS.get(), nullptr, 0);
+	m_renderState->SetShaderPreset(preset);
 
 	std::vector<VertexPositionColor> positions;
 	std::vector<unsigned short> indices;
@@ -449,6 +453,8 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	// Add the trimmed space vertices
 	for (auto pair : trim.vertices)
 	{
+		assert(pair.x >= 0 && pair.y >= 0);
+
 		positions.push_back(VertexPositionColor{
 			DirectX::XMFLOAT3(pair.x, pair.y, 0.1f),
 			DirectX::XMFLOAT3(0.f,0.f,0.f) });
@@ -467,6 +473,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	ID3D11Buffer* vertBuff[] = { vertices.get() };
 	UINT strides[] = { sizeof(VertexPositionColor) };
 	UINT offsets[] = { 0 };
+	
 	m_renderState->m_device.context()->IASetVertexBuffers(0, 1, vertBuff, strides, offsets);
 	m_renderState->m_device.context()->IASetIndexBuffer(idxBuff.get(), DXGI_FORMAT_R16_UINT, 0);
 	m_renderState->m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -474,6 +481,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 
 	// Reset viewport
 	context->RSSetViewports(originalVPCount, originalVPs);
+	m_renderState->SetShaderPreset(currentPreset);
 	delete[] originalVPs;
 }
 
