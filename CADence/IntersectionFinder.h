@@ -96,6 +96,9 @@ private:
 		IParametricSurface* surfaceP, ParameterPair surfPParams,
 		DirectX::XMFLOAT3 firstPoint);
 
+	IntersectionSearchResultOneDir FindPointsInDirection(IParametricSurface* qSurface, IParametricSurface* pSurface,
+		ParameterQuad startParams, bool direction, bool checkLooped, int pointCap, XMFLOAT3 firstPoint);
+
 	IntersectionPointSearchData FindNextPoint(
 		IParametricSurface* qSurf,
 		IParametricSurface* pSurf,

@@ -188,9 +188,11 @@
     <ClInclude Include="IntersectionData.h" />
     <ClInclude Include="IntersectionFinder.h" />
     <ClInclude Include="IntersectionSearchResult.h" />
+    <ClInclude Include="IntersectionSearchResultOneDir.h" />
     <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IParametricSurface.h" />
     <ClInclude Include="IRenderTarget.h" />
+    <ClInclude Include="LoopData.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="Node.h" />
