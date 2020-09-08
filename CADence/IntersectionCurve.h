@@ -16,8 +16,9 @@ public:
 
 	// Intersection Curve Unique methods
 	ObjectRef GetParametricSurface(IntersectedSurface surface);
+	bool GetIsClosedIntersection(IntersectedSurface surface);
 	std::vector<DirectX::XMFLOAT2> GetParameterList(IntersectedSurface surface);
-	std::vector<DirectX::XMFLOAT2> GetNormalizedParameterList(IntersectedSurface surface);
+	std::vector<DirectX::XMFLOAT2> GetNormalizedParameterList(IntersectedSurface surface);	
 	std::vector<DirectX::XMFLOAT3> GetPointPositions();
 
 	// Object methods

@@ -38,6 +38,22 @@ ObjectRef IntersectionCurve::GetParametricSurface(IntersectedSurface surface)
 	return res;
 }
 
+bool IntersectionCurve::GetIsClosedIntersection(IntersectedSurface surface)
+{
+	bool isClosed = false;
+	switch (surface)
+	{
+	case IntersectedSurface::SurfaceQ:
+		isClosed = m_qIsClosedIntersection;
+		break;
+	case IntersectedSurface::SurfaceP:
+		isClosed = m_pIsClosedIntersection;
+		break;
+	}
+
+	return isClosed;
+}
+
 std::vector<DirectX::XMFLOAT2> IntersectionCurve::GetParameterList(IntersectedSurface surface)
 {
 	std::vector<DirectX::XMFLOAT2> paramsList;

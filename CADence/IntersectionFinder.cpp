@@ -828,7 +828,7 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 	float minDistTotal = FLT_MAX;
 	//TODO stop if result is on the border?
 	bool sizeNotCapped = result.surfQParamsList.size() < pointCap;
-	while (curSearchData.found && sizeNotCapped)
+	while (curSearchData.found && sizeNotCapped && !borderPoint)
 	{
 		bool looped = false;
 		if (checkLooped)

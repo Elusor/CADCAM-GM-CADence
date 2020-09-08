@@ -446,25 +446,75 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	std::vector<VertexPositionColor> positions;
 	std::vector<unsigned short> indices;
 
-	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
+	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	TrimmedSpace trim = Trimmer::Trim(paramList, 11, 11, trimmableSurf->GetCurrentTrimSide());
 
-	// Add the trimmed space vertices
-	for (auto pair : trim.vertices)
+	if (!curve->GetIsClosedIntersection(affectedSurf))
 	{
-		assert(pair.x >= 0 && pair.y >= 0);
+		int k = 0;
+		for (float u = 0.1f; u < 1.f; u += 0.1f)
+		{
+			positions.push_back(VertexPositionColor{
+				DirectX::XMFLOAT3(u, 0.0f, 0.2f),
+				gridColor });
+			positions.push_back(VertexPositionColor{
+				DirectX::XMFLOAT3(u, 1.0f, 0.2f),
+				gridColor });
 
-		positions.push_back(VertexPositionColor{
-			DirectX::XMFLOAT3(pair.x, pair.y, 0.1f),
-			DirectX::XMFLOAT3(0.f,0.f,0.f) });
-	}
+			indices.push_back(k);
+			indices.push_back(k + 1);
+			k += 2;
+		}
 
-	int currentIndexOffset = indices.size();
-	for (auto ind : trim.indices)
-	{
-		indices.push_back(currentIndexOffset + ind);
+		for (float u = 0.1f; u < 1.f; u += 0.1f)
+		{
+			positions.push_back(VertexPositionColor{
+				DirectX::XMFLOAT3(0.0f, u , 0.2f),
+				gridColor });
+			positions.push_back(VertexPositionColor{
+				DirectX::XMFLOAT3(1.0f, u, 0.2f),
+				gridColor });
+			indices.push_back(k);
+			indices.push_back(k + 1);
+			k += 2;
+		}
+
+		k = positions.size();
+		for (auto pair : paramList)
+		{
+			assert(pair.x >= 0 && pair.y >= 0);
+			positions.push_back(VertexPositionColor{
+				DirectX::XMFLOAT3(pair.x, pair.y, 0.1f),
+				DirectX::XMFLOAT3(0.f,0.f,0.f) });
+		}
+
+		for (int i = 0; i < paramList.size() - 1; i++)
+		{
+			indices.push_back(k+ i);
+			indices.push_back(k+ i + 1);
+		}
+
 	}
+	else {
+		TrimmedSpace trim = Trimmer::Trim(paramList, 11, 11, trimmableSurf->GetCurrentTrimSide());
+		// Add the trimmed space vertices
+		for (auto pair : trim.vertices)
+		{
+			assert(pair.x >= 0 && pair.y >= 0);
+
+			positions.push_back(VertexPositionColor{
+				DirectX::XMFLOAT3(pair.x, pair.y, 0.1f),
+				DirectX::XMFLOAT3(0.f,0.f,0.f) });
+		}
+
+		int currentIndexOffset = indices.size();
+		for (auto ind : trim.indices)
+		{
+			indices.push_back(currentIndexOffset + ind);
+		}
+	}
+	
+	
 
 	auto vertices = m_renderState->m_device.CreateVertexBuffer(positions);
 	auto idxBuff = m_renderState->m_device.CreateIndexBuffer(indices);

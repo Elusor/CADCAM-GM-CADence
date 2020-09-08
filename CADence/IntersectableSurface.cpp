@@ -29,11 +29,20 @@ void TrimmableSurface::SwitchTrimmedSide()
 
 bool TrimmableSurface::CreateTrimSwitchGui(std::string identifier)
 {
-	std::string trimSide = "Switch trimmed side##" + identifier;
-	bool trimChanged = ImGui::Checkbox(trimSide.c_str(), &m_trimSidesSwitched);
-	if (trimChanged)
+	bool trimChanged = false;
+	if (auto curveNode = m_intersectionData.intersectionCurve.lock())
 	{
-		SwitchTrimmedSide();
+		auto curve = dynamic_cast<IntersectionCurve*>(curveNode->m_object.get());
+		if (curve->GetIsClosedIntersection(m_intersectionData.affectedSurface))
+		{
+			std::string trimSide = "Switch trimmed side##" + identifier;
+			trimChanged = ImGui::Checkbox(trimSide.c_str(), &m_trimSidesSwitched);
+			if (trimChanged)
+			{
+				SwitchTrimmedSide();
+			}
+		}
 	}
+	
 	return trimChanged;
 }
