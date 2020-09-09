@@ -45,6 +45,6 @@ DirectX::XMFLOAT4 operator*(XMFLOAT4 val, float t);
 DirectX::XMFLOAT4 operator/(XMFLOAT4 val, float t);
 DirectX::XMFLOAT4 operator*(float t, XMFLOAT4 val);
 
-void SetNthFieldValue(DirectX::XMFLOAT4& vector, int index, float value);
+void SetAt(DirectX::XMFLOAT4& vector, int index, float value);
 
-float GetNthFieldValue(DirectX::XMFLOAT4 vector, int index);
+float GetAt(DirectX::XMFLOAT4 vector, int index);

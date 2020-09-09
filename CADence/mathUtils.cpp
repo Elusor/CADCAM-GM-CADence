@@ -1,6 +1,6 @@
 #include "mathUtils.h"
 
-void SetNthFieldValue(DirectX::XMFLOAT4& vector, int index, float value) {
+void SetAt(DirectX::XMFLOAT4& vector, int index, float value) {
 	switch (index)
 	{
 	case 0:
@@ -18,7 +18,7 @@ void SetNthFieldValue(DirectX::XMFLOAT4& vector, int index, float value) {
 	}
 }
 
-float GetNthFieldValue(DirectX::XMFLOAT4 vector, int index) {
+float GetAt(DirectX::XMFLOAT4 vector, int index) {
 
 	float res = 0.0f;
 	switch (index)

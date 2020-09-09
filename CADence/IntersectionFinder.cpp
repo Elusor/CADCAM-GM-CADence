@@ -763,6 +763,8 @@ IntersectionPointSearchData IntersectionFinder::FindNextPointAdaptiveStep(
 	return result;
 }
 
+
+
 ParameterQuad IntersectionFinder::GetWrappedParameters(
 	IParametricSurface* qSurface, 
 	IParametricSurface* pSurface, 
@@ -970,13 +972,13 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 	DirectX::XMFLOAT4 distances;
 	for (int i = 0; i < 4; i++)
 	{
-		SetNthFieldValue(distances, i, FLT_MAX);
+		SetAt(distances, i, FLT_MAX);
 
-		float deltaCoord = GetNthFieldValue(delta, i);
+		float deltaCoord = GetAt(delta, i);
 		if (deltaCoord != 0.0f)
 		{
-			float zeroDist = (0.f - GetNthFieldValue(x_prev, i)) / deltaCoord;
-			float oneDist = (1.f - GetNthFieldValue(x_prev, i)) / deltaCoord;
+			float zeroDist = (0.f - GetAt(x_prev, i)) / deltaCoord;
+			float oneDist = (1.f - GetAt(x_prev, i)) / deltaCoord;
 
 			float val = FLT_MAX;
 			float isValZeroDist = false;
@@ -993,7 +995,7 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 				isValZeroDist = false;
 			}
 			
-			SetNthFieldValue(distances, i, val);
+			SetAt(distances, i, val);
 			if (val < dist)
 			{
 				dist = val;
@@ -1022,12 +1024,12 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 
 	for (int i = 0; i < 4; i++)
 	{
-		float val = GetNthFieldValue(delta, i);
+		float val = GetAt(delta, i);
 		if (val < eps)
 			val = 0.0f;
 		if (val > 1.f - eps)
 			val = 1.0f;
-		SetNthFieldValue(delta, i, val);
+		SetAt(delta, i, val);
 	}
 	
 	auto modifiedStep = delta * dist;
@@ -1089,7 +1091,11 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 
 			// Find the next point using Newton's method to solve linear equation system
 			x_prev = x_k;
-			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?			
+			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?	
+
+			// TODO check if point insersect boundaries. If yes - add points on the boundaries to the result and return them in the modified struct
+			auto auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, x_prev);
+
 			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
 			// One or more surfaces are out of bounds - try to find a boundary closing point

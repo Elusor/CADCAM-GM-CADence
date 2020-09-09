@@ -116,6 +116,10 @@ private:
 		bool reverseDirection,
 		float step);
 
+	std::vector<XMFLOAT4> GetAuxiliaryPoints(
+		IParametricSurface* qSurface, IParametricSurface* pSurface,
+		ParameterQuad x_k, ParameterQuad x_prev);
+
 	ParameterQuad GetWrappedParameters(
 		IParametricSurface* qSurface,
 		IParametricSurface* pSurface,

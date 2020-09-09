@@ -40,10 +40,10 @@ void FindLargestElementInSubMatrix(DirectX::XMFLOAT4X4 matrix, int column, int r
 
 void SwapValues(DirectX::XMFLOAT4& vector, int index1, int index2)
 {
-	float val1 = GetNthFieldValue(vector, index1);
-	float val2 = GetNthFieldValue(vector, index2);
-	SetNthFieldValue(vector, index1, val2);
-	SetNthFieldValue(vector, index2, val1);
+	float val1 = GetAt(vector, index1);
+	float val2 = GetAt(vector, index2);
+	SetAt(vector, index1, val2);
+	SetAt(vector, index2, val1);
 }
 
 DirectX::XMFLOAT4 PermutateVector(DirectX::XMFLOAT4 vec, DirectX::XMFLOAT4 permutationVector)
@@ -53,11 +53,11 @@ DirectX::XMFLOAT4 PermutateVector(DirectX::XMFLOAT4 vec, DirectX::XMFLOAT4 permu
 	for (int i = 0; i < 4; i++)
 	{
 		// Get the right place for the value stored in this index
-		auto permutationIndex = GetNthFieldValue(permutationVector, i);
+		auto permutationIndex = GetAt(permutationVector, i);
 		// Get the value
-		auto indValue = GetNthFieldValue(vec, i);
+		auto indValue = GetAt(vec, i);
 		// Set the value in the result vector at the corrected index
-		SetNthFieldValue(result, permutationIndex, indValue);
+		SetAt(result, permutationIndex, indValue);
 	}
 
 	return result;
@@ -65,7 +65,7 @@ DirectX::XMFLOAT4 PermutateVector(DirectX::XMFLOAT4 vec, DirectX::XMFLOAT4 permu
 
 void DivideRow(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int alteredRow, float multiplier = 1.0f)
 {
-	float bVal = GetNthFieldValue(bVector, alteredRow);
+	float bVal = GetAt(bVector, alteredRow);
 	float bModified = bVal / multiplier;
 
 	DirectX::XMFLOAT4 rowVals;
@@ -84,12 +84,12 @@ void DivideRow(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int alte
 	matrix.m[alteredRow][1] = modifiedRowVals.y;
 	matrix.m[alteredRow][2] = modifiedRowVals.z;
 	matrix.m[alteredRow][3] = modifiedRowVals.w;
-	SetNthFieldValue(bVector, alteredRow, bModified);
+	SetAt(bVector, alteredRow, bModified);
 }
 
 void MultiplyRow(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int alteredRow, float multiplier = 1.0f)
 {
-	float bVal = GetNthFieldValue(bVector, alteredRow);
+	float bVal = GetAt(bVector, alteredRow);
 	float bModified = bVal * multiplier;
 
 	DirectX::XMFLOAT4 rowVals;
@@ -108,14 +108,14 @@ void MultiplyRow(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int al
 	matrix.m[alteredRow][1] = modifiedRowVals.y;
 	matrix.m[alteredRow][2] = modifiedRowVals.z;
 	matrix.m[alteredRow][3] = modifiedRowVals.w;
-	SetNthFieldValue(bVector, alteredRow, bModified);
+	SetAt(bVector, alteredRow, bModified);
 }
 
 // Performs alteredRow -= valuesRow * multiplier
 void SubstractRows(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int alteredRow, int valuesRow, float multiplier = 1.0f)
 {
-	float bVal = GetNthFieldValue(bVector, alteredRow);
-	float bModified = bVal - GetNthFieldValue(bVector, valuesRow) * multiplier;
+	float bVal = GetAt(bVector, alteredRow);
+	float bModified = bVal - GetAt(bVector, valuesRow) * multiplier;
 
 	DirectX::XMFLOAT4 rowVals;
 	rowVals.x = matrix.m[alteredRow][0];
@@ -133,7 +133,7 @@ void SubstractRows(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int 
 	matrix.m[alteredRow][1] = modifiedRowVals.y;
 	matrix.m[alteredRow][2] = modifiedRowVals.z;
 	matrix.m[alteredRow][3] = modifiedRowVals.w;
-	SetNthFieldValue(bVector, alteredRow, bModified);
+	SetAt(bVector, alteredRow, bModified);
 }
 
 
@@ -149,21 +149,21 @@ void SwapRows(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, int row1,
 	tmp.y = matrix.m[row1][1];
 	tmp.z = matrix.m[row1][2];
 	tmp.w = matrix.m[row1][3];
-	bTmp = GetNthFieldValue(bVector, row1);
+	bTmp = GetAt(bVector, row1);
 
 	// Copy values from row2 to row1
 	matrix.m[row1][0] = matrix.m[row2][0];
 	matrix.m[row1][1] = matrix.m[row2][1];
 	matrix.m[row1][2] = matrix.m[row2][2];
 	matrix.m[row1][3] = matrix.m[row2][3];
-	SetNthFieldValue(bVector, row1, GetNthFieldValue(bVector, row2));
+	SetAt(bVector, row1, GetAt(bVector, row2));
 
 	// Copy stashed values to row2
 	matrix.m[row2][0] = tmp.x;
 	matrix.m[row2][1] = tmp.y;
 	matrix.m[row2][2] = tmp.z;
 	matrix.m[row2][3] = tmp.w;
-	SetNthFieldValue(bVector, row2, bTmp);
+	SetAt(bVector, row2, bTmp);
 }
 
 void SwapColumns(DirectX::XMFLOAT4X4& matrix, DirectX::XMFLOAT4& bVector, DirectX::XMFLOAT4& permutationVec, int col1, int col2)
@@ -206,7 +206,7 @@ DirectX::XMFLOAT4 Geom::SolveLinearEquationSystem(DirectX::XMFLOAT4X4 A, DirectX
 
 		for (int i = 0; i < 4; i++)
 		{
-			m[i][4] = 1 * GetNthFieldValue(b, i);
+			m[i][4] = 1 * GetAt(b, i);
 		}
 
 		//auto deltaXGetp = Geom::SolveGEPP(derMatrix, -1 * funcVal);
@@ -215,7 +215,7 @@ DirectX::XMFLOAT4 Geom::SolveLinearEquationSystem(DirectX::XMFLOAT4X4 A, DirectX
 
 		for (int i = 0; i < 4; i++)
 		{
-			SetNthFieldValue(xResult, i, bTab[i]);
+			SetAt(xResult, i, bTab[i]);
 		}
 	}
 
