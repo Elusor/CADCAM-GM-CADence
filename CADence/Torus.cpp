@@ -206,19 +206,10 @@ ParameterPair Torus::GetMaxParameterValues()
 
 ParameterPair Torus::GetNormalizedParams(float u, float v)
 {
-	float newU = fmod(u, XM_2PI);
-	float newV = fmod(v, XM_2PI);
-
-	if (newU < 0.f)
-	{
-		newU = XM_2PI + newU;
-	}
-
-	if (newV < 0.f)
-	{
-		newV = XM_2PI + newV;
-	}
-
+	auto params = GetWrappedParams(u,v);
+	float newU = params.u;
+	float newV = params.v;
+	
 	u = newU / XM_2PI;
 	v = newV / XM_2PI;
 
@@ -343,14 +334,22 @@ bool Torus::ParamsInsideBounds(float u, float v)
 ParameterPair Torus::GetWrappedParams(float u, float v)
 {
 	// Fmod here causes the values to be inexact and give unsatisfying results. Just return the old values.
+	float newU = u;
+	float newV = v;
+	if (u != XM_2PI)
+	{
+		newU = fmod(u, XM_2PI);
+		if (newU < 0.0f)
+			newU += XM_2PI;
+	}
+	
 
-	float newU = fmod(u, XM_2PI);
-	if(newU < 0.0f)
-		newU += XM_2PI;
-
-	float newV = fmod(v, XM_2PI);
-	if (newV < 0.0f)
-		newV += XM_2PI;
+	if (v != XM_2PI)
+	{
+		newV = fmod(v, XM_2PI);
+		if (newV < 0.0f)
+			newV += XM_2PI;
+	}
 
 	return ParameterPair(newU, newV);
 }

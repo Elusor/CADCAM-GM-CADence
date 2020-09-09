@@ -333,8 +333,10 @@ ParameterPair BezierSurfaceC0::GetMaxParameterValues()
 
 ParameterPair BezierSurfaceC0::GetNormalizedParams(float u, float v)
 {	
-	float newU = u / m_patchW;
-	float newV = v / m_patchH;
+	auto params = GetWrappedParams(u, v);
+
+	float newU = params.u / m_patchW;
+	float newV = params.v / m_patchH;
 
 	return ParameterPair(newU, newV);
 }
@@ -450,14 +452,20 @@ ParameterPair BezierSurfaceC0::GetWrappedParams(float u, float v)
 
 	if (m_wrapDir == SurfaceWrapDirection::Height)
 	{ 
-		float wrappedV = fmod(v, maxParams.v);
-		resV = wrappedV >= 0.0f ? wrappedV : maxParams.v + wrappedV;
+		if (v != maxParams.v)
+		{
+			float wrappedV = fmod(v, maxParams.v);
+			resV = wrappedV >= 0.0f ? wrappedV : maxParams.v + wrappedV;
+		}		
 	}
 
 	if (m_wrapDir == SurfaceWrapDirection::Width)
 	{ 
-		float wrappedU = fmod(u, maxParams.u);
-		resU = wrappedU >= 0.0f ? wrappedU : maxParams.u + wrappedU;
+		if (u != maxParams.u)
+		{
+			float wrappedU = fmod(u, maxParams.u);
+			resU = wrappedU >= 0.0f ? wrappedU : maxParams.u + wrappedU;
+		}
 	}
 
 	return ParameterPair(resU, resV);
