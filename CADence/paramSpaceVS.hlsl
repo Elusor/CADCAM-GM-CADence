@@ -6,7 +6,7 @@ VSOut main(VSIn i)
     float3 translated = i.pos;
     translated.x -= 0.5f;
     translated.y -= 0.5f;
-    float3 scaled = translated * 2.f;    
+    float3 scaled = translated * 1.85f;    
     o.pos = float4(scaled, 1.0f);
     o.col = float4(i.col, 1.0f);
     o.posL = o.pos;

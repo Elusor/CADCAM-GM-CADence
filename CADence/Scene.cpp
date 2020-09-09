@@ -6,7 +6,7 @@
 #include <xmemory>
 Scene::Scene(GuiManager* guiManager, RenderState* renderState)
 {
-	m_curveVisualizer = std::make_unique<CurveVisualizer>(guiManager, renderState, 512, 512);
+	m_curveVisualizer = std::make_unique<CurveVisualizer>(guiManager, renderState, 480, 480);
 
 	m_objectFactory = std::unique_ptr<ObjectFactory>(new ObjectFactory());
 	std::unique_ptr<Object> spawnMarker = move(m_objectFactory->CreateSpawnMarker()->m_object);

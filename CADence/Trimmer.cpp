@@ -584,14 +584,15 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 		float lowerU = u * uStep;
 		float lowerV = 1.0f;
 		std::vector<IndexedVertex> candidatePoints;
-		for (int i = 0; i < addedPoints.size(); i++)
+		for (int i = 0; i < indexedCurve.size(); i++)
 		{
-			auto pt = addedPoints[i];
+			auto pt = indexedCurve[i];
 			float uDiff = pt.params.x - lowerU;
 			float vDiff = pt.params.y - lowerV;
 
-			if (uDiff < uStep && vDiff < vStep &&
-				uDiff >= 0.0f && vDiff >= 0.0f)
+			if (uDiff < uStep 
+				&& uDiff >= 0.0f 
+				&& pt.params.y == 1.0f)
 			{
 				candidatePoints.push_back(pt);
 			}
@@ -605,9 +606,9 @@ TrimmedSpace Trimmer::Trim(std::vector<DirectX::XMFLOAT2> paramCurve, int uLineC
 		float lowerU = 1.0f;
 		float lowerV = v * vStep;
 		std::vector<IndexedVertex> candidatePoints;
-		for (int i = 0; i < addedPoints.size(); i++)
+		for (int i = 0; i < indexedCurve.size(); i++)
 		{
-			auto pt = addedPoints[i];
+			auto pt = indexedCurve[i];
 			float uDiff = pt.params.x - lowerU;
 			float vDiff = pt.params.y - lowerV;
 
