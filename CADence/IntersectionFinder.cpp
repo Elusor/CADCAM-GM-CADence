@@ -19,7 +19,7 @@ IntersectionFinder::IntersectionFinder(Scene* scene)
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 	m_step = 0.5f; 
-	m_loopPrecision = 0.029;
+	m_loopPrecision = 0.025;
 	m_precision = 10E-5f;
 	// To allow cursor found soulutions to be found in gradient
 	m_gradientPrecision = 1E-4f;
@@ -932,81 +932,78 @@ IntersectionSearchResultOneDir IntersectionFinder::FindPointsInDirection(
 		return sqrt(Dot(scaledDist, scaledDist));
 	};
 
-	bool borderPoint = false;
 	LoopData loopData;
 	IntersectionPointSearchData curSearchData;
 	curSearchData.found = false;
 	curSearchData.pos = firstPoint;
 	curSearchData.params = wrappedStartParams;
 
-
-	// Find the first point
-	curSearchData = FindNextPointAdaptiveStep(qSurface, pSurface, curSearchData.params, curSearchData.pos, direction, m_step);
-	if (curSearchData.found)
-	{
-		loopData.m_pOnBorder = curSearchData.pPointOnBorder;
-		loopData.m_qOnBorder = curSearchData.qPointOnBorder;
-		borderPoint = loopData.m_pOnBorder || loopData.m_qOnBorder;
-	}
-
 	float minDistTotal = FLT_MAX;
-	//TODO stop if result is on the border?
 	bool sizeNotCapped = result.surfQParamsList.size() < pointCap;
-	while (curSearchData.found && sizeNotCapped && !borderPoint)
+	bool loopFound = false;
+	bool pointIsOnBorder = false;
+	bool continueSearch = true;
+	
+	while (continueSearch)
 	{
-		bool looped = false;
-		if (checkLooped)
+		curSearchData = FindNextPointAdaptiveStep(qSurface, pSurface, curSearchData.params, curSearchData.pos, direction, m_step);
+		if (curSearchData.found)
 		{
-			// Check if current point is very close to the first point
-			auto diff = firstPoint - curSearchData.pos;
-			auto dist = Dot(diff, diff);
-			bool trueLoop = false;
+			// Copy loop data
+			loopData.m_pOnBorder = curSearchData.pPointOnBorder;
+			loopData.m_qOnBorder = curSearchData.qPointOnBorder;
+			pointIsOnBorder = loopData.m_pOnBorder || loopData.m_qOnBorder;		
 
-			// TODO check distance here based on PROPER WRAPPED PARAM SPACE 
-			//Check if parameters are close to each other
-			auto qParamDiff = GetParamSpaceDistance(qSurface, wrappedStartParams.GetQParams(), curSearchData.params.GetQParams());
-			auto pParamDiff = GetParamSpaceDistance(pSurface, wrappedStartParams.GetPParams(), curSearchData.params.GetPParams());
-			
-			trueLoop = min(qParamDiff, pParamDiff) < m_loopPrecision;
-			minDistTotal = min(minDistTotal, min(qParamDiff, pParamDiff));
-			if (dist <= m_step / 2.f && trueLoop) {
-				result.surfQParamsList.push_back(curSearchData.params.GetQParams().GetVector());
-				result.surfPParamsList.push_back(curSearchData.params.GetPParams().GetVector());
-				result.surfQParamsList.push_back(wrappedStartParams.GetQParams().GetVector());
-				result.surfPParamsList.push_back(wrappedStartParams.GetPParams().GetVector());
-
-
-				curSearchData.found = false;
-				loopData.m_qLooped = true;
-				loopData.m_pLooped = true;
-				/*if (qParamDiff < m_loopPrecision * 1.5f)
-					
-				if (pParamDiff < m_loopPrecision * 1.5f)
-				*/	
-				looped = true;
+			for (XMFLOAT4 auxPoint : curSearchData.auxPoints)
+			{
+				ParameterQuad auxParams = auxPoint;
+				auto auxParQ1 = auxParams.GetQParams();
+				auto auxParP1 = auxParams.GetPParams();
+				auxParams = GetWrappedParameters(qSurface, pSurface, auxParams);
+				auto auxParQ2 = auxParams.GetQParams();
+				auto auxParP2 = auxParams.GetPParams();
+				
+				result.surfQParamsList.push_back(auxParams.GetQParams().GetVector());
+				result.surfPParamsList.push_back(auxParams.GetPParams().GetVector());
 			}
 
-		}
-		if (!checkLooped || !looped)
-		{
-			// Do not check for loops or didnt find any
 			result.surfQParamsList.push_back(curSearchData.params.GetQParams().GetVector());
 			result.surfPParamsList.push_back(curSearchData.params.GetPParams().GetVector());
-			curSearchData = FindNextPointAdaptiveStep(qSurface, pSurface, curSearchData.params, curSearchData.pos, direction, m_step);
-			if (curSearchData.found)
-			{
-				loopData.m_pOnBorder = curSearchData.pPointOnBorder;
-				loopData.m_qOnBorder = curSearchData.qPointOnBorder;
-				borderPoint = loopData.m_pOnBorder || loopData.m_qOnBorder;
-				if (borderPoint)
-				{
-					result.surfQParamsList.push_back(curSearchData.params.GetQParams().GetVector());
-					result.surfPParamsList.push_back(curSearchData.params.GetPParams().GetVector());
-				}
-			}
-		}
 
+			if (pointIsOnBorder == false && checkLooped)
+			{
+				// Check if current point is very close to the first point in scene space   
+				auto diff = firstPoint - curSearchData.pos;
+				auto dist = Dot(diff, diff);
+
+				//Check if parameters are close to each other
+				auto qParamDiff = GetParamSpaceDistance(qSurface, wrappedStartParams.GetQParams(), curSearchData.params.GetQParams());
+				auto pParamDiff = GetParamSpaceDistance(pSurface, wrappedStartParams.GetPParams(), curSearchData.params.GetPParams());
+
+				//minDistTotal = min(minDistTotal, min(qParamDiff, pParamDiff));
+				bool distInParamSpaceOK = min(qParamDiff, pParamDiff) < m_loopPrecision;
+				bool distInSceneSpaceOK = dist <= m_step / 2.f;
+				bool isLoop = distInParamSpaceOK && distInSceneSpaceOK;
+
+				if (isLoop) {
+					// Add first point to close the loop
+					result.surfQParamsList.push_back(wrappedStartParams.GetQParams().GetVector());
+					result.surfPParamsList.push_back(wrappedStartParams.GetPParams().GetVector());
+
+					loopData.m_qLooped = true;
+					loopData.m_pLooped = true;
+					loopFound = true;
+				}				
+			}
+
+		}
+		
 		sizeNotCapped = result.surfQParamsList.size() < pointCap;
+		continueSearch = 
+			(curSearchData.found && 
+			sizeNotCapped && 
+			loopFound == false && 
+			pointIsOnBorder == false);
 	}
 
 	result.m_loopData.m_qOnBorder = loopData.m_qOnBorder;
@@ -1216,7 +1213,12 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?	
 
 			// TODO check if point insersect boundaries. If yes - add points on the boundaries to the result and return them in the modified struct
-			result.auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, x_prev);
+			auto auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, parameters);
+			for (auto pt : auxPoints)
+			{
+				result.auxPoints.push_back(pt);
+			}
+
 			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
 			// One or more surfaces are out of bounds - try to find a boundary closing point
