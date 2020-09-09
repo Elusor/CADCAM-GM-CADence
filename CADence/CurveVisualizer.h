@@ -43,8 +43,6 @@ private:
 	bool InitializeTextures(ID3D11Device* device, int width, int height);
 	MeshDescription<VertexPositionColor> PrepareCurveDrawingData(std::vector<DirectX::XMFLOAT3> bezierPositions);
 	void RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, std::vector<DirectX::XMFLOAT2> paramList);
-
-	// DEBUG 
 	void RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, IntersectionCurve* curve, IntersectedSurface affectedSurf);
-	// DEBUG
+	
 };

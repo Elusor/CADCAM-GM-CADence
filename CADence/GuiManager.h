@@ -13,12 +13,15 @@ public:
 	void EnableTextureWindow(std::string message, std::string customHeader, ID3D11ShaderResourceView* tex, int width, int height);
 	void EnableDoubleTextureWindow(
 		std::string message, std::string customHeader,
-		ID3D11ShaderResourceView* tex1, int width1, int height1,
-		ID3D11ShaderResourceView* tex2, int width2, int height2);
+		ID3D11ShaderResourceView* tex1, int width1, int height1, std::string image1Title,
+		ID3D11ShaderResourceView* tex2, int width2, int height2, std::string image2Title);
 private:
 
 	std::string m_customHeader;
 	std::string m_customMessage;
+
+	std::string m_image1Title;
+	std::string m_image2Title;
 
 	bool m_displatCustomModal;
 	bool m_displayTextureWindow;

@@ -67,6 +67,17 @@ CurveVisualizer::~CurveVisualizer()
 	return;
 }
 
+std::string GetObjectName(ObjectRef reference)
+{
+	std::string res = "Object";
+	if (auto obj = reference.lock())
+	{
+		res = obj->m_object->GetRawName();
+	}
+
+	return res;
+}
+
 void CurveVisualizer::VisualizeCurve(ObjectRef curveRef)
 {
 	IntersectionCurve* curve = nullptr;
@@ -80,11 +91,16 @@ void CurveVisualizer::VisualizeCurve(ObjectRef curveRef)
 	// Render the image onto the member texture
 	/*RenderImage(m_renderTargetView1, m_shaderResourceView1, params1);
 	RenderImage(m_renderTargetView2, m_shaderResourceView2, params2);*/
-	RenderTrimmedSpace(m_renderTargetView1, m_shaderResourceView1, curve, IntersectedSurface::SurfaceP);
-	RenderTrimmedSpace(m_renderTargetView2, m_shaderResourceView2, curve, IntersectedSurface::SurfaceQ);
+	RenderTrimmedSpace(m_renderTargetView1, m_shaderResourceView1, curve, IntersectedSurface::SurfaceQ);
+	auto nameQ = GetObjectName(curve->GetParametricSurface(IntersectedSurface::SurfaceQ));
+
+	RenderTrimmedSpace(m_renderTargetView2, m_shaderResourceView2, curve, IntersectedSurface::SurfaceP);
+	auto nameP = GetObjectName(curve->GetParametricSurface(IntersectedSurface::SurfaceP));
 	
 	// Call a new Imgui Window with texture section
-	guiManager->EnableDoubleTextureWindow("", "Intersection curve in parameter space", m_shaderResourceView1, m_width, m_height, m_shaderResourceView2, m_width, m_height);
+	guiManager->EnableDoubleTextureWindow("", "Intersection curve in parameter space", 
+		m_shaderResourceView1, m_width, m_height, nameQ,
+		m_shaderResourceView2, m_width, m_height, nameP);
 }
 
 ID3D11ShaderResourceView* CurveVisualizer::GetShaderResourceView(IntersectedSurface affectedSurface)
@@ -465,12 +481,40 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	std::vector<unsigned short> indices;
 
 	DirectX::XMFLOAT3 gridColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	
+	DirectX::XMFLOAT3 gray = DirectX::XMFLOAT3(0.90f, 0.90f, 0.90f);
+	int k = 0;
+	for (float u = 0.0f; u < 1.001f; u += 0.1f)
+	{
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(u, 0.0f, 0.3f),
+			gray });
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(u, 1.0f, 0.3f),
+			gray });
 
+		indices.push_back(k);
+		indices.push_back(k + 1);
+		k += 2;
+	}
+
+	for (float u = 0.0f; u < 1.001f; u += 0.1f)
+	{
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(0.0f, u , 0.3f),
+			gray });
+		positions.push_back(VertexPositionColor{
+			DirectX::XMFLOAT3(1.0f, u, 0.3f),
+			gray });
+		indices.push_back(k);
+		indices.push_back(k + 1);
+		k += 2;
+	}
 
 	if (!curve->GetIsClosedIntersection(affectedSurf))
 	{
-		int k = 0;
-		for (float u = 0.1f; u < 1.f; u += 0.1f)
+		
+		for (float u = 0.0f; u < 1.001f; u += 0.1f)
 		{
 			positions.push_back(VertexPositionColor{
 				DirectX::XMFLOAT3(u, 0.0f, 0.2f),
@@ -484,7 +528,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 			k += 2;
 		}
 
-		for (float u = 0.1f; u < 1.f; u += 0.1f)
+		for (float u = 0.0f; u < 1.001f; u += 0.1f)
 		{
 			positions.push_back(VertexPositionColor{
 				DirectX::XMFLOAT3(0.0f, u , 0.2f),
@@ -508,8 +552,15 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 
 		for (int i = 0; i < paramList.size() - 1; i++)
 		{
-			indices.push_back(k+ i);
-			indices.push_back(k+ i + 1);
+			auto params1 = paramList[i];
+			auto params2 = paramList[i+1];
+			auto diff = params1 - params2;
+
+			if (sqrt(Dot(diff, diff) < 0.1f))
+			{
+				indices.push_back(k + i);
+				indices.push_back(k + i + 1);
+			}			
 		}
 
 	}
@@ -584,7 +635,7 @@ bool CurveVisualizer::InitializeTextures(ID3D11Device* device, int width, int he
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
-
+	
 	result = device->CreateTexture2D(&textureDesc, nullptr, &m_renderTargetTexture1);
 	if (FAILED(result))
 	{

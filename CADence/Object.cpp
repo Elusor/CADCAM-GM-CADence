@@ -120,6 +120,11 @@ Object::Object():m_references(this)
 {
 }
 
+std::string Object::GetRawName()
+{
+	return m_name;
+}
+
 std::string Object::GetLabel()
 {
 	return m_name + "##" + m_defaultName;

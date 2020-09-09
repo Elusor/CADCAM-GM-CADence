@@ -18,6 +18,7 @@ public:
 
 	std::string GetLabel();
 	std::string GetIdentifier();
+	std::string GetRawName();
 
 	void RefUse();
 	void RefRelease();
