@@ -410,6 +410,24 @@ void CurveVisualizer::RenderImage(ID3D11RenderTargetView* texture, ID3D11ShaderR
 	m_renderState->m_device.context()->GSSetShader(nullptr, nullptr, 0);
 }
 
+std::vector<XMFLOAT2> RemoveAdjacentDuplicates(std::vector<XMFLOAT2> list)
+{
+	std::vector<XMFLOAT2> listWithoutDuplicates;
+	XMFLOAT2 lastParams = list[0];
+	listWithoutDuplicates.push_back(lastParams);
+	for (int i = 1; i < list.size(); i++)
+	{
+		auto curParams = list[i];
+		if (curParams.x != lastParams.x || curParams.y != lastParams.y)
+		{
+			lastParams = curParams;
+			listWithoutDuplicates.push_back(curParams);
+		}
+	}
+
+	return listWithoutDuplicates;
+}
+
 void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11ShaderResourceView* srv, IntersectionCurve* curve, IntersectedSurface affectedSurf)
 {
 	ShaderPreset currentPreset = m_renderState->GetCurrentShaderPreset();
@@ -422,7 +440,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	assert(surface.expired() == false);
 	auto trimmableSurf = dynamic_cast<TrimmableSurface*>(surface.lock()->m_object.get());
 	// Get Parameter lists from the curve
-	auto paramList = curve->GetNormalizedParameterList(affectedSurf);
+	auto paramList = RemoveAdjacentDuplicates(curve->GetNormalizedParameterList(affectedSurf));	
 
 	auto context = m_renderState->m_device.m_context.get();
 	auto device = m_renderState->m_device.m_device.get();

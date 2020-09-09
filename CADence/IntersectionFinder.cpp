@@ -816,16 +816,17 @@ ParameterQuad GetParamsOnOpposingEdge(IParametricSurface* qSurface, IParametricS
 	maxParams.Set(maxQParams, maxPParams);
 	XMFLOAT4 maxParamsF4 = maxParams.GetVector();
 
+	float eps = 1E-7;
 	for (int i = 0; i < 4; i++)
 	{
 		float iMaxParam = GetAt(maxParamsF4, i);
 		float curParam = GetAt(params.GetVector(), i);
 		
-		if (curParam == 0.0f)
+		if (abs(curParam) <= eps)
 		{
 			curParam = iMaxParam;
 		}
-		else if(curParam == iMaxParam) 
+		else if(abs(curParam - iMaxParam) <= eps)
 		{
 			curParam = 0.0f;
 		}
@@ -834,6 +835,36 @@ ParameterQuad GetParamsOnOpposingEdge(IParametricSurface* qSurface, IParametricS
 	}
 
 	return ParameterQuad(wrappedParam);
+}
+
+ParameterQuad CorrectEpsEdges(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad params)
+{
+	XMFLOAT4 epsCorrectedParams;
+	ParameterQuad maxParams;
+	ParameterPair maxQParams = qSurface->GetMaxParameterValues();
+	ParameterPair maxPParams = pSurface->GetMaxParameterValues();
+	maxParams.Set(maxQParams, maxPParams);
+	XMFLOAT4 maxParamsF4 = maxParams.GetVector();
+
+	float eps = 1E-7;
+	for (int i = 0; i < 4; i++)
+	{
+		float iMaxParam = GetAt(maxParamsF4, i);
+		float curParam = GetAt(params.GetVector(), i);
+
+		if (abs(curParam) <= eps)
+		{
+			curParam = 0.0f;
+		}
+		else if (abs(curParam - iMaxParam) <= eps)
+		{
+			curParam = iMaxParam;
+		}
+
+		SetAt(epsCorrectedParams, i, curParam);
+	}
+
+	return ParameterQuad(epsCorrectedParams);
 }
 
 std::vector<XMFLOAT4> IntersectionFinder::GetAuxiliaryPoints(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad x_k, ParameterQuad x_prev)
@@ -869,13 +900,17 @@ std::vector<XMFLOAT4> IntersectionFinder::GetAuxiliaryPoints(IParametricSurface*
 				if (curDist == 0.0f) {
 					// Add only the wrapped point
 					ParameterQuad wrappedBoundParams = GetParamsOnOpposingEdge(qSurface, pSurface, x_prev);
-					res.push_back(wrappedBoundParams.GetVector());
+					ParameterQuad aux = CorrectEpsEdges(qSurface, pSurface, x_prev);
+					res.push_back(aux.GetVector());
 				}
 				else {
 					ParameterQuad boundParams = x_prev + curDist * diff.GetVector();
 					ParameterQuad wrappedBoundParams = GetParamsOnOpposingEdge(qSurface, pSurface, boundParams);
-					res.push_back(boundParams.GetVector());
-					res.push_back(wrappedBoundParams.GetVector());
+					ParameterQuad aux1 = CorrectEpsEdges(qSurface, pSurface, boundParams);
+					ParameterQuad aux2 = CorrectEpsEdges(qSurface, pSurface, wrappedBoundParams);
+
+					res.push_back(aux1.GetVector());
+					res.push_back(aux2.GetVector());
 				}
 			}
 
