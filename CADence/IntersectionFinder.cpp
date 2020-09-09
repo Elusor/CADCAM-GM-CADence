@@ -12,7 +12,7 @@
 #include "IntersectionSearchResultOneDir.h"
 #include <queue>
 
-ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP);
+ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP);
 
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
@@ -170,8 +170,10 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 
 	bool initialQIn = qSurface->ParamsInsideBounds(outParams.GetQParams());
 	bool initialPIn = pSurface->ParamsInsideBounds(outParams.GetPParams());	
+	ParameterQuad maxParams;
+	maxParams.Set(qSurface->GetMaxParameterValues(), pSurface->GetMaxParameterValues());
 
-	auto boundaryPointData = FindClampedPosition(outParams, inParams, step, initialQIn, initialPIn);
+	auto boundaryPointData = FindClampedPosition(maxParams, outParams, inParams, step, initialQIn, initialPIn);
 	ParameterQuad boundaryParams = ParameterQuad(boundaryPointData.params);
 
 
@@ -1108,7 +1110,7 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	return algorithmResult;
 }
 
-ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP)
+ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP)
 {
 	ClampedPointData res;
 
@@ -1123,6 +1125,8 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 	float dist = FLT_MAX;
 	float eps = 10E-5;
 
+	auto maxParamsF4 = maxParams.GetVector();
+
 	DirectX::XMFLOAT4 distances;
 	for (int i = 0; i < 4; i++)
 	{
@@ -1132,7 +1136,7 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 		if (deltaCoord != 0.0f)
 		{
 			float zeroDist = (0.f - GetAt(x_prev, i)) / deltaCoord;
-			float oneDist = (1.f - GetAt(x_prev, i)) / deltaCoord;
+			float oneDist = (GetAt(maxParamsF4,i) - GetAt(x_prev, i)) / deltaCoord;
 
 			float val = FLT_MAX;
 			float isValZeroDist = false;
