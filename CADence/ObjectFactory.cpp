@@ -253,11 +253,11 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 	}
 
 	std::vector<std::shared_ptr<Node>> surfPatches = std::vector<std::shared_ptr<Node>>();
-	BezierPatch*** patches;
-	patches = new BezierPatch * *[patchesW];
+	BezierPatchC2*** patches;
+	patches = new BezierPatchC2 * *[patchesW];
 
 	for (int i = 0; i < patchesW; i++) {
-		patches[i] = new BezierPatch * [patchesH];
+		patches[i] = new BezierPatchC2 * [patchesH];
 	}
 
 	float patchSizeW = width / (float)patchesW;
@@ -292,7 +292,7 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 				points[startIdxW + 3][startIdxH + 3] };
 
 			auto patch = CreateBezierPatchC2(top, topMid, botMid, bot);
-			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
+			patches[patchW][patchH] = (BezierPatchC2*)patch->m_object.get();
 			surfPatches.push_back(patch);
 		}
 	}
@@ -392,7 +392,9 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(Scene* scene,
 
 }
 
-std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector<std::weak_ptr<Node>>> points, int patchesW, int patchesH, SurfaceWrapDirection wrapDir)
+std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(
+	std::vector<std::vector<std::weak_ptr<Node>>> points,
+	int patchesW, int patchesH, SurfaceWrapDirection wrapDir)
 {	
 	int widthPointCount = 3 * patchesW + 1;
 	int heightPointCount = 3 * patchesH + 1;
@@ -436,26 +438,25 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurface(std::vector<std::vector
 			// determine top bot left and right
 			int startIdxW = 3 * patchW;
 			int startIdxH = 3 * patchH;
-			top =    {
-				points[(startIdxW)% wrappedWidth][(startIdxH + 3) % wrappedHeight],
-				points[(startIdxW+1) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
-				points[(startIdxW+2) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
-				points[(startIdxW+3) % wrappedWidth][(startIdxH + 3) % wrappedHeight] };
-			topMid = { 
-				points[(startIdxW)% wrappedWidth][(startIdxH + 2) % wrappedHeight],
-				points[(startIdxW+1) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
-				points[(startIdxW+2) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
-				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 2) % wrappedHeight] };
-			botMid = { 
-				points[(startIdxW)% wrappedWidth][(startIdxH + 1) % wrappedHeight],
-				points[(startIdxW+1) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
-				points[(startIdxW+2) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
-				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 1) % wrappedHeight] };
-			bot =	 { 
-				points[(startIdxW)% wrappedWidth][(startIdxH) % wrappedHeight],
-				points[(startIdxW+1) % wrappedWidth][(startIdxH) % wrappedHeight],
-				points[(startIdxW+2) % wrappedWidth][(startIdxH) % wrappedHeight],
-				points[(startIdxW + 3) % wrappedWidth][(startIdxH    )%wrappedHeight] };
+			top = { points[startIdxW][startIdxH],
+				points[startIdxW + 1][startIdxH],
+				points[startIdxW + 2][startIdxH],
+				points[startIdxW + 3][startIdxH] };
+			topMid = { points[startIdxW][startIdxH + 1],
+				points[startIdxW + 1][startIdxH + 1],
+				points[startIdxW + 2][startIdxH + 1],
+				points[startIdxW + 3][startIdxH + 1] };
+			botMid = {
+				points[startIdxW][startIdxH + 2],
+				points[startIdxW + 1][startIdxH + 2],
+				points[startIdxW + 2][startIdxH + 2],
+				points[startIdxW + 3][startIdxH + 2] };
+			bot = {
+				points[startIdxW][startIdxH + 3],
+				points[startIdxW + 1][startIdxH + 3],
+				points[startIdxW + 2][startIdxH + 3],
+				points[startIdxW + 3][startIdxH + 3] };
+
 
 			auto patch = CreateBezierPatch(top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatch*)patch->m_object.get();
@@ -532,32 +533,32 @@ std::shared_ptr<Node> ObjectFactory::CreateBezierSurfaceC2(std::vector<std::vect
 	}	
 
 	for (int patchW = 0; patchW < patchesW; patchW++) {
-		for (int patchH = 0; patchH < patchesH; patchH++) {			
+		for (int patchH = 0; patchH < patchesH; patchH++) {
 
 			std::vector<std::weak_ptr<Node>> top, bot, topMid, botMid;
 			// determine top bot left and right
 			int startIdxW = patchW;
 			int startIdxH = patchH;
 			top = {
-				points[(startIdxW) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
-				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
-				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
-				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 3) % wrappedHeight] };
+			points[(startIdxW) % wrappedWidth][(startIdxH + 0) % wrappedHeight],
+			points[(startIdxW + 1) % wrappedWidth][(startIdxH + 0) % wrappedHeight],
+			points[(startIdxW + 2) % wrappedWidth][(startIdxH + 0) % wrappedHeight],
+			points[(startIdxW + 3) % wrappedWidth][(startIdxH + 0) % wrappedHeight] };
 			topMid = {
-				points[(startIdxW) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
-				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
-				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
-				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 2) % wrappedHeight] };
-			botMid = {
 				points[(startIdxW) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
 				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
 				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 1) % wrappedHeight],
 				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 1) % wrappedHeight] };
+			botMid = {
+				points[(startIdxW) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 2) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 2) % wrappedHeight] };
 			bot = {
-				points[(startIdxW) % wrappedWidth][(startIdxH) % wrappedHeight],
-				points[(startIdxW + 1) % wrappedWidth][(startIdxH) % wrappedHeight],
-				points[(startIdxW + 2) % wrappedWidth][(startIdxH) % wrappedHeight],
-				points[(startIdxW + 3) % wrappedWidth][(startIdxH) % wrappedHeight] };
+				points[(startIdxW) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW + 1) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW + 2) % wrappedWidth][(startIdxH + 3) % wrappedHeight],
+				points[(startIdxW + 3) % wrappedWidth][(startIdxH + 3) % wrappedHeight] };
 
 			auto patch = CreateBezierPatchC2(top, topMid, botMid, bot);
 			patches[patchW][patchH] = (BezierPatchC2*)patch->m_object.get();

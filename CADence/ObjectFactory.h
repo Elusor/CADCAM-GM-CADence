@@ -17,14 +17,14 @@ public:
 		bool cylinder = false, float width = 5.0f, float height = 5.0f,
 		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
 
+	std::shared_ptr<Node> CreateBezierSurface(
+		std::vector<std::vector<std::weak_ptr<Node>>> points,
+		int patchesW, int patchesH, SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
+
 	std::shared_ptr<Node> CreateBezierSurfaceC2(Scene* scene,
 		int patchesW, int patchesH, XMFLOAT3 middlePosition,
 		bool cylinder = false, float width = 5.0f, float height = 5.0f,
 		SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
-
-	std::shared_ptr<Node> CreateBezierSurface(
-		std::vector<std::vector<std::weak_ptr<Node>>> points,
-		int patchesW, int patchesH, SurfaceWrapDirection wrapDir = SurfaceWrapDirection::None);
 
 	std::shared_ptr<Node> CreateBezierSurfaceC2(
 		std::vector<std::vector<std::weak_ptr<Node>>> points,
@@ -83,4 +83,7 @@ private:
 	int m_pointCounter = 0;
 	int m_gregPatchCounter = 0;
 	int m_intersectionCurveCounter = 0;
+
+
+
 };
