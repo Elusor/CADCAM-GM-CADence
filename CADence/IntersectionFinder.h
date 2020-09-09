@@ -27,6 +27,7 @@ struct IntersectionPointSearchData
 
 	ParameterQuad params;
 	DirectX::XMFLOAT3 pos = { 0.f, 0.f, 0.f };
+	std::vector<DirectX::XMFLOAT4> auxPoints;
 };
 
 class IntersectionFinder
@@ -116,7 +117,7 @@ private:
 		bool reverseDirection,
 		float step);
 
-	std::vector<XMFLOAT4> GetAuxiliaryPoints(
+	std::vector<DirectX::XMFLOAT4> GetAuxiliaryPoints(
 		IParametricSurface* qSurface, IParametricSurface* pSurface,
 		ParameterQuad x_k, ParameterQuad x_prev);
 

@@ -10,6 +10,7 @@
 #include "ObjectReferences.h"
 #include "IntersectionSearchResult.h"
 #include "IntersectionSearchResultOneDir.h"
+#include <queue>
 
 ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP);
 
@@ -764,6 +765,127 @@ IntersectionPointSearchData IntersectionFinder::FindNextPointAdaptiveStep(
 }
 
 
+// distance <0 signals that an intersection with given border is not in this direction
+DirectX::XMFLOAT4 GetBorderDistancesInDir(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad x_kParam, ParameterQuad x_prevParam)
+{
+	XMFLOAT4 x_k = x_kParam.GetVector();
+	XMFLOAT4 x_prev = x_prevParam.GetVector();
+
+	XMFLOAT4 distances;
+	ParameterPair qMax = qSurface->GetMaxParameterValues();
+	ParameterPair pMax = pSurface->GetMaxParameterValues();
+	ParameterQuad maxVals;
+	maxVals.Set(qMax, pMax);
+	XMFLOAT4 maxValsF4 = maxVals.GetVector();
+
+	auto deltaParams = (x_k - x_prev);
+	DirectX::XMFLOAT4 distancesMax, distancesZero;
+
+	for (int i = 0; i < 4; i++)
+	{
+		SetAt(distances, i, FLT_MAX);
+		SetAt(distancesMax, i, FLT_MAX);
+		SetAt(distancesZero, i, FLT_MAX);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{	
+		float deltaCoord = GetAt(deltaParams, i);
+		if (deltaCoord != 0.0f)
+		{
+			float zeroDist = (0.f - GetAt(x_prev, i)) / deltaCoord;
+			float maxDist = (GetAt(maxValsF4,i) - GetAt(x_prev, i)) / deltaCoord;			
+			
+			SetAt(distancesMax, i, maxDist);
+			SetAt(distancesZero, i, zeroDist);
+
+			float distInDir = maxDist >= 0.0f ? maxDist : zeroDist;
+			SetAt(distances, i, distInDir);
+		}
+	}
+
+	return distances;
+}
+
+ParameterQuad GetParamsOnOpposingEdge(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad params)
+{
+	XMFLOAT4 wrappedParam;
+	ParameterQuad maxParams;
+	ParameterPair maxQParams = qSurface->GetMaxParameterValues();
+	ParameterPair maxPParams = pSurface->GetMaxParameterValues();
+	maxParams.Set(maxQParams, maxPParams);
+	XMFLOAT4 maxParamsF4 = maxParams.GetVector();
+
+	for (int i = 0; i < 4; i++)
+	{
+		float iMaxParam = GetAt(maxParamsF4, i);
+		float curParam = GetAt(params.GetVector(), i);
+		
+		if (curParam == 0.0f)
+		{
+			curParam = iMaxParam;
+		}
+		else if(curParam == iMaxParam) 
+		{
+			curParam = 0.0f;
+		}
+		
+		SetAt(wrappedParam, i, curParam);
+	}
+
+	return ParameterQuad(wrappedParam);
+}
+
+std::vector<XMFLOAT4> IntersectionFinder::GetAuxiliaryPoints(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad x_k, ParameterQuad x_prev)
+{
+	std::vector<XMFLOAT4> res;
+	bool qInsideBounds = qSurface->ParamsInsideBounds(x_k.GetQParams());
+	bool pInsideBounds = pSurface->ParamsInsideBounds(x_k.GetPParams());
+
+	if (qInsideBounds && pInsideBounds)
+	{
+		auto diff = x_k - x_prev;
+
+		// IF x_k - x_prev line intersects one of the border lines - add auxiliary points
+		XMFLOAT4 distances = GetBorderDistancesInDir(qSurface, pSurface, x_k, x_prev);			
+		std::priority_queue<float, std::vector<float>, std::greater<float>> distancesQueue;
+
+		for(int i = 0; i < 4; i++)
+		{
+			float dist = GetAt(distances, i);
+			if (dist < 1.0f) // Intersection is between these two points
+			{
+				distancesQueue.push(dist);
+			}
+		}
+
+		float lastDist = -1E-6f;
+		while (distancesQueue.empty() == false)
+		{
+			float curDist = distancesQueue.top();
+			if(lastDist < curDist) // To not add the same point several times
+			{
+				lastDist = curDist; 
+				if (curDist == 0.0f) {
+					// Add only the wrapped point
+					ParameterQuad wrappedBoundParams = GetParamsOnOpposingEdge(qSurface, pSurface, x_prev);
+					res.push_back(wrappedBoundParams.GetVector());
+				}
+				else {
+					ParameterQuad boundParams = x_prev + curDist * diff.GetVector();
+					ParameterQuad wrappedBoundParams = GetParamsOnOpposingEdge(qSurface, pSurface, boundParams);
+					res.push_back(boundParams.GetVector());
+					res.push_back(wrappedBoundParams.GetVector());
+				}
+			}
+
+			distancesQueue.pop();
+		}
+	}
+
+	//TODO: wrapp all of the parameters?
+	return res;
+}
 
 ParameterQuad IntersectionFinder::GetWrappedParameters(
 	IParametricSurface* qSurface, 
@@ -1094,8 +1216,7 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?	
 
 			// TODO check if point insersect boundaries. If yes - add points on the boundaries to the result and return them in the modified struct
-			auto auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, x_prev);
-
+			result.auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, x_prev);
 			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
 
 			// One or more surfaces are out of bounds - try to find a boundary closing point
