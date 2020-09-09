@@ -7,10 +7,23 @@ void Trimmer::AddCurveToMesh(std::vector<IndexedVertex> curve, std::vector<unsig
 {
 	//connect the curve vertices into lines and add them to index and vertex buffers
 	// TODO WATCH OUT FOR THE LAST POINT
+
+	float paramMaxRenderableDist = 0.3f;
+
 	for (int i = 0; i < curve.size()-1; i++)
 	{
-		indices.push_back(curve[i].index);
-		indices.push_back(curve[i+1].index);
+		IndexedVertex beg, end;
+		beg = curve[i];
+		end = curve[i+1];
+
+		XMFLOAT2 paramDiff = beg.params - end.params;
+		float paramDist = (Dot(paramDiff, paramDiff));
+
+		if (paramDist <= paramMaxRenderableDist * paramMaxRenderableDist)
+		{
+			indices.push_back(beg.index);
+			indices.push_back(end.index);
+		}
 	}
 }
 
@@ -386,6 +399,8 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 	next++;
 
 	int i = 0;
+
+	const float maxParamStep = 0.1f;
 	//TODO sometimes Max(cell1,cell2) gives wrong cell when the point is laying on the line
 	while (next!= paramCurve.end())
 	{
@@ -394,6 +409,9 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 		auto pt = pt3.params;
 		auto nextPt = nextPt3.params;
 
+		auto diff = pt - nextPt;
+		auto len = sqrt(Dot(diff, diff));
+		
 		float ptU = pt.x;
 		float ptV = pt.y;
 		float nextPtU = nextPt.x;
@@ -414,58 +432,60 @@ std::vector<IndexedVertex> Trimmer::IntersectCurveWithGrid(std::vector<IndexedVe
 		DirectX::XMFLOAT2 intersectingPoint;
 
 		// TODO: Check if the point lies exactly on the line intersection
-
-		if (intersectsULine && intersectsVLine)
+		if (len < maxParamStep)
 		{
-
-			// intersect with close line, the added point should intersect with the next point in the second dimension automatically			
-			DirectX::XMFLOAT2 uLinePoint = FindIntersectionwithLine(pt, nextPt, Ustep, true);
-			DirectX::XMFLOAT2 vLinePoint = FindIntersectionwithLine(pt, nextPt, Vstep,false);
-
-			float uDist = sqrt(Dot(pt - uLinePoint, pt - uLinePoint));
-			float vDist = sqrt(Dot(pt - vLinePoint, pt - vLinePoint));
-
-			if (uDist == 0.0f) uDist = INFINITY;
-			if (vDist == 0.0f) vDist = INFINITY; //Param space is [0,1] x [0,1] so distance 5 cannot be obtained
-
-			if (uDist < vDist && uDist != INFINITY)
+			if (intersectsULine && intersectsVLine)
 			{
-				// Add u point to the vector
-				intersectingPoint = uLinePoint;
-				inserted = true;
+
+				// intersect with close line, the added point should intersect with the next point in the second dimension automatically			
+				DirectX::XMFLOAT2 uLinePoint = FindIntersectionwithLine(pt, nextPt, Ustep, true);
+				DirectX::XMFLOAT2 vLinePoint = FindIntersectionwithLine(pt, nextPt, Vstep, false);
+
+				float uDist = sqrt(Dot(pt - uLinePoint, pt - uLinePoint));
+				float vDist = sqrt(Dot(pt - vLinePoint, pt - vLinePoint));
+
+				if (uDist == 0.0f) uDist = INFINITY;
+				if (vDist == 0.0f) vDist = INFINITY; //Param space is [0,1] x [0,1] so distance 5 cannot be obtained
+
+				if (uDist < vDist && uDist != INFINITY)
+				{
+					// Add u point to the vector
+					intersectingPoint = uLinePoint;
+					inserted = true;
+				}
+				else if (vDist != INFINITY)
+				{
+					// Add v point to the vector
+					intersectingPoint = vLinePoint;
+					inserted = true;
+				}
 			}
-			else if(vDist != INFINITY)
-			{
-				// Add v point to the vector
-				intersectingPoint = vLinePoint;
-				inserted = true;
+			else {
+
+				if (intersectsULine)
+				{
+					// there is a U constant param line between pt and NextPt
+					auto resPt = FindIntersectionwithLine(pt, nextPt, Ustep, true);
+					float uDist = sqrt(Dot(pt - resPt, pt - resPt));
+					if (uDist != 0.0f)
+					{
+						intersectingPoint = resPt;
+						inserted = true;
+					}
+				}
+				else if (intersectsVLine)
+				{
+					// there is a V constant param line between pt and NextPt
+					auto resPt = FindIntersectionwithLine(pt, nextPt, Vstep, false);
+					float vDist = sqrt(Dot(pt - resPt, pt - resPt));
+					if (vDist != 0.0f)
+					{
+						intersectingPoint = resPt;
+						inserted = true;
+					}
+				}
 			}
 		}
-		else {
-
-			if (intersectsULine)
-			{
-				// there is a U constant param line between pt and NextPt
-				auto resPt = FindIntersectionwithLine(pt, nextPt, Ustep, true);
-				float uDist = sqrt(Dot(pt - resPt, pt - resPt));
-				if (uDist != 0.0f)
-				{
-					intersectingPoint = resPt;
-					inserted = true;
-				}
-			}
-			else if (intersectsVLine)
-			{
-				// there is a V constant param line between pt and NextPt
-				auto resPt = FindIntersectionwithLine(pt, nextPt, Vstep, false);
-				float vDist = sqrt(Dot(pt - resPt, pt - resPt));
-				if (vDist != 0.0f)
-				{
-					intersectingPoint = resPt;
-					inserted = true;
-				}
-			}
-		}		
 		
 		if (inserted == false)
 		{
