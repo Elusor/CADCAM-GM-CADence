@@ -325,6 +325,11 @@ DirectX::XMFLOAT3 Torus::GetSecondDarivativeMixed(float u, float v)
 	return DirectX::XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
+bool Torus::IsWrappedInDirection(SurfaceWrapDirection wrapDir)
+{
+	return wrapDir != SurfaceWrapDirection::None;
+}
+
 bool Torus::ParamsInsideBounds(float u, float v)
 {
 	// Torus can be looped in both dimensions so parameters can never be out of bounds

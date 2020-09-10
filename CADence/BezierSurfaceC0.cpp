@@ -413,6 +413,11 @@ DirectX::XMFLOAT3 BezierSurfaceC0::GetSecondDarivativeMixed(float u, float v)
 	return patch->GetSecondDarivativeMixed(uRef, vRef);
 }
 
+bool BezierSurfaceC0::IsWrappedInDirection(SurfaceWrapDirection wrapDir)
+{
+	return m_wrapDir == wrapDir;
+}
+
 bool BezierSurfaceC0::ParamsInsideBounds(float u, float v)
 {
 	bool res = false;

@@ -692,6 +692,11 @@ DirectX::XMFLOAT3 BezierPatch::GetSecondDarivativeMixed(float u, float v)
 	return BezierCalculator::CalculateBezier3(finalCoeff0, finalCoeff1, finalCoeff2, u);
 }
 
+bool BezierPatch::IsWrappedInDirection(SurfaceWrapDirection wrapDir)
+{
+	return wrapDir == SurfaceWrapDirection::None;
+}
+
 bool BezierPatch::ParamsInsideBounds(float u, float v)
 {
 	bool UinRange = u >= 0 && u <= 1.f;

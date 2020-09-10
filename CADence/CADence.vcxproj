@@ -233,6 +233,7 @@
     <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="sceneImporter.h" />
     <ClInclude Include="StereoscopicRenderPass.h" />
+    <ClInclude Include="SurfaceWrapDirection.h" />
     <ClInclude Include="TextureRenderTarget.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Trimmer.h" />

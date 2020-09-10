@@ -420,6 +420,9 @@
     <ClInclude Include="IntersectionTooManyPointsException.h">
       <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
     </ClInclude>
+    <ClInclude Include="SurfaceWrapDirection.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">

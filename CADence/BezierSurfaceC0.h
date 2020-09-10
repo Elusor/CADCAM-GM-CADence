@@ -6,13 +6,7 @@
 #include "Node.h"
 #include "IParametricSurface.h"
 #include "IntersectableSurface.h"
-
-enum SurfaceWrapDirection
-{
-	Width,
-	Height,
-	None
-};
+#include "SurfaceWrapDirection.h"
 
 class BezierSurfaceC0 : public MeshObject<VertexPositionColor>, public IParametricSurface, public TrimmableSurface
 {
@@ -45,6 +39,7 @@ public:
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) override;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeMixed(float u, float v) override;
+	virtual bool IsWrappedInDirection(SurfaceWrapDirection wrapDir) override;
 	bool ParamsInsideBounds(float u, float v) override;
 	ParameterPair GetWrappedParams(float u, float v) override;
 	float GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep) override;
