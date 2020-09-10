@@ -14,6 +14,8 @@
 #include "HoleDetector.h"
 #include "IntersectionFinder.h"
 #include "GeometricFunctions.h"
+#include "IntersectionExceptions.h"
+
 using namespace mini;
 using namespace DirectX;
 using namespace std;
@@ -219,15 +221,26 @@ void DxApplication::InitImguiWindows()
 
 			if(m_intersectionFinder->AreObjectIntersectable(p1,p2))
 			{
-				if (ImGui::Button("Intersect surfaces"))
+				try
 				{
-					m_intersectionFinder->FindInterSection(p1, p2);
-				}
+					if (ImGui::Button("Intersect surfaces"))
+					{
+						m_intersectionFinder->FindInterSection(p1, p2);
+					}
 
-				if (ImGui::Button("Intersect surfaces with cursor"))
+					if (ImGui::Button("Intersect surfaces with cursor"))
+					{
+						auto cursorPos = m_scene->m_spawnMarker->GetPosition();
+						m_intersectionFinder->FindIntersectionWithCursor(p1, p2, cursorPos);
+					}
+				}
+				catch (IntersectionNotFoundException ienf)
 				{
-					auto cursorPos = m_scene->m_spawnMarker->GetPosition();
-					m_intersectionFinder->FindIntersectionWithCursor(p1, p2, cursorPos);
+					m_guiManager->EnableCustomModal(ienf.what(), "Intersection Error");
+				}
+				catch (...)
+				{
+					m_guiManager->EnableCustomModal("Something went wrong.", "Intersection Error - General Error");
 				}
 			}
 		}

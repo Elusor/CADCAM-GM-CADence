@@ -10,6 +10,7 @@
 #include "ObjectReferences.h"
 #include "IntersectionSearchResult.h"
 #include "IntersectionSearchResultOneDir.h"
+#include "IntersectionExceptions.h"
 #include <queue>
 
 ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP);
@@ -626,6 +627,8 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 			}
 		}
 	}		
+
+	throw IntersectionNotFoundException();
 }
 
 void IntersectionFinder::FindIntersectionWithCursor(
@@ -728,9 +731,12 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			return;
 		}
 		else {
-			// TODO could not find and intersection
+			throw IntersectionNotFoundException();
 		}
 	}	
+	else {
+		throw IntersectionNotFoundException();
+	}
 }
 
 IntersectionPointSearchData IntersectionFinder::FindNextPointAdaptiveStep(

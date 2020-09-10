@@ -186,7 +186,10 @@
     <ClInclude Include="IntersectedSurface.h" />
     <ClInclude Include="IntersectionCurve.h" />
     <ClInclude Include="IntersectionData.h" />
+    <ClInclude Include="IntersectionException.h" />
+    <ClInclude Include="IntersectionExceptions.h" />
     <ClInclude Include="IntersectionFinder.h" />
+    <ClInclude Include="IntersectionNotFoundException.h" />
     <ClInclude Include="IntersectionSearchResult.h" />
     <ClInclude Include="IntersectionSearchResultOneDir.h" />
     <ClInclude Include="IOExceptions.h" />

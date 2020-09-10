@@ -145,6 +145,9 @@
     <Filter Include="Header Files\CadSpecific\Intersections">
       <UniqueIdentifier>{d1b40484-8aec-4d19-9ac9-8acbc6d0d699}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Exceptions\IntersectionExceptions">
+      <UniqueIdentifier>{12f4ecca-b533-4fc8-9e96-15bd726afa96}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -398,6 +401,15 @@
     </ClInclude>
     <ClInclude Include="IntersectionSearchResultOneDir.h">
       <Filter>Header Files\CadSpecific\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionException.h">
+      <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionNotFoundException.h">
+      <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionExceptions.h">
+      <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
