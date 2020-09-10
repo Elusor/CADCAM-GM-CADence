@@ -1,5 +1,13 @@
 #include "mathUtils.h"
 
+float GetAngleBetweenVectors(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2)
+{
+	auto normV1 = v1 / sqrt(Dot(v1, v1));
+	auto normV2 = v2 / sqrt(Dot(v2, v2));
+
+	return std::acosf(Dot(normV1, normV2));
+}
+
 void SetAt(DirectX::XMFLOAT4& vector, int index, float value) {
 	switch (index)
 	{

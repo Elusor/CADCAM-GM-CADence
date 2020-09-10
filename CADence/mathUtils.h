@@ -48,3 +48,5 @@ DirectX::XMFLOAT4 operator*(float t, XMFLOAT4 val);
 void SetAt(DirectX::XMFLOAT4& vector, int index, float value);
 
 float GetAt(DirectX::XMFLOAT4 vector, int index);
+
+float GetAngleBetweenVectors(DirectX::XMFLOAT3 v1, DirectX::XMFLOAT3 v2);
