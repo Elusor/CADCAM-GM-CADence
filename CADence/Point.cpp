@@ -128,3 +128,11 @@ void Point::UpdateObject()
 	m_meshDesc.vertices = vertices;
 	m_meshDesc.indices = indices;
 }
+
+void Point::Scale(DirectX::XMFLOAT3 scale)
+{
+}
+
+void Point::Rotate(DirectX::XMFLOAT3 scale)
+{
+}

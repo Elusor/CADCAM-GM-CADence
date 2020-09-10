@@ -10,6 +10,9 @@ public:
 	void RenderObjectSpecificContextOptions(Scene& scene);
 	void UpdateObject() override;
 
+	void Scale(DirectX::XMFLOAT3 scale) override;
+	void Rotate(DirectX::XMFLOAT3 scale) override;
+
 private:
 	float m_size;
 };
