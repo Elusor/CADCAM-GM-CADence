@@ -41,6 +41,7 @@ public:
 	void CreateParamsGui();
 private:
 
+	bool m_addCappedCurves;
 	int m_minPointCount;
 	int m_oneDirPointCap;
 	float m_cursorSamples;
@@ -55,7 +56,7 @@ private:
 	float m_loopPrecision;
 	int m_iterationCounter;
 	ObjectFactory* m_factory;
-	Scene* m_scene;	
+	Scene* m_scene;
 
 	DirectX::XMFLOAT4X4 CalculateDerivativeMatrix(
 		IParametricSurface* surface1, IParametricSurface* surface2,
@@ -117,7 +118,7 @@ private:
 		ParameterQuad parameters,
 		DirectX::XMFLOAT3 prevPoint,
 		bool reverseDirection, float step);
-	
+
 	IntersectionPointSearchData FindNextPointAdaptiveStep(
 		IParametricSurface* qSurf,
 		IParametricSurface* pSurf,
@@ -155,6 +156,8 @@ private:
 
 	// Move To IParametric Surface
 	DirectX::XMFLOAT3 GetSurfaceNormal(IParametricSurface* surface, ParameterPair params);
+
+	void SetDefaultSettingsValues();
 
 	IntersectionPointSearchData SimpleGradient(
 		IParametricSurface* qSurface,

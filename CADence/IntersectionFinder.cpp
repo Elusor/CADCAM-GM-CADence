@@ -17,22 +17,9 @@ ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prev
 
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
-	m_minPointCount = 4;
-	m_oneDirPointCap = 500;
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
-	m_step = 0.5f; 
-	m_loopPrecision = 0.025;
-	m_precision = 10E-5f;
-	// To allow cursor found soulutions to be found in gradient
-	m_gradientPrecision = 1E-4f;
-	m_cursorCGprecision = 1E-5f;
-	m_alphaPrecision = 10E-7f;
-	m_goldenRatioPrecision = 10E-5f;
-	m_iterationCounter = 100;
-
-	m_samples = 5.0f;
-	m_cursorSamples = 10.f;
+	SetDefaultSettingsValues();
 }
 
 bool IntersectionFinder::AreObjectIntersectable(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2)
@@ -266,25 +253,29 @@ bool IntersectionFinder::FindIntersectionForParameters(
 			auto result = FindOtherIntersectionPoints(
 				qSurface, foundParamsQ,
 				pSurface, foundParamsP, foundPosition);
-
-			
-
+	
 			if (result.surfQParamsList.size() < m_minPointCount)
 			{
 				throw IntersectionTooFewPointsException();
 			}
 
-		/*	if (result.surfPParamsList.size() > 2 * m_oneDirPointCap)
+			bool sizeOverflow = result.surfPParamsList.size() > 2 * m_oneDirPointCap;
+
+			if (!sizeOverflow || m_addCappedCurves)
+			{
+				// Create the interpolation curve
+				auto curve = m_factory->CreateIntersectionCurve(
+					qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed && !selfIntersect,
+					pSurfNode, result.surfPParamsList, result.m_pIntersectionClosed && !selfIntersect);
+
+				m_scene->AttachObject(curve);
+			}
+
+			if(sizeOverflow)
 			{
 				throw IntersectionTooManyPointsException();
-			}*/
-
-			// Create the interpolation curve
-			auto curve = m_factory->CreateIntersectionCurve(
-				qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed && !selfIntersect,
-				pSurfNode, result.surfPParamsList, result.m_pIntersectionClosed && !selfIntersect);
-
-			m_scene->AttachObject(curve);
+			}
+			
 			return true;
 		}
 	}
@@ -304,6 +295,13 @@ float Wrap(float val, float minVal, float maxVal)
 void IntersectionFinder::CreateParamsGui()
 {
 	ImGui::Text("Intersection options");
+
+	if (ImGui::Button("Reset values##intersectReset"))
+	{
+		SetDefaultSettingsValues();
+	}
+
+	ImGui::Checkbox("Add curves with max size to the scene.", &m_addCappedCurves);
 
 	int minPts = m_minPointCount;
 	std::string labelMinPts = "Minimum point count##IntersectionFinder";
@@ -1471,6 +1469,25 @@ DirectX::XMFLOAT3 IntersectionFinder::GetSurfaceNormal(IParametricSurface* surfa
 	DirectX::XMFLOAT3 tv = surface->GetTangent(params.u, params.v, TangentDir::AlongV);
 
 	return Cross(tu, tv);
+}
+
+void IntersectionFinder::SetDefaultSettingsValues()
+{
+	m_addCappedCurves = true;
+	m_minPointCount = 4;
+	m_oneDirPointCap = 500;
+	m_step = 0.5f;
+	m_loopPrecision = 0.025;
+	m_precision = 10E-5f;
+	// To allow cursor found soulutions to be found in gradient
+	m_gradientPrecision = 1E-4f;
+	m_cursorCGprecision = 1E-5f;
+	m_alphaPrecision = 10E-7f;
+	m_goldenRatioPrecision = 10E-5f;
+	m_iterationCounter = 100;
+
+	m_samples = 5.0f;
+	m_cursorSamples = 10.f;
 }
 
 float CalcFunc(
