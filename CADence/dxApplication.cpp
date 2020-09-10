@@ -221,6 +221,13 @@ void DxApplication::InitImguiWindows()
 						{
 							m_intersectionFinder->FindInterSection(objectRef, objectRef);
 						}
+
+						if (ImGui::Button("Intersect with self - cursor"))
+						{
+							auto cursorPos = m_scene->m_spawnMarker->GetPosition();
+							m_intersectionFinder->FindIntersectionWithCursor(objectRef, objectRef, cursorPos);
+						}
+
 					}
 				}
 			}

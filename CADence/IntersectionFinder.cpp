@@ -242,7 +242,7 @@ bool IntersectionFinder::FindIntersectionForParameters(
 		auto firstPt = SimpleGradient(qSurface, qParams, pSurface, pParams);
 		
 		// Calculate first point
-		if (SimpleGradientResultCheck(firstPt, params, selfIntersect))
+		if (SimpleGradientResultCheck(firstPt, selfIntersect))
 		{
 			if (SurfacesAreParallel(qSurface, pSurface, firstPt.params))
 			{
@@ -729,7 +729,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 				DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
 				// If found point is closer than the previous point, update it
 				auto newDist = sqrtf(Dot(foundPoint - cursorPos, foundPoint - cursorPos));
-				if (newDist < dist1 || found1 == false)
+				if (newDist < dist1)
 				{
 					found1 = true;
 					endParams1 = nearestPt.params.GetQParams();
@@ -748,18 +748,25 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			pParams.u = u;
 			pParams.v = v;
 
-			auto nearestPt = SimpleGradientForCursor(pSurface, pParams, cursorPos);
-			if (nearestPt.found)
+			bool differentPointInParamSpace = !(qParams.u == pParams.u && qParams.v == pParams.v);
+		
+			if (differentPointInParamSpace)
 			{
-				DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
-				// If found point is closer than the previous point, update it
-				auto newDist = sqrtf(Dot(foundPoint - cursorPos, foundPoint - cursorPos));
-				if (newDist < dist1 || found2 == false)
+				auto nearestPt = SimpleGradientForCursor(pSurface, pParams, cursorPos);
+				nearestPt.params.s = qParams.u;
+				nearestPt.params.t = qParams.v;				
+				if (SimpleGradientResultCheck(nearestPt, selfIntersect))
 				{
-					found2 = true;
-					// Intentional Q params
-					endParams2 = nearestPt.params.GetQParams();
-					dist2 = newDist;
+					DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
+					// If found point is closer than the previous point, update it
+					auto newDist = sqrtf(Dot(foundPoint - cursorPos, foundPoint - cursorPos));
+					if (newDist < dist1)
+					{
+						found2 = true;
+						// Intentional Q params
+						endParams2 = nearestPt.params.GetQParams();
+						dist2 = newDist;
+					}
 				}
 			}
 		}
@@ -1641,7 +1648,7 @@ bool IntersectionFinder::SurfacesAreParallel(IParametricSurface* qSurface, IPara
 	return (abs(dotProd - 1) <= parallelEps);
 }
 
-bool IntersectionFinder::SimpleGradientResultCheck(IntersectionPointSearchData searchRes, ParameterQuad initialParams, bool isSelfIntersection)
+bool IntersectionFinder::SimpleGradientResultCheck(IntersectionPointSearchData searchRes, bool isSelfIntersection)
 {	
 	auto resParamsQ = searchRes.params.GetQParams();
 	auto resParamsP = searchRes.params.GetPParams();

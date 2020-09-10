@@ -164,5 +164,5 @@ private:
 
 	bool SurfacesAreParallel(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad parameters);
 
-	bool SimpleGradientResultCheck(IntersectionPointSearchData searchRes, ParameterQuad initialParams, bool isSelfIntersection);
+	bool SimpleGradientResultCheck(IntersectionPointSearchData searchRes, bool isSelfIntersection);
 };
