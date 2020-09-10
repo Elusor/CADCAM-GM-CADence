@@ -13,7 +13,7 @@
 #include "IntersectionExceptions.h"
 #include <queue>
 
-ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP);
+ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP, ParameterQuad maxParams, ParameterQuad minParams = ParameterQuad(XMFLOAT4(0, 0, 0, 0)));
 
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
@@ -176,7 +176,7 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 	ParameterQuad maxParams;
 	maxParams.Set(qSurface->GetMaxParameterValues(), pSurface->GetMaxParameterValues());
 
-	auto boundaryPointData = FindClampedPosition(maxParams, outParams, inParams, step, initialQIn, initialPIn);
+	auto boundaryPointData = FindClampedPosition(outParams, inParams, step, initialQIn, initialPIn, maxParams);
 	ParameterQuad boundaryParams = ParameterQuad(boundaryPointData.params);
 
 
@@ -274,10 +274,10 @@ bool IntersectionFinder::FindIntersectionForParameters(
 				throw IntersectionTooFewPointsException();
 			}
 
-			if (result.surfPParamsList.size() > 2 * m_oneDirPointCap)
+		/*	if (result.surfPParamsList.size() > 2 * m_oneDirPointCap)
 			{
 				throw IntersectionTooManyPointsException();
-			}
+			}*/
 
 			// Create the interpolation curve
 			auto curve = m_factory->CreateIntersectionCurve(
@@ -832,7 +832,6 @@ IntersectionPointSearchData IntersectionFinder::FindNextPointAdaptiveStep(
 	return result;
 }
 
-
 // distance <0 signals that an intersection with given border is not in this direction
 DirectX::XMFLOAT4 GetBorderDistancesInDir(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad x_kParam, ParameterQuad x_prevParam)
 {
@@ -933,6 +932,73 @@ ParameterQuad CorrectEpsEdges(IParametricSurface* qSurface, IParametricSurface* 
 	}
 
 	return ParameterQuad(epsCorrectedParams);
+}
+
+
+
+std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad x_k, ParameterQuad x_prev, float step)
+{
+	std::vector<DirectX::XMFLOAT4> res;
+	// Get the first point in direction x_k - q_prev that intersects an "integer line"
+	// If the "line" is max or 0 then return normal GetAuxiliaryPoints function
+	// If not return only one point - lying on the line
+	bool intersectsBorder = false;
+
+	ParameterPair qMaxParams = qSurface->GetMaxParameterValues();
+	ParameterPair pMaxParams = pSurface->GetMaxParameterValues();
+	ParameterQuad maxParams;
+	maxParams.Set(qMaxParams, pMaxParams);
+
+	float eps = 0.00001f;
+	XMFLOAT4 epsF4 = XMFLOAT4(eps, eps, eps, eps);
+	XMFLOAT4 maxCellParams;
+	XMFLOAT4 minCellParams;
+	for (int i = 0; i < 4; i++)
+	{
+		float floor;
+		float decimal = modf(GetAt(x_prev.GetVector(), i), &floor);
+		SetAt(maxCellParams, i, floor + 1);
+		SetAt(minCellParams, i, floor);
+	}
+
+	auto surfQ = dynamic_cast<BezierSurfaceC0*>(qSurface);
+	auto surfP = dynamic_cast<BezierSurfaceC0*>(pSurface);
+
+	auto ignoreQ = surfQ == nullptr;
+	auto ignoreP = surfP == nullptr;
+
+	auto linePosData = FindClampedPosition(x_k, x_prev, step, ignoreQ, ignoreP, maxCellParams, minCellParams);
+	auto pointParams = linePosData.params;
+
+	for (int i = 0; i < 4; i++)
+	{
+		float param = GetAt(pointParams, i);
+		intersectsBorder |= (param == GetAt(maxParams.GetVector(), i) || param == 0);
+	}
+
+	if (intersectsBorder)
+	{
+		res = GetAuxiliaryPoints(qSurface, pSurface, x_k, x_prev);
+	}
+	else {
+		auto curDiff = (pointParams - x_prev).GetVector();
+		auto prevDiff = (x_k - x_prev).GetVector();
+		auto curDiffLenSqr = Dot(curDiff, curDiff);
+		auto prevDiffLenSqr = Dot(prevDiff, prevDiff);
+
+		if (curDiffLenSqr >= prevDiffLenSqr)
+		{
+			res = std::vector<DirectX::XMFLOAT4>();
+		}
+		else
+		{
+			res.push_back(linePosData.params + epsF4);
+		}
+		// if linePos - prevPos is greater than x_k - prev_pos 
+		// else		
+	}
+
+	return res;
 }
 
 std::vector<XMFLOAT4> IntersectionFinder::GetAuxiliaryPoints(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad x_k, ParameterQuad x_prev)
@@ -1176,7 +1242,7 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	return algorithmResult;
 }
 
-ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool xkInQ, bool xkInP)
+ClampedPointData FindClampedPosition(ParameterQuad x_kQuad, ParameterQuad x_prevQuad, float step, bool ignoreQDistances, bool ignorePDistances, ParameterQuad maxParams, ParameterQuad minParams)
 {
 	ClampedPointData res;
 
@@ -1190,7 +1256,7 @@ ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQ
 	bool isZeroDist = false;
 	float dist = FLT_MAX;
 	float eps = 10E-5;
-
+	auto minParamsF4 = minParams.GetVector();
 	auto maxParamsF4 = maxParams.GetVector();
 
 	DirectX::XMFLOAT4 distances;
@@ -1201,7 +1267,7 @@ ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQ
 		float deltaCoord = GetAt(delta, i);
 		if (deltaCoord != 0.0f)
 		{
-			float zeroDist = (0.f - GetAt(x_prev, i)) / deltaCoord;
+			float zeroDist = (GetAt(minParamsF4, i) - GetAt(x_prev, i)) / deltaCoord;
 			float oneDist = (GetAt(maxParamsF4,i) - GetAt(x_prev, i)) / deltaCoord;
 
 			float val = FLT_MAX;
@@ -1231,12 +1297,12 @@ ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQ
 	float minQDist = min(abs(distances.x), abs(distances.y));
 	float minPDist = min(abs(distances.z), abs(distances.w));
 	// by default dist is the smallest value, but this value can be discarded here
-	if (xkInQ)
+	if (ignoreQDistances)
 	{
 		dist = minPDist;
 	}
 
-	if (xkInP)
+	if (ignorePDistances)
 	{
 		dist = minQDist;
 	}
@@ -1275,6 +1341,7 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 	DirectX::XMFLOAT3 prevPoint,
 	bool isReverseStepDirection, float step)
 {	
+	float curStep = step;
 	int iterationCounter = 0;
 
 	IntersectionPointSearchData result;
@@ -1294,7 +1361,7 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 		// Calculate F(x)		
 		auto funcVal = CalculateIntersectionDistanceFunctionValue(
 			qSurf, pSurf, x_k,
-			prevPoint, stepVersor, step);
+			prevPoint, stepVersor, curStep);
 
 		auto val = Dot(funcVal, funcVal);
 		if (val <= m_precision * m_precision)
@@ -1317,32 +1384,73 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 			x_prev = x_k;
 			x_k = x_k + ParameterQuad(deltaXGetp); // Why the minus?	
 
-			// TODO check if point insersect boundaries. If yes - add points on the boundaries to the result and return them in the modified struct
-			auto auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, parameters);
-			for (auto pt : auxPoints)
-			{
-				result.auxPoints.push_back(pt);
+			bool iterationInsideBounds =
+				(qSurf->ParamsInsideBounds(x_k.GetQParams()) &&
+				pSurf->ParamsInsideBounds(x_k.GetPParams()));			
+
+			if (iterationInsideBounds)
+			{				
+				auto step1 = CalculateStepDirection(qSurf, pSurf, x_prev, isReverseStepDirection);
+				auto step2 = CalculateStepDirection(qSurf, pSurf, x_k, isReverseStepDirection);
+				if (GetAngleBetweenVectors(step1, step2) > XM_PI / 3.f)
+				{
+					// Check if the points are intersecting an integer line					
+					auto auxC0Points = GetC0AuxiliaryPoints(qSurf, pSurf, x_k, parameters, curStep);
+					if (auxC0Points.size() > 0)
+					{
+						for (int i = 0; i < auxC0Points.size() - 1; i++)
+						{
+							result.auxPoints.push_back(auxC0Points[i]);
+						}
+
+						// Mark the last point as result and return
+
+						result.params = auxC0Points[auxC0Points.size() - 1];
+						result.pos = pSurf->GetPoint(result.params.GetPParams());
+						result.found = true;
+						continueNewtonCalculation = false;
+
+					}
+					else
+					{
+						// not c0 surface
+						// If the surface is not c0 surface then reverts the iteration and half the step
+						x_k = x_prev;
+						curStep /= 2;
+					}
+				}				
+				else
+				{
+					// Check if point insersect boundaries. If yes - add points on the boundaries to the result and return them in the modified struct
+					auto auxPoints = GetAuxiliaryPoints(qSurf, pSurf, x_k, parameters);
+					for (auto pt : auxPoints)
+					{
+						result.auxPoints.push_back(pt);
+					}
+				}
 			}
-
-			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
-
-			// One or more surfaces are out of bounds - try to find a boundary closing point
-			if ((qSurf->ParamsInsideBounds(x_k.GetQParams()) &&
-				 pSurf->ParamsInsideBounds(x_k.GetPParams())
-				) == false)
+			else
 			{
+				// One or more surfaces are out of bounds - try to find a boundary closing point
+
 				// Check if the distance between clamped params and prev point is smaller than step 
 				//if yes - connect the curve to the patch boundary and flag this end as looped
 
-				auto boundarySearchRes = FindBoundaryPoint(x_k, x_prev, qSurf, pSurf, step);
+				auto boundarySearchRes = FindBoundaryPoint(x_k, x_prev, qSurf, pSurf, curStep);
 				if (boundarySearchRes.found)
 				{
+					auto newParams = CorrectEpsEdges(qSurf, pSurf, boundarySearchRes.params);
 					result = boundarySearchRes;
+					result.params = newParams;
+					result.pos = pSurf->GetPoint(result.params.GetPParams());
 				}
 
 				// Boundary solution found or boundary params out of bounds - either way end Newton
 				continueNewtonCalculation = false;
 			}
+
+			x_k = GetWrappedParameters(qSurf, pSurf, x_k);
+
 		}
 	
 		// TODO: replace with a cleaner solution

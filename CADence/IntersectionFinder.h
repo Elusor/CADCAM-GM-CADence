@@ -126,6 +126,10 @@ private:
 		bool reverseDirection,
 		float step);
 
+	std::vector<DirectX::XMFLOAT4> GetC0AuxiliaryPoints(
+		IParametricSurface* qSurface, IParametricSurface* pSurface,
+		ParameterQuad x_k, ParameterQuad x_prev, float step);
+
 	std::vector<DirectX::XMFLOAT4> GetAuxiliaryPoints(
 		IParametricSurface* qSurface, IParametricSurface* pSurface,
 		ParameterQuad x_k, ParameterQuad x_prev);
