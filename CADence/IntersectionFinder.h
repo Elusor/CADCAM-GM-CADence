@@ -153,4 +153,6 @@ private:
 		IParametricSurface* qSurface,
 		ParameterPair qSurfParams,
 		DirectX::XMFLOAT3 cursorPos);
+
+	bool SurfacesAreParallel(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad parameters);
 };

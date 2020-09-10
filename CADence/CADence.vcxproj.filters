@@ -411,6 +411,9 @@
     <ClInclude Include="IntersectionExceptions.h">
       <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectionParallelSurfacesException.h">
+      <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">

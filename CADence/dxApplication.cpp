@@ -238,6 +238,10 @@ void DxApplication::InitImguiWindows()
 				{
 					m_guiManager->EnableCustomModal(ienf.what(), "Intersection Error");
 				}
+				catch (IntersectionParallelSurfacesException ipse)
+				{
+					m_guiManager->EnableCustomModal(ipse.what(), "Intersection Error");
+				}
 				catch (...)
 				{
 					m_guiManager->EnableCustomModal("Something went wrong.", "Intersection Error - General Error");

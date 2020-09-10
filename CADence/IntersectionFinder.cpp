@@ -598,6 +598,12 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 					// Calculate first point
 					if (firstPt.found)
 					{				
+						if (SurfacesAreParallel(qSurface, pSurface, firstPt.params))
+						{
+							throw IntersectionParallelSurfacesException();
+						}
+
+
 						// Update the search data
 						auto foundPosition = firstPt.pos;
 						auto foundParamsQ = firstPt.params.GetQParams();
@@ -1580,4 +1586,18 @@ IntersectionPointSearchData IntersectionFinder::SimpleGradientForCursor(
 	}
 
 	return result;
+}
+
+bool IntersectionFinder::SurfacesAreParallel(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad parameters)
+{
+	auto parallelEps = 0.001f;
+	auto wrappedParams = GetWrappedParameters(qSurface, pSurface, parameters);
+
+	auto n1 = GetSurfaceNormal(qSurface, wrappedParams.GetQParams());
+	auto n1Norm = n1 / sqrt(Dot(n1, n1));
+	auto n2 = GetSurfaceNormal(pSurface, wrappedParams.GetPParams());
+	auto n2Norm = n2 / sqrt(Dot(n2, n2));
+
+	float dotProd = abs(Dot(n1Norm, n2Norm));
+	return (abs(dotProd - 1) <= parallelEps);
 }

@@ -190,6 +190,7 @@
     <ClInclude Include="IntersectionExceptions.h" />
     <ClInclude Include="IntersectionFinder.h" />
     <ClInclude Include="IntersectionNotFoundException.h" />
+    <ClInclude Include="IntersectionParallelSurfacesException.h" />
     <ClInclude Include="IntersectionSearchResult.h" />
     <ClInclude Include="IntersectionSearchResultOneDir.h" />
     <ClInclude Include="IOExceptions.h" />
