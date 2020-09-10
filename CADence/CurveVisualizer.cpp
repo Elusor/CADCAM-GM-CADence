@@ -514,7 +514,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 	if (!curve->GetIsClosedIntersection(affectedSurf))
 	{
 		
-		for (float u = 0.0f; u < 1.001f; u += 0.1f)
+		/*for (float u = 0.0f; u < 1.001f; u += 0.1f)
 		{
 			positions.push_back(VertexPositionColor{
 				DirectX::XMFLOAT3(u, 0.0f, 0.2f),
@@ -539,7 +539,7 @@ void CurveVisualizer::RenderTrimmedSpace(ID3D11RenderTargetView* texture, ID3D11
 			indices.push_back(k);
 			indices.push_back(k + 1);
 			k += 2;
-		}
+		}*/
 
 		k = positions.size();
 		for (auto pair : paramList)
