@@ -18,6 +18,7 @@ ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQ
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
 	m_minPointCount = 4;
+	m_oneDirPointCap = 500;
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 	m_step = 0.5f; 
@@ -259,16 +260,23 @@ bool IntersectionFinder::FindIntersectionForParameters(
 			auto ptQ = qSurface->GetPoint(foundParamsQ);
 			auto ptP = pSurface->GetPoint(foundParamsP);
 			auto dist = Dot(ptQ - ptP, ptQ - ptP);
-			assert(dist <= eps * eps);
+			
 
 			// Calculate other points				
 			auto result = FindOtherIntersectionPoints(
 				qSurface, foundParamsQ,
 				pSurface, foundParamsP, foundPosition);
 
+			
+
 			if (result.surfQParamsList.size() < m_minPointCount)
 			{
 				throw IntersectionTooFewPointsException();
+			}
+
+			if (result.surfPParamsList.size() > 2 * m_oneDirPointCap)
+			{
+				throw IntersectionTooManyPointsException();
 			}
 
 			// Create the interpolation curve
@@ -304,7 +312,7 @@ void IntersectionFinder::CreateParamsGui()
 	minPts = max(minPts, 0);
 
 	float minf = 1E-10f;
-	float maxf = 2.f;
+	float maxf = 200.f;
 
 	float eps = m_precision;
 	std::string label = "Newton Precision##IntersectionFinder";
@@ -1113,7 +1121,7 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	IParametricSurface* surfaceP, ParameterPair surfPParams,
 	DirectX::XMFLOAT3 firstPoint)
 {
-	int oneDirectionPointCap = 500;
+	int oneDirectionPointCap = m_oneDirPointCap;
 	IntersectionSearchResult algorithmResult;
 	IntersectionSearchResultOneDir resForward, resBackward;
 	ParameterQuad startParams;
@@ -1655,7 +1663,7 @@ bool IntersectionFinder::SimpleGradientResultCheck(IntersectionPointSearchData s
 
 	auto diff = resParamsQ.GetVector() - resParamsP.GetVector();
 	float len = sqrt(Dot(diff, diff));
-	bool differentPointsInParamSpace = len > 0.1f;
+	bool differentPointsInParamSpace = len > 0.2f;
 
 	bool resSelfIntersectDifferentParams = differentPointsInParamSpace || !isSelfIntersection;
 	bool isValidSolution = resSelfIntersectDifferentParams && searchRes.found;

@@ -417,6 +417,9 @@
     <ClInclude Include="IntersectionTooFewPointsException.h">
       <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectionTooManyPointsException.h">
+      <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">

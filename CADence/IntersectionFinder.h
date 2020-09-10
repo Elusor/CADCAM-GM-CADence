@@ -42,6 +42,7 @@ public:
 private:
 
 	int m_minPointCount;
+	int m_oneDirPointCap;
 	float m_cursorSamples;
 	float m_samples;
 

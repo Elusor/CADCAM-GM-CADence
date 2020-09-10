@@ -194,6 +194,7 @@
     <ClInclude Include="IntersectionSearchResult.h" />
     <ClInclude Include="IntersectionSearchResultOneDir.h" />
     <ClInclude Include="IntersectionTooFewPointsException.h" />
+    <ClInclude Include="IntersectionTooManyPointsException.h" />
     <ClInclude Include="IOExceptions.h" />
     <ClInclude Include="IParametricSurface.h" />
     <ClInclude Include="IRenderTarget.h" />
