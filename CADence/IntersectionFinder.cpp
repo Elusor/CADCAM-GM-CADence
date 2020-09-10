@@ -1187,13 +1187,13 @@ ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQ
 			float val = FLT_MAX;
 			float isValZeroDist = false;
 
-			if (zeroDist > 0.0f)
+			if (zeroDist >= 0.0f)
 			{
 				val = zeroDist;
 				isValZeroDist = true;
 			}
 
-			if (oneDist > 0.0f && oneDist <val )
+			if (oneDist >= 0.0f && oneDist <val )
 			{
 				val = oneDist;
 				isValZeroDist = false;
