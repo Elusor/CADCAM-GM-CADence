@@ -971,7 +971,7 @@ std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParamet
 	for (int i = 0; i < 4; i++)
 	{
 		float param = GetAt(pointParams, i);
-		intersectsBorder |= (param == GetAt(maxParams.GetVector(), i) || param == 0);
+		intersectsBorder |= (param == GetAt(maxParams.GetVector(), i) + eps || param == -eps);
 	}
 
 	if (intersectsBorder)
@@ -1425,7 +1425,7 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 					for (auto pt : auxPoints)
 					{
 						result.auxPoints.push_back(pt);
-					}
+					}					
 				}
 			}
 			else

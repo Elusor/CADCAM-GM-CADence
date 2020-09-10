@@ -67,10 +67,26 @@ bool CheckIsClosed(ObjectRef surface, int uMax, int uZero, int vMax, int vZero, 
 				res = true;
 			}
 
+			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Width) &&
+				surface->IsWrappedInDirection(SurfaceWrapDirection::Height) == false &&
+				uMax % 2 == 1 && uMax != 0 &&
+				uZero % 2 == 1 && uZero != 0)
+			{
+				res = true;
+			}
+
 			//SurfaceWrapDirection::Width
 			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Height) == false &&
 				vMax % 2 == 0 && vMax != 0 &&
 				vZero % 2 == 0 && vZero != 0)
+			{
+				res = true;
+			}
+
+			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Height)&&
+				surface->IsWrappedInDirection(SurfaceWrapDirection::Width) == false &&
+				vMax % 2 == 1 && vMax != 0 &&
+				vZero % 2 == 1 && vZero != 0)
 			{
 				res = true;
 			}
