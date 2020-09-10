@@ -41,6 +41,7 @@ public:
 	void CreateParamsGui();
 private:
 
+	int m_minPointCount;
 	float m_cursorSamples;
 	float m_samples;
 

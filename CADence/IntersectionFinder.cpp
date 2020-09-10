@@ -17,6 +17,7 @@ ClampedPointData FindClampedPosition(ParameterQuad maxParams, ParameterQuad x_kQ
 
 IntersectionFinder::IntersectionFinder(Scene* scene)
 {
+	m_minPointCount = 4;
 	m_scene = scene;
 	m_factory = scene->m_objectFactory.get();
 	m_step = 0.5f; 
@@ -222,9 +223,26 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 	return result;
 }
 
+float Wrap(float val, float minVal, float maxVal)
+{
+	float res = val;
+	res = min(res, maxVal);
+	res = max(res, minVal);
+	return res;
+}
+
 void IntersectionFinder::CreateParamsGui()
 {
 	ImGui::Text("Intersection options");
+
+	int minPts = m_minPointCount;
+	std::string labelMinPts = "Minimum point count##IntersectionFinder";
+	ImGui::DragInt(labelMinPts.c_str(), &minPts, 0, 1, 10.f);
+	minPts = min(minPts, 10);
+	minPts = max(minPts, 0);
+
+	float minf = 1E-10f;
+	float maxf = 2.f;
 
 	float eps = m_precision;
 	std::string label = "Newton Precision##IntersectionFinder";
@@ -240,7 +258,7 @@ void IntersectionFinder::CreateParamsGui()
 
 	int iterations = m_iterationCounter;
 	std::string label8 = "Newton Iterations ##IterationsCounter";
-	ImGui::DragInt(label8.c_str(), &iterations, 0, 1, 5);
+	ImGui::DragInt(label8.c_str(), &iterations, 20, 1, 200);
 
 	float goldenRation = m_goldenRatioPrecision;
 	std::string label4 = "Golden Ratio Prec##IntersectionFinder";
@@ -268,15 +286,16 @@ void IntersectionFinder::CreateParamsGui()
 	std::string label10 = "Cursor domain samples##IterationsCounter";
 	ImGui::DragInt(label10.c_str(), &CGsamp, 0, 1, 5);	
 
-	m_samples = samp;
-	m_cursorSamples = CGsamp;
-	m_iterationCounter = iterations;
+	m_minPointCount = Wrap(minPts,3,10);
+	m_samples = Wrap(samp,1,10);
+	m_cursorSamples = Wrap(CGsamp,1,10);
+	m_iterationCounter = Wrap(iterations,1,200);
 	m_step = step;
-	m_precision = eps;
-	m_goldenRatioPrecision = goldenRation;
-	m_gradientPrecision = cgprec;
-	m_cursorCGprecision = cursCGPrec;
-	m_loopPrecision = loopPrec;
+	m_precision = Wrap(eps,minf,maxf);
+	m_goldenRatioPrecision = Wrap(goldenRation,minf,maxf);
+	m_gradientPrecision = Wrap(cgprec, minf, maxf);
+	m_cursorCGprecision = Wrap(cursCGPrec, minf, maxf);
+	m_loopPrecision = Wrap(loopPrec, minf,maxf);
 }
 
 DirectX::XMFLOAT4X4 CalculateHessian(
@@ -621,6 +640,11 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 							qSurface, foundParamsQ,
 							pSurface, foundParamsP, foundPosition);
 
+						if (result.surfQParamsList.size() < m_minPointCount)
+						{
+							throw IntersectionTooFewPointsException();
+						}
+
 						// Create the interpolation curve
 						auto curve = m_factory->CreateIntersectionCurve(
 							qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed,
@@ -717,6 +741,11 @@ void IntersectionFinder::FindIntersectionWithCursor(
 		auto foundPt = SimpleGradient(qSurface, endParams1, pSurface, endParams2);
 		if (foundPt.found)
 		{
+			if (SurfacesAreParallel(qSurface, pSurface, foundPt.params))
+			{
+				throw IntersectionParallelSurfacesException();
+			}
+
 			XMFLOAT3 foundPtPos = foundPt.pos;
 			auto autoPtParamsQ = foundPt.params.GetQParams();
 			auto autoPtParamsP = foundPt.params.GetPParams();
@@ -728,6 +757,11 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			auto result = FindOtherIntersectionPoints(
 				qSurface, autoPtParamsQ,
 				pSurface, autoPtParamsP, foundPtPos);
+
+			if (result.surfQParamsList.size() < m_minPointCount)
+			{
+				throw IntersectionTooFewPointsException();
+			}
 
 			// Create the interpolation curve
 			auto curve = m_factory->CreateIntersectionCurve(
