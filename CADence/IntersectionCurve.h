@@ -11,8 +11,8 @@ class IntersectionCurve: public BezierCurve
 public:
 	IntersectionCurve();
 	void Initialize(
-		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qClosedIntersection,
-		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pClosedIntersection);
+		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qIsLooped,
+		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pIsLooped);
 
 	// Intersection Curve Unique methods
 	ObjectRef GetParametricSurface(IntersectedSurface surface);
@@ -43,8 +43,20 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_pParameters;
 	std::vector<DirectX::XMFLOAT3> m_positions;	
 
-	bool m_qIsClosedIntersection = false;
-	bool m_pIsClosedIntersection = false;
+	bool m_qIsLooped = false;
+	bool m_pIsLooped = false;
+
+	int m_uPtsOnBorderMax = 0;
+	int m_uPtsOnBorderZero = 0;
+
+	int m_vPtsOnBorderMax = 0;
+	int m_vPtsOnBorderZero = 0;
+
+	int m_sPtsOnBorderMax = 0;
+	int m_sPtsOnBorderZero = 0;
+
+	int m_tPtsOnBorderMax = 0;
+	int m_tPtsOnBorderZero = 0;
 
 	std::vector<std::shared_ptr<Node>> m_virtualPoints;
 	std::vector<std::weak_ptr<Node>> m_virtualPointsWeak;
@@ -53,4 +65,6 @@ private:
 	void UpdateGSData();
 	void TrimAffectedSurfaces();
 	void TrimSurface(IntersectedSurface surface);
+	void CountPointsOnBorders(ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters,
+		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters);
 };

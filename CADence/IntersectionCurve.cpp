@@ -9,8 +9,8 @@ IntersectionCurve::IntersectionCurve()
 }
 
 void IntersectionCurve::Initialize(
-	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qClosedIntersection,
-	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pClosedIntersection)
+	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qIsLooped,
+	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pIsLooped)
 {
 	m_qSurface = qSurface;
 	m_pSurface = pSurface;
@@ -18,12 +18,12 @@ void IntersectionCurve::Initialize(
 	m_qParameters = qParameters;
 	m_pParameters = pParameters;
 
-	m_qIsClosedIntersection = qClosedIntersection;
-	m_pIsClosedIntersection = pClosedIntersection;
+	m_qIsLooped = qIsLooped;
+	m_pIsLooped = pIsLooped;
 
 	m_positions = GetPointPositions();	
 	GetInterpolationSplineBernsteinPoints();
-
+	CountPointsOnBorders(qSurface, qParameters, pSurface, pParameters);
 	for (auto pt : m_virtualPoints)
 	{
 		m_virtualPointsWeak.push_back(pt);
@@ -38,16 +38,66 @@ ObjectRef IntersectionCurve::GetParametricSurface(IntersectedSurface surface)
 	return res;
 }
 
+bool CheckIsClosed(ObjectRef surface, int uMax, int uZero, int vMax, int vZero, bool isLooped)
+{
+	bool res = false;
+	if (auto surNode = surface.lock())
+	{
+		auto surface = dynamic_cast<IParametricSurface*>(surNode->m_object.get());
+		if (isLooped && (uMax + uZero + vMax + vZero) % 4 == 0)
+		{
+			res = isLooped;
+		}
+		else
+		{
+			bool borderClosedU = false;
+			bool borderClosedV = false;
+
+			if (surface->IsWrappedInDirection(SurfaceWrapDirection::None) &&
+				uMax + uZero + vMax + vZero > 1)
+			{
+				res = true;
+			}
+
+			//SurfaceWrapDirection::Height
+			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Width) == false &&
+				uMax % 2 == 0 && uMax != 0 &&
+				uZero % 2 == 0 && uZero != 0)
+			{
+				res = true;
+			}
+
+			//SurfaceWrapDirection::Width
+			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Height) == false &&
+				vMax % 2 == 0 && vMax != 0 &&
+				vZero % 2 == 0 && vZero != 0)
+			{
+				res = true;
+			}
+
+		}
+
+	}
+	return res;
+}
+
 bool IntersectionCurve::GetIsClosedIntersection(IntersectedSurface surface)
 {
+
 	bool isClosed = false;
 	switch (surface)
 	{
-	case IntersectedSurface::SurfaceQ:
-		isClosed = m_qIsClosedIntersection;
+	case IntersectedSurface::SurfaceQ:	
+		isClosed = CheckIsClosed(
+			GetParametricSurface(surface), 
+			m_uPtsOnBorderMax, m_uPtsOnBorderZero, 
+			m_vPtsOnBorderMax, m_vPtsOnBorderZero, m_qIsLooped);
 		break;
 	case IntersectedSurface::SurfaceP:
-		isClosed = m_pIsClosedIntersection;
+		isClosed = CheckIsClosed(
+			GetParametricSurface(surface),
+			m_sPtsOnBorderMax, m_sPtsOnBorderZero,
+			m_tPtsOnBorderMax, m_tPtsOnBorderZero, m_pIsLooped);
 		break;
 	}
 
@@ -122,7 +172,7 @@ void IntersectionCurve::RenderObjectSpecificContextOptions(Scene& scene)
 {
 	if (!m_qSurface.expired() && !m_pSurface.expired())
 	{
-		if (!m_qIsClosedIntersection && !m_pIsClosedIntersection)
+		if (!GetIsClosedIntersection(SurfaceQ) && !GetIsClosedIntersection(SurfaceP))
 		{
 			ImGui::Text("Cannot trim");
 		}
@@ -501,10 +551,10 @@ void IntersectionCurve::UpdateGSData()
 
 void IntersectionCurve::TrimAffectedSurfaces()
 {
-	if(m_qIsClosedIntersection)
+	if(GetIsClosedIntersection(SurfaceQ))
 		TrimSurface(IntersectedSurface::SurfaceQ);
 
-	if(m_pIsClosedIntersection)
+	if(GetIsClosedIntersection(SurfaceP))
 		TrimSurface(IntersectedSurface::SurfaceP);	
 }
 
@@ -536,4 +586,78 @@ void IntersectionCurve::TrimSurface(IntersectedSurface surface)
 			assert(false && "Invalid surface. Could not trim.");
 		}
 	}
+}
+
+void IntersectionCurve::CountPointsOnBorders(
+	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, 
+	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters) 
+{
+	m_uPtsOnBorderMax = 0;
+	m_uPtsOnBorderZero = 0;
+
+	m_vPtsOnBorderMax = 0;
+	m_vPtsOnBorderZero = 0;
+
+	m_sPtsOnBorderMax = 0;
+	m_sPtsOnBorderZero = 0;
+
+	m_tPtsOnBorderMax = 0;
+	m_tPtsOnBorderZero = 0;
+
+
+	if (auto qNode = qSurface.lock())
+	{
+		auto qSurf = dynamic_cast<IParametricSurface*>(qNode->m_object.get());
+		ParameterPair qMaxParams = qSurf->GetMaxParameterValues();
+
+		for (int i = 0; i < qParameters.size(); i++)
+		{
+			ParameterPair pair = qParameters[i];
+			if (pair.u == qMaxParams.u)
+			{
+				m_uPtsOnBorderMax++;
+			}
+			if (pair.u == 0)
+			{
+				m_uPtsOnBorderZero++;
+			}
+			if (pair.v == qMaxParams.v)
+			{
+				m_vPtsOnBorderMax++;
+			}			
+			if (pair.v == 0)
+			{
+				m_vPtsOnBorderZero++;
+			}
+		}
+	}
+
+	if (auto pNode = pSurface.lock())
+	{
+		auto pSurf = dynamic_cast<IParametricSurface*>(pNode->m_object.get());
+		ParameterPair pMaxParams = pSurf->GetMaxParameterValues();
+
+		for (int i = 0; i < pParameters.size(); i++)
+		{
+			ParameterPair pair = pParameters[i];
+			if (pair.u == pMaxParams.u)
+			{
+				m_sPtsOnBorderMax++;
+			}
+			if (pair.u == 0)
+			{
+				m_sPtsOnBorderZero++;
+			}
+			if (pair.v == pMaxParams.v)
+			{
+				m_tPtsOnBorderMax++;
+			}
+			if (pair.v == 0)
+			{
+				m_tPtsOnBorderZero++;
+			}
+		}
+	}
+
+
 }

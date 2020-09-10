@@ -1235,8 +1235,8 @@ IntersectionSearchResult IntersectionFinder::FindOtherIntersectionPoints(
 	bool qLooped = resForward.m_loopData.m_qLooped || resBackward.m_loopData.m_qLooped;
 	bool pLooped = resForward.m_loopData.m_pLooped || resBackward.m_loopData.m_pLooped;
 
-	algorithmResult.m_qIntersectionClosed = qClosed || qLooped;
-	algorithmResult.m_pIntersectionClosed = pClosed || pLooped;
+	algorithmResult.m_qIntersectionClosed = qLooped;
+	algorithmResult.m_pIntersectionClosed = pLooped;
 
 	return algorithmResult;
 }
