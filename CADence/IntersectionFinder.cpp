@@ -957,8 +957,8 @@ std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParamet
 	{
 		float floor;
 		float decimal = modf(GetAt(x_prev.GetVector(), i), &floor);
-		SetAt(maxCellParams, i, floor + 1);
-		SetAt(minCellParams, i, floor);
+		SetAt(maxCellParams, i, floor + 1 + eps);
+		SetAt(minCellParams, i, floor - eps);
 	}
 
 	auto surfQ = dynamic_cast<BezierSurfaceC0*>(qSurface);
@@ -992,7 +992,8 @@ std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParamet
 		}
 		else
 		{
-			res.push_back(linePosData.params + epsF4);
+			// or - eps based on the border we target 
+			res.push_back(linePosData.params);
 		}
 		// if linePos - prevPos is greater than x_k - prev_pos 
 		// else		
