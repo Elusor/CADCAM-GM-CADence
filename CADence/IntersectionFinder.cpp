@@ -911,7 +911,7 @@ ParameterQuad CorrectEpsEdges(IParametricSurface* qSurface, IParametricSurface* 
 	maxParams.Set(maxQParams, maxPParams);
 	XMFLOAT4 maxParamsF4 = maxParams.GetVector();
 
-	float eps = 1E-7;
+	float eps = 1E-6;
 	for (int i = 0; i < 4; i++)
 	{
 		float iMaxParam = GetAt(maxParamsF4, i);
@@ -955,8 +955,8 @@ std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParamet
 	{
 		float floor;
 		float decimal = modf(GetAt(x_prev.GetVector(), i), &floor);
-		SetAt(maxCellParams, i, floor + 1 + eps);
-		SetAt(minCellParams, i, floor - eps);
+		SetAt(maxCellParams, i, floor + 1);
+		SetAt(minCellParams, i, floor);
 	}
 
 	auto surfQ = dynamic_cast<BezierSurfaceC0*>(qSurface);
@@ -971,7 +971,7 @@ std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParamet
 	for (int i = 0; i < 4; i++)
 	{
 		float param = GetAt(pointParams, i);
-		intersectsBorder |= (param == GetAt(maxParams.GetVector(), i) + eps || param == -eps);
+		intersectsBorder |= (param == GetAt(maxParams.GetVector(), i) || param == 0.0f);
 	}
 
 	if (intersectsBorder)
@@ -990,8 +990,9 @@ std::vector<DirectX::XMFLOAT4> IntersectionFinder::GetC0AuxiliaryPoints(IParamet
 		}
 		else
 		{
+			auto movedParams = x_prev + curDiff * (1 + eps);
 			// or - eps based on the border we target 
-			res.push_back(linePosData.params);
+			res.push_back(movedParams.GetVector());
 		}
 		// if linePos - prevPos is greater than x_k - prev_pos 
 		// else		
@@ -1399,12 +1400,13 @@ IntersectionPointSearchData IntersectionFinder::FindNextPoint(
 					{
 						for (int i = 0; i < auxC0Points.size() - 1; i++)
 						{
-							result.auxPoints.push_back(auxC0Points[i]);
+							auto params = CorrectEpsEdges(qSurf, pSurf, auxC0Points[i]);
+							result.auxPoints.push_back(params.GetVector());
 						}
 
 						// Mark the last point as result and return
 
-						result.params = auxC0Points[auxC0Points.size() - 1];
+						result.params = CorrectEpsEdges(qSurf, pSurf, auxC0Points[auxC0Points.size() - 1]);
 						result.pos = pSurf->GetPoint(result.params.GetPParams());
 						result.found = true;
 						continueNewtonCalculation = false;
