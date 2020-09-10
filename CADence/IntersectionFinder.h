@@ -87,6 +87,13 @@ private:
 		IParametricSurface* pSurface,
 		float step);
 
+	bool FindIntersectionForParameters(
+		ObjectRef qSurfNode,
+		ObjectRef pSurfNode,
+		IParametricSurface* qSurface,
+		IParametricSurface* pSurface,
+		ParameterQuad params, bool selfIntersect);
+
 	bool FindFirstIntersectionPoint(
 		IParametricSurface* surface1,
 		ParameterPair& surf1Params,
@@ -156,4 +163,6 @@ private:
 		DirectX::XMFLOAT3 cursorPos);
 
 	bool SurfacesAreParallel(IParametricSurface* qSurface, IParametricSurface* pSurface, ParameterQuad parameters);
+
+	bool SimpleGradientResultCheck(IntersectionPointSearchData searchRes, ParameterQuad initialParams, bool isSelfIntersection);
 };

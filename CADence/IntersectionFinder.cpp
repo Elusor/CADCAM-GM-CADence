@@ -223,6 +223,68 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 	return result;
 }
 
+bool IntersectionFinder::FindIntersectionForParameters(
+	ObjectRef qSurfNode, 
+	ObjectRef pSurfNode, 
+	IParametricSurface* qSurface, 
+	IParametricSurface* pSurface, 
+	ParameterQuad params, bool selfIntersect)
+{
+	ParameterPair qParams, pParams;
+	qParams.u = params.u;
+	qParams.v = params.v;
+	pParams.u = params.s;
+	pParams.v = params.t;
+
+	bool selfIntersectDifferentParams = !(qParams.u == pParams.u && qParams.v == pParams.v) || !selfIntersect;
+	if (selfIntersectDifferentParams)
+	{
+		auto firstPt = SimpleGradient(qSurface, qParams, pSurface, pParams);
+		
+		// Calculate first point
+		if (SimpleGradientResultCheck(firstPt, params, selfIntersect))
+		{
+			if (SurfacesAreParallel(qSurface, pSurface, firstPt.params))
+			{
+				throw IntersectionParallelSurfacesException();
+			}
+
+			// Update the search data
+			auto foundPosition = firstPt.pos;
+			auto foundParamsQ = firstPt.params.GetQParams();
+			auto foundParamsP = firstPt.params.GetPParams();
+
+			// Validity check
+			float eps = 0.01f;
+			auto ptQ = qSurface->GetPoint(foundParamsQ);
+			auto ptP = pSurface->GetPoint(foundParamsP);
+			auto dist = Dot(ptQ - ptP, ptQ - ptP);
+			assert(dist <= eps * eps);
+
+			// Calculate other points				
+			auto result = FindOtherIntersectionPoints(
+				qSurface, foundParamsQ,
+				pSurface, foundParamsP, foundPosition);
+
+			if (result.surfQParamsList.size() < m_minPointCount)
+			{
+				throw IntersectionTooFewPointsException();
+			}
+
+			// Create the interpolation curve
+			auto curve = m_factory->CreateIntersectionCurve(
+				qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed && !selfIntersect,
+				pSurfNode, result.surfPParamsList, result.m_pIntersectionClosed && !selfIntersect);
+
+			m_scene->AttachObject(curve);
+			return true;
+		}
+	}
+	
+
+	return false;
+}
+
 float Wrap(float val, float minVal, float maxVal)
 {
 	float res = val;
@@ -577,8 +639,10 @@ bool IntersectionFinder::FindFirstIntersectionPoint(
 
 void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNode)
 {
+	
 	IParametricSurface* qSurface = dynamic_cast<IParametricSurface*>(qSurfNode.lock()->m_object.get());
 	IParametricSurface* pSurface = dynamic_cast<IParametricSurface*>(pSurfNode.lock()->m_object.get());
+	bool selfIntersect = qSurface == pSurface;
 
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
 	ParameterPair pParams, qParams;
@@ -608,49 +672,14 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 			{
 				for (float t = 0.0f; t <= maxT; t += tStep)
 				{					
-					qParams.u = u;
-					qParams.v = v;
-					pParams.u = s;
-					pParams.v = t;
+					ParameterQuad params;
+					params.u = u;
+					params.v = v;
+					params.s = s;
+					params.t = t;
 
-					auto firstPt = SimpleGradient(qSurface, qParams, pSurface, pParams);
-					// Calculate first point
-					if (firstPt.found)
-					{				
-						if (SurfacesAreParallel(qSurface, pSurface, firstPt.params))
-						{
-							throw IntersectionParallelSurfacesException();
-						}
-
-
-						// Update the search data
-						auto foundPosition = firstPt.pos;
-						auto foundParamsQ = firstPt.params.GetQParams();
-						auto foundParamsP = firstPt.params.GetPParams();
-
-						// Validity check
-						float eps = 0.01f;
-						auto ptQ = qSurface->GetPoint(foundParamsQ);
-						auto ptP = pSurface->GetPoint(foundParamsP);
-						auto dist = Dot(ptQ - ptP, ptQ - ptP);
-						assert(dist <= eps * eps);						
-
-						// Calculate other points				
-						auto result = FindOtherIntersectionPoints(
-							qSurface, foundParamsQ,
-							pSurface, foundParamsP, foundPosition);
-
-						if (result.surfQParamsList.size() < m_minPointCount)
-						{
-							throw IntersectionTooFewPointsException();
-						}
-
-						// Create the interpolation curve
-						auto curve = m_factory->CreateIntersectionCurve(
-							qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed,
-							pSurfNode, result.surfPParamsList, result.m_pIntersectionClosed);
-
-						m_scene->AttachObject(curve);
+					if (FindIntersectionForParameters(qSurfNode, pSurfNode, qSurface, pSurface, params, selfIntersect))
+					{
 						return;
 					}
 				}
@@ -668,6 +697,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 {
 	IParametricSurface* qSurface = dynamic_cast<IParametricSurface*>(qNode.lock()->m_object.get());
 	IParametricSurface* pSurface = dynamic_cast<IParametricSurface*>(pNode.lock()->m_object.get());
+	bool selfIntersect = qSurface == pSurface;
 
 	ParameterPair pParams, qParams;
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;	
@@ -734,45 +764,20 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			}
 		}
 	}
-
+	
 	if (found1 && found2)
 	{
-		// Calculate first point
-		auto foundPt = SimpleGradient(qSurface, endParams1, pSurface, endParams2);
-		if (foundPt.found)
+		ParameterQuad params;
+		params.Set(endParams1, endParams2);
+
+		if (FindIntersectionForParameters(qNode, pNode, qSurface, pSurface, params, selfIntersect))
 		{
-			if (SurfacesAreParallel(qSurface, pSurface, foundPt.params))
-			{
-				throw IntersectionParallelSurfacesException();
-			}
-
-			XMFLOAT3 foundPtPos = foundPt.pos;
-			auto autoPtParamsQ = foundPt.params.GetQParams();
-			auto autoPtParamsP = foundPt.params.GetPParams();
-
-			qParamsList.push_back(XMFLOAT2(autoPtParamsQ.u, autoPtParamsQ.v));
-			pParamsList.push_back(XMFLOAT2(autoPtParamsP.u, autoPtParamsP.v));
-
-			// Calculate other points				
-			auto result = FindOtherIntersectionPoints(
-				qSurface, autoPtParamsQ,
-				pSurface, autoPtParamsP, foundPtPos);
-
-			if (result.surfQParamsList.size() < m_minPointCount)
-			{
-				throw IntersectionTooFewPointsException();
-			}
-
-			// Create the interpolation curve
-			auto curve = m_factory->CreateIntersectionCurve(
-				qNode, result.surfQParamsList, result.m_qIntersectionClosed,
-				pNode, result.surfPParamsList, result.m_pIntersectionClosed);
-			m_scene->AttachObject(curve);
 			return;
 		}
 		else {
 			throw IntersectionNotFoundException();
 		}
+
 	}	
 	else {
 		throw IntersectionNotFoundException();
@@ -1634,4 +1639,19 @@ bool IntersectionFinder::SurfacesAreParallel(IParametricSurface* qSurface, IPara
 
 	float dotProd = abs(Dot(n1Norm, n2Norm));
 	return (abs(dotProd - 1) <= parallelEps);
+}
+
+bool IntersectionFinder::SimpleGradientResultCheck(IntersectionPointSearchData searchRes, ParameterQuad initialParams, bool isSelfIntersection)
+{	
+	auto resParamsQ = searchRes.params.GetQParams();
+	auto resParamsP = searchRes.params.GetPParams();
+
+	auto diff = resParamsQ.GetVector() - resParamsP.GetVector();
+	float len = sqrt(Dot(diff, diff));
+	bool differentPointsInParamSpace = len > 0.1f;
+
+	bool resSelfIntersectDifferentParams = differentPointsInParamSpace || !isSelfIntersection;
+	bool isValidSolution = resSelfIntersectDifferentParams && searchRes.found;
+
+	return isValidSolution;
 }

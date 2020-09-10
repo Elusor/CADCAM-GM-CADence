@@ -206,23 +206,40 @@ void DxApplication::InitImguiWindows()
 
 	if (ImGui::CollapsingHeader("Hierarchy"))
 	{				
-		if (m_scene->m_selectedNodes.size() == 2)
+
+		try
 		{
-			auto p1 = m_scene->m_selectedNodes[0];
-			auto p2 = m_scene->m_selectedNodes[1];
-			if (typeid(*p1.lock()->m_object.get()) == typeid(Point) &&
-				typeid(*p2.lock()->m_object.get()) == typeid(Point))
+			if (m_scene->m_selectedNodes.size() == 1)
 			{
-				if (ImGui::Button("Collapse points"))
+				auto objectRef = m_scene->m_selectedNodes[0];
+				if (auto object = objectRef.lock())
 				{
-					m_pointCollapser->Collapse(p1, p2);
-				}				
+					auto surf = dynamic_cast<IParametricSurface*>(object->m_object.get());
+					if (surf != nullptr)
+					{
+						if (ImGui::Button("Intersect with self"))
+						{
+							m_intersectionFinder->FindInterSection(objectRef, objectRef);
+						}
+					}
+				}
 			}
 
-			if(m_intersectionFinder->AreObjectIntersectable(p1,p2))
+			if (m_scene->m_selectedNodes.size() == 2)
 			{
-				try
+				auto p1 = m_scene->m_selectedNodes[0];
+				auto p2 = m_scene->m_selectedNodes[1];
+				if (typeid(*p1.lock()->m_object.get()) == typeid(Point) &&
+					typeid(*p2.lock()->m_object.get()) == typeid(Point))
 				{
+					if (ImGui::Button("Collapse points"))
+					{
+						m_pointCollapser->Collapse(p1, p2);
+					}
+				}
+
+				if (m_intersectionFinder->AreObjectIntersectable(p1, p2))
+				{					
 					if (ImGui::Button("Intersect surfaces"))
 					{
 						m_intersectionFinder->FindInterSection(p1, p2);
@@ -234,23 +251,23 @@ void DxApplication::InitImguiWindows()
 						m_intersectionFinder->FindIntersectionWithCursor(p1, p2, cursorPos);
 					}
 				}
-				catch (IntersectionNotFoundException ienf)
-				{
-					m_guiManager->EnableCustomModal(ienf.what(), "Intersection Error");
-				}
-				catch (IntersectionParallelSurfacesException ipse)
-				{
-					m_guiManager->EnableCustomModal(ipse.what(), "Intersection Error");
-				}
-				catch (IntersectionTooFewPointsException itfpe)
-				{
-					m_guiManager->EnableCustomModal(itfpe.what(), "Intersection Error");
-				}
-				catch (...)
-				{
-					m_guiManager->EnableCustomModal("Something went wrong.", "Intersection Error - General Error");
-				}
 			}
+		}
+		catch (IntersectionNotFoundException ienf)
+		{
+			m_guiManager->EnableCustomModal(ienf.what(), "Intersection Error");
+		}
+		catch (IntersectionParallelSurfacesException ipse)
+		{
+			m_guiManager->EnableCustomModal(ipse.what(), "Intersection Error");
+		}
+		catch (IntersectionTooFewPointsException itfpe)
+		{
+			m_guiManager->EnableCustomModal(itfpe.what(), "Intersection Error");
+		}
+		catch (...)
+		{
+			m_guiManager->EnableCustomModal("Something went wrong.", "Intersection Error - General Error");
 		}
 
 		if (m_scene->m_selectedNodes.size() == 3)
