@@ -166,6 +166,25 @@ void Camera::ResizeViewport(float width, float height)
 	RecalculateProjectionMatrix();
 }
 
+DirectX::XMFLOAT3 Camera::ScreenToWorldPoint(int x, int y)
+{
+	// Convert x,y to ndc 
+	DirectX::XMFLOAT4 ndcPos = ConvertScreenPosToNDC(x, y);	
+	
+
+	auto ndcVec = XMLoadFloat4(&ndcPos);
+	// Convert ndc to scene pos
+	auto viewMat = GetViewProjectionMatrix();
+	auto viewInv = XMMatrixInverse(nullptr, viewMat);
+	auto scenePosVec = XMVector4Transform(ndcVec, viewInv);
+	DirectX::XMFLOAT4 scenePos;
+	XMStoreFloat4(&scenePos, scenePosVec);
+
+
+	DirectX::XMFLOAT3 res = DirectX::XMFLOAT3(scenePos.x, scenePos.y, scenePos.z);
+	return res;
+}
+
 SIZE Camera::GetViewportSize()
 {
 	SIZE size;
@@ -218,6 +237,29 @@ DirectX::XMMATRIX Camera::GetStereoscopicMatrix(bool isLeft, float d, float focu
 	auto perspective = XMMatrixPerspectiveOffCenterLH(l,r,b,t,m_zNear, m_zFar);
 	
 	return XMMatrixMultiply(view, perspective);
+}
+
+DirectX::XMFLOAT4 Camera::ConvertScreenPosToNDC(int x, int y)
+{
+	DirectX::XMFLOAT4 res;
+	float xPos = (float)x / (float)m_width;
+	float yPos = (float)y / (float)m_height;
+
+	xPos -= 0.5f;
+	yPos -= 0.5f;
+
+	xPos *= 2.f;
+	yPos *= -2.f;
+
+	
+
+	res = DirectX::XMFLOAT4(xPos, yPos, 0.9f, 1.0f);
+	return res;
+}
+
+DirectX::XMFLOAT3 Camera::GetTargetPos()
+{
+	return m_target;
 }
 
 XMFLOAT3 SumFloat3(XMFLOAT3 v1, XMFLOAT3 v2)

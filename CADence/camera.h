@@ -23,8 +23,12 @@ public:
 	void RotateCamera(float dx, float dy);
 	void TranslateCamera(float dx, float dy);
 	void ResizeViewport(float width, float height);
+	DirectX::XMFLOAT3 ScreenToWorldPoint(int x, int y);
 	SIZE GetViewportSize();	
 	DirectX::XMMATRIX GetStereoscopicMatrix(bool isLeft, float d, float focusPlaneDist);
+
+	DirectX::XMFLOAT4 ConvertScreenPosToNDC(int x, int y);
+	DirectX::XMFLOAT3 GetTargetPos();
 
 private:	
 	// Calculate view matrix based on the cmaera position and target position

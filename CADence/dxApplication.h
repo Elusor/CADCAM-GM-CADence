@@ -25,7 +25,7 @@
 #include "IntersectionFinder.h"
 #include "CurveVisualizer.h"
 #include "DeletionManager.h"
-
+#include "SpawnMarkerManager.h"
 class DxApplication : public mini::WindowApplication
 {
 public:
@@ -54,6 +54,7 @@ private:
 	std::unique_ptr<PointCollapser> m_pointCollapser;
 	std::unique_ptr<IntersectionFinder> m_intersectionFinder;
 	std::unique_ptr<DeletionManager> m_deletionManager;
+	std::unique_ptr<SpawnMarkerManager> m_spawnMarkerManager;
 
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;

@@ -35,7 +35,7 @@ public:
 	void RenderScene(std::unique_ptr<RenderState> & renderState);
 	void UpdateScene();
 	void UpdateSelectedNode();
-	
+	void SetCursorPosition(DirectX::XMFLOAT3 pos);
 private:
 
 	int m_sizeU;

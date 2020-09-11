@@ -48,7 +48,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
 	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
 	m_deletionManager = make_unique<DeletionManager>(m_scene);
-
+	m_spawnMarkerManager = make_unique<SpawnMarkerManager>(m_scene.get(), camera.operator->());
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
@@ -96,6 +96,7 @@ int DxApplication::MainLoop()
 			ImGui::NewFrame();
 			m_scene->ClearModifiedTag();
 
+			m_spawnMarkerManager->ProcessInput(ImGui::GetIO());
 			m_transController->ProcessInput(ImGui::GetIO());
 			if (m_transController->IsTransforming() == false) {
 				m_camController->ProcessMessage(&ImGui::GetIO());

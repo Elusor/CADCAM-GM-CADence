@@ -661,3 +661,8 @@ void Scene::UpdateSelectedNode()
 		}
 	}
 }
+
+void Scene::SetCursorPosition(DirectX::XMFLOAT3 pos)
+{
+	m_spawnMarker->SetPosition(pos);
+}

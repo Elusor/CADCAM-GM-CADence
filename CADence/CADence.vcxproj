@@ -233,6 +233,7 @@
     <ClInclude Include="SceneExporter.h" />
     <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="sceneImporter.h" />
+    <ClInclude Include="SpawnMarkerManager.h" />
     <ClInclude Include="StereoscopicRenderPass.h" />
     <ClInclude Include="SurfaceWrapDirection.h" />
     <ClInclude Include="TextureRenderTarget.h" />
@@ -296,6 +297,7 @@
     <ClCompile Include="SceneExporter.cpp" />
     <ClCompile Include="SceneGrid.cpp" />
     <ClCompile Include="sceneImporter.cpp" />
+    <ClCompile Include="SpawnMarkerManager.cpp" />
     <ClCompile Include="StereoscopicRenderPass.cpp" />
     <ClCompile Include="TextureRenderTarget.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
