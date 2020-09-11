@@ -709,7 +709,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;	
 
 	bool found1 = false, found2 = false;
-	float dist1 = 0, dist2 = 0;
+	float dist1 = FLT_MAX, dist2 = FLT_MAX;
 	ParameterPair endParams1, endParams2;
 
 	float steps = m_cursorSamples;
@@ -766,7 +766,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 					DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
 					// If found point is closer than the previous point, update it
 					auto newDist = sqrtf(Dot(foundPoint - cursorPos, foundPoint - cursorPos));
-					if (newDist < dist1)
+					if (newDist < dist2)
 					{
 						found2 = true;
 						// Intentional Q params
@@ -1723,7 +1723,7 @@ IntersectionPointSearchData IntersectionFinder::SimpleGradientForCursor(
 	{
 		DirectX::XMFLOAT2  d_k = -1.f * CalculateGradientForCursor(qSurface, x_k, cursorPos);
 
-		float alpha = GoldenRatioMethodForCursor(qSurface, -0.5f, 0.5f, x_k.GetVector(), d_k, cursorPos);
+		float alpha = GoldenRatioMethodForCursor(qSurface, -4.f, 4.f, x_k.GetVector(), d_k, cursorPos);
 		x_prev = x_k;
 		x_k = x_k + alpha * d_k;
 		
@@ -1742,7 +1742,7 @@ IntersectionPointSearchData IntersectionFinder::SimpleGradientForCursor(
 
 		iterationCounter++;
 		// Points here could be approximate - they will act as an input to a second method which ther calculates precise position
-		if (iterationCounter > 3)
+		if (iterationCounter > 10)
 		{
 			continueSearch = false;
 			result.found = true;
