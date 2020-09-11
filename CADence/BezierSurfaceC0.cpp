@@ -95,7 +95,21 @@ std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetPatches(int& height, int& w
 {
 	height = m_pointHeight;
 	width = m_pointWidth;
-	return GetReferences().GetRefObjects();
+	auto objList = GetReferences().GetRefObjects();
+	std::vector<std::weak_ptr<Node>> points;
+	for (int i = 0; i < objList.size(); i++)
+	{
+		if (auto objRef = objList[i].lock())
+		{
+			auto pt = dynamic_cast<Point*>(objRef->m_object.get());
+			if (pt != nullptr)
+			{
+				points.push_back(objRef);
+			}
+		}
+	}
+
+	return points;
 }
 
 void BezierSurfaceC0::SetPoints(std::shared_ptr<Node>** points, int width, int height)
@@ -108,7 +122,7 @@ void BezierSurfaceC0::SetPoints(std::shared_ptr<Node>** points, int width, int h
 		//m_points.push_back(std::vector<std::weak_ptr<Node>>());
 		for (int h = 0; h < height; h++)
 		{
-			//GetReferences().LinkRef(points[w][h]);
+			GetReferences().LinkRef(points[w][h]);
 			//m_points[w].push_back();
 		}
 	}
@@ -122,7 +136,7 @@ void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> po
 	{
 		for (int h = 0; h < height; h++)
 		{
-			//GetReferences().LinkRef(points[w][h]);
+			GetReferences().LinkRef(points[w][h]);
 		}
 	}
 }
