@@ -24,6 +24,7 @@
 #include "PointCollapser.h"
 #include "IntersectionFinder.h"
 #include "CurveVisualizer.h"
+#include "DeletionManager.h"
 
 class DxApplication : public mini::WindowApplication
 {
@@ -52,6 +53,7 @@ private:
 	std::unique_ptr<GuiManager> m_guiManager;
 	std::unique_ptr<PointCollapser> m_pointCollapser;
 	std::unique_ptr<IntersectionFinder> m_intersectionFinder;
+	std::unique_ptr<DeletionManager> m_deletionManager;
 
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;

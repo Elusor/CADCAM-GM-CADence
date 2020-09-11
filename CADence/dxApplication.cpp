@@ -15,6 +15,7 @@
 #include "IntersectionFinder.h"
 #include "GeometricFunctions.h"
 #include "IntersectionExceptions.h"
+#include "DeletionManager.h"
 
 using namespace mini;
 using namespace DirectX;
@@ -46,7 +47,8 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_fileManager = make_unique<FileManager>();
 	m_pointCollapser = make_unique<PointCollapser>(m_scene.get());
 	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
-	
+	m_deletionManager = make_unique<DeletionManager>(m_scene);
+
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
@@ -100,6 +102,8 @@ int DxApplication::MainLoop()
 				m_pSelector->ProcessInput(m_scene, m_window.getClientSize());
 				
 			}					
+
+			m_deletionManager->ProcessInput(ImGui::GetIO());
 
 			InitImguiWindows();
 			m_guiManager->Update();

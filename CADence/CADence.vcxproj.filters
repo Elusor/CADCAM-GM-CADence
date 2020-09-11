@@ -423,6 +423,9 @@
     <ClInclude Include="SurfaceWrapDirection.h">
       <Filter>Header Files\CadSpecific</Filter>
     </ClInclude>
+    <ClInclude Include="DeletionManager.h">
+      <Filter>Header Files\CadSpecific</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -624,6 +627,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IntersectableSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeletionManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

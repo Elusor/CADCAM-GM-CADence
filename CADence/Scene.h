@@ -21,7 +21,7 @@ public:
 	~Scene();
 
 	void AttachObject(std::shared_ptr<Node> obj);
-	void RemoveObject(std::unique_ptr<Object>& object);
+	void RemoveObject(std::unique_ptr<Object>& object);	
 	void DrawSceneHierarchy(bool filtered);
 
 	void ClearSelection();

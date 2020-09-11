@@ -90,7 +90,7 @@ std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetDisplayChildren()
 	return patches;
 }
 
-std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetPoints(int& height, int& width)
+std::vector<std::weak_ptr<Node>> BezierSurfaceC0::GetPatches(int& height, int& width)
 {
 	height = m_pointHeight;
 	width = m_pointWidth;
@@ -575,22 +575,9 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 
 void BezierSurfaceC0::RenderObjectSpecificContextOptions(Scene& scene)
 {
-	if (ImGui::Button("Place debug points"))
+	if (ImGui::MenuItem("Select all points"))
 	{
-		for (int u = 0; u <= 10; u++)
-		{
-			for (int v = 0; v <= 10; v++)
-			{
-				float paramV = 1.f / 10.f * (float)v;
-				float paramU = 1.f / 10.f * (float)u;
-
-				auto pos = this->GetPoint(paramU, paramV);
-				Transform t;
-				t.SetPosition(pos);
-				auto pt = scene.m_objectFactory->CreatePoint(t);
-				scene.AttachObject(pt);
-			}
-		}
+		
 	}
 }
 

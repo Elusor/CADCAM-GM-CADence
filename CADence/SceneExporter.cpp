@@ -231,7 +231,7 @@ void SceneExporter::ExportGridPoints(tinyxml2::XMLElement* object, BezierSurface
 	auto list = object->InsertNewChildElement("Points");
 	int width; 
 	int height;
-	auto points = surface->GetPoints(height, width);
+	auto points = surface->GetPatches(height, width);
 	
 	
 	for (int h = height-1; h >= 0; h--)
