@@ -24,7 +24,7 @@ void BezierPatch::Initialize(
 	
 	for (int i = 0; i < 4; i++)
 	{
-		GetReferences().LinkRef(first[i]);
+		GetReferences().LinkRef(first[i]);		
 	}
 
 	for (int i = 0; i < 4; i++)

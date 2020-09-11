@@ -52,7 +52,9 @@ void ObjectReferences::LinkRef(ObjectRef reference)
 	{
 		auto thisRef = m_owner->m_nodePtr;
 		AddRef(reference);
+		m_owner->RefUse();
 		child->m_object->GetReferences().AddParentRef(thisRef);
+		child->m_object->RefUse();
 	}	
 }
 
@@ -72,9 +74,11 @@ void ObjectReferences::UnlinkRef(ObjectRef reference)
 	assert(!reference.expired());
 	RemoveRef(reference);
 	auto thisRef = m_owner->m_nodePtr;
+	m_owner->RefRelease();
 	if (auto child = reference.lock())
 	{
 		child->m_object->GetReferences().RemoveParentRef(thisRef);
+		child->m_object->RefRelease();
 	}
 }
 

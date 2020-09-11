@@ -158,10 +158,12 @@ void GroupNode::DrawNodeGUI(Scene& scene)
 					}
 
 
-					if (!node->GetIsVirtual())
-					{					
+					if (!node->GetIsVirtual() && !node->m_object->GetInUse())
+					{		
+						
 						if (ImGui::BeginPopupContextItem(childLabelName.c_str()))
 						{
+
 							if (ImGui::Selectable("Remove node"))
 							{
 								std::weak_ptr<Node> deletedNode = it->lock();
