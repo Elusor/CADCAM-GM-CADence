@@ -230,7 +230,7 @@ bool IntersectionFinder::FindIntersectionForParameters(
 		auto firstPt = SimpleGradient(qSurface, qParams, pSurface, pParams);
 		
 		// Calculate first point
-		if (SimpleGradientResultCheck(firstPt, selfIntersect))
+		if (SimpleGradientResultCheck(qSurface, pSurface, firstPt, selfIntersect))
 		{
 			if (SurfacesAreParallel(qSurface, pSurface, firstPt.params))
 			{
@@ -761,7 +761,7 @@ void IntersectionFinder::FindIntersectionWithCursor(
 				auto nearestPt = SimpleGradientForCursor(pSurface, pParams, cursorPos);
 				nearestPt.params.s = qParams.u;
 				nearestPt.params.t = qParams.v;				
-				if (SimpleGradientResultCheck(nearestPt, selfIntersect))
+				if (SimpleGradientResultCheck(qSurface, pSurface, nearestPt, selfIntersect))
 				{
 					DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
 					// If found point is closer than the previous point, update it
@@ -1784,12 +1784,18 @@ bool IntersectionFinder::SurfacesAreParallel(IParametricSurface* qSurface, IPara
 	return (abs(dotProd - 1) <= parallelEps);
 }
 
-bool IntersectionFinder::SimpleGradientResultCheck(IntersectionPointSearchData searchRes, bool isSelfIntersection)
+bool IntersectionFinder::SimpleGradientResultCheck(IParametricSurface* qSurface, IParametricSurface* pSurface, IntersectionPointSearchData searchRes, bool isSelfIntersection)
 {	
 	auto resParamsQ = searchRes.params.GetQParams();
 	auto resParamsP = searchRes.params.GetPParams();
 
 	auto diff = resParamsQ.GetVector() - resParamsP.GetVector();
+
+	if (isSelfIntersection)
+	{
+		diff = qSurface->GetParameterSpaceDistance(resParamsQ, resParamsP);
+	}
+
 	float len = sqrt(Dot(diff, diff));
 	bool differentPointsInParamSpace = len > 0.2f;
 
