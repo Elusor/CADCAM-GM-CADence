@@ -210,6 +210,7 @@ bool BezierSurfaceC0::CreateParamsGui()
 	if (mColChanged)
 	{
 		SetMeshColor();
+		m_recalculateMesh = true;
 	}
 
 	// change colors for polygon
@@ -264,23 +265,44 @@ bool BezierSurfaceC0::CreateParamsGui()
 	ImGui::Spacing();
 
 	ImGui::End();
+
+	if (patchChanged)
+	{
+		SetModified(true);
+	}
+
 	return patchChanged;
 }
 
 void BezierSurfaceC0::UpdateObject()
 {
+
 	for (int i = 0; i < m_patches.size(); i++)
 	{		
 		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
 		if (patch->GetIsModified())
 		{
 			patch->UpdateObject();
-		}		
-		
-		if (m_intersectionData.intersectionCurve.expired() == false)
+		}			
+	}
+
+	if (m_intersectionData.intersectionCurve.expired() == false)
+	{
+		if (m_recalculateMesh)
 		{
 			auto trimmedSpace = GetTrimmedMesh((m_divisionsU)*m_patchW + 1, m_divisionsV * m_patchH + 1);
 			UpdateTrimmedChildrenMeshes(trimmedSpace);
+		}
+	}
+	else 
+	{
+		for (int i = 0; i < m_patches.size(); i++)
+		{
+			auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
+			if (patch->GetIsModified())
+			{
+				patch->UpdateObject();
+			}
 		}
 	}
 }
@@ -332,6 +354,7 @@ void BezierSurfaceC0::SetDivisions()
 		auto patch = (BezierPatch*)(m_patches[i]->m_object.get());
 		patch->SetDivisions(m_divisionsU,m_divisionsV);
 	}
+	m_recalculateMesh = true;
 }
 
 ParameterPair BezierSurfaceC0::GetMaxParameterValues()
@@ -588,6 +611,12 @@ float BezierSurfaceC0::GetFarthestPointInDirection(float u, float v, DirectX::XM
 	return res;
 }
 
+void BezierSurfaceC0::SetIntersectionData(IntersectionData data)
+{
+	TrimmableSurface::SetIntersectionData(data);
+	m_recalculateMesh = true;
+}
+
 void BezierSurfaceC0::RenderObjectSpecificContextOptions(Scene& scene)
 {
 	if (ImGui::MenuItem("Select all points"))
@@ -616,7 +645,7 @@ void BezierSurfaceC0::UpdateTrimmedChildrenMeshes(TrimmedSpace trimmedMesh)
 		params.y *= m_patchH;
 		vertices.push_back({
 			params,
-			m_meshDesc.m_defaultColor
+			m_meshDesc.m_adjustableColor
 			});
 	}
 

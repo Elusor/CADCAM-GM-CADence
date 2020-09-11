@@ -43,6 +43,8 @@ public:
 	bool ParamsInsideBounds(float u, float v) override;
 	ParameterPair GetWrappedParams(float u, float v) override;
 	float GetFarthestPointInDirection(float u, float v, DirectX::XMFLOAT2 dir, float defStep) override;
+
+	virtual void SetIntersectionData(IntersectionData data) override;
 protected:
 	std::vector<std::vector<std::weak_ptr<Node>>> m_points;
 	SurfaceWrapDirection m_wrapDir;
@@ -58,6 +60,8 @@ protected:
 	int m_divisionsV;
 	bool m_displayPatchesPolygon;
 	DirectX::XMFLOAT3 m_polygonsColor;
+
+	bool m_recalculateMesh = false;
 
 	void SetPolygonColor();
 	void SetDisplayPolygon();

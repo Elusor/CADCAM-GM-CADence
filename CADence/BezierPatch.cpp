@@ -200,7 +200,7 @@ void BezierPatch::UpdateObject()
 
 			VertexParameterColor vertex = {
 				{uParam, vParam},
-				m_meshDesc.m_defaultColor
+				m_meshDesc.m_adjustableColor
 			};
 			m_meshDesc.vertices.push_back(vertex);
 		}

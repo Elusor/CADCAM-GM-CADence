@@ -8,7 +8,7 @@ public:
 	SampleInOutStatus GetCurrentTrimSide();
 	TrimmedSpace GetTrimmedMesh(int Udivisions, int Vdivisions);
 
-	void SetIntersectionData(IntersectionData data);
+	virtual void SetIntersectionData(IntersectionData data);
 	void SwitchTrimmedSide();	
 
 protected:
