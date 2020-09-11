@@ -10,6 +10,7 @@ class IntersectionCurve: public BezierCurve
 {
 public:
 	IntersectionCurve();
+	~IntersectionCurve();
 	void Initialize(
 		ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qIsLooped,
 		ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pIsLooped);

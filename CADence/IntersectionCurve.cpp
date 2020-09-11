@@ -8,6 +8,19 @@ IntersectionCurve::IntersectionCurve()
 {
 }
 
+IntersectionCurve::~IntersectionCurve()
+{
+	if (auto q = m_qSurface.lock())
+	{
+		q->m_object->SetModified(true);
+	}
+
+	if (auto p = m_pSurface.lock())
+	{
+		p->m_object->SetModified(true);
+	}
+}
+
 void IntersectionCurve::Initialize(
 	ObjectRef qSurface, std::vector<DirectX::XMFLOAT2> qParameters, bool qIsLooped,
 	ObjectRef pSurface, std::vector<DirectX::XMFLOAT2> pParameters, bool pIsLooped)
@@ -61,8 +74,8 @@ bool CheckIsClosed(ObjectRef surface, int uMax, int uZero, int vMax, int vZero, 
 
 			//SurfaceWrapDirection::Height
 			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Width) == false &&
-				uMax % 2 == 0 && uMax != 0 &&
-				uZero % 2 == 0 && uZero != 0)
+				uMax % 2 == 0 && 
+				uZero % 2 == 0 && (uMax != 0 || uZero != 0))
 			{
 				res = true;
 			}
@@ -77,8 +90,8 @@ bool CheckIsClosed(ObjectRef surface, int uMax, int uZero, int vMax, int vZero, 
 
 			//SurfaceWrapDirection::Width
 			if (surface->IsWrappedInDirection(SurfaceWrapDirection::Height) == false &&
-				vMax % 2 == 0 && vMax != 0 &&
-				vZero % 2 == 0 && vZero != 0)
+				vMax % 2 == 0 && 
+				vZero % 2 == 0 &&(vMax != 0 || vZero != 0))
 			{
 				res = true;
 			}
