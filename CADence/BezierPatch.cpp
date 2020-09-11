@@ -355,6 +355,11 @@ BezierPatchPointPos BezierPatch::GetPatchPointPositions()
 	return patch;
 }
 
+std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints()
+{
+	return GetReferences().GetRefObjects();
+}
+
 std::vector<std::weak_ptr<Node>> BezierPatch::GetPoints(BoundaryDirection direction)
 {
 	std::vector<std::weak_ptr<Node>> points;

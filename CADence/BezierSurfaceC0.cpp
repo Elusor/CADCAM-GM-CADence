@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Transform.h"
 #include "MeshObject.h"
+#include "BezierPatch.h"
 
 BezierSurfaceC0::BezierSurfaceC0(std::vector<std::shared_ptr<Node>> patches, int wCount, int hCount, SurfaceWrapDirection wrapDir)
 {
@@ -107,7 +108,7 @@ void BezierSurfaceC0::SetPoints(std::shared_ptr<Node>** points, int width, int h
 		//m_points.push_back(std::vector<std::weak_ptr<Node>>());
 		for (int h = 0; h < height; h++)
 		{
-			GetReferences().LinkRef(points[w][h]);
+			//GetReferences().LinkRef(points[w][h]);
 			//m_points[w].push_back();
 		}
 	}
@@ -121,7 +122,7 @@ void BezierSurfaceC0::SetPoints(std::vector<std::vector<std::weak_ptr<Node>>> po
 	{
 		for (int h = 0; h < height; h++)
 		{
-			GetReferences().LinkRef(points[w][h]);
+			//GetReferences().LinkRef(points[w][h]);
 		}
 	}
 }
@@ -577,7 +578,18 @@ void BezierSurfaceC0::RenderObjectSpecificContextOptions(Scene& scene)
 {
 	if (ImGui::MenuItem("Select all points"))
 	{
-		
+		scene.ClearSelection();
+
+		for (int i = 0; i < m_patches.size(); i++)
+		{
+			auto patch = dynamic_cast<BezierPatch*>(m_patches[i]->m_object.get());
+
+			if (patch != nullptr)
+			{
+				auto points = patch->GetPoints();
+				scene.Select(points, false);
+			}			
+		}
 	}
 }
 

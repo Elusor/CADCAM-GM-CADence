@@ -131,7 +131,8 @@ void ObjectReferences::RemoveRef(ObjectRef reference)
 			{
 				// call Remove parent ref on this child
 				it = m_children.erase(it);
-				//auto childPar = m_owner->m_parent;				
+				//auto childPar = m_owner->m_parent;		
+				break;
 			}
 			else
 			{
@@ -153,6 +154,7 @@ void ObjectReferences::RemoveParentRef(ObjectRef reference)
 			{
 				// call Remove child ref on this child
 				it = m_parents.erase(it);
+				break;
 			}
 			else
 			{

@@ -435,8 +435,11 @@ void Scene::Select(std::weak_ptr<Node> obj, bool unique)
 
 	if (auto node = obj.lock())
 	{
-		node->SetIsSelected(true);
-		m_selectedNodes.push_back(obj);
+		if (node->GetIsSelected() == false)
+		{
+			node->SetIsSelected(true);
+			m_selectedNodes.push_back(obj);
+		}		
 	}
 }
 
