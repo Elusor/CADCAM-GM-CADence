@@ -429,6 +429,9 @@
     <ClInclude Include="SpawnMarkerManager.h">
       <Filter>Header Files\CadSpecific</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectionCursorNotFoundException.h">
+      <Filter>Header Files\Exceptions\IntersectionExceptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">

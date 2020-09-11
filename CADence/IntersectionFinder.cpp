@@ -788,12 +788,12 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			return;
 		}
 		else {
-			throw IntersectionNotFoundException();
+			throw IntersectionCursorNotFoundException();
 		}
 
 	}	
 	else {
-		throw IntersectionNotFoundException();
+		throw IntersectionCursorNotFoundException();
 	}
 }
 

@@ -281,6 +281,10 @@ void DxApplication::InitImguiWindows()
 		{
 			m_guiManager->EnableCustomModal(itmpe.what(), "Intersection Error");
 		}
+		catch (IntersectionCursorNotFoundException icnfe)
+		{
+			m_guiManager->EnableCustomModal(icnfe.what(), "Intersection Error");
+		}
 		catch (...)
 		{
 			m_guiManager->EnableCustomModal("Something went wrong.", "Intersection Error - General Error");

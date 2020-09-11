@@ -185,6 +185,7 @@
     <ClInclude Include="InterpolationBezierCurveC2.h" />
     <ClInclude Include="IntersectableSurface.h" />
     <ClInclude Include="IntersectedSurface.h" />
+    <ClInclude Include="IntersectionCursorNotFoundException.h" />
     <ClInclude Include="IntersectionCurve.h" />
     <ClInclude Include="IntersectionData.h" />
     <ClInclude Include="IntersectionException.h" />

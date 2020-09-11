@@ -4,3 +4,4 @@
 #include "IntersectionParallelSurfacesException.h"
 #include "IntersectionTooFewPointsException.h" 
 #include "IntersectionTooManyPointsException.h"
+#include "IntersectionCursorNotFoundException.h"
