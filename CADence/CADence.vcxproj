@@ -210,6 +210,7 @@
     <ClInclude Include="objects.h" />
     <ClInclude Include="ObjectTransformer.h" />
     <ClInclude Include="ParamUtils.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="PointCollapser.h" />
     <ClInclude Include="PointSelector.h" />
@@ -234,6 +235,7 @@
     <ClInclude Include="SceneExporter.h" />
     <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="sceneImporter.h" />
+    <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="SpawnMarkerManager.h" />
     <ClInclude Include="StereoscopicRenderPass.h" />
     <ClInclude Include="SurfaceWrapDirection.h" />
@@ -294,10 +296,12 @@
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="ObjectReferences.cpp" />
     <ClCompile Include="ParamUtils.cpp" />
+    <ClCompile Include="pch.cpp" />
     <ClCompile Include="PointCollapser.cpp" />
     <ClCompile Include="SceneExporter.cpp" />
     <ClCompile Include="SceneGrid.cpp" />
     <ClCompile Include="sceneImporter.cpp" />
+    <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SpawnMarkerManager.cpp" />
     <ClCompile Include="StereoscopicRenderPass.cpp" />
     <ClCompile Include="TextureRenderTarget.cpp" />
@@ -483,6 +487,7 @@
   <ItemGroup>
     <None Include="bezierPatchFuncs.hlsli" />
     <None Include="ShaderStructs.hlsli" />
+    <None Include="SimpleMath.inl" />
     <None Include="tesselStructs.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
