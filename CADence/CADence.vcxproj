@@ -209,6 +209,7 @@
     <ClInclude Include="ObjectReferences.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="ObjectTransformer.h" />
+    <ClInclude Include="orthographicCamera.h" />
     <ClInclude Include="ParamUtils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Point.h" />
@@ -295,6 +296,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
     <ClCompile Include="ObjectReferences.cpp" />
+    <ClCompile Include="orthogonalCamera.cpp" />
     <ClCompile Include="ParamUtils.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PointCollapser.cpp" />

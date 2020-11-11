@@ -441,6 +441,9 @@
     <ClInclude Include="pch.h">
       <Filter>Libs</Filter>
     </ClInclude>
+    <ClInclude Include="orthographicCamera.h">
+      <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -655,6 +658,9 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Libs</Filter>
+    </ClCompile>
+    <ClCompile Include="orthogonalCamera.cpp">
+      <Filter>Source Files\Cameras</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
