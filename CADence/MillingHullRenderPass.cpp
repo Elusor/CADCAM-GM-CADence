@@ -1,17 +1,22 @@
 #include "MillingHullRenderPass.h"
 #include "SimpleMath.h"
-
+#include "dxDevice.h"
 using namespace DirectX::SimpleMath;
 
 MillingHullRenderPass::MillingHullRenderPass(std::unique_ptr<RenderState>& renderState, SIZE wndSize)
 {
+	auto& dxDevice = renderState->m_device;
 	auto device = renderState->m_device.m_device.get();
 
 	float aspectRatio = (float)wndSize.cx / (float)wndSize.cy;
 	float height = 50.f;
+
+	float minZ = 1.0f;
+	float maxZ = 15.f;
+
 	m_camera = std::make_unique<OrthographicCamera>(
 		15.f, 15.f, 
-		1.0f, 50.f,
+		minZ, maxZ,
 		Vector3(0.0f, 0.0f, -10.0f),
 		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
@@ -22,15 +27,8 @@ MillingHullRenderPass::MillingHullRenderPass(std::unique_ptr<RenderState>& rende
 		device, 
 		resolution, resolution);
 
-	D3D11_VIEWPORT viewport;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Height = resolution;
-	viewport.Width = resolution;
-	viewport.MaxDepth = 1.0f;
-	viewport.MinDepth = 0.0f;
-	m_viewPort = viewport;
-
+	CreateViewport(resolution);
+	CreateDepthStencil(renderState, resolution, minZ, maxZ);
 }
 
 void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
@@ -69,18 +67,17 @@ void MillingHullRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
 {
 	// Clear render target
 	float clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	m_texture->ClearRenderTarget(renderState->m_device.m_context.get(), renderState->m_depthBuffer.get(), 0.2f, 0.2f, 0.2f, 1.0f, 1.0f);
+	m_texture->ClearRenderTarget(renderState->m_device.m_context.get(), m_dsv.get(), 0.2f, 0.2f, 0.2f, 1.0f, 1.0f);
 
 	// Clera depth stencil
-	renderState->m_device.context()->ClearDepthStencilView(renderState->m_depthBuffer.get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	renderState->m_device.context()->ClearDepthStencilView(m_dsv.get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {
-	auto depthStencil = renderState->m_depthBuffer.get();
 	auto context = renderState->m_device.m_context.get();
 
-	m_texture->SetRenderTarget(context, depthStencil);
+	m_texture->SetRenderTarget(context, m_dsv.get());
 	renderState->m_device.context()->VSSetShader(renderState->m_vertexShader.get(), nullptr, 0);
 	renderState->m_device.context()->PSSetShader(renderState->m_pixelShader.get(), nullptr, 0);
 
@@ -88,4 +85,40 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Sc
 
 	// Render Actual scene
 	scene->RenderScene(renderState);
+}
+
+void MillingHullRenderPass::CreateDepthStencil(std::unique_ptr<RenderState>& renderState, UINT resolution, float minZ, float maxZ)
+{
+
+	auto& dxDevice = renderState->m_device;
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	texDesc.MipLevels = 1;
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.Width = resolution;
+	texDesc.Height = resolution;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	//CPUAccessFlags = 0;
+	//MiscFlags = 0;
+
+	m_depthTex = dxDevice.CreateTexture(texDesc);
+	m_dsv = dxDevice.CreateDepthStencilView(m_depthTex);
+}
+
+void MillingHullRenderPass::CreateViewport(UINT resolution)
+{
+	D3D11_VIEWPORT viewport;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Height = resolution;
+	viewport.Width = resolution;
+	viewport.MaxDepth = 1.0f;
+	viewport.MinDepth = 0.0f;
+	m_viewPort = viewport;
 }
