@@ -12,12 +12,12 @@ MillingHullRenderPass::MillingHullRenderPass(std::unique_ptr<RenderState>& rende
 	float height = 50.f;
 
 	float minZ = 1.0f;
-	float maxZ = 15.f;
+	float maxZ = 7.0f;
 
 	m_camera = std::make_unique<OrthographicCamera>(
 		15.f, 15.f, 
 		minZ, maxZ,
-		Vector3(0.0f, 0.0f, -10.0f),
+		Vector3(0.0f, 0.0f, -6.0f),
 		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
 

@@ -7,9 +7,18 @@ struct VSIn
 struct VSOut
 {
 	float4 pos : SV_POSITION;
-	float4 col : COLOR;
+	float4 col : COLOR;    
 	float3 posL : POSITION0;
 	float3 posW : POSITION1;
+};
+
+struct VSPhongOut
+{
+    float4 pos : SV_POSITION;
+    float4 col : COLOR;	
+    float3 normal : NORMAL;
+    float3 posL : POSITION0;
+    float3 posW : POSITION1;	
 };
 
 struct VSInParams

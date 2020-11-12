@@ -134,7 +134,7 @@ void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	D3D11_RASTERIZER_DESC rdesc;
 	ZeroMemory(&rdesc, sizeof(D3D11_RASTERIZER_DESC));
 	rdesc.FillMode = D3D11_FILL_SOLID;
-	rdesc.CullMode = D3D11_CULL_NONE;
+	rdesc.CullMode = D3D11_CULL_BACK;
 	rdesc.DepthClipEnable = true;
 
 	// GS shader

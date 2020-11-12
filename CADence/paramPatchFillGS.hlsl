@@ -74,12 +74,13 @@ void main(
         float4 col = input[idx].col;
         
         float4 pos = float4(BezierPatchPoint(points, uv), 1.0f);
+        float3 normal = normalize(BezierPatchNormal(points, uv));
         
-        VSOut vert;
+        VSOut vert;        
         vert.pos = mul(MVP, pos);
         vert.posW = mul(M, pos);
         vert.posL = pos;
-        vert.col = col;
+        vert.col = float4(normal, 1.0f);
         output.Append(vert);
     }
 }
