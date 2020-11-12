@@ -59,6 +59,10 @@ public:
 	mini::dx_ptr<ID3D11GeometryShader> m_torusGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
+	
+	mini::dx_ptr<ID3D11GeometryShader> m_paramPatchC2FillGS;
+	mini::dx_ptr<ID3D11GeometryShader> m_paramPatchFillGS;
+
 	mini::dx_ptr<ID3D11HullShader> m_patchHullShader;
 	mini::dx_ptr<ID3D11HullShader> m_patchGregHullShader;
 	mini::dx_ptr<ID3D11DomainShader> m_patchDomainShader;

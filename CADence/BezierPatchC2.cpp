@@ -78,6 +78,34 @@ void BezierPatchC2::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	// Watch out for meshes that cannot be covered by ushort
 	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 	context->DrawIndexed(desc.indices.size(), 0, 0);
+	
+
+	// Draww Fill mesh
+#pragma region FillMesh	
+
+	ID3D11RasterizerState* stateOld;
+	ID3D11RasterizerState* stateNew;
+	context->RSGetState(&stateOld);
+	int x = 2;
+
+	D3D11_RASTERIZER_DESC rdesc;
+	ZeroMemory(&rdesc, sizeof(D3D11_RASTERIZER_DESC));
+	rdesc.FillMode = D3D11_FILL_SOLID;
+	rdesc.CullMode = D3D11_CULL_NONE;
+	rdesc.DepthClipEnable = true;
+
+	// GS shader
+	auto fillGs = renderState->m_paramPatchC2FillGS.get();
+	context->GSSetShader(fillGs, nullptr, 0);
+	renderState->m_device->CreateRasterizerState(&rdesc, &stateNew);
+
+	context->RSSetState(stateNew);
+	context->IASetPrimitiveTopology(desc.m_fillTopology);
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(desc.fillIndices));
+	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	context->DrawIndexed(desc.fillIndices.size(), 0, 0);
+	context->RSSetState(stateOld);
+#pragma endregion
 
 	renderState->SetShaderPreset(prevPreset);
 

@@ -30,6 +30,9 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	const auto patchGregDsBytes = DxDevice::LoadByteCode(L"patchGregDS.cso");
 	const auto patchGregHsBytes = DxDevice::LoadByteCode(L"patchGregHS.cso");
 
+	const auto paramPatchC2FillGS = DxDevice::LoadByteCode(L"paramPatchC2FillGS.cso");
+	const auto paramPatchFillGS = DxDevice::LoadByteCode(L"paramPatchFillGS.cso");
+
 	m_paramVS = m_device.CreateVertexShader(paramVsBytes);
 	m_texVS = m_device.CreateVertexShader(texVsBytes);
 	m_texPS = m_device.CreatePixelShader(texPsBytes);
@@ -44,6 +47,8 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 	m_patchC2ParamGeometryShader = m_device.CreateGeometryShader(patchC2ParamGSBytes);
 	m_patchGeometryShader = m_device.CreateGeometryShader(patchGsBytes);
 	m_torusGeometryShader = m_device.CreateGeometryShader(torusGSBytes);
+	m_paramPatchC2FillGS = m_device.CreateGeometryShader(paramPatchC2FillGS);
+	m_paramPatchFillGS = m_device.CreateGeometryShader(paramPatchFillGS);
 
 	m_patchC2DomainShader = m_device.CreateDomainShader(patchC2DsBytes);
 	m_patchDomainShader = m_device.CreateDomainShader(patchDsBytes);

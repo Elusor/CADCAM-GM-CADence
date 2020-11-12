@@ -730,6 +730,12 @@
     <FxCompile Include="patchC2ParamGS.hlsl">
       <Filter>Shaders\Parametric</Filter>
     </FxCompile>
+    <FxCompile Include="paramPatchC2FillGS.hlsl">
+      <Filter>Shaders\Parametric</Filter>
+    </FxCompile>
+    <FxCompile Include="paramPatchFillGS.hlsl">
+      <Filter>Shaders\Parametric</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderStructs.hlsli">

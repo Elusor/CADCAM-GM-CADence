@@ -4,6 +4,7 @@
 #include "mathUtils.h"
 #include "Scene.h"
 #include "Transform.h"
+#include <d3d11.h>
 
 BezierPatch::BezierPatch()
 {
@@ -64,7 +65,7 @@ void BezierPatch::RenderObject(std::unique_ptr<RenderState>& renderState)
 }
 
 void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
-{
+{	
 	auto context = renderState->m_device.context().get();
 
 	auto desc = m_meshDesc;
@@ -121,7 +122,36 @@ void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
 	context->DrawIndexed(desc.indices.size(), 0, 0);
 
+	ID3D11RasterizerState* stateOld;
+	
+	// Draww Fill mesh
+#pragma region FillMesh	
+	
+	ID3D11RasterizerState* stateNew;
+	context->RSGetState(&stateOld);
+	int x = 2;
+
+	D3D11_RASTERIZER_DESC rdesc;
+	ZeroMemory(&rdesc, sizeof(D3D11_RASTERIZER_DESC));
+	rdesc.FillMode = D3D11_FILL_SOLID;
+	rdesc.CullMode = D3D11_CULL_NONE;
+	rdesc.DepthClipEnable = true;
+
+	// GS shader
+	auto fillGs = renderState->m_paramPatchFillGS.get();
+	context->GSSetShader(fillGs, nullptr, 0);
+	renderState->m_device->CreateRasterizerState(&rdesc, &stateNew);
+
+	context->RSSetState(stateNew);
+	context->IASetPrimitiveTopology(desc.m_fillTopology);
+	renderState->m_indexBuffer = (renderState->m_device.CreateIndexBuffer(desc.fillIndices));
+	context->IASetIndexBuffer(renderState->m_indexBuffer.get(), DXGI_FORMAT_R16_UINT, 0);
+	context->DrawIndexed(desc.fillIndices.size(), 0, 0);
+
+#pragma endregion
+	
 	renderState->SetShaderPreset(prevPreset);
+	context->RSSetState(stateOld);
 
 }
 
@@ -178,6 +208,8 @@ void BezierPatch::UpdateObject()
 {	
 	m_VDesc.m_primitiveTopology = m_UDesc.m_primitiveTopology =  D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
 	m_meshDesc.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+	m_meshDesc.m_fillTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
 	// pass an (u,v) line to the shader
 	// one of those is the constant parameter - the other one is 
 	std::vector<VertexPositionColor> vertices;
@@ -191,6 +223,8 @@ void BezierPatch::UpdateObject()
 	int densityY = m_vSize;
 	m_meshDesc.vertices.clear();
 	m_meshDesc.indices.clear();
+	m_meshDesc.fillIndices.clear();
+
 	for (int u = 0; u <= densityX; u++)
 	{
 		for (int v = 0; v <= densityY; v++)
@@ -231,6 +265,21 @@ void BezierPatch::UpdateObject()
 		m_meshDesc.indices.push_back(calcIdx(densityX, y));
 		m_meshDesc.indices.push_back(calcIdx(densityX, y+1));
 	}
+
+	for (int x = 0; x < densityX; x++)
+	{
+		for (int y = 0; y < densityY; y++)
+		{
+			m_meshDesc.fillIndices.push_back(calcIdx(x, y));
+			m_meshDesc.fillIndices.push_back(calcIdx(x, y+1));
+			m_meshDesc.fillIndices.push_back(calcIdx(x+1, y+1));
+
+			m_meshDesc.fillIndices.push_back(calcIdx(x, y));
+			m_meshDesc.fillIndices.push_back(calcIdx(x+1, y+1));
+			m_meshDesc.fillIndices.push_back(calcIdx(x+1, y));
+		}
+	}
+
 #pragma endregion
 
 	if (m_intersectionData.intersectionCurve.expired() == false)
