@@ -8,6 +8,7 @@ RenderState::RenderState(mini::Window& window, Viewport viewport, std::shared_pt
 {
 	m_device.context()->RSSetViewports(1, &viewport);
 	m_camera = camera;
+	currentCamera = camera.get();
 
 	const auto vsBytes = DxDevice::LoadByteCode(L"vs.cso");
 	const auto psBytes = DxDevice::LoadByteCode(L"ps.cso");

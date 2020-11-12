@@ -17,6 +17,7 @@
 #include "IRenderPass.h"
 #include "DefaultRenderPass.h"
 #include "StereoscopicRenderPass.h"
+#include "MillingHullRenderPass.h"
 #include "sceneImporter.h"
 #include "SceneExporter.h"
 #include "FileManager.h"
@@ -58,6 +59,7 @@ private:
 
 	IRenderPass* m_defPass;
 	IRenderPass* m_stereoPass;
+	IRenderPass* m_millingHullPass;
 	IRenderPass* m_activePass;
 
 	BackBufferRenderTarget* m_target;

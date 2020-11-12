@@ -1,7 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
 #include <windows.h>
-class Camera
+#include "ICamera.h"
+
+class Camera : public ICamera
 {
 public:
 	DirectX::XMMATRIX m_projMat;
@@ -10,8 +12,8 @@ public:
 	Camera(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 target, DirectX::XMFLOAT2 rotation, 
 		uint32_t width, uint32_t height, float fovAngle, float zNear, float zFar);
 
-	DirectX::XMMATRIX GetViewMatrix();
-	DirectX::XMMATRIX GetViewProjectionMatrix();
+	virtual DirectX::XMMATRIX GetViewMatrix() override;
+	virtual DirectX::XMMATRIX GetViewProjectionMatrix() override;
 
 	DirectX::XMFLOAT4 GetCameraPosition();
 	float GetZNear();

@@ -1,17 +1,20 @@
 #pragma once
 #include <d3d11.h>
 #include "SimpleMath.h"
+#include "ICamera.h"
 
-class OrthographicCamera
+class OrthographicCamera: public ICamera
 {
 public:
 	OrthographicCamera(
 		float width, float height, 
-		float zNear, float zFar
+		float zNear, float zFar,
+		DirectX::SimpleMath::Vector3 pos, 
+		DirectX::SimpleMath::Vector3 target
 		);
 
-	DirectX::XMMATRIX GetViewMatrix();
-	DirectX::XMMATRIX GetViewProjectionMatrix();
+	virtual DirectX::XMMATRIX GetViewMatrix() override;
+	virtual DirectX::XMMATRIX GetViewProjectionMatrix() override;
 
 	void ResizeViewportSize(float width, float height);
 	void ResetZBounds(float zNear, float zFar);

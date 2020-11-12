@@ -2,13 +2,24 @@
 
 using namespace DirectX::SimpleMath;
 
-OrthographicCamera::OrthographicCamera(float width, float height, float zNear, float zFar)
+OrthographicCamera::OrthographicCamera(
+    float width, float height, 
+    float zNear, float zFar,
+    DirectX::SimpleMath::Vector3 pos,
+    DirectX::SimpleMath::Vector3 target
+    )
 {
     m_width = width;
     m_height = height;
 
     m_zFar = zFar;
     m_zNear = zNear;
+
+    m_pos = pos;
+    m_targetPos = target;
+
+    RecalculateViewMatrix();
+    RecalculateProjectionMatrix();
 }
 
 DirectX::XMMATRIX OrthographicCamera::GetViewMatrix()

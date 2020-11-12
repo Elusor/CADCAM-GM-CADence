@@ -26,9 +26,15 @@ struct ShaderPreset
 class RenderState
 {
 public:
+
+	RenderState(mini::Window& window);
+	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
+
 	InputLayoutManager m_layoutManager;
 	DxDevice m_device;
 	std::shared_ptr<Camera> m_camera;
+	ICamera* currentCamera;
+
 	mini::dx_ptr<ID3D11RenderTargetView> m_backBuffer;
 	mini::dx_ptr<ID3D11DepthStencilView> m_depthBuffer;
 	mini::dx_ptr<ID3D11Buffer> m_vertexBuffer;
@@ -72,10 +78,7 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData3;
 
-	mini::dx_ptr<ID3D11Buffer> m_cbPatchDivisions;
-	
-	RenderState(mini::Window& window);
-	RenderState(mini::Window& window, Viewport vp, std::shared_ptr<Camera> camera);
+	mini::dx_ptr<ID3D11Buffer> m_cbPatchDivisions;	
 	
 	ID3D11InputLayout* GetLayout(std::type_index vertexDataTypeIndex);
 

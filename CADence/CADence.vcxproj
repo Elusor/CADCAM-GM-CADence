@@ -178,6 +178,7 @@
     <ClInclude Include="GroupNode.h" />
     <ClInclude Include="GuiManager.h" />
     <ClInclude Include="HoleDetector.h" />
+    <ClInclude Include="ICamera.h" />
     <ClInclude Include="IncorrectFileExtensionException.h" />
     <ClInclude Include="IncorrectFileFormatException.h" />
     <ClInclude Include="IncorrectObjectArgumentException.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="LoopData.h" />
     <ClInclude Include="mathUtils.h" />
     <ClInclude Include="MeshObject.h" />
+    <ClInclude Include="MillingHullRenderPass.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectFactory.h" />
@@ -295,8 +297,9 @@
     <ClCompile Include="IParametricSurface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtils.cpp" />
+    <ClCompile Include="MillingHullRenderPass.cpp" />
     <ClCompile Include="ObjectReferences.cpp" />
-    <ClCompile Include="orthogonalCamera.cpp" />
+    <ClCompile Include="orthographicCamera.cpp" />
     <ClCompile Include="ParamUtils.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PointCollapser.cpp" />

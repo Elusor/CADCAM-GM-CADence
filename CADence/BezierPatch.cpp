@@ -83,7 +83,7 @@ void BezierPatch::RenderPatch(std::unique_ptr<RenderState>& renderState)
 
 	//Set constant buffer
 	XMMATRIX m = m_transform.GetModelMatrix();
-	XMMATRIX VP = renderState->m_camera->GetViewProjectionMatrix();
+	XMMATRIX VP = renderState->currentCamera->GetViewProjectionMatrix();
 	auto positions = GetPatchPointPositions();
 	XMFLOAT4X4 row1 = GetRowAsFloat4x4(positions.row0);	
 	XMFLOAT4X4 row2 = GetRowAsFloat4x4(positions.row1);

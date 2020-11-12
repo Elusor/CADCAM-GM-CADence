@@ -444,6 +444,12 @@
     <ClInclude Include="orthographicCamera.h">
       <Filter>Header Files\Cameras</Filter>
     </ClInclude>
+    <ClInclude Include="MillingHullRenderPass.h">
+      <Filter>Header Files\Rendering\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="ICamera.h">
+      <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -659,7 +665,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Libs</Filter>
     </ClCompile>
-    <ClCompile Include="orthogonalCamera.cpp">
+    <ClCompile Include="MillingHullRenderPass.cpp">
+      <Filter>Header Files\Rendering\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="orthographicCamera.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
   </ItemGroup>

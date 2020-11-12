@@ -52,6 +52,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
+	m_millingHullPass = new MillingHullRenderPass(m_renderState, wndSize);
 	m_activePass = m_defPass;
 	////
 
@@ -109,7 +110,9 @@ int DxApplication::MainLoop()
 			InitImguiWindows();
 			m_guiManager->Update();
 			Update();
+			m_millingHullPass->Execute(m_renderState, m_scene.get());
 			m_activePass->Execute(m_renderState, m_scene.get());		
+
 			m_pSelector->DrawSelectionWindow(m_renderState, m_window.getClientSize());
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

@@ -161,8 +161,7 @@ void Torus::RenderTorus(std::unique_ptr<RenderState>& renderState)
 
 	//Set constant buffer
 	XMMATRIX m = m_transform.GetModelMatrix();
-	XMMATRIX VP = renderState->m_camera->GetViewProjectionMatrix();
-	
+	XMMATRIX VP = renderState->currentCamera->GetViewProjectionMatrix();
 	
 	XMFLOAT4 torusData = {m_donutR, m_tubeR , 0.0f, 0.0f };
 	auto Mbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbM.get(), m);

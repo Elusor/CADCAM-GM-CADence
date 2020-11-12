@@ -21,7 +21,7 @@ unsigned int AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(std::vec
 	{
 		if (auto point = points[i].lock())
 		{
-			DirectX::XMMATRIX VP = camera->GetViewProjectionMatrix();
+			XMMATRIX VP = renderState->currentCamera->GetViewProjectionMatrix();
 
 			std::string name = point->m_object->m_name;
 			DirectX::XMFLOAT4 screenPosFl;
