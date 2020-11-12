@@ -3,14 +3,14 @@
 
 using namespace DirectX;
 
-SceneGrid::SceneGrid() : SceneGrid(300)
+SceneGrid::SceneGrid() : SceneGrid(500)
 {
 }
 
 SceneGrid::SceneGrid(int gridSize)
 {
 	m_color = { .4f, .4f, .5f };
-	m_gridSize = 5.f;
+	m_gridSize = 1.f;
 	m_gridDim = gridSize;
 	m_defaultName = "SceneGrid";
 	GenerateVertices(gridSize);

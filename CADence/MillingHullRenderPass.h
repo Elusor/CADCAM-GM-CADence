@@ -16,6 +16,7 @@ public:
 	virtual void Render(std::unique_ptr<RenderState>& renderState, Scene* scene) override;
 
 private:
+	D3D11_VIEWPORT m_viewPort;
 	std::unique_ptr<TextureRenderTarget> m_texture;
 	std::unique_ptr<OrthographicCamera> m_camera;
 };

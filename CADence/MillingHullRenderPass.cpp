@@ -10,19 +10,45 @@ MillingHullRenderPass::MillingHullRenderPass(std::unique_ptr<RenderState>& rende
 	float aspectRatio = (float)wndSize.cx / (float)wndSize.cy;
 	float height = 50.f;
 	m_camera = std::make_unique<OrthographicCamera>(
-		aspectRatio * height, height, 
+		15.f, 15.f, 
 		1.0f, 50.f,
 		Vector3(0.0f, 0.0f, -10.0f),
 		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
 
+	UINT resolution = 1000;
+
 	m_texture->Initialize(
 		device, 
-		wndSize.cx, wndSize.cy);
+		resolution, resolution);
+
+	D3D11_VIEWPORT viewport;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Height = resolution;
+	viewport.Width = resolution;
+	viewport.MaxDepth = 1.0f;
+	viewport.MinDepth = 0.0f;
+	m_viewPort = viewport;
+
 }
 
 void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {
+	auto context = renderState->m_device.m_context.get();
+
+	// Store viewport
+	UINT originalVPCount = 1;
+	// Probe the current viewport count
+	context->RSGetViewports(&originalVPCount, NULL);
+	// Get current viewport
+	D3D11_VIEWPORT* originalVPs = new D3D11_VIEWPORT[originalVPCount];
+	context->RSGetViewports(&originalVPCount, originalVPs);
+
+	// Set visualizer viewport
+	context->RSSetViewports(1, &m_viewPort);
+	// Set new viewport
+
 	auto oldCamera = renderState->currentCamera;
 	renderState->currentCamera = m_camera.get();
 	Clear(renderState);
@@ -33,7 +59,10 @@ void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, S
 	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
 
 	Render(renderState, scene);
+
+	// Restore old settings
 	renderState->currentCamera = oldCamera;
+	context->RSSetViewports(originalVPCount, originalVPs);
 }
 
 void MillingHullRenderPass::Clear(std::unique_ptr<RenderState>& renderState)

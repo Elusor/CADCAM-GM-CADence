@@ -12,7 +12,7 @@ Scene::Scene(GuiManager* guiManager, RenderState* renderState)
 	std::unique_ptr<Object> spawnMarker = move(m_objectFactory->CreateSpawnMarker()->m_object);
 	m_spawnMarker = std::unique_ptr<SpawnMarker>(dynamic_cast<SpawnMarker *>(spawnMarker.release()));
 
-	std::unique_ptr<Object> grid = move(m_objectFactory->CreateSceneGrid(50)->m_object);
+	std::unique_ptr<Object> grid = move(m_objectFactory->CreateSceneGrid(150)->m_object);
 	m_grid = std::unique_ptr<SceneGrid>(dynamic_cast<SceneGrid*>(grid.release()));
 
 	Object* middleMarker = new Object();

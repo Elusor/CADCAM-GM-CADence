@@ -4,7 +4,7 @@
 struct Point : public MeshObject<VertexPositionColor>
 {
 public:
-	Point(float m_size = 0.3f);
+	Point(float m_size = 0.15f);
 	void RenderObject(std::unique_ptr<RenderState>& renderState) override;
 	bool CreateParamsGui() override;
 	void RenderObjectSpecificContextOptions(Scene& scene);

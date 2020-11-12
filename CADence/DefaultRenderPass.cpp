@@ -43,7 +43,7 @@ void DefaultRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene
 	//Update Fog buffer
 	float nearZ = renderState->m_camera->GetZNear();
 	float farZ = renderState->m_camera->GetZFar();
-	XMFLOAT4 fogBuff = XMFLOAT4(nearZ, farZ, 0.8f * farZ, 0.0f);
+	XMFLOAT4 fogBuff = XMFLOAT4(nearZ, farZ, 0.1f * farZ, 0.0f);
 	renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbFogBuffer.get(), fogBuff);
 	ID3D11Buffer* psFogCbs[] = { renderState->m_cbFogBuffer.get() };
 	renderState->m_device.context()->PSSetConstantBuffers(1, 1, psFogCbs);
