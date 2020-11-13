@@ -12,7 +12,9 @@ class MillingHullRenderPass : public IRenderPass
 public:
 	MillingHullRenderPass(
 		std::unique_ptr<RenderState>& renderState,
-		float cameraSide, 
+		float cameraSide,
+		float zNear,
+		float zFar,
 		UINT resolution);
 
 	virtual void Execute(std::unique_ptr<RenderState>& renderState, Scene* scene) override;
@@ -25,6 +27,7 @@ public:
 	void SetOffset(float val);
 	float GetOffset();
 
+	ID3D11Texture2D* GetDepthTex();
 private:
 	float m_offset = 0.0f;
 	D3D11_VIEWPORT m_viewPort;

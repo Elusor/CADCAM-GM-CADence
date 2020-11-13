@@ -109,8 +109,7 @@ int DxApplication::MainLoop()
 
 			InitImguiWindows();
 			m_guiManager->Update();
-			Update();
-			m_pathCreationManager->ExecuteRenderPass(m_renderState);
+			Update();			
 			m_activePass->Execute(m_renderState, m_scene.get());		
 
 			m_pSelector->DrawSelectionWindow(m_renderState, m_window.getClientSize());
@@ -349,7 +348,7 @@ void DxApplication::InitImguiWindows()
 	}
 	if (ImGui::CollapsingHeader("Path generation"))
 	{
-		m_pathCreationManager->RenderGui();
+		m_pathCreationManager->RenderGui(m_renderState);
 	}
 	if (ImGui::CollapsingHeader("Stereoscopy"))
 	{

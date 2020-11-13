@@ -5,17 +5,17 @@ using namespace DirectX::SimpleMath;
 
 MillingHullRenderPass::MillingHullRenderPass(
 	std::unique_ptr<RenderState>& renderState, 
-	float cameraSide, UINT resolution)
+	float cameraSide,
+	float zNear,
+	float zFar, 
+	UINT resolution)
 {
 	auto& dxDevice = renderState->m_device;
 	auto device = renderState->m_device.m_device.get();
-
-	float minZ = 1.0f;
-	float maxZ = 6.0f;
-
+	
 	m_camera = std::make_unique<OrthographicCamera>(
 		cameraSide, cameraSide,
-		minZ, maxZ,
+		zNear, zFar,
 		Vector3(0.0f, 0.0f, -6.0f),
 		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
@@ -25,7 +25,7 @@ MillingHullRenderPass::MillingHullRenderPass(
 		resolution, resolution);
 
 	CreateViewport(resolution);
-	CreateDepthStencil(renderState, resolution, minZ, maxZ);
+	CreateDepthStencil(renderState, resolution, zNear, zFar);
 }
 
 void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, PathModel* model)
@@ -112,6 +112,11 @@ float MillingHullRenderPass::GetOffset()
 	return m_offset;
 }
 
+ID3D11Texture2D* MillingHullRenderPass::GetDepthTex()
+{
+	return m_depthTex.get();
+}
+
 void MillingHullRenderPass::CreateDepthStencil(std::unique_ptr<RenderState>& renderState, UINT resolution, float minZ, float maxZ)
 {
 
@@ -119,12 +124,11 @@ void MillingHullRenderPass::CreateDepthStencil(std::unique_ptr<RenderState>& ren
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	texDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	texDesc.MipLevels = 1;
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	texDesc.Width = resolution;
 	texDesc.Height = resolution;
-	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
