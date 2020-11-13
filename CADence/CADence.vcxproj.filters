@@ -151,6 +151,9 @@
     <Filter Include="Libs">
       <UniqueIdentifier>{f83acf35-a70e-4a95-b406-6b1bf2d4e3ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Paths">
+      <UniqueIdentifier>{d52e3762-83a2-41cf-903d-783dfb606a1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -450,6 +453,9 @@
     <ClInclude Include="ICamera.h">
       <Filter>Header Files\Cameras</Filter>
     </ClInclude>
+    <ClInclude Include="PathCreationManager.h">
+      <Filter>Paths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -670,6 +676,9 @@
     </ClCompile>
     <ClCompile Include="orthographicCamera.cpp">
       <Filter>Source Files\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="PathCreationManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,25 +3,22 @@
 #include "dxDevice.h"
 using namespace DirectX::SimpleMath;
 
-MillingHullRenderPass::MillingHullRenderPass(std::unique_ptr<RenderState>& renderState, SIZE wndSize)
+MillingHullRenderPass::MillingHullRenderPass(
+	std::unique_ptr<RenderState>& renderState, 
+	float cameraSide, UINT resolution)
 {
 	auto& dxDevice = renderState->m_device;
 	auto device = renderState->m_device.m_device.get();
-
-	float aspectRatio = (float)wndSize.cx / (float)wndSize.cy;
-	float height = 50.f;
 
 	float minZ = 1.0f;
 	float maxZ = 7.0f;
 
 	m_camera = std::make_unique<OrthographicCamera>(
-		15.f, 15.f, 
+		cameraSide, cameraSide,
 		minZ, maxZ,
 		Vector3(0.0f, 0.0f, -6.0f),
 		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
-
-	UINT resolution = 1000;
 
 	m_texture->Initialize(
 		device, 
@@ -55,9 +52,8 @@ void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, S
 	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vpMat);
 	ID3D11Buffer* cbs2[] = { VPbuffer };
 	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
-
-	float offset = 0.5f;
-	XMFLOAT4 offset16byteAligned = XMFLOAT4(offset, 0.f, 0.f, 0.f);
+	
+	XMFLOAT4 offset16byteAligned = XMFLOAT4(m_offset, 0.f, 0.f, 0.f);
 	auto offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
 	renderState->m_device.context()->GSSetConstantBuffers(6, 1, &offsetBuff);
 
@@ -90,6 +86,16 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Sc
 
 	// Render Actual scene
 	scene->RenderScene(renderState);
+}
+
+void MillingHullRenderPass::SetOffset(float val)
+{
+	m_offset = val;
+}
+
+float MillingHullRenderPass::GetOffset()
+{
+	return m_offset;
 }
 
 void MillingHullRenderPass::CreateDepthStencil(std::unique_ptr<RenderState>& renderState, UINT resolution, float minZ, float maxZ)

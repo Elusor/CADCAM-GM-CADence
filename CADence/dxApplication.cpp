@@ -49,10 +49,10 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
 	m_deletionManager = make_unique<DeletionManager>(m_scene);
 	m_spawnMarkerManager = make_unique<SpawnMarkerManager>(m_scene.get(), camera.operator->());
+	m_pathCreationManager = make_unique<PathCreationManager>(m_renderState);
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
-	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);
-	m_millingHullPass = new MillingHullRenderPass(m_renderState, wndSize);
+	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);	
 	m_activePass = m_defPass;
 	////
 
@@ -110,7 +110,7 @@ int DxApplication::MainLoop()
 			InitImguiWindows();
 			m_guiManager->Update();
 			Update();
-			m_millingHullPass->Execute(m_renderState, m_scene.get());
+			m_pathCreationManager->ExecuteRenderPass(m_renderState, m_scene.get());
 			m_activePass->Execute(m_renderState, m_scene.get());		
 
 			m_pSelector->DrawSelectionWindow(m_renderState, m_window.getClientSize());
@@ -346,6 +346,10 @@ void DxApplication::InitImguiWindows()
 		ImGui::Spacing();
 
 		ImGui::Checkbox("Center trasformations at cursor", &(m_transController->m_transAroundCursor));
+	}
+	if (ImGui::CollapsingHeader("Path generation"))
+	{
+		m_pathCreationManager->RenderGui();
 	}
 	if (ImGui::CollapsingHeader("Stereoscopy"))
 	{
