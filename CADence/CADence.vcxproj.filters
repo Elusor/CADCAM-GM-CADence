@@ -456,6 +456,9 @@
     <ClInclude Include="PathCreationManager.h">
       <Filter>Paths</Filter>
     </ClInclude>
+    <ClInclude Include="PathModel.h">
+      <Filter>Paths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -678,6 +681,9 @@
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="PathCreationManager.cpp">
+      <Filter>Paths</Filter>
+    </ClCompile>
+    <ClCompile Include="PathModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

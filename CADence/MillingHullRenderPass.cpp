@@ -11,7 +11,7 @@ MillingHullRenderPass::MillingHullRenderPass(
 	auto device = renderState->m_device.m_device.get();
 
 	float minZ = 1.0f;
-	float maxZ = 7.0f;
+	float maxZ = 6.0f;
 
 	m_camera = std::make_unique<OrthographicCamera>(
 		cameraSide, cameraSide,
@@ -28,7 +28,7 @@ MillingHullRenderPass::MillingHullRenderPass(
 	CreateDepthStencil(renderState, resolution, minZ, maxZ);
 }
 
-void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
+void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, PathModel* model)
 {
 	auto context = renderState->m_device.m_context.get();
 
@@ -57,11 +57,15 @@ void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, S
 	auto offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
 	renderState->m_device.context()->GSSetConstantBuffers(6, 1, &offsetBuff);
 
-	Render(renderState, scene);
+	Render(renderState, model);
 
 	// Restore old settings
 	renderState->currentCamera = oldCamera;
 	context->RSSetViewports(originalVPCount, originalVPs);
+}
+
+void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, Scene* scene)
+{
 }
 
 void MillingHullRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
@@ -76,6 +80,10 @@ void MillingHullRenderPass::Clear(std::unique_ptr<RenderState>& renderState)
 
 void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {
+}
+
+void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, PathModel* model)
+{
 	auto context = renderState->m_device.m_context.get();
 
 	m_texture->SetRenderTarget(context, m_dsv.get());
@@ -84,8 +92,14 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Sc
 
 	renderState->m_device.context()->IASetInputLayout(renderState->GetLayout(std::type_index(typeid(VertexPositionColor))));
 
-	// Render Actual scene
-	scene->RenderScene(renderState);
+	// Render Actual scene	
+	for (auto wPtr : model->GetModelObjects())
+	{
+		if (auto ptr = wPtr.lock())
+		{
+			ptr->Render(renderState);
+		}
+	}
 }
 
 void MillingHullRenderPass::SetOffset(float val)

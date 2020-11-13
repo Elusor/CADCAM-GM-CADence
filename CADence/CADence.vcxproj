@@ -214,6 +214,7 @@
     <ClInclude Include="orthographicCamera.h" />
     <ClInclude Include="ParamUtils.h" />
     <ClInclude Include="PathCreationManager.h" />
+    <ClInclude Include="PathModel.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="PointCollapser.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="orthographicCamera.cpp" />
     <ClCompile Include="ParamUtils.cpp" />
     <ClCompile Include="PathCreationManager.cpp" />
+    <ClCompile Include="PathModel.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PointCollapser.cpp" />
     <ClCompile Include="SceneExporter.cpp" />

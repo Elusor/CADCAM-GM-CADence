@@ -2,6 +2,7 @@
 #include "IRenderPass.h"
 #include "orthographicCamera.h"
 #include "TextureRenderTarget.h"
+#include "PathModel.h"
 #include <memory>
 
 using namespace mini;
@@ -17,6 +18,9 @@ public:
 	virtual void Execute(std::unique_ptr<RenderState>& renderState, Scene* scene) override;
 	virtual void Clear(std::unique_ptr<RenderState>& renderState) override;
 	virtual void Render(std::unique_ptr<RenderState>& renderState, Scene* scene) override;
+
+	void Execute(std::unique_ptr<RenderState>& renderState, PathModel* model);
+	void Render(std::unique_ptr<RenderState>& renderState, PathModel* model);
 
 	void SetOffset(float val);
 	float GetOffset();
