@@ -56,6 +56,11 @@ void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, S
 	ID3D11Buffer* cbs2[] = { VPbuffer };
 	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
 
+	float offset = 0.5f;
+	XMFLOAT4 offset16byteAligned = XMFLOAT4(offset, 0.f, 0.f, 0.f);
+	auto offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
+	renderState->m_device.context()->GSSetConstantBuffers(6, 1, &offsetBuff);
+
 	Render(renderState, scene);
 
 	// Restore old settings

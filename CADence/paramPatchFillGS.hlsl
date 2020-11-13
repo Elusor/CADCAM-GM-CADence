@@ -31,6 +31,10 @@ cbuffer patchData4 : register(b5)
     float4x4 fourthRow;
 }
 
+cbuffer modelOffset : register(b6)
+{
+    float offset;
+}
 // u - row param [0 = column0, 1 = column 3]
 // v - column param [0 = row0, 1 = row 3]
 //  12 13 14 15
@@ -73,8 +77,10 @@ void main(
         float2 uv = input[idx].params;
         float4 col = input[idx].col;
         
+        float dist = 0.5f;
         float4 pos = float4(BezierPatchPoint(points, uv), 1.0f);
         float3 normal = normalize(BezierPatchNormal(points, uv));
+        pos = pos + float4(normal, 0.0f) * offset;
         
         VSOut vert;        
         vert.pos = mul(MVP, pos);

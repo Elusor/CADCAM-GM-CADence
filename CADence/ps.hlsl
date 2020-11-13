@@ -44,5 +44,5 @@ float4 main(VSOut i) : SV_TARGET
     
     float alpha = 1 - (dist - nearCutoff) / (farCutoff - nearCutoff);
         
-    return float4(col, 1);
+    return float4(col, 1.0f);
 }

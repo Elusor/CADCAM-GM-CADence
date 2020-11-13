@@ -60,6 +60,7 @@ public:
 	mini::dx_ptr<ID3D11GeometryShader> m_bezierGeometryShader;
 	mini::dx_ptr<ID3D11GeometryShader> m_patchGeometryShader;
 	
+	//For milling hull
 	mini::dx_ptr<ID3D11GeometryShader> m_paramPatchC2FillGS;
 	mini::dx_ptr<ID3D11GeometryShader> m_paramPatchFillGS;
 
@@ -81,7 +82,8 @@ public:
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData1;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData2;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchData3;
-
+	//For milling hull
+	mini::dx_ptr<ID3D11Buffer> m_cbMillingOffset;
 	mini::dx_ptr<ID3D11Buffer> m_cbPatchDivisions;	
 	
 	ID3D11InputLayout* GetLayout(std::type_index vertexDataTypeIndex);
