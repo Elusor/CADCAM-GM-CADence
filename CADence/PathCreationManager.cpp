@@ -228,6 +228,22 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 			UINT idx = heightIdx + widthIdx;
 			float height = heights[idx];
 			
+			if (xIdx > 0 && xIdx < m_resolution- 1)
+			{
+				auto nextIdx = yIdx % 2 == 0 ? idx +1 : idx - 1;
+				float nextH = heights[nextIdx];
+
+				if (nextH != height)
+				{
+					Vector3 pos = Vector3(
+						texW * (float)widthIdx + texWHalf,
+						-texH * (float)yIdx - texHHalf,
+						height);
+					path.push_back(pos + basePos);
+				}
+
+			}
+			
 			// Make sure to add add the beggining and end of every row
 			// Also add if previous height was different
 			if ((height != lastHeight) ||
