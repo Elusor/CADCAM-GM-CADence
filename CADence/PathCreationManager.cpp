@@ -191,6 +191,8 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 	try
 	{
 		float maxVal = 0.0f;
+		float minVal = 2.f * m_modelDepth;
+
 		for (int h = 0; h < desc.Height; h++)
 		{
 			for (int w = 0; w < desc.Width; w++)
@@ -211,16 +213,22 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 				{
 					maxVal = newVal;
 				}
+				if (newVal < minVal)
+				{
+					minVal = newVal;
+				}
 
 				data.push_back(newVal);
 			}
 		}
 
 		// TODO: Scale data to [0,m_modelDepth]
+		maxVal -= minVal;
 
 		for (int idx = 0; idx < data.size(); idx++)
 		{
-			float val = data[idx];
+			float val = data[idx] - minVal;
+			assert(val / maxVal <= 1.0f);
 			float scaledVal = val / maxVal * m_modelDepth;
 			data[idx] = scaledVal;
 		}
@@ -289,8 +297,7 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 	Vector3 rdCornerWork = Vector3(m_blockSide, -m_blockSide, heights[heights.size() - 1]) + basePos;
 
 	path.push_back(safePos);
-	path.push_back(luCorner);
-	path.push_back(luCornerWork);	
+	path.push_back(luCorner);	
 
 	UINT yStride = m_resolution * (m_passWidth / m_blockSide);
 	if (yStride < 1) yStride = 1;
@@ -298,7 +305,55 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 	// TODO add first row
 
 	// Add next rows
-	float lastHeight = heights[0];
+	float upperPassMinHeight = (m_blockBaseHeight + m_blockSafetyEps) + (m_modelDepth / 2.f);
+	float lastHeight = heights[0] > upperPassMinHeight ? heights[0] : upperPassMinHeight;
+
+	for (int yIdx = 0; yIdx * yStride < m_resolution; yIdx++)
+	{
+		for (int xIdx = 0; xIdx < m_resolution; xIdx++)
+		{
+			UINT heightIdx = (yIdx * yStride);
+			UINT widthIdx = yIdx % 2 == 0 ? xIdx : m_resolution - 1 - xIdx;
+			UINT idx = heightIdx * m_resolution + widthIdx;
+			float height = heights[idx] > upperPassMinHeight ? heights[idx] : upperPassMinHeight;
+
+			if (xIdx > 0 && xIdx < m_resolution - 1)
+			{
+				auto nextIdx = yIdx % 2 == 0 ? idx + 1 : idx - 1;
+				float nextH = heights[nextIdx] > upperPassMinHeight ? heights[nextIdx] : upperPassMinHeight;
+
+				if (nextH != height)
+				{
+					Vector3 pos = Vector3(
+						texW * (float)widthIdx + texWHalf,
+						-texH * (float)heightIdx - texHHalf,
+						height);
+					path.push_back(pos + basePos);
+				}
+
+			}
+
+			// Make sure to add add the beggining and end of every row
+			// Also add if previous height was different
+			if ((height != lastHeight) ||
+				(widthIdx == 0 || widthIdx == m_resolution - 1))
+			{
+				Vector3 pos = Vector3(
+					texW * (float)widthIdx + texWHalf,
+					-texH * (float)heightIdx - texHHalf,
+					height);
+				path.push_back(pos + basePos);
+			}
+
+			lastHeight = height;
+		}
+	}
+	path.push_back(rdCorner);
+	
+	path.push_back(luCorner);
+	path.push_back(luCornerWork);
+
+	lastHeight = heights[0];
 	for (int yIdx = 0; yIdx * yStride < m_resolution; yIdx ++)
 	{
 		for (int xIdx = 0; xIdx < m_resolution; xIdx++)
