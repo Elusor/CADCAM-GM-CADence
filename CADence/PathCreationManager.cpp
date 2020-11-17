@@ -224,7 +224,6 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 
 		// TODO: Scale data to [0,m_modelDepth]
 		maxVal -= minVal;
-
 		for (int idx = 0; idx < data.size(); idx++)
 		{
 			float val = data[idx] - minVal;
@@ -283,124 +282,35 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 	float texHHalf = texH / 2.f;
 
 	float halfSide = m_blockSide / 2.f;
-	// 
+	
 
 	// Left upper corner pos
 	float safeHeight = m_blockBaseHeight + m_modelDepth * 1.5f;
-	float baseSafeHeight = m_blockBaseHeight + m_blockSafetyEps;
 	Vector3 safePos = Vector3(0.0f, 0.0f, safeHeight);
-
+	float baseSafeHeight = m_blockBaseHeight + m_blockSafetyEps;
+	
 	Vector3 basePos = Vector3(-halfSide, halfSide, baseSafeHeight);
 	Vector3 luCorner = Vector3(-halfSide, halfSide, safeHeight);
 	Vector3 rdCorner = Vector3(halfSide, -halfSide, safeHeight);
 	Vector3 luCornerWork = Vector3(0.0f, 0.0f, heights[0]) + basePos;
 	Vector3 rdCornerWork = Vector3(m_blockSide, -m_blockSide, heights[heights.size() - 1]) + basePos;
 
-	path.push_back(safePos);
-	path.push_back(luCorner);	
-
+	float upperPassMinHeight = (m_modelDepth / 2.f);	
+	
 	UINT yStride = m_resolution * (m_passWidth / m_blockSide);
 	if (yStride < 1) yStride = 1;
 
 	// TODO add first row
 
 	// Add next rows
-	float upperPassMinHeight = (m_blockBaseHeight + m_blockSafetyEps) + (m_modelDepth / 2.f);
-	float lastHeight = heights[0] > upperPassMinHeight ? heights[0] : upperPassMinHeight;
+	path.push_back(safePos);
+	path.push_back(luCorner);
+	AddHeightPointsWithMinVal(path, heights, basePos, yStride, upperPassMinHeight);		
 
-	for (int yIdx = 0; yIdx * yStride < m_resolution; yIdx++)
-	{
-		for (int xIdx = 0; xIdx < m_resolution; xIdx++)
-		{
-			UINT heightIdx = (yIdx * yStride);
-			UINT widthIdx = yIdx % 2 == 0 ? xIdx : m_resolution - 1 - xIdx;
-			UINT idx = heightIdx * m_resolution + widthIdx;
-			float height = heights[idx] > upperPassMinHeight ? heights[idx] : upperPassMinHeight;
-
-			if (xIdx > 0 && xIdx < m_resolution - 1)
-			{
-				auto nextIdx = yIdx % 2 == 0 ? idx + 1 : idx - 1;
-				float nextH = heights[nextIdx] > upperPassMinHeight ? heights[nextIdx] : upperPassMinHeight;
-
-				if (nextH != height)
-				{
-					Vector3 pos = Vector3(
-						texW * (float)widthIdx + texWHalf,
-						-texH * (float)heightIdx - texHHalf,
-						height);
-					path.push_back(pos + basePos);
-				}
-
-			}
-
-			// Make sure to add add the beggining and end of every row
-			// Also add if previous height was different
-			if ((height != lastHeight) ||
-				(widthIdx == 0 || widthIdx == m_resolution - 1))
-			{
-				Vector3 pos = Vector3(
-					texW * (float)widthIdx + texWHalf,
-					-texH * (float)heightIdx - texHHalf,
-					height);
-				path.push_back(pos + basePos);
-			}
-
-			lastHeight = height;
-		}
-	}
-	path.push_back(rdCorner);
-	
 	path.push_back(luCorner);
 	path.push_back(luCornerWork);
-
-	lastHeight = heights[0];
-	for (int yIdx = 0; yIdx * yStride < m_resolution; yIdx ++)
-	{
-		for (int xIdx = 0; xIdx < m_resolution; xIdx++)
-		{
-			UINT heightIdx = (yIdx * yStride);
-			UINT widthIdx = yIdx % 2 == 0 ? xIdx : m_resolution - 1 - xIdx;
-			UINT idx = heightIdx * m_resolution + widthIdx;
-			float height = heights[idx];
-			
-			if (xIdx > 0 && xIdx < m_resolution- 1)
-			{
-				auto nextIdx = yIdx % 2 == 0 ? idx +1 : idx - 1;
-				float nextH = heights[nextIdx];
-
-				if (nextH != height)
-				{
-					Vector3 pos = Vector3(
-						texW * (float)widthIdx + texWHalf,
-						-texH * (float)heightIdx - texHHalf,
-						height);
-					path.push_back(pos + basePos);
-				}
-
-			}
-			
-			// Make sure to add add the beggining and end of every row
-			// Also add if previous height was different
-			if ((height != lastHeight) ||
-				(widthIdx == 0 || widthIdx == m_resolution - 1))
-			{
-				Vector3 pos = Vector3(
-					texW * (float)widthIdx + texWHalf,
-					-texH * (float)heightIdx - texHHalf,
-					height);
-				path.push_back(pos + basePos);
-			}
-
-			lastHeight = height;
-		}
-	}
-
-	// TODO add last row
-
-
-	path.push_back(rdCornerWork);
-	path.push_back(rdCorner);
-	path.push_back(safePos);
+	AddHeightPointsWithMinVal(path, heights, basePos, yStride, 0.0f);	
+	
 	return path;
 }
 
@@ -452,6 +362,71 @@ bool PathCreationManager::SavePathToFile(std::vector<float>& heights)
 	{
 		return false;
 	}
+}
+
+void PathCreationManager::AddHeightPointsWithMinVal(
+	std::vector<DirectX::SimpleMath::Vector3>& path,
+	std::vector<float>& heights,
+	Vector3 basePos, UINT yStride, float minVal)
+{
+	float safeHeight = m_blockBaseHeight + m_modelDepth * 1.5f;
+	Vector3 safePos = Vector3(0.0f, 0.0f, safeHeight);
+
+	float texW = m_blockSide / (float)m_resolution;
+	float texH = m_blockSide / (float)m_resolution;
+	auto texWHalf = texW / 2.0f;
+	auto texHHalf = texH / 2.0f;
+
+	Vector3 lastVtx = safePos;
+	float lastHeight = heights[0] > minVal ? heights[0] : minVal;
+	for (int yIdx = 0; yIdx * yStride < m_resolution; yIdx++)
+	{
+		for (int xIdx = 0; xIdx < m_resolution; xIdx++)
+		{
+			UINT heightIdx = (yIdx * yStride);
+			UINT widthIdx = yIdx % 2 == 0 ? xIdx : m_resolution - 1 - xIdx;
+			UINT idx = heightIdx * m_resolution + widthIdx;
+			float height = heights[idx] > minVal ? heights[idx] : minVal;
+
+			if (xIdx > 0 && xIdx < m_resolution - 1)
+			{
+				auto nextIdx = yIdx % 2 == 0 ? idx + 1 : idx - 1;
+				float nextH = heights[nextIdx] > minVal ? heights[nextIdx] : minVal;
+
+				if (nextH != height)
+				{
+					Vector3 pos = Vector3(
+						texW * (float)widthIdx + texWHalf,
+						-texH * (float)heightIdx - texHHalf,
+						height);
+					path.push_back(pos + basePos);
+					lastVtx = pos + basePos;
+				}
+
+			}
+
+			// Make sure to add add the beggining and end of every row
+			// Also add if previous height was different
+			if ((height != lastHeight) ||
+				(widthIdx == 0 || widthIdx == m_resolution - 1))
+			{
+				Vector3 pos = Vector3(
+					texW * (float)widthIdx + texWHalf,
+					-texH * (float)heightIdx - texHHalf,
+					height);
+				path.push_back(pos + basePos);
+				lastVtx = pos + basePos;
+			}
+
+			lastHeight = height;
+		}
+	}
+	
+	auto lastSafe = lastVtx;
+	lastSafe.z = safeHeight;
+
+	path.push_back(lastSafe);
+	path.push_back(safePos);
 }
 
 void PathCreationManager::PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr)

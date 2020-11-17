@@ -49,6 +49,10 @@ private:
 	
 	std::vector<DirectX::SimpleMath::Vector3> GeneratePath(std::vector<float>& heights);
 	bool SavePathToFile(std::vector<float>& heights);
+	void AddHeightPointsWithMinVal(
+		std::vector<DirectX::SimpleMath::Vector3>& path,
+		std::vector<float>& heights,
+		DirectX::SimpleMath::Vector3 basePos, UINT yStride, float minVal = 0.0f);
 	void PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr = false);
 	std::string PrepareMoveInstruction(DirectX::SimpleMath::Vector3 pos);
 };
