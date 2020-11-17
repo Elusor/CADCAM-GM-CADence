@@ -13,17 +13,21 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 	m_millRadiusEps = 0.1f;
 	m_passWidth = 1.f;
 	
+	m_blockMaxHeight = 5.0f;
+	m_blockSide = 15.f;
+	m_blockBaseHeight = 1.5f;
+	m_blockSafetyEps = 0.1f;
+	m_modelUpperSafetyEps = 0.1f;
+	m_modelDepth = 
+		m_blockMaxHeight - 
+		(m_blockBaseHeight + m_blockSafetyEps) - // To prevent milling into the base
+		m_modelUpperSafetyEps; // To prevent milling at the exact top of the block		
+
 	m_offset = 0.0f;
 	m_zNear = 1.0f;
 	m_zFar = 4.5f;
 	m_scene = scene;
 	m_resolution = 250;
-
-	m_blockMaxHeight = 5.0f;
-	m_blockSide = 15.f;
-	m_blockBaseHeight = 1.5f;
-	m_blockSafetyEps = 0.1f;
-	m_modelDepth = m_blockMaxHeight - (m_blockBaseHeight + m_blockSafetyEps);
 
 	m_radius = 0.8;
 
@@ -186,6 +190,7 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 
 	try
 	{
+		float maxVal = 0.0f;
 		for (int h = 0; h < desc.Height; h++)
 		{
 			for (int w = 0; w < desc.Width; w++)
@@ -201,8 +206,23 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 				float* valElem = reinterpret_cast<float*>(deviceDependantDataPointer);
 				float val = *valElem;
 				// Remember to render with an offset block surface!
-				data.push_back(m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val)+m_millRadius)));
+				float newVal = m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val) + m_millRadius));
+				if (newVal > maxVal)
+				{
+					maxVal = newVal;
+				}
+
+				data.push_back(newVal);
 			}
+		}
+
+		// TODO: Scale data to [0,m_modelDepth]
+
+		for (int idx = 0; idx < data.size(); idx++)
+		{
+			float val = data[idx];
+			float scaledVal = val / maxVal * m_modelDepth;
+			data[idx] = scaledVal;
 		}
 
 		SavePathToFile(data);

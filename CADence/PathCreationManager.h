@@ -24,6 +24,7 @@ private:
 	float m_millRadiusEps;
 	float m_passWidth;
 
+	float m_modelUpperSafetyEps;
 	float m_blockMaxHeight;
 	float m_blockSafetyEps;
 	float m_blockBaseHeight;
