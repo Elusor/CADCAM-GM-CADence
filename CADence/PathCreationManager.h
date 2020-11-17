@@ -18,7 +18,11 @@ public:
 
 private:
 
+	bool m_manualOffset = false;
+
 	float m_millRadius;
+	float m_millRadiusEps;
+	float m_passWidth;
 
 	float m_blockBaseHeight;
 	float m_blockSide;

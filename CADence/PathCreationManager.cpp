@@ -9,13 +9,16 @@ using namespace DirectX::SimpleMath;
 
 PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderState, Scene* scene)
 {
-	m_millRadius = 0.16f;
+	m_millRadius = 0.8f;
+	m_millRadiusEps = 0.1f;
+	m_passWidth = 1.f;
+
 	m_modelDepth = 5.0f;
 	m_offset = 0.0f;
 	m_zNear = 1.0f;
 	m_zFar = m_modelDepth + m_zNear;
 	m_scene = scene;
-	m_resolution = 150;
+	m_resolution = 250;
 	m_blockSide = 15.f;
 	m_blockBaseHeight = 1.6f;
 	m_radius = 0.8;
@@ -27,13 +30,43 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 		m_resolution);
 
 	m_model = std::make_unique<PathModel>();
+
+	m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
 }
 
 void PathCreationManager::RenderGui(std::unique_ptr<RenderState>& renderState)
 {
-	if (ImGui::DragFloat("Hull offsetm##PathCreationManager", &m_offset, 0.05))
+	ImGui::Checkbox("Manual offset settings", &m_manualOffset);
+
+	if (m_manualOffset)
 	{
-		m_millingHullPass->SetOffset(m_offset);
+		if (ImGui::DragFloat("Hull offset##PathCreationManager", &m_offset, 0.05))
+		{
+			if (m_offset <= -0.1) m_offset = -0.1;
+
+			m_millingHullPass->SetOffset(m_offset);
+		}
+	}
+	else
+	{
+		if (ImGui::DragFloat("Mill radius (in cm)##PathCreationManager", &m_millRadius, 0.1))
+		{
+			if (m_millRadius <= 0) m_millRadius = 0.01;
+
+			m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
+		}
+
+		if (ImGui::DragFloat("Mill radius eps (in cm)##PathCreationManager", &m_millRadiusEps, 0.05))
+		{
+			if (m_millRadiusEps <= 0) m_millRadiusEps = 0.01;
+
+			m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
+		}
+	}
+
+	if (ImGui::DragFloat("Mill path width (in cm)##PathCreationManager", &m_passWidth, 0.1))
+	{
+		if (m_passWidth < m_millRadius / 10.f) m_passWidth = m_millRadius / 10.f;
 	}
 
 	if (ImGui::Button("Create milling model"))
@@ -211,21 +244,24 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 	Vector3 luCornerWork = Vector3(0.0f, 0.0f, heights[0]) + basePos;
 	Vector3 rdCornerWork = Vector3(m_blockSide, -m_blockSide, heights[heights.size() - 1]) + basePos;
 
-	int yStride = (m_radius / 2.f) / texH;
-	if (yStride < 1) yStride = 1;
 	path.push_back(safePos);
 	path.push_back(luCorner);
 	path.push_back(luCornerWork);	
 
+	UINT yStride = m_resolution * (m_passWidth / m_blockSide);
+	if (yStride < 1) yStride = 1;
+
+	// TODO add first row
+
+	// Add next rows
 	float lastHeight = heights[0];
-	for (int yIdx = 0; yIdx < m_resolution; yIdx++)
+	for (int yIdx = 0; yIdx * yStride < m_resolution; yIdx ++)
 	{
 		for (int xIdx = 0; xIdx < m_resolution; xIdx++)
 		{
-
-			UINT heightIdx = yIdx * m_resolution;
+			UINT heightIdx = (yIdx * yStride);
 			UINT widthIdx = yIdx % 2 == 0 ? xIdx : m_resolution - 1 - xIdx;
-			UINT idx = heightIdx + widthIdx;
+			UINT idx = heightIdx * m_resolution + widthIdx;
 			float height = heights[idx];
 			
 			if (xIdx > 0 && xIdx < m_resolution- 1)
@@ -237,7 +273,7 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 				{
 					Vector3 pos = Vector3(
 						texW * (float)widthIdx + texWHalf,
-						-texH * (float)yIdx - texHHalf,
+						-texH * (float)heightIdx - texHHalf,
 						height);
 					path.push_back(pos + basePos);
 				}
@@ -251,7 +287,7 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 			{
 				Vector3 pos = Vector3(
 					texW * (float)widthIdx + texWHalf,
-					-texH * (float)yIdx - texHHalf,
+					-texH * (float)heightIdx - texHHalf,
 					height);
 				path.push_back(pos + basePos);
 			}
@@ -259,6 +295,9 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 			lastHeight = height;
 		}
 	}
+
+	// TODO add last row
+
 
 	path.push_back(rdCornerWork);
 	path.push_back(rdCorner);

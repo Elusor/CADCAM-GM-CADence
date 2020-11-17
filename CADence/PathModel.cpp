@@ -7,6 +7,7 @@ PathModel::PathModel()
 
 void PathModel::SetModelObjects(std::vector<ObjectRef> modelObjects)
 {
+    m_objectNames.clear();
     m_modelObjects = modelObjects;
 
     for (auto wPtr : m_modelObjects)
