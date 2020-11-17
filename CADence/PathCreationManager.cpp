@@ -12,15 +12,19 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 	m_millRadius = 0.8f;
 	m_millRadiusEps = 0.1f;
 	m_passWidth = 1.f;
-
-	m_modelDepth = 5.0f;
+	
 	m_offset = 0.0f;
 	m_zNear = 1.0f;
-	m_zFar = m_modelDepth + m_zNear;
+	m_zFar = 4.5f;
 	m_scene = scene;
 	m_resolution = 250;
+
+	m_blockMaxHeight = 5.0f;
 	m_blockSide = 15.f;
-	m_blockBaseHeight = 1.6f;
+	m_blockBaseHeight = 1.5f;
+	m_blockSafetyEps = 0.1f;
+	m_modelDepth = m_blockMaxHeight - (m_blockBaseHeight + m_blockSafetyEps);
+
 	m_radius = 0.8;
 
 	m_millingHullPass = std::make_unique<MillingHullRenderPass>(
@@ -36,13 +40,25 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 
 void PathCreationManager::RenderGui(std::unique_ptr<RenderState>& renderState)
 {
-	ImGui::Checkbox("Manual offset settings", &m_manualOffset);
+	if (ImGui::Checkbox("Manual offset settings", &m_manualOffset))
+	{
+		if (m_manualOffset)
+		{
+			if (m_offset <= m_millRadius) m_offset = m_millRadius;
+			m_millingHullPass->SetOffset(m_offset);
+		}
+		else
+		{
+			m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
+		}
+
+	}
 
 	if (m_manualOffset)
 	{
 		if (ImGui::DragFloat("Hull offset##PathCreationManager", &m_offset, 0.05))
 		{
-			if (m_offset <= -0.1) m_offset = -0.1;
+			if (m_offset <= m_millRadius) m_offset = m_millRadius;
 
 			m_millingHullPass->SetOffset(m_offset);
 		}
@@ -184,7 +200,8 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 				// Get the actual value at data position
 				float* valElem = reinterpret_cast<float*>(deviceDependantDataPointer);
 				float val = *valElem;
-				data.push_back(m_modelDepth - (LinearizeDepth(val)- m_zNear));
+				// Remember to render with an offset block surface!
+				data.push_back(m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val)+m_millRadius)));
 			}
 		}
 
@@ -197,6 +214,13 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 	}
 
 	context->Unmap(mappedTexture, 0);
+}
+
+float PathCreationManager::NormalizedLinearDepth(float linearDepth)
+{
+	float normDepth = (linearDepth - m_zNear) / (m_zFar - m_zNear);
+	assert(normDepth <= 1.0f);
+	return normDepth;
 }
 
 float PathCreationManager::LinearizeDepth(float uNormDepth)
@@ -235,10 +259,10 @@ std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std:
 
 	// Left upper corner pos
 	float safeHeight = m_blockBaseHeight + m_modelDepth * 1.5f;
-	
+	float baseSafeHeight = m_blockBaseHeight + m_blockSafetyEps;
 	Vector3 safePos = Vector3(0.0f, 0.0f, safeHeight);
 
-	Vector3 basePos = Vector3(-halfSide, halfSide, m_blockBaseHeight);
+	Vector3 basePos = Vector3(-halfSide, halfSide, baseSafeHeight);
 	Vector3 luCorner = Vector3(-halfSide, halfSide, safeHeight);
 	Vector3 rdCorner = Vector3(halfSide, -halfSide, safeHeight);
 	Vector3 luCornerWork = Vector3(0.0f, 0.0f, heights[0]) + basePos;

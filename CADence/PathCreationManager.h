@@ -24,6 +24,8 @@ private:
 	float m_millRadiusEps;
 	float m_passWidth;
 
+	float m_blockMaxHeight;
+	float m_blockSafetyEps;
 	float m_blockBaseHeight;
 	float m_blockSide;
 	float m_modelDepth;
@@ -40,6 +42,7 @@ private:
 	std::unique_ptr<PathModel> m_model;
 	
 	void ParseDepthTexture(std::unique_ptr<RenderState>& renderState);
+	float NormalizedLinearDepth(float linearDepth);
 	float LinearizeDepth(float uNormDepth);
 	
 	

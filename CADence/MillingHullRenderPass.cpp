@@ -16,7 +16,7 @@ MillingHullRenderPass::MillingHullRenderPass(
 	m_camera = std::make_unique<OrthographicCamera>(
 		cameraSide, cameraSide,
 		zNear, zFar,
-		Vector3(0.0f, 0.0f, -6.f),
+		Vector3(0.0f, 0.0f, -zFar),
 		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
 
