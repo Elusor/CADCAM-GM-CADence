@@ -257,6 +257,8 @@ float PathCreationManager::LinearizeDepth(float uNormDepth)
 	float f = m_zFar;
 
 	float linDepth = 2.f*(n * f) / (f + n - d * (f - n));
+	//float linDepth = 2.f*(n * f) / (f + n - d * (f - n));
+	float linDepth = 2.f * (d - n) / (f - n) - 1.f;
 	return linDepth;
 }
 
