@@ -23,7 +23,8 @@ std::weak_ptr<Node> PointSelector::GetNearestPoint(int mouseX, int mouseY, std::
 		std::string name = nodes[i]->m_object->m_name;
 		XMFLOAT4 screenPosFl;
 		// Get point pos
-		XMVECTOR pointPos = XMLoadFloat3(&(nodes[i]->m_object->GetPosition()));
+		auto pointPosTmp = nodes[i]->m_object->GetPosition();
+		XMVECTOR pointPos = XMLoadFloat3(&pointPosTmp);
 		// Calc screen pos
 		XMVECTOR screenPos = XMVector3Transform(pointPos, VP);
 
@@ -88,7 +89,8 @@ std::vector<std::weak_ptr<Node>> PointSelector::GetAllPointsInArea(std::vector<s
 		std::string name = nodes[i]->m_object->m_name;
 		XMFLOAT4 screenPosFl;
 		// Get point pos
-		XMVECTOR pointPos = XMLoadFloat3(&(nodes[i]->m_object->GetPosition()));
+		auto pointPosTmp = nodes[i]->m_object->GetPosition();
+		XMVECTOR pointPos = XMLoadFloat3(&(pointPosTmp));
 		// Calc screen pos
 		XMVECTOR screenPos = XMVector3Transform(pointPos, VP);
 

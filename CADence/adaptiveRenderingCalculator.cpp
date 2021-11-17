@@ -25,7 +25,8 @@ unsigned int AdaptiveRenderingCalculator::CalculateAdaptiveSamplesCount(std::vec
 
 			std::string name = point->m_object->m_name;
 			DirectX::XMFLOAT4 screenPosFl;
-			DirectX::XMVECTOR pointPos = DirectX::XMLoadFloat3(&(point->m_object->GetPosition()));
+			auto pointPosTmp = point->m_object->GetPosition();
+			DirectX::XMVECTOR pointPos = DirectX::XMLoadFloat3(&pointPosTmp);
 			DirectX::XMVECTOR screenPos = DirectX::XMVector3Transform(pointPos, VP);
 
 			XMStoreFloat4(&screenPosFl, screenPos);

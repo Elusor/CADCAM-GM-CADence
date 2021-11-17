@@ -28,8 +28,8 @@ void ObjectTransformer::RotateObject(std::unique_ptr<Object>& object, DirectX::X
     /*object->m_transform.m_pos.x = pivot.x + diff.x;
     object->m_transform.m_pos.y = pivot.y + diff.y;
     object->m_transform.m_pos.z = pivot.z + diff.z;*/
-
-    auto curRot = DirectX::XMLoadFloat3(&(object->GetRotation()));
+    auto curRotTmp = object->GetRotation();
+    auto curRot = DirectX::XMLoadFloat3(&curRotTmp);
 
     // TODO check if the order is right
     auto curRotMatrix = DirectX::XMMatrixRotationRollPitchYawFromVector(curRot);

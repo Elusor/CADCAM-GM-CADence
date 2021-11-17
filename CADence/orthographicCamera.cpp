@@ -11,6 +11,7 @@ OrthographicCamera::OrthographicCamera(
 {
     m_width = width;
     m_height = height;
+    m_aspectRatio = (float)width / (float)height;
 
     m_zFar = zFar;
     m_zNear = zNear;

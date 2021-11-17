@@ -373,7 +373,8 @@ void Scene::RenderMiddleMarker(std::unique_ptr<RenderState>& renderState)
 		{
 			if (auto node = m_selectedNodes[j].lock())
 			{
-				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(node->m_object->GetPosition()));
+				auto posjTmp = node->m_object->GetPosition();
+				DirectX::XMVECTOR posj = DirectX::XMLoadFloat3(&(posjTmp));
 				pos = DirectX::XMVectorAdd(pos, posj);
 			}
 		}
