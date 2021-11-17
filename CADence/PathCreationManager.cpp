@@ -208,7 +208,7 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 				float* valElem = reinterpret_cast<float*>(deviceDependantDataPointer);
 				float val = *valElem;
 				// Remember to render with an offset block surface!
-				float newVal = m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val) + m_millRadius));
+				float newVal = m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val))) - m_millRadius;
 				if (newVal > maxVal)
 				{
 					maxVal = newVal;
@@ -256,7 +256,6 @@ float PathCreationManager::LinearizeDepth(float uNormDepth)
 	float n = m_zNear;
 	float f = m_zFar;
 
-	float linDepth = 2.f*(n * f) / (f + n - d * (f - n));
 	//float linDepth = 2.f*(n * f) / (f + n - d * (f - n));
 	float linDepth = 2.f * (d - n) / (f - n) - 1.f;
 	return linDepth;
@@ -323,7 +322,7 @@ bool PathCreationManager::SavePathToFile(std::vector<float>& heights)
 	myfile.open("example.k16");
 	
 	//Reset instruction counter
-	m_instructionCounter = 1;
+	m_instructionCounter = 3;
 	if (myfile.is_open())
 	{
 		auto points = GeneratePath(heights);
