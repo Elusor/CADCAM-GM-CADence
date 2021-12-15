@@ -27,10 +27,11 @@ void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* mo
 	auto bodyParametricObject = dynamic_cast<IParametricSurface*>(bodyRef.lock().get()->m_object.get());
 	auto baseParametricObject = dynamic_cast<IParametricSurface*>(baseRef.lock().get()->m_object.get());
 
-	ParametricOffsetSurface bodyOffsetSurface(bodyParametricObject, 0.5F);
+	ParametricOffsetSurface bodyOffsetSurface(bodyParametricObject, 0.1F);
 
-	m_intersectionFinder->FindIntersectionWithCursor(bodyRef, baseRef, DirectX::XMFLOAT3(0, 2.6F, 0));
-	m_intersectionFinder->FindIntersectionWithCursor(bodyRef, baseRef, DirectX::XMFLOAT3(0, -1.78F, 0));
+	auto curve1 = m_intersectionFinder->FindIntersectionWithCursor(&bodyOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(0, 2.6F, 0));
+	auto curve2 = m_intersectionFinder->FindIntersectionWithCursor(&bodyOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(0, -1.92F, 0));
+	int x = 2;
 }
 
 void BasePathsCreationManager::MergeIntersections()

@@ -212,8 +212,6 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 }
 
 IntersectionCurveData IntersectionFinder::FindIntersectionForParameters(
-	ObjectRef qSurfNode, 
-	ObjectRef pSurfNode, 
 	IParametricSurface* qSurface, 
 	IParametricSurface* pSurface, 
 	ParameterQuad params, bool selfIntersect)
@@ -645,13 +643,30 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 	
 	IParametricSurface* qSurface = dynamic_cast<IParametricSurface*>(qSurfNode.lock()->m_object.get());
 	IParametricSurface* pSurface = dynamic_cast<IParametricSurface*>(pSurfNode.lock()->m_object.get());
-	bool selfIntersect = qSurface == pSurface;
+	
+	auto curve = FindInterSection(qSurface, pSurface);
+
+	if (curve.isFound)
+	{
+		auto intersectionCurve = m_factory->CreateIntersectionCurve(
+					qSurfNode, curve.surfQParams, curve.surfQClosed,
+					pSurfNode, curve.surfPParams, curve.surfPClosed);
+		m_scene->AttachObject(intersectionCurve);
+	}
+	
+
+	throw IntersectionNotFoundException();
+}
+
+IntersectionCurveData IntersectionFinder::FindInterSection(IParametricSurface* qSurf, IParametricSurface* pSurf)
+{
+	bool selfIntersect = qSurf == pSurf;
 
 	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
 	ParameterPair pParams, qParams;
 
-	ParameterPair paramsQ = qSurface->GetMaxParameterValues();
-	ParameterPair paramsP = pSurface->GetMaxParameterValues();
+	ParameterPair paramsQ = qSurf->GetMaxParameterValues();
+	ParameterPair paramsP = pSurf->GetMaxParameterValues();
 
 	float stepCount = m_samples;
 	float maxU, maxV, maxS, maxT;
@@ -666,8 +681,9 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 	vStep = maxV / stepCount;
 	sStep = maxS / stepCount;
 	tStep = maxT / stepCount;
-	
+
 	IntersectionCurveData curve;
+	curve.isFound = false;
 	for (float u = 0.0f; u <= maxU; u += uStep)
 	{
 		for (float v = 0.0f; v <= maxV; v += vStep)
@@ -675,33 +691,23 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 			for (float s = 0.0f; s <= maxS; s += sStep)
 			{
 				for (float t = 0.0f; t <= maxT; t += tStep)
-				{					
+				{
 					ParameterQuad params;
 					params.u = u;
 					params.v = v;
 					params.s = s;
 					params.t = t;
 
-					curve = FindIntersectionForParameters(qSurfNode, pSurfNode, qSurface, pSurface, params, selfIntersect);
+					curve = FindIntersectionForParameters(qSurf, pSurf, params, selfIntersect);
 					if (curve.isFound)
 					{
-						return;
+						return curve;
 					}
 				}
 			}
 		}
 	}
-
-	if (curve.isFound)
-	{
-		auto intersectionCurve = m_factory->CreateIntersectionCurve(
-					qSurfNode, curve.surfQParams, curve.surfQClosed,
-					pSurfNode, curve.surfPParams, curve.surfPClosed);
-		m_scene->AttachObject(intersectionCurve);
-	}
-	
-
-	throw IntersectionNotFoundException();
+	return curve;
 }
 
 void IntersectionFinder::FindIntersectionWithCursor(
@@ -711,10 +717,40 @@ void IntersectionFinder::FindIntersectionWithCursor(
 {
 	IParametricSurface* qSurface = dynamic_cast<IParametricSurface*>(qNode.lock()->m_object.get());
 	IParametricSurface* pSurface = dynamic_cast<IParametricSurface*>(pNode.lock()->m_object.get());
+	
+	auto curve = FindIntersectionWithCursor(qSurface, pSurface, cursorPos);
+
+	if (curve.foundBegPoints)
+	{		
+		if (curve.isFound)
+		{
+			auto intersectionCurve = m_factory->CreateIntersectionCurve(
+				qNode, curve.surfQParams, curve.surfQClosed,
+				pNode, curve.surfPParams, curve.surfPClosed);
+			m_scene->AttachObject(intersectionCurve);
+
+			return;
+		}
+		else {
+			throw IntersectionCursorNotFoundException();
+		}
+
+	}	
+	else {
+		throw IntersectionCursorNotFoundException();
+	}
+}
+
+IntersectionCurveData IntersectionFinder::FindIntersectionWithCursor(IParametricSurface* qSurface, IParametricSurface* pSurface, DirectX::XMFLOAT3 cursorPos)
+{
+	IntersectionCurveData result;
+	result.isFound = false;
+	result.foundBegPoints = false;
+
 	bool selfIntersect = qSurface == pSurface;
 
 	ParameterPair pParams, qParams;
-	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;	
+	std::vector<DirectX::XMFLOAT2> qParamsList, pParamsList;
 
 	bool found1 = false, found2 = false;
 	float dist1 = FLT_MAX, dist2 = FLT_MAX;
@@ -739,7 +775,8 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			qParams.v = v;
 
 			auto nearestPt = SimpleGradientForCursor(qSurface, qParams, cursorPos);
-			if (nearestPt.found) {
+			if (nearestPt.found)
+			{
 				DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
 				// If found point is closer than the previous point, update it
 				auto newDist = sqrtf(Dot(foundPoint - cursorPos, foundPoint - cursorPos));
@@ -747,9 +784,9 @@ void IntersectionFinder::FindIntersectionWithCursor(
 				{
 					found1 = true;
 					endParams1 = nearestPt.params.GetQParams();
-					dist1 = newDist;				
+					dist1 = newDist;
 				}
-				
+
 			}
 		}
 	}
@@ -763,12 +800,12 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			pParams.v = v;
 
 			bool differentPointInParamSpace = !(qParams.u == pParams.u && qParams.v == pParams.v);
-		
+
 			if (differentPointInParamSpace)
 			{
 				auto nearestPt = SimpleGradientForCursor(pSurface, pParams, cursorPos);
 				nearestPt.params.s = qParams.u;
-				nearestPt.params.t = qParams.v;				
+				nearestPt.params.t = qParams.v;
 				if (SimpleGradientResultCheck(qSurface, pSurface, nearestPt, selfIntersect))
 				{
 					DirectX::XMFLOAT3 foundPoint = nearestPt.pos;
@@ -785,31 +822,18 @@ void IntersectionFinder::FindIntersectionWithCursor(
 			}
 		}
 	}
-	
-	if (found1 && found2)
+
+	result.foundBegPoints = found1 && found2;
+	if (result.foundBegPoints)
 	{
 		ParameterQuad params;
 		params.Set(endParams1, endParams2);
 
-		IntersectionCurveData curveData = FindIntersectionForParameters(qNode, pNode, qSurface, pSurface, params, selfIntersect);
-
-		if (curveData.isFound)
-		{
-			auto intersectionCurve = m_factory->CreateIntersectionCurve(
-				qNode, curveData.surfQParams, curveData.surfQClosed,
-				pNode, curveData.surfPParams, curveData.surfPClosed);
-			m_scene->AttachObject(intersectionCurve);
-
-			return;
-		}
-		else {
-			throw IntersectionCursorNotFoundException();
-		}
-
-	}	
-	else {
-		throw IntersectionCursorNotFoundException();
+		result = FindIntersectionForParameters(qSurface, pSurface, params, selfIntersect);
+		result.foundBegPoints = true;
 	}
+
+	return result;
 }
 
 IntersectionPointSearchData IntersectionFinder::FindNextPointAdaptiveStep(

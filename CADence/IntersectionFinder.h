@@ -18,6 +18,7 @@ struct IntersectionCurveData
 	std::vector<DirectX::XMFLOAT2> surfPParams;
 	bool surfQClosed;
 	bool surfPClosed;
+	bool foundBegPoints;
 };
 
 struct ClampedPointData
@@ -46,7 +47,9 @@ public:
 	bool AreObjectIntersectable(std::weak_ptr<Node> obj1, std::weak_ptr<Node> obj2);
 	// TODO change return type to intersection curve
 	void FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNode);
+	IntersectionCurveData FindInterSection(IParametricSurface* qSurf, IParametricSurface* pSurf);
 	void FindIntersectionWithCursor(ObjectRef obj1, ObjectRef obj2, DirectX::XMFLOAT3 cursorPos);
+	IntersectionCurveData FindIntersectionWithCursor(IParametricSurface* qSurf, IParametricSurface* pSurf, DirectX::XMFLOAT3 cursorPos);
 	void CreateParamsGui();
 private:
 
@@ -99,8 +102,6 @@ private:
 		float step);
 
 	IntersectionCurveData FindIntersectionForParameters(
-		ObjectRef qSurfNode,
-		ObjectRef pSurfNode,
 		IParametricSurface* qSurface,
 		IParametricSurface* pSurface,
 		ParameterQuad params, bool selfIntersect);
