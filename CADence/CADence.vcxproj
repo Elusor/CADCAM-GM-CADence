@@ -212,6 +212,7 @@
     <ClInclude Include="objects.h" />
     <ClInclude Include="ObjectTransformer.h" />
     <ClInclude Include="orthographicCamera.h" />
+    <ClInclude Include="ParametricOffsetSurface.h" />
     <ClInclude Include="ParamUtils.h" />
     <ClInclude Include="PathCreationManager.h" />
     <ClInclude Include="PathModel.h" />
@@ -302,6 +303,7 @@
     <ClCompile Include="MillingHullRenderPass.cpp" />
     <ClCompile Include="ObjectReferences.cpp" />
     <ClCompile Include="orthographicCamera.cpp" />
+    <ClCompile Include="ParametricOffsetSurface.cpp" />
     <ClCompile Include="ParamUtils.cpp" />
     <ClCompile Include="PathCreationManager.cpp" />
     <ClCompile Include="PathModel.cpp" />

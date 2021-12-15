@@ -18,6 +18,7 @@ public:
 	virtual DirectX::XMFLOAT2 GetParameterSpaceDistance(ParameterPair point1, ParameterPair point2) = 0;
 	virtual DirectX::XMFLOAT3 GetPoint(float u, float v) = 0;
 	virtual DirectX::XMFLOAT3 GetTangent(float u, float v, TangentDir tangentDir) = 0;
+	virtual DirectX::XMFLOAT3 GetNormal(float u, float v);
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir) = 0;
 	virtual DirectX::XMFLOAT3 GetSecondDarivativeMixed(float u, float v) = 0;
 	virtual ParameterPair GetWrappedParams(float u, float v) = 0;
@@ -29,5 +30,6 @@ public:
 
 	DirectX::XMFLOAT3 GetPoint(ParameterPair parameters);
 	DirectX::XMFLOAT3 GetTangent(ParameterPair parameters, TangentDir tangentDir);
+	DirectX::XMFLOAT3 GetNormal(ParameterPair parameters);
 	bool ParamsInsideBounds(ParameterPair parameters);
 };

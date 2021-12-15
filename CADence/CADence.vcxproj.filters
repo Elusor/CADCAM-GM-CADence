@@ -459,6 +459,9 @@
     <ClInclude Include="PathModel.h">
       <Filter>Paths</Filter>
     </ClInclude>
+    <ClInclude Include="ParametricOffsetSurface.h">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -685,6 +688,9 @@
     </ClCompile>
     <ClCompile Include="PathModel.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParametricOffsetSurface.cpp">
+      <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
