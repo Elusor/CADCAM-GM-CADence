@@ -211,13 +211,15 @@ IntersectionPointSearchData IntersectionFinder::FindBoundaryPoint(
 	return result;
 }
 
-bool IntersectionFinder::FindIntersectionForParameters(
+IntersectionCurveData IntersectionFinder::FindIntersectionForParameters(
 	ObjectRef qSurfNode, 
 	ObjectRef pSurfNode, 
 	IParametricSurface* qSurface, 
 	IParametricSurface* pSurface, 
 	ParameterQuad params, bool selfIntersect)
 {
+	IntersectionCurveData curveResult;
+	curveResult.isFound = false;
 	ParameterPair qParams, pParams;
 	qParams.u = params.u;
 	qParams.v = params.v;
@@ -261,27 +263,22 @@ bool IntersectionFinder::FindIntersectionForParameters(
 
 			bool sizeOverflow = result.surfPParamsList.size() > 2 * m_oneDirPointCap;
 
-			if (!sizeOverflow || m_addCappedCurves)
-			{
-				// Create the interpolation curve
-				auto curve = m_factory->CreateIntersectionCurve(
-					qSurfNode, result.surfQParamsList, result.m_qIntersectionClosed && !selfIntersect,
-					pSurfNode, result.surfPParamsList, result.m_pIntersectionClosed && !selfIntersect);
-
-				m_scene->AttachObject(curve);
-			}
-
-			if(sizeOverflow)
+			if(sizeOverflow && !m_addCappedCurves)
 			{
 				throw IntersectionTooManyPointsException();
 			}
 			
-			return true;
+			curveResult.isFound = true;
+			curveResult.surfQParams = result.surfQParamsList;
+			curveResult.surfPParams = result.surfPParamsList;
+			curveResult.surfQClosed = result.m_qIntersectionClosed && !selfIntersect;
+			curveResult.surfPClosed = result.m_pIntersectionClosed && !selfIntersect;
+
 		}
 	}
 	
-
-	return false;
+	
+	return curveResult;
 }
 
 float Wrap(float val, float minVal, float maxVal)
@@ -669,7 +666,8 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 	vStep = maxV / stepCount;
 	sStep = maxS / stepCount;
 	tStep = maxT / stepCount;
-
+	
+	IntersectionCurveData curve;
 	for (float u = 0.0f; u <= maxU; u += uStep)
 	{
 		for (float v = 0.0f; v <= maxV; v += vStep)
@@ -684,14 +682,24 @@ void IntersectionFinder::FindInterSection(ObjectRef qSurfNode, ObjectRef pSurfNo
 					params.s = s;
 					params.t = t;
 
-					if (FindIntersectionForParameters(qSurfNode, pSurfNode, qSurface, pSurface, params, selfIntersect))
+					curve = FindIntersectionForParameters(qSurfNode, pSurfNode, qSurface, pSurface, params, selfIntersect);
+					if (curve.isFound)
 					{
 						return;
 					}
 				}
 			}
 		}
-	}		
+	}
+
+	if (curve.isFound)
+	{
+		auto intersectionCurve = m_factory->CreateIntersectionCurve(
+					qSurfNode, curve.surfQParams, curve.surfQClosed,
+					pSurfNode, curve.surfPParams, curve.surfPClosed);
+		m_scene->AttachObject(intersectionCurve);
+	}
+	
 
 	throw IntersectionNotFoundException();
 }
@@ -783,8 +791,15 @@ void IntersectionFinder::FindIntersectionWithCursor(
 		ParameterQuad params;
 		params.Set(endParams1, endParams2);
 
-		if (FindIntersectionForParameters(qNode, pNode, qSurface, pSurface, params, selfIntersect))
+		IntersectionCurveData curveData = FindIntersectionForParameters(qNode, pNode, qSurface, pSurface, params, selfIntersect);
+
+		if (curveData.isFound)
 		{
+			auto intersectionCurve = m_factory->CreateIntersectionCurve(
+				qNode, curveData.surfQParams, curveData.surfQClosed,
+				pNode, curveData.surfPParams, curveData.surfPClosed);
+			m_scene->AttachObject(intersectionCurve);
+
 			return;
 		}
 		else {

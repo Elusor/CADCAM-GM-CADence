@@ -11,6 +11,15 @@
 class ObjectFactory;
 enum IntersectedSurface;
 
+struct IntersectionCurveData
+{
+	bool isFound;
+	std::vector<DirectX::XMFLOAT2> surfQParams;
+	std::vector<DirectX::XMFLOAT2> surfPParams;
+	bool surfQClosed;
+	bool surfPClosed;
+};
+
 struct ClampedPointData
 {
 	DirectX::XMFLOAT4 params;
@@ -89,7 +98,7 @@ private:
 		IParametricSurface* pSurface,
 		float step);
 
-	bool FindIntersectionForParameters(
+	IntersectionCurveData FindIntersectionForParameters(
 		ObjectRef qSurfNode,
 		ObjectRef pSurfNode,
 		IParametricSurface* qSurface,
