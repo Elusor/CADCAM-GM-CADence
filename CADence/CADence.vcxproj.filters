@@ -462,6 +462,9 @@
     <ClInclude Include="ParametricOffsetSurface.h">
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="BasePathsCreationManager.h">
+      <Filter>Paths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -691,6 +694,9 @@
     </ClCompile>
     <ClCompile Include="ParametricOffsetSurface.cpp">
       <Filter>Header Files\CadSpecific\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="BasePathsCreationManager.cpp">
+      <Filter>Paths</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

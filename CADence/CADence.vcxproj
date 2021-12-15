@@ -160,6 +160,7 @@
     <ClInclude Include="ArgumentException.h" />
     <ClInclude Include="ArgumentExceptions.h" />
     <ClInclude Include="BackBufferRenderTarget.h" />
+    <ClInclude Include="BasePathsCreationManager.h" />
     <ClInclude Include="bezierCalculator.h" />
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="BezierCurveC2.h" />
@@ -262,6 +263,7 @@
   <ItemGroup>
     <ClCompile Include="adaptiveRenderingCalculator.cpp" />
     <ClCompile Include="BackBufferRenderTarget.cpp" />
+    <ClCompile Include="BasePathsCreationManager.cpp" />
     <ClCompile Include="bezierCalculator.cpp" />
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="BezierCurveC2.cpp" />

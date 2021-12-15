@@ -6,11 +6,15 @@
 #include "Scene.h"
 #include "MillingHullRenderPass.h"
 #include "PathModel.h"
+#include "BasePathsCreationManager.h"
 
 class PathCreationManager
 {
 public:	
-	PathCreationManager(std::unique_ptr<RenderState>& renderState, Scene* scene);
+	PathCreationManager(
+		std::unique_ptr<RenderState>& renderState, 
+		Scene* scene, 
+		IntersectionFinder* intersectionFinder);
 
 	void RenderGui(std::unique_ptr<RenderState>& renderState);
 	void ExecuteRenderPass(std::unique_ptr<RenderState>& renderState);
@@ -41,7 +45,9 @@ private:
 	Scene* m_scene;
 	std::unique_ptr<MillingHullRenderPass> m_millingHullPass;
 	std::unique_ptr<PathModel> m_model;
-	
+	std::unique_ptr<BasePathsCreationManager> m_basePathsCreationManager;
+
+
 	void ParseDepthTexture(std::unique_ptr<RenderState>& renderState);
 	float NormalizedLinearDepth(float linearDepth);
 	float LinearizeDepth(float uNormDepth);

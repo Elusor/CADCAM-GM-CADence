@@ -72,6 +72,16 @@ DirectX::XMFLOAT3 ParametricOffsetSurface::GetTangent(float u, float v, TangentD
 	return tangent;
 }
 
+DirectX::XMFLOAT3 ParametricOffsetSurface::GetSecondDarivativeSameDirection(float u, float v, TangentDir tangentDir)
+{
+	return DirectX::XMFLOAT3();
+}
+
+DirectX::XMFLOAT3 ParametricOffsetSurface::GetSecondDarivativeMixed(float u, float v)
+{
+	return DirectX::XMFLOAT3();
+}
+
 ParameterPair ParametricOffsetSurface::GetWrappedParams(float u, float v)
 {
 	return m_baseSurface->GetWrappedParams(u, v);

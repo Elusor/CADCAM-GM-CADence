@@ -49,7 +49,7 @@ DxApplication::DxApplication(HINSTANCE hInstance)
 	m_intersectionFinder = make_unique<IntersectionFinder>(m_scene.get());
 	m_deletionManager = make_unique<DeletionManager>(m_scene);
 	m_spawnMarkerManager = make_unique<SpawnMarkerManager>(m_scene.get(), camera.operator->());
-	m_pathCreationManager = make_unique<PathCreationManager>(m_renderState, m_scene.get());
+	m_pathCreationManager = make_unique<PathCreationManager>(m_renderState, m_scene.get(), m_intersectionFinder.get());
 	//// RENDER PASS
 	m_defPass = new DefaultRenderPass(m_renderState, wndSize);
 	m_stereoPass = new StereoscopicRenderPass(m_renderState, wndSize);	

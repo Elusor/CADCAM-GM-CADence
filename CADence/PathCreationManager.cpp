@@ -4,10 +4,10 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-
+#include "IntersectionFinder.h"
 using namespace DirectX::SimpleMath;
 
-PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderState, Scene* scene)
+PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderState, Scene* scene, IntersectionFinder* intersectionFinder)
 {
 	m_millRadius = 0.8f;
 	m_millRadiusEps = 0.1f;
@@ -38,6 +38,8 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 		m_resolution);
 
 	m_model = std::make_unique<PathModel>();
+
+	m_basePathsCreationManager = std::make_unique<BasePathsCreationManager>(intersectionFinder, m_blockBaseHeight);
 
 	m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
 }
@@ -99,6 +101,11 @@ void PathCreationManager::RenderGui(std::unique_ptr<RenderState>& renderState)
 		if (ImGui::Button("Create General Path"))
 		{
 			ExecuteRenderPass(renderState);
+		}
+
+		if (ImGui::Button("Create Base Path"))
+		{
+			m_basePathsCreationManager->CreateBasePaths(m_model.get());
 		}
 		
 	}
