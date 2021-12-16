@@ -1,5 +1,6 @@
 #include "IParametricSurface.h"
 #include "mathUtils.h"
+#include "SimpleMath.h"
 
 DirectX::XMFLOAT3 IParametricSurface::GetPoint(ParameterPair parameters)
 {
@@ -26,5 +27,7 @@ DirectX::XMFLOAT3 IParametricSurface::GetNormal(float u, float v)
 	DirectX::XMFLOAT3 tangent = GetTangent(u, v, TangentDir::AlongU);
 	DirectX::XMFLOAT3 bitangent = GetTangent(u, v, TangentDir::AlongV);
 	
-	return Cross(tangent, bitangent);
+	auto res = DirectX::SimpleMath::Vector3(Cross(tangent, bitangent));
+	res.Normalize();
+	return res;
 }
