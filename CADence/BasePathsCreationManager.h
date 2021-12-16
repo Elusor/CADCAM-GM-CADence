@@ -28,7 +28,7 @@ private:
 	// block dimensions
 	// milling model
 
-	void CalculateOffsetSurfaceIntersections(PathModel* model);
+	std::vector<DirectX::XMFLOAT2> CalculateOffsetSurfaceIntersections(PathModel* model);
 	void MergeIntersections();
 	void SavePathsToFile();
 

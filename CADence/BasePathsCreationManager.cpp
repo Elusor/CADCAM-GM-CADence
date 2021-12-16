@@ -13,14 +13,14 @@ BasePathsCreationManager::BasePathsCreationManager(IntersectionFinder* intersect
 void BasePathsCreationManager::CreateBasePaths(PathModel* model)
 {
 	// 1. Create proper intersections of the model with the non offset surfaces
-	CalculateOffsetSurfaceIntersections(model);
+	auto paramLits = CalculateOffsetSurfaceIntersections(model);
 	// 2. Merge intersection lines
 	MergeIntersections();
 	// 3. Save paths to file
 	SavePathsToFile();
 }
 
-void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* model)
+std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* model)
 {
 	auto modelObjects = model->GetModelObjects();
 
@@ -147,7 +147,10 @@ void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* mo
 	std::reverse(lowerBodySection.begin(), lowerBodySection.end());
 	endParams.insert(endParams.end(), lowerBodySection.begin(), lowerBodySection.end());
 	
-	std::vector<ObjectRef> points;
+	// Add the first point to close the loop
+	endParams.push_back(endParams[0]);
+
+	/*std::vector<ObjectRef> points;
 	for (auto pt : endParams)
 	{
 		auto pos = baseParametricObject->GetPoint(pt.x, pt.y);
@@ -161,7 +164,9 @@ void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* mo
 	}
 	
 	auto curve = m_factory.CreateInterpolBezierCurveC2(points);
-	m_scene->AttachObject(curve);
+	m_scene->AttachObject(curve);*/
+
+	return endParams;
 }
 
 void BasePathsCreationManager::MergeIntersections()
