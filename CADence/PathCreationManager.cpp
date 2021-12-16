@@ -39,7 +39,7 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 
 	m_model = std::make_unique<PathModel>();
 
-	m_basePathsCreationManager = std::make_unique<BasePathsCreationManager>(intersectionFinder, m_blockBaseHeight);
+	m_basePathsCreationManager = std::make_unique<BasePathsCreationManager>(intersectionFinder, m_scene, m_blockBaseHeight);
 
 	m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
 }
