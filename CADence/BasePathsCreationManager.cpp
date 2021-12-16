@@ -1,6 +1,7 @@
 #include "BasePathsCreationManager.h"
 #include "ParametricOffsetSurface.h"
 #include "Scene.h"
+#include <algorithm>
 
 BasePathsCreationManager::BasePathsCreationManager(IntersectionFinder* intersectionFinder, Scene* scene, float baseHeight)
 {
@@ -47,25 +48,29 @@ void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* mo
 	auto hairCurve = m_intersectionFinder->FindIntersectionWithCursor(&hairOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(-0.95F, 5.55F, 0));
 
 	// TODO when getting the line index be careful to check the directionality of the intersected curve to cut the right line out of the curve
-
+	// https://cdn.discordapp.com/attachments/643546986901012480/921134941960568852/unknown.png
 
 	// Body top with hair
+
+	auto endOfTheLineOffset = 1;
+	auto endIteratorOffset = 1;
+
 #pragma region Top and hair
 	auto bodyTopHairPoints = IntersectCurves(bodyCurveUpper.surfPParams, hairCurve.surfPParams);
 
 	auto bodyTopSection1 = std::vector<DirectX::XMFLOAT2>(
 		bodyCurveUpper.surfPParams.begin(),
-		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[0].qLineIndex
+		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[0].qLineIndex + endIteratorOffset
 		);
 
 	auto bodyTopSection2 = std::vector<DirectX::XMFLOAT2>(
-		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[1].qLineIndex,
+		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[1].qLineIndex + endOfTheLineOffset,
 		bodyCurveUpper.surfPParams.end()
 		);
 
 	auto hairSection = std::vector<DirectX::XMFLOAT2>(
-		hairCurve.surfPParams.begin() + bodyTopHairPoints[0].pLineIndex,
-		hairCurve.surfPParams.begin() + bodyTopHairPoints[1].pLineIndex
+		hairCurve.surfPParams.begin() + bodyTopHairPoints[0].pLineIndex + endOfTheLineOffset,
+		hairCurve.surfPParams.begin() + bodyTopHairPoints[1].pLineIndex + endIteratorOffset
 		);
 #pragma endregion
 
@@ -74,13 +79,13 @@ void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* mo
 	auto bodyTopTailPoints = IntersectCurves(bodyTopSection1, tailCurveUpper.surfPParams);
 
 	auto bodyTopSection1Tail = std::vector<DirectX::XMFLOAT2>(
-		bodyTopSection1.begin() + bodyTopTailPoints[0].qLineIndex,
+		bodyTopSection1.begin() + bodyTopTailPoints[0].qLineIndex + endOfTheLineOffset,
 		bodyTopSection1.end()
 		);
 
 	auto tailUpperSection = std::vector<DirectX::XMFLOAT2>(
 		tailCurveUpper.surfPParams.begin(),
-		tailCurveUpper.surfPParams.begin() + bodyTopTailPoints[0].pLineIndex
+		tailCurveUpper.surfPParams.begin() + bodyTopTailPoints[0].pLineIndex + endIteratorOffset
 		);
 #pragma endregion
 
@@ -90,25 +95,73 @@ void BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* mo
 
 	auto lowerBodySection = std::vector<DirectX::XMFLOAT2>(
 		bodyCurveLower.surfPParams.begin(),
-		bodyCurveLower.surfPParams.begin() + bodyBottomTailPoints[0].qLineIndex
+		bodyCurveLower.surfPParams.begin() + bodyBottomTailPoints[0].qLineIndex + endIteratorOffset
 		);
 
 	auto tailEndSection = std::vector<DirectX::XMFLOAT2>(
-		tailUpperSection.begin() + bodyBottomTailPoints[0].pLineIndex,
+		tailUpperSection.begin() + bodyBottomTailPoints[0].pLineIndex + endOfTheLineOffset,
 		tailUpperSection.end()
 		);
 #pragma endregion
 
 	// Add split top segments
-	VisualizeCurve(baseParametricObject, bodyTopSection1Tail);
-	VisualizeCurve(baseParametricObject, bodyTopSection2);
-
-	VisualizeCurve(baseParametricObject, lowerBodySection);
-	
-	VisualizeCurve(baseParametricObject, tailEndSection);
+	//VisualizeCurve(baseParametricObject, bodyTopSection1Tail);
+	//VisualizeCurve(baseParametricObject, bodyTopSection2);
+	//VisualizeCurve(baseParametricObject, lowerBodySection);	
 	//VisualizeCurve(baseParametricObject, tailEndSection);
+	//VisualizeCurve(baseParametricObject, tailEndSection);
+	//VisualizeCurve(baseParametricObject, hairSection);
 
-	VisualizeCurve(baseParametricObject, hairSection);
+	// points that should be added
+	// VisualizeCurve(baseParametricObject, std::vector<DirectX::XMFLOAT2>(1, bodyTopHairPoints[0].intersectionPoint), -6.5F);
+	// VisualizeCurve(baseParametricObject, std::vector<DirectX::XMFLOAT2>(1, bodyTopHairPoints[1].intersectionPoint), -6.5F);	
+	// VisualizeCurve(baseParametricObject, std::vector<DirectX::XMFLOAT2>(1, bodyTopTailPoints[0].intersectionPoint), -6.5F);
+	// VisualizeCurve(baseParametricObject, std::vector<DirectX::XMFLOAT2>(1, bodyBottomTailPoints[0].intersectionPoint), -6.5F);
+	
+	// TODO:
+	// Add a safety point at mouth
+	std::vector<DirectX::XMFLOAT2> endParams;
+	endParams.reserve(bodyTopSection1Tail.size() + bodyTopSection2.size() + lowerBodySection.size() + tailEndSection.size() + hairSection.size() + 4);
+		
+	// Forehead to hair
+	std::reverse(bodyTopSection2.begin(), bodyTopSection2.end());
+	endParams.insert(endParams.end(), bodyTopSection2.begin(), bodyTopSection2.end());
+	// Connector
+	endParams.insert(endParams.end(), bodyTopHairPoints[1].intersectionPoint);
+	// Hair
+	std::reverse(hairSection.begin(), hairSection.end());
+	endParams.insert(endParams.end(), hairSection.begin(), hairSection.end());
+	// Connector
+	endParams.insert(endParams.end(), bodyTopHairPoints[0].intersectionPoint);
+	// Hair to Tail
+	std::reverse(bodyTopSection1Tail.begin(), bodyTopSection1Tail.end());
+	endParams.insert(endParams.end(), bodyTopSection1Tail.begin(), bodyTopSection1Tail.end());
+	// Connector
+	endParams.insert(endParams.end(), bodyTopTailPoints[0].intersectionPoint);
+	// Tail
+	std::reverse(tailEndSection.begin(), tailEndSection.end());
+	endParams.insert(endParams.end(), tailEndSection.begin(), tailEndSection.end());
+	// Connector
+	endParams.insert(endParams.end(), bodyBottomTailPoints[0].intersectionPoint);
+	// Tail to jaw
+	std::reverse(lowerBodySection.begin(), lowerBodySection.end());
+	endParams.insert(endParams.end(), lowerBodySection.begin(), lowerBodySection.end());
+	
+	std::vector<ObjectRef> points;
+	for (auto pt : endParams)
+	{
+		auto pos = baseParametricObject->GetPoint(pt.x, pt.y);
+		Transform ptTransform;
+		ptTransform.SetPosition(pos);
+		ptTransform.Translate(0, 0, -5.0F);
+		auto point = m_factory.CreatePoint(ptTransform);
+		point->SetIsVirtual(true);
+		m_scene->AttachObject(point);
+		points.push_back(point);
+	}
+	
+	auto curve = m_factory.CreateInterpolBezierCurveC2(points);
+	m_scene->AttachObject(curve);
 }
 
 void BasePathsCreationManager::MergeIntersections()
@@ -119,15 +172,16 @@ void BasePathsCreationManager::SavePathsToFile()
 {
 }
 
-void BasePathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params)
+void BasePathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params, float distance)
 {
 	for (auto pt : params)
 	{
 		auto pos = surface->GetPoint(pt.x, pt.y);
 		Transform ptTransform;
 		ptTransform.SetPosition(pos);
-		ptTransform.Translate(0, 0, -5.F);
-		m_scene->AttachObject(m_factory.CreatePoint(ptTransform));
+		ptTransform.Translate(0, 0, distance);
+		auto point = m_factory.CreatePoint(ptTransform);
+		m_scene->AttachObject(point);
 	}
 }
 
@@ -191,7 +245,19 @@ std::pair<bool, DirectX::XMFLOAT2> BasePathsCreationManager::GetIntersectionPoin
 
 	if (res.first)
 	{
-		res.second = beg1;
+		const float s1_x = end1.x - beg1.x;
+		const float s1_y = end1.y - beg1.y;
+
+		const float s2_x = end2.x - beg2.x;
+		const float s2_y = end2.y - beg2.y;
+		
+		// https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect		
+		const float t =
+			(s2_x * (beg1.y - beg2.y) - s2_y * (beg1.x - beg2.x)) /
+			(-s2_x * s1_y + s1_x * s2_y);
+
+		assert(t >= 0.0f && t <= 1.0f);
+		res.second = beg1 + t * (end1 - beg1);
 	}
 
 	return res;

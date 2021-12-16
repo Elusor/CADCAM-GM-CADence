@@ -32,7 +32,7 @@ private:
 	void MergeIntersections();
 	void SavePathsToFile();
 
-	void VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params);
+	void VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params, float distance = -5.F);
 	std::vector<LineIntersectionData> IntersectCurves(
 		const std::vector<DirectX::XMFLOAT2>& params1,
 		const std::vector<DirectX::XMFLOAT2>& params2);
