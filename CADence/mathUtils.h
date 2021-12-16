@@ -21,6 +21,8 @@ DirectX::XMFLOAT4 Mul(DirectX::XMFLOAT4X4 p1, DirectX::XMFLOAT4 p2);
 
 float Dot(DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2);
 
+DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2);
+
 float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
 

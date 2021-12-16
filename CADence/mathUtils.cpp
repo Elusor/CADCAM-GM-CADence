@@ -211,6 +211,14 @@ float Dot(DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2)
 	return (x+y);
 }
 
+DirectX::XMFLOAT3 Cross(DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2)
+{
+	auto p1_3 = DirectX::XMFLOAT3(p1.x, p1.y, 0.0F);
+	auto p2_3 = DirectX::XMFLOAT3(p2.x, p2.y, 0.0F);
+
+	return Cross(p1_3, p2_3);
+}
+
 float Dot(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
 	float x = (p1.x * p2.x);
