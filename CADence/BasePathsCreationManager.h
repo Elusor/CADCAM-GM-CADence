@@ -24,8 +24,9 @@ private:
 	IntersectionFinder* m_intersectionFinder;
 	Scene* m_scene;
 	ObjectFactory m_factory;
+	float m_blockBaseHeight;
 	float m_blockSafeHeight;
-
+	int m_instructionCounter;
 	// block dimensions
 	// milling model
 
@@ -66,4 +67,8 @@ private:
 
 	std::vector<DirectX::XMFLOAT3> ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT3>& outline, int line1, int line2);
 
+
+
+	bool SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions);
+	void PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr = false);
 };

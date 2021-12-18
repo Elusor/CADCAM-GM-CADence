@@ -2,6 +2,11 @@
 #include "ParametricOffsetSurface.h"
 #include "Scene.h"
 #include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
+#include "PathUtils.h"
 
 BasePathsCreationManager::BasePathsCreationManager(IntersectionFinder* intersectionFinder, Scene* scene, float baseHeight)
 {
@@ -43,7 +48,7 @@ void BasePathsCreationManager::CreateBasePaths(PathModel* model)
 	m_scene->AttachObject(curve);
 
 	// Add safe points to the 
-
+	SavePathToFile(pathPoints);
 }
 
 std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* model)
@@ -546,4 +551,77 @@ std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::ExtractSegmentFromOutli
 	points.insert(points.end(), outline.begin() + begLine + endOfLineOffset, outline.begin() + endLine);
 
 	return points;
+}
+
+bool BasePathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions)
+{
+	//Select file 
+	std::ofstream myfile;
+	myfile.open("example.f10");
+
+	//Reset instruction counter
+	m_instructionCounter = 3;
+	m_blockBaseHeight = 1.5f;
+	if (myfile.is_open())
+	{
+
+		DirectX::XMFLOAT3 startPtZero = DirectX::XMFLOAT3(0, 0, 5.0f);
+		DirectX::XMFLOAT3 startPtZeroMM = ConvertToMilimeters(startPtZero);
+		DirectX::XMFLOAT3 startPt = DirectX::XMFLOAT3(-8.2f, 7.5f, 5.0f);
+		DirectX::XMFLOAT3 startPtMM = ConvertToMilimeters(startPt);
+
+		DirectX::XMFLOAT3 safePt = DirectX::XMFLOAT3(-8.2f, 7.5f, m_blockBaseHeight);
+		DirectX::XMFLOAT3 safePtMM = ConvertToMilimeters(safePt);
+
+		//// Use milimeters
+		//myfile << "%G71\n";
+		//// Opening sequence
+		//PushInstructionToFile(myfile, "G40G90");
+		//// Rotation speed and direction
+		//PushInstructionToFile(myfile, "S10000M03");
+		//// Mill movement speed
+		//PushInstructionToFile(myfile, "F15000");
+
+		//Move to a safe location
+		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtZeroMM));
+		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtMM));
+		PushInstructionToFile(myfile, PrepareMoveInstruction(safePtMM));
+
+		for (int i = 0; i < positions.size(); i++)
+		{
+			SimpleMath::Vector3 pos = positions[i];
+			pos.z = m_blockBaseHeight;
+			auto mmPt = ConvertToMilimeters(pos);
+			PushInstructionToFile(myfile, PrepareMoveInstruction(mmPt));
+		}
+
+		//Move to a safe location
+		PushInstructionToFile(myfile, PrepareMoveInstruction(safePtMM));
+		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtMM));
+		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtZeroMM), true);
+
+		//// Disable the rotation
+		//PushInstructionToFile(myfile, "M05");
+		//// End the program
+		//PushInstructionToFile(myfile, "M30");
+
+		myfile.close();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void BasePathsCreationManager::PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr)
+{
+	file << "N" << std::to_string(m_instructionCounter) << instructionText;
+
+	if (lastInstr == false)
+	{
+		file << "\n";
+	}
+
+	m_instructionCounter++;
 }

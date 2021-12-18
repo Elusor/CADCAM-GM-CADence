@@ -465,6 +465,9 @@
     <ClInclude Include="BasePathsCreationManager.h">
       <Filter>Paths</Filter>
     </ClInclude>
+    <ClInclude Include="PathUtils.h">
+      <Filter>Paths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -696,6 +699,9 @@
       <Filter>Header Files\CadSpecific\Objects</Filter>
     </ClCompile>
     <ClCompile Include="BasePathsCreationManager.cpp">
+      <Filter>Paths</Filter>
+    </ClCompile>
+    <ClCompile Include="PathUtils.cpp">
       <Filter>Paths</Filter>
     </ClCompile>
   </ItemGroup>

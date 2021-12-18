@@ -5,6 +5,9 @@
 #include <iomanip>
 #include <sstream>
 #include "IntersectionFinder.h"
+
+#include "PathUtils.h"
+
 using namespace DirectX::SimpleMath;
 
 PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderState, Scene* scene, IntersectionFinder* intersectionFinder)
@@ -271,12 +274,6 @@ float PathCreationManager::LinearizeDepth(float uNormDepth)
 //  0  1  2  3
 //  4  5  6  7
 //  8  9 10 11
-Vector3 ConvertToMilimeters(Vector3 point)
-{
-	Vector3 res;
-	res = Vector3(point.x * 10.f, point.y * 10.f, point.z * 10.f);
-	return res;
-}
 
 // All points are represented in centimeters
 std::vector<DirectX::SimpleMath::Vector3> PathCreationManager::GeneratePath(std::vector<float>& heights)
@@ -439,7 +436,7 @@ void PathCreationManager::AddHeightPointsWithMinVal(
 
 void PathCreationManager::PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr)
 {	
-	file << "N" << std::to_string(m_instructionCounter) << instructionText;
+	file << "N" << std::noshowpoint << std::to_string(m_instructionCounter) << instructionText;
 
 	if (lastInstr == false)
 	{
@@ -447,18 +444,4 @@ void PathCreationManager::PushInstructionToFile(std::ofstream& file, std::string
 	}
 
 	m_instructionCounter++;
-}
-
-std::string PathCreationManager::PrepareMoveInstruction(DirectX::SimpleMath::Vector3 pos)
-{
-	std::stringstream stream;
-	stream  << "G01";
-
-	// Prepare the number formatting
-	stream << std::fixed << std::showpoint << std::setprecision(3);
-	stream << "X" << pos.x;
-	stream << "Y" << pos.y;
-	stream << "Z" << pos.z;
-	
-	return stream.str();
 }

@@ -60,5 +60,4 @@ private:
 		std::vector<float>& heights,
 		DirectX::SimpleMath::Vector3 basePos, UINT yStride, float minVal = 0.0f);
 	void PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr = false);
-	std::string PrepareMoveInstruction(DirectX::SimpleMath::Vector3 pos);
 };
