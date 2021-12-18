@@ -468,6 +468,9 @@
     <ClInclude Include="PathUtils.h">
       <Filter>Paths</Filter>
     </ClInclude>
+    <ClInclude Include="DetailPathsCreationManager.h">
+      <Filter>Paths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -702,6 +705,9 @@
       <Filter>Paths</Filter>
     </ClCompile>
     <ClCompile Include="PathUtils.cpp">
+      <Filter>Paths</Filter>
+    </ClCompile>
+    <ClCompile Include="DetailPathsCreationManager.cpp">
       <Filter>Paths</Filter>
     </ClCompile>
   </ItemGroup>

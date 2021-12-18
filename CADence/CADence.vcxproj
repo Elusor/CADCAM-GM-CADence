@@ -171,6 +171,7 @@
     <ClInclude Include="CurveVisualizer.h" />
     <ClInclude Include="DefaultRenderPass.h" />
     <ClInclude Include="DeletionManager.h" />
+    <ClInclude Include="DetailPathsCreationManager.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="generalUtils.h" />
     <ClInclude Include="GeometricFunctions.h" />
@@ -277,6 +278,7 @@
     <ClCompile Include="CurveVisualizer.cpp" />
     <ClCompile Include="DefaultRenderPass.cpp" />
     <ClCompile Include="DeletionManager.cpp" />
+    <ClCompile Include="DetailPathsCreationManager.cpp" />
     <ClCompile Include="dxApplication.cpp" />
     <ClCompile Include="dxDevice.cpp" />
     <ClCompile Include="dxStructures.cpp" />
