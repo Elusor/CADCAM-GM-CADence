@@ -323,7 +323,7 @@ bool PathCreationManager::SavePathToFile(std::vector<float>& heights)
 {
 	//Select file 
 	std::ofstream myfile;
-	myfile.open("example.k16");
+	myfile.open("1_general.k16");
 	
 	//Reset instruction counter
 	m_instructionCounter = 3;
