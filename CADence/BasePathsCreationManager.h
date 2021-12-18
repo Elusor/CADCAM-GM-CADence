@@ -69,6 +69,10 @@ private:
 
 
 
-	bool SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions);
+	bool SavePathToFile(
+		const std::vector<DirectX::XMFLOAT3>& positions,
+		const std::vector<DirectX::XMFLOAT3>& prePoints,
+		const std::vector<DirectX::XMFLOAT3>& postPoints,
+		std::string name);
 	void PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr = false);
 };

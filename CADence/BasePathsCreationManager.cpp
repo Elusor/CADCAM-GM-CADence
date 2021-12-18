@@ -17,6 +17,8 @@ BasePathsCreationManager::BasePathsCreationManager(IntersectionFinder* intersect
 
 void BasePathsCreationManager::CreateBasePaths(PathModel* model)
 {
+	m_blockBaseHeight = 1.5F;
+
 	auto base = dynamic_cast<IParametricSurface*>(model->GetModelObjects()[6].lock().get()->m_object.get());
 
 	// 1. Create proper intersections of the model with the non offset surfaces
@@ -33,7 +35,7 @@ void BasePathsCreationManager::CreateBasePaths(PathModel* model)
 	auto pathPoints = IntersectPointsWithVerticalMillLines(worldPoints);
 
 	std::vector<ObjectRef> points;
-	for (auto pointPos : pathPoints)
+	for (auto pointPos : worldPoints)
 	{
 		Transform ptTransform;
 		ptTransform.SetPosition(pointPos);
@@ -47,8 +49,25 @@ void BasePathsCreationManager::CreateBasePaths(PathModel* model)
 	auto curve = m_factory.CreateInterpolBezierCurveC2(points);
 	m_scene->AttachObject(curve);
 
+	DirectX::XMFLOAT3 startPtZero = DirectX::XMFLOAT3(0, 0, 5.0f);
+	DirectX::XMFLOAT3 startPt = DirectX::XMFLOAT3(-8.2f, 8.5f, 5.0f);
+	DirectX::XMFLOAT3 safePt = DirectX::XMFLOAT3(-8.2f, 8.5f, m_blockBaseHeight);
+
+	std::vector<DirectX::XMFLOAT3> generalPrePoints{ startPtZero, startPt, safePt };
+	std::vector<DirectX::XMFLOAT3> generalPostPoints{ safePt, startPt, startPtZero};
 	// Add safe points to the 
-	SavePathToFile(pathPoints);
+	SavePathToFile(pathPoints, generalPrePoints, generalPostPoints, "2_base_general.f10");
+
+	// Generate the outline pts
+	DirectX::XMFLOAT3 outlinePrePoint = safePt;
+	outlinePrePoint.y = worldPoints[0].y;
+	DirectX::XMFLOAT3 outlinePostPoint = safePt;
+	outlinePostPoint.y = (worldPoints.end() - 1)->y;
+
+	std::vector<DirectX::XMFLOAT3> outlinePrePoints{ startPtZero, startPt, safePt , outlinePrePoint};
+	std::vector<DirectX::XMFLOAT3> outlinePostPoints{ outlinePostPoint, safePt, startPt, startPtZero };
+
+	SavePathToFile(worldPoints, outlinePrePoints, outlinePostPoints, "2_base_outline.f10");
 }
 
 std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* model)
@@ -232,8 +251,8 @@ std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::IntersectPointsWithVert
 	for (size_t stepId = 0; stepId <= steps; stepId++)
 	{
 		float currentX = initialXOffset + stepId * stepWidth;
-		DirectX::XMFLOAT3 beg = DirectX::XMFLOAT3(currentX, 7.5, 0);
-		DirectX::XMFLOAT3 end = DirectX::XMFLOAT3(currentX, -7.5, 0);
+		DirectX::XMFLOAT3 beg = DirectX::XMFLOAT3(currentX, 8.5, 0);
+		DirectX::XMFLOAT3 end = DirectX::XMFLOAT3(currentX, -8.5, 0);
 		std::vector<DirectX::XMFLOAT3> verticalLine{ beg,end };
 		
 		auto res = IntersectCurves(verticalLine, outlinePoints);
@@ -553,25 +572,21 @@ std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::ExtractSegmentFromOutli
 	return points;
 }
 
-bool BasePathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions)
+bool BasePathsCreationManager::SavePathToFile(
+	const std::vector<DirectX::XMFLOAT3>& positions, 
+	const std::vector<DirectX::XMFLOAT3>& prePoints, 
+	const std::vector<DirectX::XMFLOAT3>& postPoints, 
+	std::string name)
 {
 	//Select file 
 	std::ofstream myfile;
-	myfile.open("example.f10");
+	myfile.open(name);
 
 	//Reset instruction counter
 	m_instructionCounter = 3;
 	m_blockBaseHeight = 1.5f;
 	if (myfile.is_open())
 	{
-
-		DirectX::XMFLOAT3 startPtZero = DirectX::XMFLOAT3(0, 0, 5.0f);
-		DirectX::XMFLOAT3 startPtZeroMM = ConvertToMilimeters(startPtZero);
-		DirectX::XMFLOAT3 startPt = DirectX::XMFLOAT3(-8.2f, 7.5f, 5.0f);
-		DirectX::XMFLOAT3 startPtMM = ConvertToMilimeters(startPt);
-
-		DirectX::XMFLOAT3 safePt = DirectX::XMFLOAT3(-8.2f, 7.5f, m_blockBaseHeight);
-		DirectX::XMFLOAT3 safePtMM = ConvertToMilimeters(safePt);
 
 		//// Use milimeters
 		//myfile << "%G71\n";
@@ -583,9 +598,10 @@ bool BasePathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT
 		//PushInstructionToFile(myfile, "F15000");
 
 		//Move to a safe location
-		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtZeroMM));
-		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtMM));
-		PushInstructionToFile(myfile, PrepareMoveInstruction(safePtMM));
+		for (auto pt : prePoints)
+		{
+			PushInstructionToFile(myfile, PrepareMoveInstruction(ConvertToMilimeters(pt)));
+		}
 
 		for (int i = 0; i < positions.size(); i++)
 		{
@@ -596,9 +612,10 @@ bool BasePathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT
 		}
 
 		//Move to a safe location
-		PushInstructionToFile(myfile, PrepareMoveInstruction(safePtMM));
-		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtMM));
-		PushInstructionToFile(myfile, PrepareMoveInstruction(startPtZeroMM), true);
+		for(size_t idx = 0; idx < postPoints.size(); idx++)
+		{
+			PushInstructionToFile(myfile, PrepareMoveInstruction(ConvertToMilimeters(postPoints[idx])), idx == postPoints.size()-1);
+		}
 
 		//// Disable the rotation
 		//PushInstructionToFile(myfile, "M05");
