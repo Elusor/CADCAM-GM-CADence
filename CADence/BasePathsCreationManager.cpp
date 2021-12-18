@@ -12,12 +12,38 @@ BasePathsCreationManager::BasePathsCreationManager(IntersectionFinder* intersect
 
 void BasePathsCreationManager::CreateBasePaths(PathModel* model)
 {
+	auto base = dynamic_cast<IParametricSurface*>(model->GetModelObjects()[6].lock().get()->m_object.get());
+
 	// 1. Create proper intersections of the model with the non offset surfaces
 	auto paramLits = CalculateOffsetSurfaceIntersections(model);
-	// 2. Merge intersection lines
-	MergeIntersections();
-	// 3. Save paths to file
-	SavePathsToFile();
+
+	std::vector<DirectX::XMFLOAT3> worldPoints;
+	for (auto param : paramLits)
+	{
+		auto pt = base->GetPoint(param);
+		worldPoints.push_back(pt);
+		pt.z = 0.0F;
+	}
+
+	auto pathPoints = IntersectPointsWithVerticalMillLines(worldPoints);
+
+	std::vector<ObjectRef> points;
+	for (auto pointPos : pathPoints)
+	{
+		Transform ptTransform;
+		ptTransform.SetPosition(pointPos);
+		ptTransform.Translate(0, 0, -5.F);
+		auto point = m_factory.CreatePoint(ptTransform);
+		point->SetIsVirtual(true);
+		m_scene->AttachObject(point);
+		points.push_back(point);
+	}
+
+	auto curve = m_factory.CreateInterpolBezierCurveC2(points);
+	m_scene->AttachObject(curve);
+
+	// Add safe points to the 
+
 }
 
 std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceIntersections(PathModel* model)
@@ -151,9 +177,9 @@ std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceI
 	endParams.push_back(endParams[0]);
 
 	/*std::vector<ObjectRef> points;
-	for (auto pt : endParams)
+	for (auto param : endParams)
 	{
-		auto pos = baseParametricObject->GetPoint(pt.x, pt.y);
+		auto pos = baseParametricObject->GetPoint(param.x, param.y);
 		Transform ptTransform;
 		ptTransform.SetPosition(pos);
 		ptTransform.Translate(0, 0, -5.0F);
@@ -169,12 +195,116 @@ std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceI
 	return endParams;
 }
 
-void BasePathsCreationManager::MergeIntersections()
+std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::IntersectPointsWithVerticalMillLines(const std::vector<DirectX::XMFLOAT3>& outlinePoints)
 {
-}
+	// Mill data
+	float radiusInCm = 0.5;
+	float millEps = 0.02f;
 
-void BasePathsCreationManager::SavePathsToFile()
-{
+	// Base data
+	float initialXOffset = -7.5f;
+	float baseMaxXOffset = 7.5f;
+	float baseWidth = baseMaxXOffset - initialXOffset;
+
+	// Process Data
+	float stepWidth = 2 * radiusInCm - millEps;
+	int steps = baseWidth / stepWidth;
+	bool intersected = false;
+
+	// 4 vectors with pairs of points from top to bottom
+	// before the model
+	std::vector<pointPair> nonIntersectingBefore;
+	// top of the body
+	std::vector<LineIntersectionData> intersectionsTop;
+	std::vector<pointPair> intersectionPairsTop;
+	// bottom of the body
+	std::vector<LineIntersectionData> intersectionsBot;
+	std::vector<pointPair> intersectionPairsBot;
+	// after the model
+	std::vector<pointPair> nonIntersectingAfter;
+
+	std::vector<DirectX::XMFLOAT3> points;
+	for (size_t stepId = 0; stepId <= steps; stepId++)
+	{
+		float currentX = initialXOffset + stepId * stepWidth;
+		DirectX::XMFLOAT3 beg = DirectX::XMFLOAT3(currentX, 7.5, 0);
+		DirectX::XMFLOAT3 end = DirectX::XMFLOAT3(currentX, -7.5, 0);
+		std::vector<DirectX::XMFLOAT3> verticalLine{ beg,end };
+		
+		auto res = IntersectCurves(verticalLine, outlinePoints);
+		if (res.size())
+		{
+			intersected = true;
+			auto intersectionWorldPointTop = DirectX::XMFLOAT3(res[0].intersectionPoint.x, res[0].intersectionPoint.y, 0.0F);
+			intersectionPairsTop.push_back({ beg, intersectionWorldPointTop });
+			intersectionsTop.push_back(res[0]);
+
+			auto intersectionWorldPointBottom = DirectX::XMFLOAT3(res[1].intersectionPoint.x, res[1].intersectionPoint.y, 0.0F);
+			intersectionPairsBot.push_back({ intersectionWorldPointBottom, end});
+			intersectionsBot.push_back(res[1]);
+		}
+		else
+		{
+			if (intersected)
+			{
+				nonIntersectingAfter.push_back({beg, end});
+			}
+			else
+			{
+				nonIntersectingBefore.push_back({beg, end});
+			}
+		}
+	}
+
+	std::vector<DirectX::XMFLOAT3> endPathPoints;
+
+	// If the amount is odd then the last line will be from top to bottom
+	bool lastWholeLineTopToBottom = nonIntersectingBefore.size() % 2 == 1;
+	bool reversed = false;
+	for (auto line : nonIntersectingBefore)
+	{
+		if (reversed)
+		{
+			endPathPoints.push_back(line.second);
+			endPathPoints.push_back(line.first);
+		}
+		else
+		{
+			endPathPoints.push_back(line.first);
+			endPathPoints.push_back(line.second);
+		}
+		
+		reversed = !reversed;
+	}
+	// TODO WATCH out for situation where the pair count is not even
+	if (lastWholeLineTopToBottom)
+	{
+		// Add bottom points
+		auto ptsBot = AddBottomPointsLeftToRight(
+			intersectionPairsBot, 
+			intersectionsBot, 
+			outlinePoints
+		);
+
+		endPathPoints.insert(endPathPoints.end(), ptsBot.begin(), ptsBot.end());
+
+		AddAfterPoints(nonIntersectingAfter, lastWholeLineTopToBottom, endPathPoints);
+
+		auto ptsTop = AddUpperPointsLeftToRight(
+			intersectionPairsTop,
+			intersectionsTop,
+			outlinePoints
+		);
+
+		std::reverse(ptsTop.begin(), ptsTop.end());
+		endPathPoints.insert(endPathPoints.end(), ptsTop.begin(), ptsTop.end());
+	}
+	else
+	{
+		// Add top points
+	}
+	
+	return endPathPoints;
 }
 
 void BasePathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params, float distance)
@@ -188,6 +318,42 @@ void BasePathsCreationManager::VisualizeCurve(IParametricSurface* surface, const
 		auto point = m_factory.CreatePoint(ptTransform);
 		m_scene->AttachObject(point);
 	}
+}
+
+std::vector<LineIntersectionData> BasePathsCreationManager::IntersectCurves(
+	const std::vector<DirectX::XMFLOAT3>& params1,
+	const std::vector<DirectX::XMFLOAT3>& params2)
+{
+	std::vector<LineIntersectionData> result;
+
+	for (size_t line1Idx = 0; line1Idx < params1.size() - 1; line1Idx++)
+	{
+		auto beg1 = params1[line1Idx];
+		auto end1 = params1[line1Idx + 1];
+
+		for (size_t line2Idx = 0; line2Idx < params2.size() - 1; line2Idx++)
+		{
+			auto beg2 = params2[line2Idx];
+			auto end2 = params2[line2Idx + 1];
+
+			auto res = GetIntersectionPoint(
+				DirectX::XMFLOAT2(beg1.x, beg1.y),
+				DirectX::XMFLOAT2(end1.x, end1.y),
+				DirectX::XMFLOAT2(beg2.x, beg2.y),
+				DirectX::XMFLOAT2(end2.x, end2.y));
+
+			if (res.first)
+			{
+				LineIntersectionData intersectionPoint;
+				intersectionPoint.qLineIndex = line1Idx;
+				intersectionPoint.pLineIndex = line2Idx;
+				intersectionPoint.intersectionPoint = res.second;
+				result.push_back(intersectionPoint);
+			}
+		}
+	}
+
+	return result;
 }
 
 std::vector<LineIntersectionData> BasePathsCreationManager::IntersectCurves(const std::vector<DirectX::XMFLOAT2>& params1, const std::vector<DirectX::XMFLOAT2>& params2)
@@ -266,4 +432,118 @@ std::pair<bool, DirectX::XMFLOAT2> BasePathsCreationManager::GetIntersectionPoin
 	}
 
 	return res;
+}
+
+std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::AddBottomPointsLeftToRight(
+	const std::vector<pointPair>& bottomPairs, 
+	const std::vector<LineIntersectionData>& intersectionPoints, 
+	const std::vector<DirectX::XMFLOAT3>& outlinePoints)
+{
+	std::vector<DirectX::XMFLOAT3> result;
+	bool evenCount = bottomPairs.size() % 2 == 0;
+	assert(evenCount);
+
+	for (size_t pairIdx = 0; pairIdx < bottomPairs.size(); pairIdx++)
+	{
+		bool reversed = pairIdx % 2 == 0;
+
+		if (reversed)
+		{
+			// bot
+			result.push_back(bottomPairs[pairIdx].second);
+			// top
+			result.push_back(bottomPairs[pairIdx].first);
+
+			// Add the section of outline
+			auto sectionBeg = intersectionPoints[pairIdx].pLineIndex;
+			auto sectionEnd = intersectionPoints[pairIdx + 1].pLineIndex;
+
+			auto segment = ExtractSegmentFromOutline(outlinePoints, sectionBeg, sectionEnd);
+			std::reverse(segment.begin(), segment.end());
+			result.insert(result.end(), segment.begin(), segment.end());
+		}
+		else
+		{
+			// top
+			result.push_back(bottomPairs[pairIdx].first);
+			// bot
+			result.push_back(bottomPairs[pairIdx].second);
+		}
+	}
+
+	return result;
+}
+
+std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::AddUpperPointsLeftToRight(const std::vector<pointPair>& upperPairs, const std::vector<LineIntersectionData>& intersectionPoints, const std::vector<DirectX::XMFLOAT3>& outlinePoints)
+{
+	std::vector<DirectX::XMFLOAT3> result;
+	bool evenCount = upperPairs.size() % 2 == 0;
+	assert(evenCount);
+
+	for (size_t pairIdx = 0; pairIdx < upperPairs.size(); pairIdx++)
+	{
+		bool reversed = pairIdx % 2 == 1;
+
+		if (reversed)
+		{
+			// bot
+			result.push_back(upperPairs[pairIdx].second);
+			// top
+			result.push_back(upperPairs[pairIdx].first);
+		}
+		else
+		{
+			// top
+			result.push_back(upperPairs[pairIdx].first);
+			// bot
+			result.push_back(upperPairs[pairIdx].second);
+
+			// Add the section of outline
+			auto sectionBeg = intersectionPoints[pairIdx].pLineIndex;
+			auto sectionEnd = intersectionPoints[pairIdx + 1].pLineIndex;
+
+			auto segment = ExtractSegmentFromOutline(outlinePoints, sectionBeg, sectionEnd);
+			//std::reverse(segment.begin(), segment.end());
+			result.insert(result.end(), segment.begin(), segment.end());
+		}
+	}
+
+	return result;
+}
+
+void BasePathsCreationManager::AddAfterPoints(
+	const std::vector<pointPair>& afterPairs, 
+	const bool startFromBottom, 
+	std::vector<DirectX::XMFLOAT3>& endPoints)
+{
+	bool reversed = startFromBottom;
+	for (const auto& line : afterPairs)
+	{
+		if (reversed)
+		{
+			endPoints.push_back(line.second);
+			endPoints.push_back(line.first);
+		}
+		else
+		{
+			endPoints.push_back(line.first);
+			endPoints.push_back(line.second);
+		}
+
+		reversed = !reversed;
+	}
+}
+
+std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT3>& outline, int line1, int line2)
+{
+	std::vector<DirectX::XMFLOAT3> points;
+	auto begLine = line1 < line2 ? line1 : line2;
+	auto endLine = line1 < line2 ? line2 : line1;
+
+	size_t endOfLineOffset = 1;	
+
+	// No end of line offset at the end
+	points.insert(points.end(), outline.begin() + begLine + endOfLineOffset, outline.begin() + endLine);
+
+	return points;
 }
