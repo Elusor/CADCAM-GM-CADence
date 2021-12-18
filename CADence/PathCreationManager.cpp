@@ -20,7 +20,7 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 	m_blockSide = 15.f;
 	m_blockBaseHeight = 1.5f;
 	m_blockSafetyEps = 0.1f;
-	m_modelUpperSafetyEps = 0.1f;
+	m_modelUpperSafetyEps = 0.05f;
 	m_modelDepth = 
 		m_blockMaxHeight - 
 		(m_blockBaseHeight + m_blockSafetyEps) - // To prevent milling into the base
