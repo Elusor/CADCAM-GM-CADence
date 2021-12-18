@@ -22,7 +22,7 @@ public:
 	virtual void Render(std::unique_ptr<RenderState>& renderState, Scene* scene) override;
 
 	void Execute(std::unique_ptr<RenderState>& renderState, PathModel* model);
-	void Render(std::unique_ptr<RenderState>& renderState, PathModel* model);
+	void Render(std::unique_ptr<RenderState>& renderState, PathModel* model, bool baseOnly = false);
 
 	void SetOffset(float val);
 	float GetOffset();

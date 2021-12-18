@@ -53,10 +53,14 @@ void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, P
 	ID3D11Buffer* cbs2[] = { VPbuffer };
 	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
 	
-	XMFLOAT4 offset16byteAligned = XMFLOAT4(m_offset, 0.f, 0.f, 0.f);
+	XMFLOAT4 offset16byteAligned = XMFLOAT4(0.0f, 0.f, 0.f, 0.f);
 	auto offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
 	renderState->m_device.context()->GSSetConstantBuffers(6, 1, &offsetBuff);
+	Render(renderState, model, true);
 
+	offset16byteAligned = XMFLOAT4(m_offset, 0.f, 0.f, 0.f);
+	offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
+	renderState->m_device.context()->GSSetConstantBuffers(6, 1, &offsetBuff);
 	Render(renderState, model);
 
 	// Restore old settings
@@ -82,7 +86,7 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Sc
 {
 }
 
-void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, PathModel* model)
+void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, PathModel* model, bool baseOnly)
 {
 	auto context = renderState->m_device.m_context.get();
 
@@ -92,14 +96,31 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Pa
 
 	renderState->m_device.context()->IASetInputLayout(renderState->GetLayout(std::type_index(typeid(VertexPositionColor))));
 
-	// Render Actual scene	
-	for (auto wPtr : model->GetModelObjects())
+	auto allObjects = model->GetModelObjects();
+	auto modelObjects = allObjects;
+	modelObjects.erase(modelObjects.end()-1);
+
+	if (baseOnly)
 	{
-		if (auto ptr = wPtr.lock())
+		auto base = allObjects[allObjects.size() - 1];
+		if (auto ptr = base.lock())
 		{
 			ptr->Render(renderState);
 		}
 	}
+	else
+	{
+		// Render Actual scene
+		for (auto wPtr : modelObjects)
+		{
+			if (auto ptr = wPtr.lock())
+			{
+				ptr->Render(renderState);
+			}
+		}
+	}
+
+	
 }
 
 void MillingHullRenderPass::SetOffset(float val)
