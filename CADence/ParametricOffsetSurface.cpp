@@ -42,7 +42,7 @@ DirectX::XMFLOAT3 ParametricOffsetSurface::GetPoint(float u, float v)
 DirectX::XMFLOAT3 ParametricOffsetSurface::GetTangent(float u, float v, TangentDir tangentDir)
 {
 	float paramEps = 0.0001f;
-
+	float distance = 2.0f * paramEps;
 	float begU = u;
 	float endU = u;
 
@@ -65,10 +65,30 @@ DirectX::XMFLOAT3 ParametricOffsetSurface::GetTangent(float u, float v, TangentD
 	auto begUV = GetWrappedParams(begU, begV);
 	auto endUV = GetWrappedParams(endU, endV);
 	
-	DirectX::SimpleMath::Vector3 begPoint = GetPoint(begUV.u, begUV.v);
-	DirectX::SimpleMath::Vector3 endPoint = GetPoint(endUV.u, endUV.v);
+	DirectX::SimpleMath::Vector3 begPoint;
+	DirectX::SimpleMath::Vector3 endPoint;
 
-	auto tangent = (endPoint - begPoint) / (2.0f * paramEps);
+	if (!ParamsInsideBounds(begUV.u, begUV.v))
+	{
+		endPoint = GetPoint(u, v);
+		distance = paramEps;
+	}
+	else
+	{
+		begPoint = GetPoint(begUV.u, begUV.v);
+	}
+
+	if (!ParamsInsideBounds(endUV.u, endUV.v))
+	{
+		endPoint = GetPoint(u, v);
+		distance = paramEps;
+	}
+	else
+	{
+		endPoint = GetPoint(endUV.u, endUV.v);
+	}
+
+	auto tangent = (endPoint - begPoint) / (distance);
 	return tangent;
 }
 
