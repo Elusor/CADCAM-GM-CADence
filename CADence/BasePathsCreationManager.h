@@ -4,13 +4,7 @@
 #include "ObjectFactory.h"
 
 #include "SimpleMath.h"
-
-struct LineIntersectionData
-{
-	int qLineIndex;
-	int pLineIndex;
-	DirectX::XMFLOAT2 intersectionPoint;
-};
+#include "PathUtils.h"
 
 class BasePathsCreationManager
 {
@@ -35,20 +29,6 @@ private:
 
 	void VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params, float distance = -5.F);
 	
-	std::vector<LineIntersectionData> IntersectCurves(
-		const std::vector<DirectX::XMFLOAT2>& params1,
-		const std::vector<DirectX::XMFLOAT2>& params2);
-
-	std::vector<LineIntersectionData> IntersectCurves(
-		const std::vector<DirectX::XMFLOAT3>& params1,
-		const std::vector<DirectX::XMFLOAT3>& params2);
-
-	std::pair<bool, DirectX::XMFLOAT2> GetIntersectionPoint(
-		const DirectX::SimpleMath::Vector2& beg1,
-		const DirectX::SimpleMath::Vector2& end1,
-		const DirectX::SimpleMath::Vector2& beg2,
-		const DirectX::SimpleMath::Vector2& end2);
-
 	std::vector<DirectX::XMFLOAT3> AddBottomPointsLeftToRight(
 		const std::vector<pointPair>& bottomPairs,
 		const std::vector<LineIntersectionData>& intersectionPoints,
