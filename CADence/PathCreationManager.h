@@ -7,6 +7,7 @@
 #include "MillingHullRenderPass.h"
 #include "PathModel.h"
 #include "BasePathsCreationManager.h"
+#include "DetailPathsCreationManager.h"
 
 class PathCreationManager
 {
@@ -46,7 +47,7 @@ private:
 	std::unique_ptr<MillingHullRenderPass> m_millingHullPass;
 	std::unique_ptr<PathModel> m_model;
 	std::unique_ptr<BasePathsCreationManager> m_basePathsCreationManager;
-
+	std::unique_ptr<DetailPathsCreationManager> m_detailPathsCreationManager;
 
 	void ParseDepthTexture(std::unique_ptr<RenderState>& renderState);
 	float NormalizedLinearDepth(float linearDepth);

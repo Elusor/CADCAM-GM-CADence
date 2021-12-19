@@ -43,7 +43,7 @@ PathCreationManager::PathCreationManager(std::unique_ptr<RenderState>& renderSta
 	m_model = std::make_unique<PathModel>();
 
 	m_basePathsCreationManager = std::make_unique<BasePathsCreationManager>(intersectionFinder, m_scene, m_blockBaseHeight);
-
+	m_detailPathsCreationManager = std::make_unique<DetailPathsCreationManager>(intersectionFinder, m_scene);
 	m_millingHullPass->SetOffset(m_millRadius + m_millRadiusEps);
 }
 
@@ -111,6 +111,11 @@ void PathCreationManager::RenderGui(std::unique_ptr<RenderState>& renderState)
 			m_basePathsCreationManager->CreateBasePaths(m_model.get());
 		}
 		
+		if (ImGui::Button("Create Detailed Path"))
+		{
+			m_detailPathsCreationManager->CreateDetailPaths(m_model.get());
+		}
+
 	}
 
 	ImGui::Text("Current milling model elements:");
