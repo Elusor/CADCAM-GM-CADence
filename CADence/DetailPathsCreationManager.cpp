@@ -327,3 +327,13 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 
 	return pathPoints;
 }
+
+std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const std::vector<DirectX::XMFLOAT2>& intersectionParams)
+{
+	return std::vector<DirectX::XMFLOAT2>();
+}
+
+std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareEye(const std::vector<DirectX::XMFLOAT2>& intersectionParams)
+{
+	return std::vector<DirectX::XMFLOAT2>();
+}

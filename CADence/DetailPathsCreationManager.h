@@ -32,6 +32,10 @@ private:
 
 	std::vector<DirectX::XMFLOAT2> NormalizeParameters(const std::vector<DirectX::XMFLOAT2>& intersectionCurve, IParametricSurface* surface);
 	std::vector<DirectX::XMFLOAT2> DenormalizeParameters(const std::vector<DirectX::XMFLOAT2>& intersectionCurve, IParametricSurface* surface);
+	
 	std::vector<DirectX::XMFLOAT2> PrepareBackFin(const std::vector<DirectX::XMFLOAT2>& bodyXbackFinIntersectionCurve);
+	std::vector<DirectX::XMFLOAT2> PrepareSideFin(const std::vector<DirectX::XMFLOAT2>& intersectionParams);
+	std::vector<DirectX::XMFLOAT2> PrepareEye(const std::vector<DirectX::XMFLOAT2>& intersectionParams);
+
 
 };
