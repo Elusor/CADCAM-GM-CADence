@@ -181,7 +181,9 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::DenormalizeParameters
 std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const std::vector<DirectX::XMFLOAT2>& bodyXbackFinIntersectionCurve)
 {
 	auto x = 2;
-	
+	// Adjust this to make sure the points at the end are ok
+	float maxParam = 0.65f;
+
 	size_t index = 1;
 	for (; index < bodyXbackFinIntersectionCurve.size(); index++)
 	{
@@ -203,12 +205,12 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 
 	std::vector<DirectX::XMFLOAT2> lineStart{
 		DirectX::XMFLOAT2{ 0.0f , baseParamsCutoffstart},
-		DirectX::XMFLOAT2{ 1.0f , baseParamsCutoffstart}
+		DirectX::XMFLOAT2{ maxParam , baseParamsCutoffstart}
 	};
 
 	std::vector<DirectX::XMFLOAT2> lineEnd{
 		DirectX::XMFLOAT2{ 0.0f , baseParamsCutoffend},
-		DirectX::XMFLOAT2{ 1.0f , baseParamsCutoffend}
+		DirectX::XMFLOAT2{ maxParam , baseParamsCutoffend}
 	};
 
 	auto startIntersection = IntersectCurves(reorganizedPoints, lineStart);
@@ -223,8 +225,8 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 	frontLine.push_back(endIntersection[0].intersectionPoint);
 	
 	std::vector<DirectX::XMFLOAT2> backLine;
-	backLine.push_back(DirectX::XMFLOAT2(1.0f, baseParamsCutoffstart));
-	backLine.push_back(DirectX::XMFLOAT2(1.0f, baseParamsCutoffend));
+	backLine.push_back(DirectX::XMFLOAT2(maxParam, baseParamsCutoffstart));
+	backLine.push_back(DirectX::XMFLOAT2(maxParam, baseParamsCutoffend));
 
 	float stepsVertical = 15;
 	float stepsHorizontal = 30;
@@ -236,7 +238,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 #pragma region  add the fist line end to beg
 	auto startLineBeg = frontLine[0];
 	auto startLineEnd = frontLine[0];
-	startLineEnd.x = 1.0f;
+	startLineEnd.x = maxParam;
 
 	pathPoints.push_back(startLineEnd);
 	// add multiple intermediary points
@@ -312,7 +314,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 	// add the last line beg to end
 	auto lastLineBeg = frontLine[frontLine.size()-1];
 	auto lastLineEnd = lastLineBeg;
-	startLineEnd.x = 1.0f;
+	startLineEnd.x = maxParam;
 
 	pathPoints.push_back(startLineEnd);
 	// add multiple intermediary points
