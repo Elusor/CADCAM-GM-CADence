@@ -33,13 +33,88 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&backFinOffsetObject,
-		DirectX::XMFLOAT3(3.8F, 0.5F, -0.5F)
+		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
 	);
 
+	auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&sideFinOffsetObject,
+		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
+	);
+
+	auto bodyXeyeIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&eyeOffsetObject,
+		DirectX::XMFLOAT3(-5.12f, 1.53f, -0.95f)
+	);
+
+	auto bodyXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&hairOffsetObject,
+		DirectX::XMFLOAT3(-3.1f, 4.5f, -0.65f)
+	);
+
+	auto bodyXhairIntersection2 = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&hairOffsetObject,
+		DirectX::XMFLOAT3(2.37f , 1.5f, -0.225F)
+	);
+
+	auto leftUpper = DirectX::XMFLOAT3(-3.25f, 1.66f, -1.62f);
+	auto leftLower = DirectX::XMFLOAT3(-3.39f, -0.54f, -1.8f);
+	auto rightUpper = DirectX::XMFLOAT3(-1.32f, 1.71f, -1.46f);
+	auto rightLower = DirectX::XMFLOAT3(-1.32f, -0.48f, -1.68f);
+
+	auto bodyXsideSpikeLU = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&sideSpikesOffsetObject,
+		leftUpper
+	);
+	auto bodyXsideSpikeLL = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&sideSpikesOffsetObject,
+		leftLower
+	);
+
+	//auto bodyXsideSpikeRU = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&bodyOffsetObject,
+	//	&sideSpikesOffsetObject,
+	//	rightUpper
+	//);
+	//auto bodyXsideSpikeRL = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&bodyOffsetObject,
+	//	&sideSpikesOffsetObject,
+	//	rightLower
+	//);
+
+	// Trim the "single intersection objects"
+
+	// Merge the trimmed ares of the base parts
+
+	// Merge the trimmed areas of the main body
+
+
+	VisualizeCurve(&bodyOffsetObject, bodyXbackFinIntersection);
+	VisualizeCurve(&bodyOffsetObject, bodyXsideFinIntersection);
+	VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection);
+	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection);
+	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection2);
+
+	VisualizeCurve(&bodyOffsetObject, bodyXsideSpikeLU);
+	VisualizeCurve(&bodyOffsetObject, bodyXsideSpikeLL);	
+	// VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection2);
+	// VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection2);
+
+
+
+}
+
+void DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, IntersectionCurveData intersection)
+{
 	std::vector<ObjectRef> points;
-	for (auto param : bodyXbackFinIntersection.surfQParams)
+	for (auto param : intersection.surfQParams)
 	{
-		auto pos = bodyOffsetObject.GetPoint(param.x, param.y);
+		auto pos = surface->GetPoint(param.x, param.y);
 		Transform ptTransform;
 		ptTransform.SetPosition(pos);
 		ptTransform.Translate(0, 0, 0);
@@ -48,17 +123,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		m_scene->AttachObject(point);
 		points.push_back(point);
 	}
-
-	auto sideWithBody = DirectX::XMFLOAT3(3.8F, 0.5F, -0.5F);
-	auto eyeWithBody = DirectX::XMFLOAT3(-5.12F, 1.53F, -0.95F);
-
-	auto x = 2;
-	// Trim the "single intersection objects"
-
-	// Merge the trimmed ares of the base parts
-
-	// Merge the trimmed areas of the main body
-	
+	m_scene->AttachObject(m_factory.CreateInterpolBezierCurveC2(points));
 }
 
 bool DetailPathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions, std::string name)

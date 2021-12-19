@@ -23,6 +23,7 @@ private:
 	float m_blockSafeHeight;
 	int m_instructionCounter;
 
+	void VisualizeCurve(IParametricSurface* surface, IntersectionCurveData intersection);
 
 #pragma region FileParsing
 	bool SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions, std::string name);

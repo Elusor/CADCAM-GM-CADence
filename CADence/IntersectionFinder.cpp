@@ -829,6 +829,8 @@ IntersectionCurveData IntersectionFinder::FindIntersectionWithCursor(IParametric
 		ParameterQuad params;
 		params.Set(endParams1, endParams2);
 
+		auto begPoint = qSurface->GetPoint(endParams1);
+
 		result = FindIntersectionForParameters(qSurface, pSurface, params, selfIntersect);
 		result.foundBegPoints = true;
 	}
@@ -1720,7 +1722,7 @@ IntersectionPointSearchData IntersectionFinder::SimpleGradient(
 
 		// After 3 iterations reset the method
 		iterationCounter++;
-		if (iterationCounter > 200 ||
+		if (iterationCounter > 500 ||
 			curDist >= prevDist)
 		{
 			continueSearch = false;
