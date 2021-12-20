@@ -130,7 +130,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		normalizeBodySpikes
 	);
 	auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
-	//VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
+	VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
 	
 
 	// Trim the "single intersection objects"
@@ -665,6 +665,46 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareEye(const std:
 	return pathPoints;
 }
 
+std::vector<DirectX::XMFLOAT2> ExtractMultipleSegments(
+	const std::vector<LineIntersectionData>& intersections,
+	const std::vector<DirectX::XMFLOAT2>& originalLine)
+{
+	std::vector<DirectX::XMFLOAT2> mergedPoints;
+	std::vector<std::vector<DirectX::XMFLOAT2>> segments;
+	for (size_t index = 0; index < intersections.size(); index += 2)
+	{
+		std::vector<DirectX::XMFLOAT2> segment;
+
+		auto intersectionBeg = intersections[index];
+		auto intersectionEnd = intersections[index + 1];
+
+		segment.push_back(intersectionBeg.intersectionPoint);
+
+		auto extracted = ExtractSegmentFromOutline(
+			originalLine,
+			intersectionBeg.qLineIndex,
+			intersectionEnd.qLineIndex + 1
+		);
+
+		segment.insert(
+			segment.end(),
+			extracted.begin(),
+			extracted.end()
+		);
+
+		segment.push_back(intersectionEnd.intersectionPoint);
+		segments.push_back(segment);
+	}
+
+	// Insert identifying points between segments
+	for (size_t segmentId = 0; segmentId < segments.size(); segmentId++)
+	{
+		mergedPoints.insert(mergedPoints.end(), segments[segmentId].begin(), segments[segmentId].end());
+	}
+
+	return mergedPoints;
+}
+
 std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBody(
 	const std::vector<DirectX::XMFLOAT2>& intersectionParamSideFin, 
 	const std::vector<DirectX::XMFLOAT2>& intersectionParamBackFin, 
@@ -865,26 +905,38 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 
 		// TODO split line with all these intersections
 		auto wholeParameterLine = ExtractSegmentFromOutline(scanLine, frontInt[0].qLineIndex, backFinInt[0].qLineIndex);
-		
+		std::vector<LineIntersectionData> intersections;
+
+		intersections.push_back(frontInt[0]);
+
 		if (hair1Int.size())
 		{
-
+			intersections.push_back(hair1Int[0]);
+			intersections.push_back(hair1Int[1]);
 		}
 
 		if (hair2Int.size())
 		{
-
+			intersections.push_back(hair2Int[0]);
+			intersections.push_back(hair2Int[1]);
 		}
 
 		if (eyeInt.size())
 		{
-
+			intersections.push_back(eyeInt[0]);
+			intersections.push_back(eyeInt[1]);
 		}
 
 		if (sideFinInt.size())
 		{
-
+			for (const auto& inter : sideFinInt)
+			{
+				intersections.push_back(inter);
+			}
 		}
+
+		intersections.push_back(backFinInt[0]);
+		auto mutlipleSegments = ExtractMultipleSegments(intersections, scanLine);
 
 		LineIntersectionData startIntersection;
 		std::vector<DirectX::XMFLOAT2> outlineSegment;
@@ -893,7 +945,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 			startIntersection = backFinInt[0];
 			// Update frame segment
 			outlineSegment = ExtractSegmentFromOutline(backFinFinal, lastIntersectionPoint.pLineIndex, startIntersection.pLineIndex);
-			std::reverse(wholeParameterLine.begin(), wholeParameterLine.end());
+			std::reverse(mutlipleSegments.begin(), mutlipleSegments.end());
 			lastIntersectionPoint = frontInt[0];
 		}
 		else
@@ -906,7 +958,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 
 		//pathPoints.insert(pathPoints.end(), outlineSegment.begin(), outlineSegment.end());
 		pathPoints.push_back(startIntersection.intersectionPoint);
-		pathPoints.insert(pathPoints.end(), wholeParameterLine.begin(), wholeParameterLine.end());
+		pathPoints.insert(pathPoints.end(), mutlipleSegments.begin(), mutlipleSegments.end());
 		pathPoints.push_back(lastIntersectionPoint.intersectionPoint);
 
 		int x = 2;
