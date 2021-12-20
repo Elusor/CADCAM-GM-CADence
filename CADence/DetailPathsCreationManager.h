@@ -36,6 +36,11 @@ private:
 	std::vector<DirectX::XMFLOAT2> PrepareBackFin(const std::vector<DirectX::XMFLOAT2>& bodyXbackFinIntersectionCurve);
 	std::vector<DirectX::XMFLOAT2> PrepareSideFin(const std::vector<DirectX::XMFLOAT2>& intersectionParams);
 	std::vector<DirectX::XMFLOAT2> PrepareEye(const std::vector<DirectX::XMFLOAT2>& intersectionParams);
-
+	std::vector<DirectX::XMFLOAT2> PrepareBody(
+		const std::vector<DirectX::XMFLOAT2>& intersectionParamSideFin,
+		const std::vector<DirectX::XMFLOAT2>& intersectionParamBackFin,
+		const std::vector<DirectX::XMFLOAT2>& intersectionParamEye,
+		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
+		const std::vector<DirectX::XMFLOAT2>& intersectionHair2);
 
 };
