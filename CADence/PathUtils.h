@@ -30,3 +30,6 @@ std::pair<bool, DirectX::XMFLOAT2> GetIntersectionPoint(
 	const DirectX::SimpleMath::Vector2& end1,
 	const DirectX::SimpleMath::Vector2& beg2,
 	const DirectX::SimpleMath::Vector2& end2);
+
+std::vector<DirectX::XMFLOAT3> ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT3>& outline, int line1, int line2);
+std::vector<DirectX::XMFLOAT2> ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT2>& outline, int line1, int line2);

@@ -45,10 +45,6 @@ private:
 		std::vector<DirectX::XMFLOAT3>& endPoints
 	);
 
-	std::vector<DirectX::XMFLOAT3> ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT3>& outline, int line1, int line2);
-
-
-
 	bool SavePathToFile(
 		const std::vector<DirectX::XMFLOAT3>& positions,
 		const std::vector<DirectX::XMFLOAT3>& prePoints,

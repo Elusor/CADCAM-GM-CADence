@@ -444,20 +444,6 @@ void BasePathsCreationManager::AddAfterPoints(
 	}
 }
 
-std::vector<DirectX::XMFLOAT3> BasePathsCreationManager::ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT3>& outline, int line1, int line2)
-{
-	std::vector<DirectX::XMFLOAT3> points;
-	auto begLine = line1 < line2 ? line1 : line2;
-	auto endLine = line1 < line2 ? line2 : line1;
-
-	size_t endOfLineOffset = 1;	
-
-	// No end of line offset at the end
-	points.insert(points.end(), outline.begin() + begLine + endOfLineOffset, outline.begin() + endLine);
-
-	return points;
-}
-
 bool BasePathsCreationManager::SavePathToFile(
 	const std::vector<DirectX::XMFLOAT3>& positions, 
 	const std::vector<DirectX::XMFLOAT3>& prePoints, 

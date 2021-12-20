@@ -135,3 +135,31 @@ std::pair<bool, DirectX::XMFLOAT2> GetIntersectionPoint(
 
 	return res;
 }
+
+std::vector<DirectX::XMFLOAT3> ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT3>& outline, int line1, int line2)
+{
+	std::vector<DirectX::XMFLOAT3> points;
+	auto begLine = line1 < line2 ? line1 : line2;
+	auto endLine = line1 < line2 ? line2 : line1;
+
+	size_t endOfLineOffset = 1;
+
+	// No end of line offset at the end
+	points.insert(points.end(), outline.begin() + begLine + endOfLineOffset, outline.begin() + endLine);
+
+	return points;
+}
+
+std::vector<DirectX::XMFLOAT2> ExtractSegmentFromOutline(const std::vector<DirectX::XMFLOAT2>& outline, int line1, int line2)
+{
+	std::vector<DirectX::XMFLOAT2> points;
+	auto begLine = line1 < line2 ? line1 : line2;
+	auto endLine = line1 < line2 ? line2 : line1;
+
+	size_t endOfLineOffset = 1;
+
+	// No end of line offset at the end
+	points.insert(points.end(), outline.begin() + begLine + endOfLineOffset, outline.begin() + endLine);
+
+	return points;
+}
