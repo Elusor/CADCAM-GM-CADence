@@ -41,6 +41,7 @@ private:
 		const std::vector<DirectX::XMFLOAT2>& intersectionParamBackFin,
 		const std::vector<DirectX::XMFLOAT2>& intersectionParamEye,
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
-		const std::vector<DirectX::XMFLOAT2>& intersectionHair2);
+		const std::vector<DirectX::XMFLOAT2>& intersectionHair2,
+		const std::vector<DirectX::XMFLOAT2>& intersectionSideSpikes);
 
 };

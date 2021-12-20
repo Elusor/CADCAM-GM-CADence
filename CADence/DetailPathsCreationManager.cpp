@@ -67,16 +67,16 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto rightUpper = DirectX::XMFLOAT3(-1.32f, 1.71f, -1.46f);
 	auto rightLower = DirectX::XMFLOAT3(-1.32f, -0.48f, -1.68f);
 
-	//auto bodyXsideSpikeLU = m_intersectionFinder->FindIntersectionWithCursor(
-	//	&bodyOffsetObject,
-	//	&sideSpikesOffsetObject,
-	//	leftUpper
-	//);
-	//auto bodyXsideSpikeLL = m_intersectionFinder->FindIntersectionWithCursor(
-	//	&bodyOffsetObject,
-	//	&sideSpikesOffsetObject,
-	//	leftLower
-	//);
+	auto bodyXsideSpikeLU = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&sideSpikesOffsetObject,
+		leftUpper
+	);
+	auto bodyXsideSpikeLL = m_intersectionFinder->FindIntersectionWithCursor(
+		&bodyOffsetObject,
+		&sideSpikesOffsetObject,
+		leftLower
+	);
 
 	//auto bodyXsideSpikeRU = m_intersectionFinder->FindIntersectionWithCursor(
 	//	&bodyOffsetObject,
@@ -111,15 +111,26 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto normalizeBodyHair = NormalizeParameters(bodyXhairIntersection.surfQParams, bodyObject);
 	auto normalizeBodyHair2 = NormalizeParameters(bodyXhairIntersection2.surfQParams, bodyObject);
 
+
+	std::vector<DirectX::XMFLOAT2> spikeParams;
+	auto spikeQParamUp = bodyXsideSpikeLU.surfQParams;
+	auto spikeQParamBot = bodyXsideSpikeLL.surfQParams;
+	spikeParams.insert(spikeParams.end(), spikeQParamUp.begin(), spikeQParamUp.end());
+	spikeParams.insert(spikeParams.end(), spikeQParamBot.begin(), spikeQParamBot.end());
+	spikeParams.push_back(spikeParams[0]);
+
+	auto normalizeBodySpikes = NormalizeParameters(spikeParams, bodyObject);
+
 	auto bodyPathPointsParams = PrepareBody(
 		normalizeBodySideFin,
 		normalizeBodyBackFin,
 		normalizeBodyEye,
 		normalizeBodyHair,
-		normalizeBodyHair2
+		normalizeBodyHair2,
+		normalizeBodySpikes
 	);
 	auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
-	VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
+	//VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
 	
 
 	// Trim the "single intersection objects"
@@ -135,9 +146,8 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection);
 	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection);
 	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection2);
-
-	VisualizeCurve(&bodyOffsetObject, bodyXsideSpikeLU);
-	VisualizeCurve(&bodyOffsetObject, bodyXsideSpikeLL);*/
+	*/
+	//VisualizeCurve(&bodyOffsetObject, spikeParams);
 #pragma endregion
 
 
@@ -660,7 +670,8 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBody(
 	const std::vector<DirectX::XMFLOAT2>& intersectionParamBackFin, 
 	const std::vector<DirectX::XMFLOAT2>& intersectionParamEye, 
 	const std::vector<DirectX::XMFLOAT2>& intersectionHair1, 
-	const std::vector<DirectX::XMFLOAT2>& intersectionHair2)
+	const std::vector<DirectX::XMFLOAT2>& intersectionHair2,
+	const std::vector<DirectX::XMFLOAT2>& intersectionSideSpikes)
 {
 	float lowerParamBaseLineY = 0.25f;
 	float upperParamBaseLineY = 0.75f;
@@ -849,9 +860,31 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 		auto sideFinInt = IntersectCurves(scanLine, intersectionParamSideFin);
 		// Intersect with back
 		auto backFinInt = IntersectCurves(scanLine, backFinFinal);
+		// Intersect with side spikes
+		auto sideSpikeInt = IntersectCurves(scanLine, intersectionSideSpikes);
 
 		// TODO split line with all these intersections
 		auto wholeParameterLine = ExtractSegmentFromOutline(scanLine, frontInt[0].qLineIndex, backFinInt[0].qLineIndex);
+		
+		if (hair1Int.size())
+		{
+
+		}
+
+		if (hair2Int.size())
+		{
+
+		}
+
+		if (eyeInt.size())
+		{
+
+		}
+
+		if (sideFinInt.size())
+		{
+
+		}
 
 		LineIntersectionData startIntersection;
 		std::vector<DirectX::XMFLOAT2> outlineSegment;
