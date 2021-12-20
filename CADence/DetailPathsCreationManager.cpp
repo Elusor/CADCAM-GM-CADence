@@ -740,11 +740,9 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 	// backFinFinal
 	// frontLineFinal
 
-	float vSteps = 15;
-	float hSteps = 40;
-
-	float vStepValue = (upperParamBaseLineY - lowerParamBaseLineY) / vSteps;
-
+	float vSteps = 35;
+	float hSteps = 45;
+#pragma region Create Outline
 	// Calculate lower line 
 	std::vector<DirectX::XMFLOAT2> lowerLineBase;
 	auto lBegPt = frontLineFinal[0];
@@ -773,6 +771,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 		);
 	}
 
+
 	auto hairOutlineCut1 = IntersectCurves(upperLineBase, intersectionParamHairOrdered1);
 	auto hairOutlineCut2 = IntersectCurves(upperLineBase, intersectionParamHairOrdered2);
 
@@ -787,6 +786,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 	// line: hair2 to end
 	auto segHair2ToEnd = ExtractSegmentFromOutline(upperLineBase, hairOutlineCut2[1].qLineIndex, upperLineBase.size());
 
+
 	std::vector<DirectX::XMFLOAT2> topOutlineFinal;
 	topOutlineFinal.insert(topOutlineFinal.end(), segBegToHair1.begin(), segBegToHair1.end());
 	std::reverse(segHair1.begin(), segHair1.end());
@@ -795,11 +795,6 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 	std::reverse(segHair2.begin(), segHair2.end());
 	topOutlineFinal.insert(topOutlineFinal.end(), segHair2.begin(), segHair2.end());
 	topOutlineFinal.insert(topOutlineFinal.end(), segHair2ToEnd.begin(), segHair2ToEnd.end());
-
-	for (size_t step = 1; step < hSteps; step++)
-	{
-		// generate points in the middle
-	}
 
 	std::vector<DirectX::XMFLOAT2> outlineFinal;
 	outlineFinal.insert(outlineFinal.end(), lowerLineBase.begin(), lowerLineBase.end());
@@ -810,6 +805,84 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 
 	std::reverse(frontLineFinal.begin(), frontLineFinal.end());
 	outlineFinal.insert(outlineFinal.end(), frontLineFinal.begin(), frontLineFinal.end());
+#pragma endregion
 
-	return outlineFinal;
+	float vStepValue = (upperParamBaseLineY - lowerParamBaseLineY) / vSteps;
+
+	std::vector<DirectX::XMFLOAT2> pathPoints;
+	// TODO move outline creation and std::reverse to the end?
+	pathPoints.insert(pathPoints.end(), lowerLineBase.begin(), lowerLineBase.end());
+
+	bool reversed = true;
+	auto lastIntersectionPoint = backFinLowerEnd[0];
+
+	for (size_t step = 1; step < vSteps; step++)
+	{
+		float currentY = lowerParamBaseLineY + step * vStepValue;
+		// generate points in the middle
+		std::vector<DirectX::XMFLOAT2> scanLine;
+
+		for (size_t hStep = 0; hStep <= hSteps; hStep++)
+		{
+			float beg = -0.5f;
+			float end = 1.5f;
+
+			float hStepWidth = (end - beg) / hSteps;
+
+			scanLine.push_back(
+				DirectX::XMFLOAT2(
+					beg + hStepWidth * hStep,
+					currentY
+				)
+			);
+		}
+
+		// Intersect with front
+		auto frontInt = IntersectCurves(scanLine, frontLineFinal);
+		// Intersect with hair1
+		auto hair1Int = IntersectCurves(scanLine, segHair1);
+		// Intersect with hair2
+		auto hair2Int = IntersectCurves(scanLine, segHair2);
+		// Intersect with eye
+		auto eyeInt = IntersectCurves(scanLine, intersectionParamEye);
+		// Intersect with sideFin
+		auto sideFinInt = IntersectCurves(scanLine, intersectionParamSideFin);
+		// Intersect with back
+		auto backFinInt = IntersectCurves(scanLine, backFinFinal);
+
+		// TODO split line with all these intersections
+		auto wholeParameterLine = ExtractSegmentFromOutline(scanLine, frontInt[0].qLineIndex, backFinInt[0].qLineIndex);
+
+		LineIntersectionData startIntersection;
+		std::vector<DirectX::XMFLOAT2> outlineSegment;
+		if (reversed)
+		{
+			startIntersection = backFinInt[0];
+			// Update frame segment
+			outlineSegment = ExtractSegmentFromOutline(backFinFinal, lastIntersectionPoint.pLineIndex, startIntersection.pLineIndex);
+			std::reverse(wholeParameterLine.begin(), wholeParameterLine.end());
+			lastIntersectionPoint = frontInt[0];
+		}
+		else
+		{
+			startIntersection = frontInt[0];
+			// Update frame segment
+			//outlineSegment = ExtractSegmentFromOutline(frontLineFinal, lastIntersectionPoint.pLineIndex, startIntersection.pLineIndex);
+			lastIntersectionPoint = backFinInt[0];
+		}
+
+		//pathPoints.insert(pathPoints.end(), outlineSegment.begin(), outlineSegment.end());
+		pathPoints.push_back(startIntersection.intersectionPoint);
+		pathPoints.insert(pathPoints.end(), wholeParameterLine.begin(), wholeParameterLine.end());
+		pathPoints.push_back(lastIntersectionPoint.intersectionPoint);
+
+		int x = 2;
+		reversed = !reversed;
+	}
+
+	// reverse if reverse flag is present?
+
+	pathPoints.insert(pathPoints.end(), topOutlineFinal.begin(), topOutlineFinal.end());
+
+	return pathPoints;
 }
