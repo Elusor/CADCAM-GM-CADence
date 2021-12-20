@@ -364,17 +364,13 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 		}
 	}
 
-	auto tmp = allIntersections[11];
-	allIntersections[11] = allIntersections[10];
-	allIntersections[10] = tmp;
-
-	auto segmentBot = ExtractSegmentFromOutline(intersectionParams, allIntersections[1].pLineIndex, allIntersections[0].pLineIndex);
-	auto segmentUp = ExtractSegmentFromOutline(intersectionParams, allIntersections[11].pLineIndex, allIntersections[10].pLineIndex);
+	//auto segmentBot = ExtractSegmentFromOutline(intersectionParams, allIntersections[1].pLineIndex, allIntersections[0].pLineIndex);
+	//auto segmentUp = ExtractSegmentFromOutline(intersectionParams, allIntersections[11].pLineIndex, allIntersections[10].pLineIndex);
 
 	// first point
 	pathPoints.push_back(allIntersections[0].intersectionPoint);
 	// segment arc
-	pathPoints.insert(pathPoints.end(), segmentBot.begin(), segmentBot.end());
+	//pathPoints.insert(pathPoints.end(), segmentBot.begin(), segmentBot.end());
 	// second point
 	pathPoints.push_back(allIntersections[1].intersectionPoint);
 	// back to first point
