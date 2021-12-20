@@ -364,20 +364,32 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 		}
 	}
 
-	//auto segmentBot = ExtractSegmentFromOutline(intersectionParams, allIntersections[1].pLineIndex, allIntersections[0].pLineIndex);
-	//auto segmentUp = ExtractSegmentFromOutline(intersectionParams, allIntersections[11].pLineIndex, allIntersections[10].pLineIndex);
+	std::swap(
+		allIntersections[allIntersections.size() - 1], 
+		allIntersections[allIntersections.size() - 2]
+	);
 
+	auto segmentBot = ExtractSegmentFromOutline(
+		intersectionParams, 
+		allIntersections[1].pLineIndex, 
+		allIntersections[0].pLineIndex);
+
+	auto segmentUp = ExtractSegmentFromOutline(
+		intersectionParams, 
+		allIntersections[allIntersections.size()-1].pLineIndex, 
+		allIntersections[allIntersections.size()-2].pLineIndex
+	);
+
+	// Left side
 	// first point
 	pathPoints.push_back(allIntersections[0].intersectionPoint);
 	// segment arc
-	//pathPoints.insert(pathPoints.end(), segmentBot.begin(), segmentBot.end());
+	pathPoints.insert(pathPoints.end(), segmentBot.begin(), segmentBot.end());
 	// second point
 	pathPoints.push_back(allIntersections[1].intersectionPoint);
-	// back to first point
-	pathPoints.push_back(allIntersections[0].intersectionPoint);
 
 	auto lastIntersection = allIntersections[0];
-	bool reversed = false;
+	bool reversed = true;
 	for (size_t index = 1; index < allIntersections.size() / 2; index++)
 	{
 		LineIntersectionData begIntersection;
@@ -399,7 +411,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 			intersectionParams, 
 			lastIntersection.pLineIndex, 
 			begIntersection.pLineIndex);*/
-		pathPoints.push_back(lastIntersection.intersectionPoint);		
+
 		//pathPoints.insert(pathPoints.end(), segment.begin(), segment.end());
 		pathPoints.push_back(begIntersection.intersectionPoint);
 
@@ -423,7 +435,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 	// last point
 	// second to last point
 	//pathPoints.insert(pathPoints.end(), segmentUp.begin(), segmentUp.end());
-	pathPoints.push_back(allIntersections[11].intersectionPoint);
+	//pathPoints.push_back(allIntersections[allIntersections.size()-1].intersectionPoint);
 
 	return pathPoints;
 }
