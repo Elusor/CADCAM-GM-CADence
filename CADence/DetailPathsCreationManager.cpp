@@ -340,7 +340,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 	float minHParam = 0.0f;
 	float maxHParam = 1.0f;
 
-	size_t steps = 30;
+	size_t steps = 40;
 	size_t vSteps = 30;
 	float stepHWidth = (maxHParam - minHParam) / steps;
 
@@ -382,15 +382,15 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 
 	// Left side
 	// first point
-	pathPoints.push_back(allIntersections[0].intersectionPoint);
-	// segment arc
-	pathPoints.insert(pathPoints.end(), segmentBot.begin(), segmentBot.end());
-	// second point
-	pathPoints.push_back(allIntersections[1].intersectionPoint);
+	//pathPoints.push_back(allIntersections[0].intersectionPoint);
+	//// segment arc
+	//pathPoints.insert(pathPoints.end(), segmentBot.begin(), segmentBot.end());
+	//// second point
+	//pathPoints.push_back(allIntersections[1].intersectionPoint);
 
-	auto lastIntersection = allIntersections[0];
-	bool reversed = true;
-	for (size_t index = 1; index < allIntersections.size() / 2; index++)
+	auto lastIntersection = allIntersections[1];
+	bool reversed = false;
+	for (size_t index = 0; index < allIntersections.size() / 2; index++)
 	{
 		LineIntersectionData begIntersection;
 		LineIntersectionData endIntersection;
@@ -407,12 +407,37 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 			endIntersection = allIntersections[startIndex + 1];
 		}
 
-		/*auto segment = ExtractSegmentFromOutline(
+		auto segment = ExtractSegmentFromOutline(
 			intersectionParams, 
 			lastIntersection.pLineIndex, 
-			begIntersection.pLineIndex);*/
+			begIntersection.pLineIndex);
+		if (!index || index == (allIntersections.size() / 2) - 1)
+		{
+			std::reverse(segment.begin(), segment.end());
+		}
 
-		//pathPoints.insert(pathPoints.end(), segment.begin(), segment.end());
+		if (segment.size() < intersectionParams.size() / 2)
+		{
+			pathPoints.insert(pathPoints.end(), segment.begin(), segment.end());
+		}
+		else
+		{
+			auto smaller = lastIntersection.pLineIndex < begIntersection.pLineIndex ? lastIntersection.pLineIndex : begIntersection.pLineIndex;
+			auto bigger = lastIntersection.pLineIndex + begIntersection.pLineIndex - smaller;
+
+			auto segment1 = ExtractSegmentFromOutline(
+				intersectionParams,
+				0,
+				smaller);
+			auto segment2 = ExtractSegmentFromOutline(
+				intersectionParams,
+				bigger,
+				intersectionParams.size() - 1);
+
+			pathPoints.insert(pathPoints.end(), segment2.begin(), segment2.end());
+			pathPoints.insert(pathPoints.end(), segment1.begin(), segment1.end());
+		}
+		
 		pathPoints.push_back(begIntersection.intersectionPoint);
 
 		float diff = endIntersection.intersectionPoint.x - begIntersection.intersectionPoint.x;
@@ -434,7 +459,8 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 
 	// last point
 	// second to last point
-	//pathPoints.insert(pathPoints.end(), segmentUp.begin(), segmentUp.end());
+	std::reverse(segmentUp.begin(), segmentUp.end());
+	pathPoints.insert(pathPoints.end(), segmentUp.begin(), segmentUp.end());
 	//pathPoints.push_back(allIntersections[allIntersections.size()-1].intersectionPoint);
 
 	return pathPoints;
