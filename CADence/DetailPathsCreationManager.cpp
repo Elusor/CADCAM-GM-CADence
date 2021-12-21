@@ -1013,7 +1013,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float begParamLine = -0.5f;
 	float endParamLine = 1.5f;
 
-	float paramLineSteps = hSteps;
+	float paramLineSteps = hSteps * 2;
 	float paramLineStep = (endParamLine - begParamLine) / paramLineSteps;
 	for (size_t stepV = 0; stepV <= paramLineSteps; stepV++)
 	{
@@ -1128,7 +1128,21 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	// Todo add upper line to pathpoints
 	// Todo add outline to pathpoints
 	auto segment = ExtractSegmentFromOutline(reorderedIntersectionHair1, lastIntersection.pLineIndex, hair1IntersectionTop[0].pLineIndex + 1);
+	pathPoints.insert(pathPoints.end(), segment.begin(), segment.end());
 	// Todo add bottom line to pathpoints
 	pathPoints.insert(pathPoints.end(), topOutlinePart.begin(), topOutlinePart.end());
+
+	std::vector<DirectX::XMFLOAT2> outlinePoints;
+	auto backSegment = ExtractSegmentFromOutline(reorderedIntersectionHair2, hair2IntersectionBot[0].pLineIndex, hair2IntersectionTop[0].pLineIndex + 1);
+	auto frontSegment = ExtractSegmentFromOutline(reorderedIntersectionHair1, hair1IntersectionBot[0].pLineIndex, hair1IntersectionTop[0].pLineIndex + 1);
+
+	std::reverse(backSegment.begin(), backSegment.end());
+
+	outlinePoints.insert(outlinePoints.end(), backSegment.begin(), backSegment.end());
+	outlinePoints.insert(outlinePoints.end(), frontSegment.begin(), frontSegment.end());
+
+	// Add outline to the path
+	pathPoints.insert(pathPoints.end(), outlinePoints.begin(), outlinePoints.end());
+
 	return pathPoints;
 }
