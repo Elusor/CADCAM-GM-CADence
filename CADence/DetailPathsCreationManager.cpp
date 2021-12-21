@@ -1003,7 +1003,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float botCutoffParam = 1.0f / 6.0f;
 	float topCutoffParam = botCutoffParam + 0.5f;
 
-	float vSteps = 15;
+	float vSteps = 16;
 	float hSteps = 15;
 
 	std::vector<DirectX::XMFLOAT2> topParamLine;
@@ -1013,7 +1013,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float begParamLine = -0.5f;
 	float endParamLine = 1.5f;
 
-	float paramLineSteps = vSteps;
+	float paramLineSteps = hSteps;
 	float paramLineStep = (endParamLine - begParamLine) / paramLineSteps;
 	for (size_t stepV = 0; stepV <= paramLineSteps; stepV++)
 	{
@@ -1061,12 +1061,17 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	for (size_t vStep = 1; vStep < vSteps; vStep++)
 	{
 		float currentStepValue = botCutoffParam + vStep * vStepWidth;
-		std::vector<DirectX::XMFLOAT2> scanline
+		std::vector<DirectX::XMFLOAT2> scanline;
+		float scanLineBeg = 0.0f;
+		float scanLineEnd = 1.0f;
+		float scanLineStep = (scanLineEnd - scanLineBeg) / hSteps;
+		for (size_t stepH = 0; stepH <= vSteps; stepH++)
 		{
-			DirectX::XMFLOAT2(-0.5f, currentStepValue),
-			DirectX::XMFLOAT2(1.5f, currentStepValue)
-		};
-
+			scanline.push_back({
+				scanLineBeg + scanLineStep * stepH,
+				currentStepValue
+				});
+		}
 		auto scanlineHairIntersection1 = IntersectCurves(scanline, reorderedIntersectionHair1);
 		auto scanlineHairIntersection2 = IntersectCurves(scanline, reorderedIntersectionHair2);
 
@@ -1097,6 +1102,15 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 		}		
 		auto hStepWidth = (end.intersectionPoint.x - beg.intersectionPoint.x) / hSteps;
 		
+		auto scanLineSegment = ExtractSegmentFromOutline(scanline, beg.qLineIndex, end.qLineIndex + 1);
+		if (reversed)
+		{
+			std::reverse(scanLineSegment.begin(), scanLineSegment.end());
+		}
+		pathPoints.push_back(beg.intersectionPoint);
+		pathPoints.insert(pathPoints.end(), scanLineSegment.begin(), scanLineSegment.end());
+		pathPoints.push_back(end.intersectionPoint);
+		/*
 		for (size_t hStep = 0; hStep <= hSteps; hStep++)
 		{
 			pathPoints.push_back(
@@ -1105,7 +1119,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 					currentStepValue
 				)
 			);
-		}
+		}*/
 
 		reversed = !reversed;
 		lastIntersection = end;
