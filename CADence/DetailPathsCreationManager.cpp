@@ -1007,6 +1007,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float hSteps = 15;
 
 	std::vector<DirectX::XMFLOAT2> topParamLine;
+
 	std::vector<DirectX::XMFLOAT2> botParamLine;
 
 	float begParamLine = -0.5f;
@@ -1036,8 +1037,24 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float vStepWidth = (topCutoffParam - botCutoffParam) / vSteps;
 
 	std::vector<DirectX::XMFLOAT2> pathPoints;
-	// Todo add bottom line to pathpoints
 
+	std::vector<DirectX::XMFLOAT2> topOutlinePart;
+	std::vector<DirectX::XMFLOAT2> botOutlinePart;
+	
+	auto topOutlineSegment = ExtractSegmentFromOutline(topParamLine, hair1IntersectionTop[0].qLineIndex, hair2IntersectionTop[0].qLineIndex + 1);
+	auto botOutlineSegment = ExtractSegmentFromOutline(botParamLine, hair1IntersectionBot[0].qLineIndex, hair2IntersectionBot[0].qLineIndex + 1);
+
+	botOutlineSegment.push_back(hair1IntersectionBot[0].intersectionPoint);
+	botOutlineSegment.insert(botOutlineSegment.end(), botOutlineSegment.begin(), botOutlineSegment.end());
+	botOutlineSegment.push_back(hair2IntersectionBot[0].intersectionPoint);
+
+	topOutlinePart.push_back(hair1IntersectionTop[0].intersectionPoint);
+	topOutlinePart.insert(topOutlinePart.end(), topOutlineSegment.begin(), topOutlineSegment.end());
+	topOutlinePart.push_back(hair2IntersectionTop[0].intersectionPoint);
+	
+	
+	// Todo add bottom line to pathpoints
+	pathPoints.insert(pathPoints.end(), botOutlinePart.begin(), botOutlinePart.end());
 
 	bool reversed = true;
 	LineIntersectionData lastIntersection = hair2IntersectionBot[0];
@@ -1096,7 +1113,8 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 
 	// Todo add upper line to pathpoints
 	// Todo add outline to pathpoints
-	
-
+	auto segment = ExtractSegmentFromOutline(reorderedIntersectionHair1, lastIntersection.pLineIndex, hair1IntersectionTop[0].pLineIndex + 1);
+	// Todo add bottom line to pathpoints
+	pathPoints.insert(pathPoints.end(), topOutlinePart.begin(), topOutlinePart.end());
 	return pathPoints;
 }
