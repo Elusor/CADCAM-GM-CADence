@@ -1003,17 +1003,28 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float botCutoffParam = 1.0f / 6.0f;
 	float topCutoffParam = botCutoffParam + 0.5f;
 
-	std::vector<DirectX::XMFLOAT2> topParamLine
-	{
-		DirectX::XMFLOAT2(-0.5f, topCutoffParam),
-		DirectX::XMFLOAT2(1.5f, topCutoffParam)
-	};
+	float vSteps = 15;
+	float hSteps = 15;
 
-	std::vector<DirectX::XMFLOAT2> botParamLine
+	std::vector<DirectX::XMFLOAT2> topParamLine;
+	std::vector<DirectX::XMFLOAT2> botParamLine;
+
+	float begParamLine = -0.5f;
+	float endParamLine = 1.5f;
+
+	float paramLineSteps = vSteps;
+	float paramLineStep = (endParamLine - begParamLine) / paramLineSteps;
+	for (size_t stepV = 0; stepV <= paramLineSteps; stepV++)
 	{
-		DirectX::XMFLOAT2(-0.5f, botCutoffParam),
-		DirectX::XMFLOAT2(1.5f, botCutoffParam)
-	};
+		topParamLine.push_back({
+			begParamLine + paramLineStep * stepV,
+			topCutoffParam
+			});
+		botParamLine.push_back({
+			begParamLine + paramLineStep * stepV,
+			botCutoffParam
+			});
+	}
 
 	auto hair1IntersectionTop = IntersectCurves(topParamLine, reorderedIntersectionHair1);
 	auto hair1IntersectionBot = IntersectCurves(botParamLine, reorderedIntersectionHair1);
@@ -1021,8 +1032,6 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	auto hair2IntersectionTop = IntersectCurves(topParamLine, reorderedIntersectionHair2);
 	auto hair2IntersectionBot = IntersectCurves(botParamLine, reorderedIntersectionHair2);
 
-	float vSteps = 15;
-	float hSteps = 15;
 
 	float vStepWidth = (topCutoffParam - botCutoffParam) / vSteps;
 
