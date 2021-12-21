@@ -1004,7 +1004,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	float topCutoffParam = botCutoffParam + 0.5f;
 
 	float vSteps = 16;
-	float hSteps = 15;
+	float hSteps = 25;
 
 	std::vector<DirectX::XMFLOAT2> topParamLine;
 
@@ -1065,7 +1065,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 		float scanLineBeg = 0.0f;
 		float scanLineEnd = 1.0f;
 		float scanLineStep = (scanLineEnd - scanLineBeg) / hSteps;
-		for (size_t stepH = 0; stepH <= vSteps; stepH++)
+		for (size_t stepH = 0; stepH <= hSteps; stepH++)
 		{
 			scanline.push_back({
 				scanLineBeg + scanLineStep * stepH,
