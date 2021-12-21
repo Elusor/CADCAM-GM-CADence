@@ -132,7 +132,14 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
 	VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
 	
-
+	auto normalizeHair = NormalizeParameters(bodyXhairIntersection.surfPParams, hairObject);
+	auto normalizeHair2 = NormalizeParameters(bodyXhairIntersection2.surfPParams, hairObject);
+	auto hairPathPointParams = PrepareHair(
+		normalizeHair,
+		normalizeHair2
+	);
+	auto denormalizedHairPathPointParams = DenormalizeParameters(hairPathPointParams, hairObject);
+	VisualizeCurve(&hairOffsetObject, denormalizedHairPathPointParams);
 	// Trim the "single intersection objects"
 
 	// Merge the trimmed ares of the base parts
@@ -976,6 +983,102 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 	// reverse if reverse flag is present?
 
 	pathPoints.insert(pathPoints.end(), topOutlineFinal.begin(), topOutlineFinal.end());
+
+	return pathPoints;
+}
+
+std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
+	const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
+	const std::vector<DirectX::XMFLOAT2>& intersectionHair2)
+{
+	float botCutoffParam = 1.0f / 6.0f;
+	float topCutoffParam = botCutoffParam + 0.5f;
+
+	std::vector<DirectX::XMFLOAT2> topParamLine
+	{
+		DirectX::XMFLOAT2(-0.5f, topCutoffParam),
+		DirectX::XMFLOAT2(1.5f, topCutoffParam)
+	};
+
+	std::vector<DirectX::XMFLOAT2> botParamLine
+	{
+		DirectX::XMFLOAT2(-0.5f, botCutoffParam),
+		DirectX::XMFLOAT2(1.5f, botCutoffParam)
+	};
+
+	auto hair1IntersectionTop = IntersectCurves(topParamLine, intersectionHair1);
+	auto hair1IntersectionBot = IntersectCurves(botParamLine, intersectionHair1);
+
+	auto hair2IntersectionTop = IntersectCurves(topParamLine, intersectionHair2);
+	auto hair2IntersectionBot = IntersectCurves(botParamLine, intersectionHair2);
+
+	float vSteps = 15;
+	float hSteps = 15;
+
+	float vStepWidth = (topCutoffParam - botCutoffParam) / vSteps;
+
+	std::vector<DirectX::XMFLOAT2> pathPoints;
+	// Todo add bottom line to pathpoints
+
+
+	bool reversed = true;
+	LineIntersectionData lastIntersection = hair2IntersectionBot[0];
+	for (size_t vStep = 1; vStep < vSteps; vStep++)
+	{
+		float currentStepValue = botCutoffParam + vStep * vStepWidth;
+		std::vector<DirectX::XMFLOAT2> scanline
+		{
+			DirectX::XMFLOAT2(-0.5f, currentStepValue),
+			DirectX::XMFLOAT2(1.5f, currentStepValue)
+		};
+
+		auto scanlineHairIntersection1 = IntersectCurves(scanline, intersectionHair1);
+		auto scanlineHairIntersection2 = IntersectCurves(scanline, intersectionHair2);
+
+		// Subdivide the curve into
+		LineIntersectionData beg;
+		LineIntersectionData end;
+		std::vector<DirectX::XMFLOAT2>& outlineline = scanline;
+		if (reversed)
+		{
+			beg = scanlineHairIntersection2[0];
+			end = scanlineHairIntersection1[0];
+			outlineline = intersectionHair2;
+		}
+		else
+		{
+			beg = scanlineHairIntersection1[0];
+			end = scanlineHairIntersection2[0];
+			outlineline = intersectionHair1;
+		}
+		
+		// Add part of the outline
+		if (lastIntersection.pLineIndex != beg.pLineIndex)
+		{
+			auto outlineSegment = ExtractSegmentFromOutline(outlineline, lastIntersection.pLineIndex, beg.pLineIndex); // maybe +1?
+			// TODO maybe reverse this segmenmt
+
+			pathPoints.insert(pathPoints.end(), outlineSegment.begin(), outlineSegment.end());
+		}		
+		auto hStepWidth = (end.intersectionPoint.x - beg.intersectionPoint.x) / hSteps;
+		
+		for (size_t hStep = 0; hStep <= hSteps; hStep++)
+		{
+			pathPoints.push_back(
+				DirectX::XMFLOAT2(
+					beg.intersectionPoint.x + hStepWidth * hStep,
+					currentStepValue
+				)
+			);
+		}
+
+		reversed = !reversed;
+		lastIntersection = end;
+	}
+
+	// Todo add upper line to pathpoints
+	// Todo add outline to pathpoints
+	
 
 	return pathPoints;
 }

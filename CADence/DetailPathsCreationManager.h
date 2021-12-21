@@ -43,4 +43,9 @@ private:
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair2,
 		const std::vector<DirectX::XMFLOAT2>& intersectionSideSpikes);
+	std::vector<DirectX::XMFLOAT2> PrepareHair(
+		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
+		const std::vector<DirectX::XMFLOAT2>& intersectionHair2);
+
+
 };
