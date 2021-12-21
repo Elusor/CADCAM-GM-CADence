@@ -935,6 +935,14 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 			}
 		}
 
+		if (sideSpikeInt.size())
+		{
+			for (const auto& inter : sideSpikeInt)
+			{
+				intersections.push_back(inter);
+			}
+		}
+
 		intersections.push_back(backFinInt[0]);
 		auto mutlipleSegments = ExtractMultipleSegments(intersections, scanLine);
 
