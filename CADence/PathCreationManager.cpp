@@ -223,7 +223,7 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 				float* valElem = reinterpret_cast<float*>(deviceDependantDataPointer);
 				float val = *valElem;
 				// Remember to render with an offset block surface!
-				float newVal = m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val))) - m_millRadius;
+				float newVal = m_modelDepth * (1.f - NormalizedLinearDepth(LinearizeDepth(val)));
 				if (newVal > maxVal)
 				{
 					maxVal = newVal;
@@ -244,7 +244,7 @@ void PathCreationManager::ParseDepthTexture(std::unique_ptr<RenderState>& render
 			float val = data[idx] - minVal;
 			assert(val / maxVal <= 1.0f);
 			float scaledVal = val / maxVal * m_modelDepth;
-			data[idx] = scaledVal;
+			data[idx] = scaledVal - m_millRadius;
 		}
 
 		SavePathToFile(data);

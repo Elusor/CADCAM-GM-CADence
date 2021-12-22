@@ -118,6 +118,11 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Pa
 				ptr->Render(renderState);
 			}
 		}
+		auto base = allObjects[allObjects.size() - 1];
+		if (auto ptr = base.lock())
+		{
+			ptr->Render(renderState);
+		}
 	}
 
 	
