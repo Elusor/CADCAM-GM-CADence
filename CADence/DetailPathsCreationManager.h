@@ -56,5 +56,9 @@ private:
 		const std::vector<DirectX::XMFLOAT2>& intersectionBody,
 		const std::vector<DirectX::XMFLOAT2>& intersectionBackFin);
 
+	std::vector<DirectX::XMFLOAT2> PrepareC0(
+		const std::vector<DirectX::XMFLOAT2>& intersectionCurve
+	);
+
 	std::vector<DirectX::XMFLOAT3> RemoveSpecialPoints(const std::vector<DirectX::XMFLOAT3>& endPathPoints);
 };
