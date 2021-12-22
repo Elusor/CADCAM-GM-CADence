@@ -46,7 +46,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		&hairOffsetObject,
 		DirectX::XMFLOAT3(0.4, 4.1, -0.4)
 	);
-	VisualizeCurve(&baseOffsetObject, baseXhairIntersectionBot.surfQParams);
+	//VisualizeCurve(&baseOffsetObject, baseXhairIntersectionBot.surfQParams);
 
 	auto baseXhairIntersectionTop = m_intersectionFinder->FindIntersectionWithCursor(
 		&baseOffsetObject,
@@ -54,53 +54,53 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		DirectX::XMFLOAT3(0.0f, 6.0f, -0.4)
 	);
 
-	VisualizeCurve(&baseOffsetObject, baseXhairIntersectionTop.surfQParams);
+	//VisualizeCurve(&baseOffsetObject, baseXhairIntersectionTop.surfQParams);
 
-	auto baseXbodyIntersectionTop = m_intersectionFinder->FindIntersectionWithCursor(
-		&baseOffsetObject,
-		&bodyOffsetObject,
-		DirectX::XMFLOAT3(0.4, 2.7, -0.4)
-	);
-	VisualizeCurve(&baseOffsetObject, baseXbodyIntersectionTop.surfQParams);
+	//auto baseXbodyIntersectionTop = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&baseOffsetObject,
+	//	&bodyOffsetObject,
+	//	DirectX::XMFLOAT3(0.4, 2.7, -0.4)
+	//);
+	//VisualizeCurve(&baseOffsetObject, baseXbodyIntersectionTop.surfQParams);
 
-	auto baseXbodyIntersectionBot = m_intersectionFinder->FindIntersectionWithCursor(
-		&baseOffsetObject,
-		&bodyOffsetObject,
-		DirectX::XMFLOAT3(0, -2.2, -0.4)
-	);
+	//auto baseXbodyIntersectionBot = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&baseOffsetObject,
+	//	&bodyOffsetObject,
+	//	DirectX::XMFLOAT3(0, -2.2, -0.4)
+	//);
 
-	VisualizeCurve(&baseOffsetObject, baseXbodyIntersectionBot.surfQParams);
+	//VisualizeCurve(&baseOffsetObject, baseXbodyIntersectionBot.surfQParams);
 
-	
-	auto baseXtailIntersection = m_intersectionFinder->FindIntersectionWithCursor(
-		&baseOffsetObject,
-		&backFinOffsetObject,
-		DirectX::XMFLOAT3(3.8, 2.7, -0.4)
-	);
-	VisualizeCurve(&baseOffsetObject, baseXtailIntersection.surfQParams);
+	//
+	//auto baseXtailIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&baseOffsetObject,
+	//	&backFinOffsetObject,
+	//	DirectX::XMFLOAT3(3.8, 2.7, -0.4)
+	//);
+	//VisualizeCurve(&baseOffsetObject, baseXtailIntersection.surfQParams);
 
-	return;
+	//return;
 
-	//Intersect the models that should be intersected
-	auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
-		&bodyOffsetObject,
-		&backFinOffsetObject,
-		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
-	);
+	////Intersect the models that should be intersected
+	//auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&bodyOffsetObject,
+	//	&backFinOffsetObject,
+	//	DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
+	//);
 
-	auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
-		&bodyOffsetObject,
-		&sideFinOffsetObject,
-		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
-	);
+	//auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&bodyOffsetObject,
+	//	&sideFinOffsetObject,
+	//	DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
+	//);
 
-	
-	auto bodyXeyeIntersection = m_intersectionFinder->FindIntersectionWithCursor(
-		&bodyOffsetObject,
-		&eyeOffsetObject,
-		DirectX::XMFLOAT3(-5.12f, 1.53f, -0.95f)
-	);
-	//VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
+	//
+	//auto bodyXeyeIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	//	&bodyOffsetObject,
+	//	&eyeOffsetObject,
+	//	DirectX::XMFLOAT3(-5.12f, 1.53f, -0.95f)
+	//);
+	////VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
 
 	
 	auto backFinXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
@@ -143,21 +143,10 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 
 	//VisualizeCurve(&bodyOffsetObject, spikeParams);
 
-	//  TODO REMOVE
-	//auto bodyXsideSpikeRU = m_intersectionFinder->FindIntersectionWithCursor(
-	//	&bodyOffsetObject,
-	//	&sideSpikesOffsetObject,
-	//	rightUpper
-	//);
-	//auto bodyXsideSpikeRL = m_intersectionFinder->FindIntersectionWithCursor(
-	//	&bodyOffsetObject,
-	//	&sideSpikesOffsetObject,
-	//	rightLower
-	//);
 #pragma endregion
 #pragma region body
 
-	auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
+	/*auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
 	auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
 	auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
 	auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
@@ -194,7 +183,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		normalizeBodySpikes
 	);
 	auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
-	auto bodyEndPath = VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
+	auto bodyEndPath = VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);*/
 #pragma endregion
 
 
@@ -213,24 +202,24 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 
 #pragma region hole
 
-	auto intBodyXBack = IntersectCurves(baseXbodyIntersectionTop.surfQParams, baseXtailIntersection.surfQParams);
-	auto intBodyXHair = IntersectCurves(baseXbodyIntersectionTop.surfQParams, baseXhairIntersectionBot.surfQParams);
-	auto intHairXBack = IntersectCurves(baseXhairIntersectionBot.surfQParams, baseXtailIntersection.surfQParams);
+	//auto intBodyXBack = IntersectCurves(baseXbodyIntersectionTop.surfQParams, baseXtailIntersection.surfQParams);
+	//auto intBodyXHair = IntersectCurves(baseXbodyIntersectionTop.surfQParams, baseXhairIntersectionBot.surfQParams);
+	//auto intHairXBack = IntersectCurves(baseXhairIntersectionBot.surfQParams, baseXtailIntersection.surfQParams);
 
-	auto backSegment = ExtractSegmentFromOutline(baseXtailIntersection.surfQParams, intBodyXBack[0].pLineIndex, intHairXBack[0].pLineIndex + 1);
-	auto bodySegment = ExtractSegmentFromOutline(baseXbodyIntersectionTop.surfQParams, intBodyXHair[0].qLineIndex, intBodyXBack[0].qLineIndex + 1);
-	auto hairSegment = ExtractSegmentFromOutline(baseXhairIntersectionBot.surfQParams, intHairXBack[0].qLineIndex, intBodyXHair[0].pLineIndex + 1);
+	//auto backSegment = ExtractSegmentFromOutline(baseXtailIntersection.surfQParams, intBodyXBack[0].pLineIndex, intHairXBack[0].pLineIndex + 1);
+	//auto bodySegment = ExtractSegmentFromOutline(baseXbodyIntersectionTop.surfQParams, intBodyXHair[0].qLineIndex, intBodyXBack[0].qLineIndex + 1);
+	//auto hairSegment = ExtractSegmentFromOutline(baseXhairIntersectionBot.surfQParams, intHairXBack[0].qLineIndex, intBodyXHair[0].pLineIndex + 1);
 
-	backSegment.push_back(intHairXBack[0].intersectionPoint);
-	bodySegment.push_back(intBodyXBack[0].intersectionPoint);
-	hairSegment.push_back(intBodyXHair[0].intersectionPoint);
+	//backSegment.push_back(intHairXBack[0].intersectionPoint);
+	//bodySegment.push_back(intBodyXBack[0].intersectionPoint);
+	//hairSegment.push_back(intBodyXHair[0].intersectionPoint);
 
-	std::vector<DirectX::XMFLOAT2> holepath = PrepareHole(
-		hairSegment,
-		bodySegment,
-		backSegment);
-	// add outline here?
-	auto holePathWorld = VisualizeCurve(&baseOffsetObject, holepath);
+	//std::vector<DirectX::XMFLOAT2> holepath = PrepareHole(
+	//	hairSegment,
+	//	bodySegment,
+	//	backSegment);
+	//// add outline here?
+	//auto holePathWorld = VisualizeCurve(&baseOffsetObject, holepath);
 #pragma endregion
 
 #pragma region Visualize intersections
@@ -247,17 +236,17 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	std::vector<DirectX::XMFLOAT3> wholePath;
 	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 	wholePath.push_back({ 0.0f, 0.0f, -safeHeight }); //dummy pt 
-	wholePath.insert(wholePath.end(), backFinEndPath.begin(), backFinEndPath.end());
+	/*wholePath.insert(wholePath.end(), backFinEndPath.begin(), backFinEndPath.end());
 	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
 	wholePath.insert(wholePath.end(), bodyEndPath.begin(), bodyEndPath.end());
 	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
 	wholePath.insert(wholePath.end(), eyeEndPath.begin(), eyeEndPath.end());
 	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
 	wholePath.insert(wholePath.end(), sideFinEndPath.begin(), sideFinEndPath.end());
-	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	wholePath.push_back({ -1.0f, -1.0f, -1.0f });*/
 	wholePath.insert(wholePath.end(), hairEndPath.begin(), hairEndPath.end());
-	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
-	wholePath.insert(wholePath.end(), holePathWorld.begin(), holePathWorld.end());
+	//wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	//wholePath.insert(wholePath.end(), holePathWorld.begin(), holePathWorld.end());
 	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 
@@ -1161,22 +1150,39 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	reorderedIntersectionHair2.insert(reorderedIntersectionHair2.end(), intersectionHair2.begin(), intersectionHair2.begin() + 9);
 	std::reverse(reorderedIntersectionHair2.begin(), reorderedIntersectionHair2.end());
 
-	float botCutoffParam = 1.0f / 6.0f;
-	float topCutoffParam = botCutoffParam + 0.5f;
+	
 
-	float vSteps = 16;
-	float hSteps = 25;
+	float vSteps = 32;
+	float hSteps = 40;
 
-	std::vector<DirectX::XMFLOAT2> topParamLine;
+	std::vector<DirectX::XMFLOAT2> topParamLine = cutoffTop;
 
-	std::vector<DirectX::XMFLOAT2> botParamLine;
+	std::vector<DirectX::XMFLOAT2> botParamLine = cutoffBot;
+	std::reverse(botParamLine.begin(), botParamLine.end());
+
+	float minY = 1.0f;
+	float maxY = 0.0f;
+	for (auto pt : topParamLine)
+	{
+		minY = minY < pt.y ? minY : pt.y;
+		maxY = maxY > pt.y ? maxY : pt.y;
+	}
+
+	for (auto pt : botParamLine)
+	{
+		minY = minY < pt.y ? minY : pt.y;
+		maxY = maxY > pt.y ? maxY : pt.y;
+	}
+
+	float topCutoffParam = maxY;
+	float botCutoffParam = minY;
 
 	float begParamLine = -0.5f;
 	float endParamLine = 1.5f;
 
 	float paramLineSteps = hSteps * 2;
 	float paramLineStep = (endParamLine - begParamLine) / paramLineSteps;
-	for (size_t stepV = 0; stepV <= paramLineSteps; stepV++)
+	/*for (size_t stepV = 0; stepV <= paramLineSteps; stepV++)
 	{
 		topParamLine.push_back({
 			begParamLine + paramLineStep * stepV,
@@ -1186,7 +1192,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 			begParamLine + paramLineStep * stepV,
 			botCutoffParam
 			});
-	}
+	}*/
 
 	auto hair1IntersectionTop = IntersectCurves(topParamLine, reorderedIntersectionHair1);
 	auto hair1IntersectionBot = IntersectCurves(botParamLine, reorderedIntersectionHair1);
@@ -1205,9 +1211,9 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	auto topOutlineSegment = ExtractSegmentFromOutline(topParamLine, hair1IntersectionTop[0].qLineIndex, hair2IntersectionTop[0].qLineIndex + 1);
 	auto botOutlineSegment = ExtractSegmentFromOutline(botParamLine, hair1IntersectionBot[0].qLineIndex, hair2IntersectionBot[0].qLineIndex + 1);
 
-	botOutlineSegment.push_back(hair1IntersectionBot[0].intersectionPoint);
-	botOutlineSegment.insert(botOutlineSegment.end(), botOutlineSegment.begin(), botOutlineSegment.end());
-	botOutlineSegment.push_back(hair2IntersectionBot[0].intersectionPoint);
+	botOutlinePart.push_back(hair1IntersectionBot[0].intersectionPoint);
+	botOutlinePart.insert(botOutlinePart.end(), botOutlineSegment.begin(), botOutlineSegment.end());
+	botOutlinePart.push_back(hair2IntersectionBot[0].intersectionPoint);
 
 	topOutlinePart.push_back(hair1IntersectionTop[0].intersectionPoint);
 	topOutlinePart.insert(topOutlinePart.end(), topOutlineSegment.begin(), topOutlineSegment.end());
@@ -1236,6 +1242,18 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 		auto scanlineHairIntersection1 = IntersectCurves(scanline, reorderedIntersectionHair1);
 		auto scanlineHairIntersection2 = IntersectCurves(scanline, reorderedIntersectionHair2);
 
+		auto scanLineBotIntersection = IntersectCurves(scanline, botOutlinePart);
+		auto scanLineTopIntersection = IntersectCurves(scanline, topOutlinePart);
+
+		if(scanLineBotIntersection.size())
+		{
+			int x = scanLineBotIntersection.size();
+		}
+		if (scanLineTopIntersection.size())
+		{
+			int x = scanLineTopIntersection.size();
+		}
+
 		// Subdivide the curve into
 		LineIntersectionData beg;
 		LineIntersectionData end;
@@ -1252,7 +1270,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 			end = scanlineHairIntersection2[0];
 			outlineline = reorderedIntersectionHair1;
 		}
-		
+
 		// Add part of the outline
 		if (lastIntersection.pLineIndex != beg.pLineIndex)
 		{
