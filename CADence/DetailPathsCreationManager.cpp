@@ -27,6 +27,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto backFinObject = dynamic_cast<IParametricSurface*>(modelObjects[3].lock().get()->m_object.get());
 	auto sideFinObject = dynamic_cast<IParametricSurface*>(modelObjects[4].lock().get()->m_object.get());
 	auto sideSpikes = dynamic_cast<IParametricSurface*>(modelObjects[5].lock().get()->m_object.get());
+	auto base = dynamic_cast<IParametricSurface*>(modelObjects[6].lock().get()->m_object.get());
 
 	// Create offset surfaces for each object in the model
 	auto bodyOffsetObject = ParametricOffsetSurface(bodyObject, offset);
@@ -35,8 +36,28 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto backFinOffsetObject = ParametricOffsetSurface(backFinObject, offset);
 	auto sideFinOffsetObject = ParametricOffsetSurface(sideFinObject, offset);
 	auto sideSpikesOffsetObject = ParametricOffsetSurface(sideSpikes, offset);
+	auto baseOffsetObject = ParametricOffsetSurface(base, offset);
 
 #pragma region Calculate intersections
+	
+	auto baseXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&baseOffsetObject,
+		&hairOffsetObject,
+		DirectX::XMFLOAT3(0.4, 4.1, -0.4)
+	);
+
+	auto baseXbodyIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&baseOffsetObject,
+		&bodyOffsetObject,
+		DirectX::XMFLOAT3(0.4, 2.7, -0.4)
+	);
+
+	auto baseXtailIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&baseOffsetObject,
+		&backFinOffsetObject,
+		DirectX::XMFLOAT3(3.8, 2.7, -0.4)
+	);
+
 	//Intersect the models that should be intersected
 	auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
@@ -56,7 +77,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		&eyeOffsetObject,
 		DirectX::XMFLOAT3(-5.12f, 1.53f, -0.95f)
 	);
-	VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
+	//VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
 
 	
 	auto backFinXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
@@ -158,7 +179,27 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto denormalizedHairPathPointParams = DenormalizeParameters(hairPathPointParams, hairObject);
 	auto hairEndPath = VisualizeCurve(&hairOffsetObject, denormalizedHairPathPointParams);
 
+#pragma region hole
 
+	auto intBodyXBack = IntersectCurves(baseXbodyIntersection.surfQParams, baseXtailIntersection.surfQParams);
+	auto intBodyXHair = IntersectCurves(baseXbodyIntersection.surfQParams, baseXhairIntersection.surfQParams);
+	auto intHairXBack = IntersectCurves(baseXhairIntersection.surfQParams, baseXtailIntersection.surfQParams);
+
+	auto backSegment = ExtractSegmentFromOutline(baseXtailIntersection.surfQParams, intBodyXBack[0].pLineIndex, intHairXBack[0].pLineIndex + 1);
+	auto bodySegment = ExtractSegmentFromOutline(baseXbodyIntersection.surfQParams, intBodyXHair[0].qLineIndex, intBodyXBack[0].qLineIndex + 1);
+	auto hairSegment = ExtractSegmentFromOutline(baseXhairIntersection.surfQParams, intHairXBack[0].qLineIndex, intBodyXHair[0].pLineIndex + 1);
+
+	backSegment.push_back(intHairXBack[0].intersectionPoint);
+	bodySegment.push_back(intBodyXBack[0].intersectionPoint);
+	hairSegment.push_back(intBodyXHair[0].intersectionPoint);
+
+	std::vector<DirectX::XMFLOAT2> holepath = PrepareHole(
+		hairSegment,
+		bodySegment,
+		backSegment);
+	// add outline here?
+	auto holePathWorld = VisualizeCurve(&baseOffsetObject, holepath);
+#pragma endregion
 
 #pragma region Visualize intersections
 	/*VisualizeCurve(&bodyOffsetObject, bodyXbackFinIntersection);
@@ -183,6 +224,8 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	wholePath.insert(wholePath.end(), sideFinEndPath.begin(), sideFinEndPath.end());
 	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
 	wholePath.insert(wholePath.end(), hairEndPath.begin(), hairEndPath.end());
+	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	wholePath.insert(wholePath.end(), holePathWorld.begin(), holePathWorld.end());
 	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 
@@ -1228,6 +1271,80 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	pathPoints.insert(pathPoints.end(), outlinePoints.begin(), outlinePoints.end());
 
 	return pathPoints;
+}
+
+std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHole(
+	const std::vector<DirectX::XMFLOAT2>& intersectionHair, 
+	const std::vector<DirectX::XMFLOAT2>& intersectionBody,
+	const std::vector<DirectX::XMFLOAT2>& intersectionBackFin)
+{
+	auto topLine = intersectionHair;
+	std::reverse(topLine.begin(), topLine.end());
+	auto firstPt = topLine[0];
+
+	std::vector<DirectX::XMFLOAT2> botLine{ firstPt };
+	botLine.insert(botLine.end(), intersectionBody.begin(), intersectionBody.end());
+	botLine.insert(botLine.end(), intersectionBackFin.begin(), intersectionBackFin.end());	
+	auto lastPt = botLine[botLine.size() - 1];
+	topLine.push_back(lastPt);
+
+	float begParamX = firstPt.x;
+	float endParamX = lastPt.x;
+
+	float vSteps = 40;
+	float vStepWidth = (endParamX - begParamX) / vSteps;
+
+	LineIntersectionData lastIntersection;
+	lastIntersection.pLineIndex = 0;
+	lastIntersection.qLineIndex = 0;
+	lastIntersection.intersectionPoint = firstPt;
+	bool reversed = false;
+	std::vector<DirectX::XMFLOAT2> endPoints;
+	endPoints.push_back(firstPt);
+	for (size_t vStepIdx = 1; vStepIdx < vSteps; vStepIdx++)
+	{
+		float curXParam = begParamX + vStepWidth * vStepIdx;
+		std::vector<DirectX::XMFLOAT2> scanline
+		{
+			{curXParam, 0.0f},
+			{curXParam, 1.0f}
+		};
+
+		auto topIntersection = IntersectCurves(scanline, topLine);
+		auto botIntersection = IntersectCurves(scanline, botLine);
+		LineIntersectionData beg;
+		LineIntersectionData end;
+		std::vector<DirectX::XMFLOAT2> segment;
+
+		if (reversed)
+		{
+			beg = topIntersection[0];
+			end = botIntersection[0];
+
+			segment = ExtractSegmentFromOutline(topLine, lastIntersection.pLineIndex, beg.pLineIndex);
+		}
+		else
+		{
+			beg = botIntersection[0];
+			end = topIntersection[0];
+
+			segment = ExtractSegmentFromOutline(botLine, lastIntersection.pLineIndex, beg.pLineIndex);
+		}
+
+		endPoints.insert(endPoints.end(), segment.begin(), segment.end());
+		endPoints.push_back(beg.intersectionPoint);
+		endPoints.push_back(end.intersectionPoint);
+
+		lastIntersection = end;
+		reversed = !reversed;		
+	}
+
+
+
+	endPoints.push_back(lastPt);
+
+
+	return endPoints;
 }
 
 std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::RemoveSpecialPoints(const std::vector<DirectX::XMFLOAT3>& endPathPoints)

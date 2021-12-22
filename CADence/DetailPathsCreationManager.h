@@ -47,5 +47,10 @@ private:
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair2);
 
+	std::vector<DirectX::XMFLOAT2> PrepareHole(
+		const std::vector<DirectX::XMFLOAT2>& intersectionHair,
+		const std::vector<DirectX::XMFLOAT2>& intersectionBody,
+		const std::vector<DirectX::XMFLOAT2>& intersectionBackFin);
+
 	std::vector<DirectX::XMFLOAT3> RemoveSpecialPoints(const std::vector<DirectX::XMFLOAT3>& endPathPoints);
 };
