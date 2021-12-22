@@ -977,7 +977,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 	// backFinFinal
 	// frontLineFinal
 
-	float vSteps = 35;
+	float vSteps = 100;
 	float hSteps = 45;
 #pragma region Create Outline
 	// Calculate lower line 
@@ -1122,7 +1122,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 		{
 			startIntersection = backFinInt[0];
 			// Update frame segment
-			outlineSegment = ExtractSegmentFromOutline(backFinFinal, lastIntersectionPoint.pLineIndex, startIntersection.pLineIndex);
+			//outlineSegment = ExtractSegmentFromOutline(backFinFinal, lastIntersectionPoint.pLineIndex, startIntersection.pLineIndex);
 			std::reverse(mutlipleSegments.begin(), mutlipleSegments.end());
 			lastIntersectionPoint = frontInt[0];
 		}
@@ -1144,7 +1144,7 @@ DirectX::XMFLOAT2(0.0f, 1.0f)
 	}
 
 	// reverse if reverse flag is present?
-
+	std::reverse(topOutlineFinal.begin(), topOutlineFinal.end());
 	pathPoints.insert(pathPoints.end(), topOutlineFinal.begin(), topOutlineFinal.end());
 
 	return pathPoints;
