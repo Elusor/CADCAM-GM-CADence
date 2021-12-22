@@ -18,6 +18,12 @@ MillingHullRenderPass::MillingHullRenderPass(
 		zNear, zFar,
 		Vector3(0.0f, 0.0f, -zFar),
 		Vector3(0.0f, 0.0f, 0.0f));
+
+	m_cameraCloser = std::make_unique<OrthographicCamera>(
+		cameraSide, cameraSide,
+		zNear, zFar,
+		Vector3(0.0f, 0.0f, -zFar + 1.2f),
+		Vector3(0.0f, 0.0f, 0.0f));
 	m_texture = std::make_unique<TextureRenderTarget>();
 
 	m_texture->Initialize(
@@ -45,18 +51,25 @@ void MillingHullRenderPass::Execute(std::unique_ptr<RenderState>& renderState, P
 	// Set new viewport
 
 	auto oldCamera = renderState->currentCamera;
-	renderState->currentCamera = m_camera.get();
+	renderState->currentCamera = m_cameraCloser.get();
 	Clear(renderState);
 
-	auto vpMat = m_camera->GetViewProjectionMatrix();
-	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vpMat);
-	ID3D11Buffer* cbs2[] = { VPbuffer };
+	auto vpMatCloser = m_cameraCloser->GetViewProjectionMatrix();
+	auto VPbufferCloser = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vpMatCloser);
+	ID3D11Buffer* cbs2[] = { VPbufferCloser };
 	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs2);
 	
 	XMFLOAT4 offset16byteAligned = XMFLOAT4(0.0f, 0.f, 0.f, 0.f);
 	auto offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
 	renderState->m_device.context()->GSSetConstantBuffers(6, 1, &offsetBuff);
+
 	Render(renderState, model, true);
+
+	renderState->currentCamera = m_camera.get();
+	auto vpMat = m_camera->GetViewProjectionMatrix();
+	auto VPbuffer = renderState->SetConstantBuffer<XMMATRIX>(renderState->m_cbVP.get(), vpMat);
+	ID3D11Buffer* cbs3[] = { VPbuffer };
+	renderState->m_device.context()->VSSetConstantBuffers(0, 1, cbs3);
 
 	offset16byteAligned = XMFLOAT4(m_offset, 0.f, 0.f, 0.f);
 	offsetBuff = renderState->SetConstantBuffer<XMFLOAT4>(renderState->m_cbMillingOffset.get(), offset16byteAligned);
@@ -102,9 +115,9 @@ void MillingHullRenderPass::Render(std::unique_ptr<RenderState>& renderState, Pa
 
 	if (baseOnly)
 	{
-		auto base = allObjects[allObjects.size() - 1];
-		if (auto ptr = base.lock())
-		{
+		auto sideSpikes = allObjects[5];
+		if (auto ptr = sideSpikes.lock())
+		{			
 			ptr->Render(renderState);
 		}
 	}
