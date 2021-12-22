@@ -38,20 +38,19 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 
 #pragma region Calculate intersections
 	// Intersect the models that should be intersected
-	auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	/*auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&backFinOffsetObject,
 		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
-	);
-	VisualizeCurve(&bodyOffsetObject, bodyXbackFinIntersection.surfQParams);
+	);*/
 
 	auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&sideFinOffsetObject,
 		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
 	);
-	VisualizeCurve(&bodyOffsetObject, bodyXsideFinIntersection.surfQParams);
-	
+
+	/*
 	auto bodyXeyeIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&eyeOffsetObject,
@@ -98,7 +97,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	spikeParams.insert(spikeParams.end(), spikeQParamBot.begin(), spikeQParamBot.end());
 	spikeParams.push_back(spikeParams[0]);
 
-	VisualizeCurve(&bodyOffsetObject, spikeParams);
+	VisualizeCurve(&bodyOffsetObject, spikeParams);*/
 
 	//  TODO REMOVE
 	//auto bodyXsideSpikeRU = m_intersectionFinder->FindIntersectionWithCursor(
@@ -114,15 +113,15 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 #pragma endregion
 #pragma region body
 
-	//auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
-	//auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
-	//auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
-	//auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
+	/*auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
+	auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
+	auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
+	auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);*/
 
-	//auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
-	//auto sideFinPathPointsParams = PrepareSideFin(normalizedSideFin);
-	//auto denormalizedSideFinPathPointParams = DenormalizeParameters(sideFinPathPointsParams, sideFinObject);
-	//auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
+	auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
+	auto sideFinPathPointsParams = PrepareSideFin(normalizedSideFin);
+	auto denormalizedSideFinPathPointParams = DenormalizeParameters(sideFinPathPointsParams, sideFinObject);
+	auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
 
 	//auto normalizedEye = NormalizeParameters(bodyXeyeIntersection.surfPParams, eyeObject);
 	//auto eyePathPointsParams = PrepareEye(normalizedEye);
@@ -473,7 +472,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 	float maxHParam = 1.0f;
 
 	size_t steps = 40;
-	size_t vSteps = 30;
+	size_t vSteps = 31;
 	float stepHWidth = (maxHParam - minHParam) / steps;
 
 	std::vector<DirectX::XMFLOAT2> pathPoints;
@@ -591,7 +590,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 
 	// last point
 	// second to last point
-	std::reverse(segmentUp.begin(), segmentUp.end());
+	//std::reverse(segmentUp.begin(), segmentUp.end());
 	pathPoints.insert(pathPoints.end(), segmentUp.begin(), segmentUp.end());
 
 	// Outline 
@@ -606,7 +605,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 	// allIntersections[allIntersections.size() - 1].pLineIndex,
 	// allIntersections[allIntersections.size() - 2].pLineIndex
 
-	pathPoints.insert(pathPoints.end(), outlinePoints.begin(), outlinePoints.end());
+	//pathPoints.insert(pathPoints.end(), outlinePoints.begin(), outlinePoints.end());
 	//pathPoints.insert(intersectionParams);
 	//pathPoints.push_back(allIntersections[allIntersections.size()-1].intersectionPoint);
 
