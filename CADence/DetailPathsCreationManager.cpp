@@ -17,7 +17,8 @@ DetailPathsCreationManager::DetailPathsCreationManager(IntersectionFinder* inter
 
 void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 {
-	float offset = -0.09F; // 0.08 + 0.01 eps
+	// TODO offset should be 0.45 not 0.09 lol
+	float offset = -0.4F; // 0.08 + 0.01 eps
 
 	auto modelObjects = model->GetModelObjects();
 	auto bodyObject = dynamic_cast<IParametricSurface*>(modelObjects[0].lock().get()->m_object.get());
@@ -42,33 +43,40 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		&backFinOffsetObject,
 		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
 	);
+	VisualizeCurve(&bodyOffsetObject, bodyXbackFinIntersection.surfQParams);
 
 	auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&sideFinOffsetObject,
 		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
 	);
-
+	VisualizeCurve(&bodyOffsetObject, bodyXsideFinIntersection.surfQParams);
+	
 	auto bodyXeyeIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&eyeOffsetObject,
 		DirectX::XMFLOAT3(-5.12f, 1.53f, -0.95f)
 	);
+	VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
 
+	
+	auto backFinXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+		&backFinOffsetObject,
+		&hairOffsetObject,
+		DirectX::XMFLOAT3(4.2f, 3.8f, 0.59f)
+	);
+	VisualizeCurve(&backFinOffsetObject, backFinXhairIntersection.surfQParams);
+
+	
 	auto bodyXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&hairOffsetObject,
 		DirectX::XMFLOAT3(-3.1f, 4.5f, -0.65f)
 	);
-
-	auto bodyXhairIntersection2 = m_intersectionFinder->FindIntersectionWithCursor(
-		&bodyOffsetObject,
-		&hairOffsetObject,
-		DirectX::XMFLOAT3(2.37f, 1.5f, -0.225F)
-	);
+	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection.surfQParams);
 
 	auto leftUpper = DirectX::XMFLOAT3(-3.25f, 1.66f, -1.62f);
-	auto leftLower = DirectX::XMFLOAT3(-3.39f, -0.54f, -1.8f);
+	auto leftLower = DirectX::XMFLOAT3(-3.95f, -0.34f, -2.0f);
 	auto rightUpper = DirectX::XMFLOAT3(-1.32f, 1.71f, -1.46f);
 	auto rightLower = DirectX::XMFLOAT3(-1.32f, -0.48f, -1.68f);
 
@@ -82,6 +90,15 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		&sideSpikesOffsetObject,
 		leftLower
 	);
+
+	std::vector<DirectX::XMFLOAT2> spikeParams;
+	auto spikeQParamUp = bodyXsideSpikeLU.surfQParams;
+	auto spikeQParamBot = bodyXsideSpikeLL.surfQParams;
+	spikeParams.insert(spikeParams.end(), spikeQParamUp.begin(), spikeQParamUp.end());
+	spikeParams.insert(spikeParams.end(), spikeQParamBot.begin(), spikeQParamBot.end());
+	spikeParams.push_back(spikeParams[0]);
+
+	VisualizeCurve(&bodyOffsetObject, spikeParams);
 
 	//  TODO REMOVE
 	//auto bodyXsideSpikeRU = m_intersectionFinder->FindIntersectionWithCursor(
@@ -97,58 +114,53 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 #pragma endregion
 #pragma region body
 
-	auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
-	auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
-	auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
-	auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
+	//auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
+	//auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
+	//auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
+	//auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
 
-	auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
-	auto sideFinPathPointsParams = PrepareSideFin(normalizedSideFin);
-	auto denormalizedSideFinPathPointParams = DenormalizeParameters(sideFinPathPointsParams, sideFinObject);
-	auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
+	//auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
+	//auto sideFinPathPointsParams = PrepareSideFin(normalizedSideFin);
+	//auto denormalizedSideFinPathPointParams = DenormalizeParameters(sideFinPathPointsParams, sideFinObject);
+	//auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
 
-	auto normalizedEye = NormalizeParameters(bodyXeyeIntersection.surfPParams, eyeObject);
-	auto eyePathPointsParams = PrepareEye(normalizedEye);
-	auto denomarlizedEyePathPointParams = DenormalizeParameters(eyePathPointsParams, eyeObject);
-	auto eyeEndPath = VisualizeCurve(&eyeOffsetObject, denomarlizedEyePathPointParams);
+	//auto normalizedEye = NormalizeParameters(bodyXeyeIntersection.surfPParams, eyeObject);
+	//auto eyePathPointsParams = PrepareEye(normalizedEye);
+	//auto denomarlizedEyePathPointParams = DenormalizeParameters(eyePathPointsParams, eyeObject);
+	//auto eyeEndPath = VisualizeCurve(&eyeOffsetObject, denomarlizedEyePathPointParams);
 
-	auto normalizeBodySideFin = NormalizeParameters(bodyXsideFinIntersection.surfQParams, bodyObject);
-	auto normalizeBodyBackFin = NormalizeParameters(bodyXbackFinIntersection.surfQParams, bodyObject);
-	auto normalizeBodyEye = NormalizeParameters(bodyXeyeIntersection.surfQParams, bodyObject);
-	auto normalizeBodyHair = NormalizeParameters(bodyXhairIntersection.surfQParams, bodyObject);
-	auto normalizeBodyHair2 = NormalizeParameters(bodyXhairIntersection2.surfQParams, bodyObject);
+	//auto normalizeBodySideFin = NormalizeParameters(bodyXsideFinIntersection.surfQParams, bodyObject);
+	//auto normalizeBodyBackFin = NormalizeParameters(bodyXbackFinIntersection.surfQParams, bodyObject);
+	//auto normalizeBodyEye = NormalizeParameters(bodyXeyeIntersection.surfQParams, bodyObject);
+	//auto normalizeBodyHair = NormalizeParameters(backFinXhairIntersection.surfQParams, bodyObject);
+	//auto normalizeBodyHair2 = NormalizeParameters(bodyXhairIntersection.surfQParams, bodyObject);
 
 
-	std::vector<DirectX::XMFLOAT2> spikeParams;
-	auto spikeQParamUp = bodyXsideSpikeLU.surfQParams;
-	auto spikeQParamBot = bodyXsideSpikeLL.surfQParams;
-	spikeParams.insert(spikeParams.end(), spikeQParamUp.begin(), spikeQParamUp.end());
-	spikeParams.insert(spikeParams.end(), spikeQParamBot.begin(), spikeQParamBot.end());
-	spikeParams.push_back(spikeParams[0]);
+	
 
-	auto normalizeBodySpikes = NormalizeParameters(spikeParams, bodyObject);
+	//auto normalizeBodySpikes = NormalizeParameters(spikeParams, bodyObject);
 
-	auto bodyPathPointsParams = PrepareBody(
-		normalizeBodySideFin,
-		normalizeBodyBackFin,
-		normalizeBodyEye,
-		normalizeBodyHair,
-		normalizeBodyHair2,
-		normalizeBodySpikes
-	);
-	auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
-	auto bodyEndPath = VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
+	//auto bodyPathPointsParams = PrepareBody(
+	//	normalizeBodySideFin,
+	//	normalizeBodyBackFin,
+	//	normalizeBodyEye,
+	//	normalizeBodyHair,
+	//	normalizeBodyHair2,
+	//	normalizeBodySpikes
+	//);
+	//auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
+	//auto bodyEndPath = VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
 #pragma endregion
 
 
-	auto normalizeHair = NormalizeParameters(bodyXhairIntersection.surfPParams, hairObject);
-	auto normalizeHair2 = NormalizeParameters(bodyXhairIntersection2.surfPParams, hairObject);
+	/*auto normalizeHair = NormalizeParameters(backFinXhairIntersection.surfPParams, hairObject);
+	auto normalizeHair2 = NormalizeParameters(bodyXhairIntersection.surfPParams, hairObject);
 	auto hairPathPointParams = PrepareHair(
 		normalizeHair,
 		normalizeHair2
 	);
 	auto denormalizedHairPathPointParams = DenormalizeParameters(hairPathPointParams, hairObject);
-	auto hairEndPath = VisualizeCurve(&hairOffsetObject, denormalizedHairPathPointParams);
+	auto hairEndPath = VisualizeCurve(&hairOffsetObject, denormalizedHairPathPointParams);*/
 
 
 
@@ -156,36 +168,37 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	/*VisualizeCurve(&bodyOffsetObject, bodyXbackFinIntersection);
 	VisualizeCurve(&bodyOffsetObject, bodyXsideFinIntersection);
 	VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection);
+	VisualizeCurve(&bodyOffsetObject, backFinXhairIntersection);
 	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection);
-	VisualizeCurve(&bodyOffsetObject, bodyXhairIntersection2);
 	*/
 	//VisualizeCurve(&bodyOffsetObject, spikeParams);
 #pragma endregion
-	float safeHeight = 5.0f;
-	std::vector<DirectX::XMFLOAT3> wholePath;
-	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
-	wholePath.push_back({ 0.0f, 0.0f, -safeHeight }); //dummy pt 
-	wholePath.insert(wholePath.end(), backFinEndPath.begin(), backFinEndPath.end());
-	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
-	wholePath.insert(wholePath.end(), bodyEndPath.begin(), bodyEndPath.end());
-	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
-	wholePath.insert(wholePath.end(), eyeEndPath.begin(), eyeEndPath.end());
-	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
-	wholePath.insert(wholePath.end(), sideFinEndPath.begin(), sideFinEndPath.end());
-	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
-	wholePath.insert(wholePath.end(), hairEndPath.begin(), hairEndPath.end());
-	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
-	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 
-	auto endPath = RemoveSpecialPoints(wholePath);
-	endPath[1] = endPath[2];
-	endPath[1].z = -safeHeight;
+	//float safeHeight = 5.0f;
+	//std::vector<DirectX::XMFLOAT3> wholePath;
+	//wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
+	//wholePath.push_back({ 0.0f, 0.0f, -safeHeight }); //dummy pt 
+	//wholePath.insert(wholePath.end(), backFinEndPath.begin(), backFinEndPath.end());
+	//wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	//wholePath.insert(wholePath.end(), bodyEndPath.begin(), bodyEndPath.end());
+	//wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	//wholePath.insert(wholePath.end(), eyeEndPath.begin(), eyeEndPath.end());
+	//wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	//wholePath.insert(wholePath.end(), sideFinEndPath.begin(), sideFinEndPath.end());
+	//wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	//wholePath.insert(wholePath.end(), hairEndPath.begin(), hairEndPath.end());
+	//wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
+	//wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 
-	endPath[endPath.size() - 2] = endPath[endPath.size() - 3];
-	endPath[endPath.size() - 2].z = -safeHeight;
+	//auto endPath = RemoveSpecialPoints(wholePath);
+	//endPath[1] = endPath[2];
+	//endPath[1].z = -safeHeight;
 
-	// Export path
-	SavePathToFile(endPath, "3_detailed.k16");
+	//endPath[endPath.size() - 2] = endPath[endPath.size() - 3];
+	//endPath[endPath.size() - 2].z = -safeHeight;
+
+	//// Export path
+	//SavePathToFile(endPath, "3_detailed.k16");
 }
 
 std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params)
