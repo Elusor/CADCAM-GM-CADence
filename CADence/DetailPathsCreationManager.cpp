@@ -1446,7 +1446,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareC0(const std::
 	topCurve.push_back(topCurveInt[1].intersectionPoint);
 	topLine.push_back(topCurveInt[1].intersectionPoint);
 
-	float eps = 0.018f;
+	float eps = 0.02f;
 	float scanningHSteps = 60;
 
 	std::vector<DirectX::XMFLOAT2> path;
@@ -1455,7 +1455,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareC0(const std::
 	float searchBegX = line[0].x;
 	float searchEndX = line[line.size() - 1].x;
 	float searchStep = (searchEndX - searchBegX) / scanningHSteps;
-	bool reversed = true;
+	bool reversed = false;
 	LineIntersectionData lastIntersection = botCurveInt[0];
 	// Do search for a given x
 	for (size_t xStep = 1; xStep < scanningHSteps; xStep++)
