@@ -544,8 +544,8 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 	float minHParam = 0.0f;
 	float maxHParam = 1.0f;
 
-	size_t steps = 40;
-	size_t vSteps = 31;
+	size_t steps = 120;
+	size_t vSteps = 60;
 	float stepHWidth = (maxHParam - minHParam) / steps;
 
 	std::vector<DirectX::XMFLOAT2> pathPoints;
