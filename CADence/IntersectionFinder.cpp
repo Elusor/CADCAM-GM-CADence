@@ -1519,8 +1519,8 @@ void IntersectionFinder::SetDefaultSettingsValues()
 	m_addCappedCurves = true;
 	m_minPointCount = 4;
 	m_oneDirPointCap = 500;
-	m_step = 0.5f;
-	m_loopPrecision = 0.025;
+	m_step = 0.05f;
+	m_loopPrecision = 0.0025;
 	m_precision = 10E-5f;
 	// To allow cursor found soulutions to be found in gradient
 	m_gradientPrecision = 1E-4f;
