@@ -37,6 +37,8 @@ private:
 	std::vector<DirectX::XMFLOAT2> PrepareSideFin(const std::vector<DirectX::XMFLOAT2>& intersectionParams);
 	std::vector<DirectX::XMFLOAT2> PrepareEye(const std::vector<DirectX::XMFLOAT2>& intersectionParams);
 	std::vector<DirectX::XMFLOAT2> PrepareBody(
+		const std::vector<DirectX::XMFLOAT2>& cutoffTop,
+		const std::vector<DirectX::XMFLOAT2>& cutoffBot,
 		const std::vector<DirectX::XMFLOAT2>& intersectionParamSideFin,
 		const std::vector<DirectX::XMFLOAT2>& intersectionParamBackFin,
 		const std::vector<DirectX::XMFLOAT2>& intersectionParamEye,
@@ -44,6 +46,8 @@ private:
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair2,
 		const std::vector<DirectX::XMFLOAT2>& intersectionSideSpikes);
 	std::vector<DirectX::XMFLOAT2> PrepareHair(
+		const std::vector<DirectX::XMFLOAT2>& cutoffTop,
+		const std::vector<DirectX::XMFLOAT2>& cutoffBot,
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair2);
 
