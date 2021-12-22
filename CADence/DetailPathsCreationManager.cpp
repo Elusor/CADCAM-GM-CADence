@@ -249,6 +249,7 @@ bool DetailPathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLO
 	//Reset instruction counter
 	m_instructionCounter = 3;
 	m_blockBaseHeight = 1.5f;
+	float millRadius = 0.8f;
 	if (myfile.is_open())
 	{
 
@@ -264,7 +265,7 @@ bool DetailPathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLO
 		for (int i = 0; i < positions.size(); i++)
 		{
 			SimpleMath::Vector3 pos = positions[i];
-			pos.z = abs(pos.z - m_blockBaseHeight - 0.1f);
+			pos.z = abs(pos.z - m_blockBaseHeight + millRadius) < m_blockBaseHeight + 0.1f ? m_blockBaseHeight + 0.1f : abs(pos.z - m_blockBaseHeight + millRadius);
 			auto mmPt = ConvertToMilimeters(pos);
 			PushInstructionToFile(myfile, PrepareMoveInstruction(mmPt), i == positions.size() - 1);
 		}
