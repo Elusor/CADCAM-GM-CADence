@@ -4,6 +4,11 @@
 #include "Scene.h"
 #include "PathUtils.h"
 
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
+
 DetailPathsCreationManager::DetailPathsCreationManager(IntersectionFinder* intersectionFinder, Scene* scene)
 {
 	m_intersectionFinder = intersectionFinder;
@@ -180,6 +185,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	endPath[endPath.size() - 2].z = -safeHeight;
 
 	// Export path
+	SavePathToFile(endPath, "3_detailed.k08");
 }
 
 std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params)
@@ -236,11 +242,57 @@ std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::VisualizeCurve(IParam
 
 bool DetailPathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions, std::string name)
 {
-	return false;
+	//Select file 
+	std::ofstream myfile;
+	myfile.open(name);
+
+	//Reset instruction counter
+	m_instructionCounter = 3;
+	m_blockBaseHeight = 1.5f;
+	if (myfile.is_open())
+	{
+
+		//// Use milimeters
+		//myfile << "%G71\n";
+		//// Opening sequence
+		//PushInstructionToFile(myfile, "G40G90");
+		//// Rotation speed and direction
+		//PushInstructionToFile(myfile, "S10000M03");
+		//// Mill movement speed
+		//PushInstructionToFile(myfile, "F15000");
+	
+		for (int i = 0; i < positions.size(); i++)
+		{
+			SimpleMath::Vector3 pos = positions[i];
+			pos.z = abs(pos.z - m_blockBaseHeight - 0.1f);
+			auto mmPt = ConvertToMilimeters(pos);
+			PushInstructionToFile(myfile, PrepareMoveInstruction(mmPt), i == positions.size() - 1);
+		}
+
+		//// Disable the rotation
+		//PushInstructionToFile(myfile, "M05");
+		//// End the program
+		//PushInstructionToFile(myfile, "M30");
+
+		myfile.close();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void DetailPathsCreationManager::PushInstructionToFile(std::ofstream& file, std::string instructionText, bool lastInstr)
 {
+	file << "N" << std::to_string(m_instructionCounter) << instructionText;
+
+	if (lastInstr == false)
+	{
+		file << "\n";
+	}
+
+	m_instructionCounter++;
 }
 
 std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::NormalizeParameters(
