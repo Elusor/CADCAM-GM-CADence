@@ -44,22 +44,22 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
 	);*/
 
-	auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	/*auto bodyXsideFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&sideFinOffsetObject,
 		DirectX::XMFLOAT3(3.8f, 0.5f, -0.5f)
-	);
+	);*/
 
-	/*
+	
 	auto bodyXeyeIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&bodyOffsetObject,
 		&eyeOffsetObject,
 		DirectX::XMFLOAT3(-5.12f, 1.53f, -0.95f)
 	);
-	VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
+	//VisualizeCurve(&bodyOffsetObject, bodyXeyeIntersection.surfQParams);
 
 	
-	auto backFinXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
+	/*auto backFinXhairIntersection = m_intersectionFinder->FindIntersectionWithCursor(
 		&backFinOffsetObject,
 		&hairOffsetObject,
 		DirectX::XMFLOAT3(4.2f, 3.8f, 0.59f)
@@ -118,15 +118,15 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
 	auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);*/
 
-	auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
+	/*auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
 	auto sideFinPathPointsParams = PrepareSideFin(normalizedSideFin);
 	auto denormalizedSideFinPathPointParams = DenormalizeParameters(sideFinPathPointsParams, sideFinObject);
-	auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
+	auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);*/
 
-	//auto normalizedEye = NormalizeParameters(bodyXeyeIntersection.surfPParams, eyeObject);
-	//auto eyePathPointsParams = PrepareEye(normalizedEye);
-	//auto denomarlizedEyePathPointParams = DenormalizeParameters(eyePathPointsParams, eyeObject);
-	//auto eyeEndPath = VisualizeCurve(&eyeOffsetObject, denomarlizedEyePathPointParams);
+	auto normalizedEye = NormalizeParameters(bodyXeyeIntersection.surfPParams, eyeObject);
+	auto eyePathPointsParams = PrepareEye(normalizedEye);
+	auto denomarlizedEyePathPointParams = DenormalizeParameters(eyePathPointsParams, eyeObject);
+	auto eyeEndPath = VisualizeCurve(&eyeOffsetObject, denomarlizedEyePathPointParams);
 
 	//auto normalizeBodySideFin = NormalizeParameters(bodyXsideFinIntersection.surfQParams, bodyObject);
 	//auto normalizeBodyBackFin = NormalizeParameters(bodyXbackFinIntersection.surfQParams, bodyObject);
@@ -614,10 +614,12 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareSideFin(const 
 
 std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareEye(const std::vector<DirectX::XMFLOAT2>& intersectionParams)
 {
+	auto fistHardcode1Index = 26;
+	auto secondHardcode1Index = 59;
 
-	auto segment1 = std::vector<DirectX::XMFLOAT2>(intersectionParams.begin(), intersectionParams.begin() + 19);
-	auto segment2 = std::vector<DirectX::XMFLOAT2>(intersectionParams.begin() + 19, intersectionParams.begin() + 47);
-	auto segment3 = std::vector<DirectX::XMFLOAT2>(intersectionParams.begin() + 47, intersectionParams.end());
+	auto segment1 = std::vector<DirectX::XMFLOAT2>(intersectionParams.begin(), intersectionParams.begin() + fistHardcode1Index);
+	auto segment2 = std::vector<DirectX::XMFLOAT2>(intersectionParams.begin() + fistHardcode1Index, intersectionParams.begin() + secondHardcode1Index);
+	auto segment3 = std::vector<DirectX::XMFLOAT2>(intersectionParams.begin() + secondHardcode1Index, intersectionParams.end());
 
 	// Segments 1 and 3 add 0.5 Y
 	// Segment 2 add 0.5 and substract 1
@@ -646,7 +648,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareEye(const std:
 	float minHParam = 0.0f;
 	float maxHParam = 1.0f;
 
-	size_t steps = 30;
+	size_t steps = 35;
 	size_t vSteps = 11;
 	float stepHWidth = (maxHParam - minHParam) / steps;
 
@@ -670,10 +672,10 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareEye(const std:
 		}
 	}
 
-	std::swap(
+	/*std::swap(
 		allIntersections[allIntersections.size() - 1],
 		allIntersections[allIntersections.size() - 2]
-	);
+	);*/
 
 	auto segmentBot = ExtractSegmentFromOutline(
 		newIntersectionParams,
@@ -718,7 +720,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareEye(const std:
 			newIntersectionParams,
 			lastIntersection.pLineIndex,
 			begIntersection.pLineIndex);
-		if (!index || index == (allIntersections.size() / 2) - 1)
+		if (!index)// || index == (allIntersections.size() / 2) - 1)
 		{
 			std::reverse(segment.begin(), segment.end());
 		}
