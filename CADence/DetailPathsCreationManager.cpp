@@ -274,6 +274,8 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 	backLine.push_back(DirectX::XMFLOAT2(maxParam, baseParamsCutoffend));
 
 	std::vector<DirectX::XMFLOAT2> pathPoints;
+	pathPoints.insert(pathPoints.end(), frontLine.begin(), frontLine.end());
+
 	float stepsVertical = 50;
 	float stepsHorizontal = 30;
 
