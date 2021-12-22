@@ -91,11 +91,16 @@ std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceI
 	ParametricOffsetSurface tailOffsetSurface(tailParametricObject, offset);
 
 	auto bodyCurveUpper = m_intersectionFinder->FindIntersectionWithCursor(&bodyOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(0, 2.6F, 0));
+	//VisualizeCurve(baseParametricObject, bodyCurveUpper.surfPParams);
 	auto bodyCurveLower = m_intersectionFinder->FindIntersectionWithCursor(&bodyOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(0, -1.78F, 0));
+	//VisualizeCurve(baseParametricObject, bodyCurveLower.surfPParams);
 	// For 1e-1 step tail results in one intersection
 	auto tailCurveUpper = m_intersectionFinder->FindIntersectionWithCursor(&tailOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(-0.95F, 5.55F, 0)); //better starting point
+	//VisualizeCurve(baseParametricObject, tailCurveUpper.surfPParams);
 	auto tailCurveLower = m_intersectionFinder->FindIntersectionWithCursor(&tailOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(4, -5.25, 0));
+	//VisualizeCurve(baseParametricObject, tailCurveLower.surfPParams);
 	auto hairCurve = m_intersectionFinder->FindIntersectionWithCursor(&hairOffsetSurface, baseParametricObject, DirectX::XMFLOAT3(-0.95F, 5.55F, 0));
+	//VisualizeCurve(baseParametricObject, hairCurve.surfPParams);
 
 	// TODO when getting the line index be careful to check the directionality of the intersected curve to cut the right line out of the curve
 	// https://cdn.discordapp.com/attachments/643546986901012480/921134941960568852/unknown.png
@@ -104,54 +109,37 @@ std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceI
 
 	auto endOfTheLineOffset = 1;
 	auto endIteratorOffset = 1;
+	std::vector<DirectX::XMFLOAT2> endParams;
 
 #pragma region Top and hair
 	auto bodyTopHairPoints = IntersectCurves(bodyCurveUpper.surfPParams, hairCurve.surfPParams);
 
-	auto bodyTopSection1 = std::vector<DirectX::XMFLOAT2>(
-		bodyCurveUpper.surfPParams.begin(),
-		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[0].qLineIndex + endIteratorOffset
-		);
-
 	auto bodyTopSection2 = std::vector<DirectX::XMFLOAT2>(
-		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[1].qLineIndex + endOfTheLineOffset,
+		bodyCurveUpper.surfPParams.begin() + bodyTopHairPoints[0].qLineIndex + endOfTheLineOffset,
 		bodyCurveUpper.surfPParams.end()
 		);
-
-	auto hairSection = std::vector<DirectX::XMFLOAT2>(
-		hairCurve.surfPParams.begin() + bodyTopHairPoints[0].pLineIndex + endOfTheLineOffset,
-		hairCurve.surfPParams.begin() + bodyTopHairPoints[1].pLineIndex + endIteratorOffset
-		);
+	
 #pragma endregion
 
 	// Body top section with tail upper
-#pragma region Top and Tail
-	auto bodyTopTailPoints = IntersectCurves(bodyTopSection1, tailCurveUpper.surfPParams);
 
-	auto bodyTopSection1Tail = std::vector<DirectX::XMFLOAT2>(
-		bodyTopSection1.begin() + bodyTopTailPoints[0].qLineIndex + endOfTheLineOffset,
-		bodyTopSection1.end()
-		);
-
-	auto tailUpperSection = std::vector<DirectX::XMFLOAT2>(
-		tailCurveUpper.surfPParams.begin(),
-		tailCurveUpper.surfPParams.begin() + bodyTopTailPoints[0].pLineIndex + endIteratorOffset
-		);
-#pragma endregion
 
 	// Body bottom with tail lower
 #pragma region Bottom and Tail
-	auto bodyBottomTailPoints = IntersectCurves(bodyCurveLower.surfPParams, tailUpperSection);
+	auto bodyBottomTailPoints = IntersectCurves(bodyCurveLower.surfPParams, tailCurveUpper.surfPParams);
+	auto tailHairPoints = IntersectCurves(hairCurve.surfPParams, tailCurveUpper.surfPParams);
+
+	auto hairSection = std::vector<DirectX::XMFLOAT2>(
+		hairCurve.surfPParams.begin() + tailHairPoints[0].qLineIndex + endOfTheLineOffset,
+		hairCurve.surfPParams.begin() + bodyTopHairPoints[0].pLineIndex + endIteratorOffset		
+		);
 
 	auto lowerBodySection = std::vector<DirectX::XMFLOAT2>(
 		bodyCurveLower.surfPParams.begin(),
 		bodyCurveLower.surfPParams.begin() + bodyBottomTailPoints[0].qLineIndex + endIteratorOffset
 		);
 
-	auto tailEndSection = std::vector<DirectX::XMFLOAT2>(
-		tailUpperSection.begin() + bodyBottomTailPoints[0].pLineIndex + endOfTheLineOffset,
-		tailUpperSection.end()
-		);
+	auto tailEndSection = ExtractSegmentFromOutline(tailCurveUpper.surfPParams, bodyBottomTailPoints[0].pLineIndex, tailHairPoints[0].pLineIndex + 1);		
 #pragma endregion
 
 	// Add split top segments
@@ -170,24 +158,18 @@ std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceI
 	
 	// TODO:
 	// Add a safety point at mouth
-	std::vector<DirectX::XMFLOAT2> endParams;
-	endParams.reserve(bodyTopSection1Tail.size() + bodyTopSection2.size() + lowerBodySection.size() + tailEndSection.size() + hairSection.size() + 4);
+	endParams.reserve(bodyTopSection2.size() + lowerBodySection.size() + tailEndSection.size() + hairSection.size() + 4);
 		
 	// Forehead to hair
 	std::reverse(bodyTopSection2.begin(), bodyTopSection2.end());
 	endParams.insert(endParams.end(), bodyTopSection2.begin(), bodyTopSection2.end());
 	// Connector
-	endParams.insert(endParams.end(), bodyTopHairPoints[1].intersectionPoint);
+	endParams.insert(endParams.end(), bodyTopHairPoints[0].intersectionPoint);
 	// Hair
 	std::reverse(hairSection.begin(), hairSection.end());
 	endParams.insert(endParams.end(), hairSection.begin(), hairSection.end());
 	// Connector
-	endParams.insert(endParams.end(), bodyTopHairPoints[0].intersectionPoint);
-	// Hair to Tail
-	std::reverse(bodyTopSection1Tail.begin(), bodyTopSection1Tail.end());
-	endParams.insert(endParams.end(), bodyTopSection1Tail.begin(), bodyTopSection1Tail.end());
-	// Connector
-	endParams.insert(endParams.end(), bodyTopTailPoints[0].intersectionPoint);
+	endParams.insert(endParams.end(), tailHairPoints[0].intersectionPoint);
 	// Tail
 	std::reverse(tailEndSection.begin(), tailEndSection.end());
 	endParams.insert(endParams.end(), tailEndSection.begin(), tailEndSection.end());
@@ -215,7 +197,7 @@ std::vector<DirectX::XMFLOAT2> BasePathsCreationManager::CalculateOffsetSurfaceI
 	
 	auto curve = m_factory.CreateInterpolBezierCurveC2(points);
 	m_scene->AttachObject(curve);*/
-
+	//VisualizeCurve(baseParametricObject, endParams);
 	return endParams;
 }
 
