@@ -157,7 +157,8 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 #pragma region body
 
 	auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
-	auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
+	auto normalizedBackFinHair = NormalizeParameters(backFinXhairIntersection.surfQParams, backFinObject);
+	auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin, normalizedBackFinHair);
 	auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
 	auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
 
@@ -425,7 +426,9 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::DenormalizeParameters
 	return result;
 }
 
-std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const std::vector<DirectX::XMFLOAT2>& bodyXbackFinIntersectionCurve)
+std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(
+	const std::vector<DirectX::XMFLOAT2>& bodyXbackFinIntersectionCurve, 
+	const std::vector<DirectX::XMFLOAT2>& hairXbackFinIntersectionCurve)
 {
 	auto x = 2;
 	// Adjust this to make sure the points at the end are ok
@@ -460,8 +463,20 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 		DirectX::XMFLOAT2{ maxParam , baseParamsCutoffend}
 	};
 
+	auto upperLimitInt = IntersectCurves(lineEnd, hairXbackFinIntersectionCurve);
+	std::vector<DirectX::XMFLOAT2> newLineEnd =
+	{
+		lineEnd[0],
+		upperLimitInt[0].intersectionPoint
+	};
+
+	auto segment = ExtractSegmentFromOutline(hairXbackFinIntersectionCurve, upperLimitInt[0].pLineIndex, upperLimitInt[1].pLineIndex+1);
+	newLineEnd.insert(newLineEnd.end(), segment.begin(), segment.end());
+	newLineEnd.push_back(upperLimitInt[1].intersectionPoint);
+	newLineEnd.push_back(lineEnd[1]);
+
 	auto startIntersection = IntersectCurves(reorganizedPoints, lineStart);
-	auto endIntersection = IntersectCurves(reorganizedPoints, lineEnd);
+	auto endIntersection = IntersectCurves(reorganizedPoints, newLineEnd);
 	
 	std::vector<DirectX::XMFLOAT2> frontLine;	
 	frontLine.push_back(startIntersection[0].intersectionPoint);
@@ -479,7 +494,7 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 	pathPoints.insert(pathPoints.end(), frontLine.begin(), frontLine.end());
 
 	float stepsVertical = 50;
-	float stepsHorizontal = 30;
+	float stepsHorizontal = 60;
 
 	bool reversed = true;
 	LineIntersectionData lastIntersection = endIntersection[0];
@@ -504,35 +519,85 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareBackFin(const 
 		}
 
 		auto startIntersection = IntersectCurves(scanline, lineStart);
-		auto endIntersection = IntersectCurves(scanline, lineEnd);
+		auto endIntersection = IntersectCurves(scanline, newLineEnd);
+		auto frontInterseciton = IntersectCurves(scanline, frontLine);
 
-		LineIntersectionData beg;
-		LineIntersectionData end;
-		if (reversed)
+		if (frontInterseciton.size() >= 2)
 		{
-			beg = endIntersection[0];
-			end = startIntersection[0];
+			LineIntersectionData beg;
+			LineIntersectionData endMiddle;
+			LineIntersectionData begMiddle;
+			LineIntersectionData end;
+			if (reversed)
+			{
+				beg = endIntersection[0];
+				endMiddle = frontInterseciton[1];
+				begMiddle = frontInterseciton[0];
+				end = startIntersection[0];
+			}
+			else
+			{
+				beg = startIntersection[0];
+				endMiddle = frontInterseciton[0];
+				begMiddle = frontInterseciton[1];
+				end = endIntersection[0];
+			}
+
+			// Add beg to end Middle 
+			pathPoints.push_back(beg.intersectionPoint);
+			auto segment1 = ExtractSegmentFromOutline(scanline, beg.qLineIndex, endMiddle.qLineIndex);
+			if (reversed)
+			{
+				std::reverse(segment1.begin(), segment1.end());
+			}
+			pathPoints.insert(pathPoints.end(), segment1.begin(), segment1.end());
+			pathPoints.push_back(endMiddle.intersectionPoint);
+			// Add special marker
+			pathPoints.push_back({ -1.0f, -1.0f });
+			// Add begMiddle to end
+			pathPoints.push_back(begMiddle.intersectionPoint);
+			auto segment2 = ExtractSegmentFromOutline(scanline, begMiddle.qLineIndex, end.qLineIndex);
+			if (reversed)
+			{
+				std::reverse(segment2.begin(), segment2.end());
+			}
+			pathPoints.insert(pathPoints.end(), segment2.begin(), segment2.end());
+			pathPoints.push_back(end.intersectionPoint);
+			lastIntersection = end;
+
 		}
 		else
 		{
-			beg = startIntersection[0];
-			end = endIntersection[0];
+			// as usual
+			LineIntersectionData beg;
+			LineIntersectionData end;
+			if (reversed)
+			{
+				beg = endIntersection[0];
+				end = startIntersection[0];
+			}
+			else
+			{
+				beg = startIntersection[0];
+				end = endIntersection[0];
+			}
+
+			// TODO add the extraction from the outline
+
+			auto segment = ExtractSegmentFromOutline(scanline, beg.qLineIndex, end.qLineIndex + 1);
+			if (reversed)
+			{
+				std::reverse(segment.begin(), segment.end());
+			}
+
+
+			pathPoints.push_back(beg.intersectionPoint);
+			pathPoints.insert(pathPoints.end(), segment.begin(), segment.end());
+			pathPoints.push_back(end.intersectionPoint);
+
+			lastIntersection = end;
+
 		}
-
-		// TODO add the extraction from the outline
-
-		auto segment = ExtractSegmentFromOutline(scanline, beg.qLineIndex, end.qLineIndex + 1);
-		if (reversed)
-		{
-			std::reverse(segment.begin(), segment.end());
-		}
-
-
-		pathPoints.push_back(beg.intersectionPoint);
-		pathPoints.insert(pathPoints.end(), segment.begin(), segment.end());
-		pathPoints.push_back(end.intersectionPoint);
-
-		lastIntersection = end;
 		reversed = !reversed;
 	}
 
