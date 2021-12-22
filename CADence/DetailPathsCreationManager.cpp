@@ -185,7 +185,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	endPath[endPath.size() - 2].z = -safeHeight;
 
 	// Export path
-	SavePathToFile(endPath, "3_detailed.k08");
+	SavePathToFile(endPath, "3_detailed.k16");
 }
 
 std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params)
@@ -265,7 +265,7 @@ bool DetailPathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLO
 		for (int i = 0; i < positions.size(); i++)
 		{
 			SimpleMath::Vector3 pos = positions[i];
-			pos.z = abs(pos.z - m_blockBaseHeight + millRadius) < m_blockBaseHeight + 0.1f ? m_blockBaseHeight + 0.1f : abs(pos.z - m_blockBaseHeight + millRadius);
+			pos.z = abs(pos.z - m_blockBaseHeight + millRadius) < m_blockBaseHeight? m_blockBaseHeight : abs(pos.z - m_blockBaseHeight + millRadius);
 			auto mmPt = ConvertToMilimeters(pos);
 			PushInstructionToFile(myfile, PrepareMoveInstruction(mmPt), i == positions.size() - 1);
 		}
