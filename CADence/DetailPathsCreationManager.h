@@ -23,7 +23,7 @@ private:
 	float m_blockSafeHeight;
 	int m_instructionCounter;
 
-	void VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params);
+	std::vector<DirectX::XMFLOAT3> VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params);
 
 #pragma region FileParsing
 	bool SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions, std::string name);
@@ -47,5 +47,5 @@ private:
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair1,
 		const std::vector<DirectX::XMFLOAT2>& intersectionHair2);
 
-
+	std::vector<DirectX::XMFLOAT3> RemoveSpecialPoints(const std::vector<DirectX::XMFLOAT3>& endPathPoints);
 };

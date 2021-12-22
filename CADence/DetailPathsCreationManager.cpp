@@ -15,21 +15,21 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	float offset = -0.09F; // 0.08 + 0.01 eps
 
 	auto modelObjects = model->GetModelObjects();
-	auto bodyObject		= dynamic_cast<IParametricSurface*>(modelObjects[0].lock().get()->m_object.get());
-	auto eyeObject		= dynamic_cast<IParametricSurface*>(modelObjects[1].lock().get()->m_object.get());
-	auto hairObject		= dynamic_cast<IParametricSurface*>(modelObjects[2].lock().get()->m_object.get());
-	auto backFinObject	= dynamic_cast<IParametricSurface*>(modelObjects[3].lock().get()->m_object.get());
-	auto sideFinObject	= dynamic_cast<IParametricSurface*>(modelObjects[4].lock().get()->m_object.get());
-	auto sideSpikes		= dynamic_cast<IParametricSurface*>(modelObjects[5].lock().get()->m_object.get());
+	auto bodyObject = dynamic_cast<IParametricSurface*>(modelObjects[0].lock().get()->m_object.get());
+	auto eyeObject = dynamic_cast<IParametricSurface*>(modelObjects[1].lock().get()->m_object.get());
+	auto hairObject = dynamic_cast<IParametricSurface*>(modelObjects[2].lock().get()->m_object.get());
+	auto backFinObject = dynamic_cast<IParametricSurface*>(modelObjects[3].lock().get()->m_object.get());
+	auto sideFinObject = dynamic_cast<IParametricSurface*>(modelObjects[4].lock().get()->m_object.get());
+	auto sideSpikes = dynamic_cast<IParametricSurface*>(modelObjects[5].lock().get()->m_object.get());
 
 	// Create offset surfaces for each object in the model
-	auto bodyOffsetObject		= ParametricOffsetSurface(bodyObject, offset);
-	auto eyeOffsetObject		= ParametricOffsetSurface(eyeObject, offset);
-	auto hairOffsetObject		= ParametricOffsetSurface(hairObject, offset);
-	auto backFinOffsetObject	= ParametricOffsetSurface(backFinObject, offset);
-	auto sideFinOffsetObject	= ParametricOffsetSurface(sideFinObject, offset);
+	auto bodyOffsetObject = ParametricOffsetSurface(bodyObject, offset);
+	auto eyeOffsetObject = ParametricOffsetSurface(eyeObject, offset);
+	auto hairOffsetObject = ParametricOffsetSurface(hairObject, offset);
+	auto backFinOffsetObject = ParametricOffsetSurface(backFinObject, offset);
+	auto sideFinOffsetObject = ParametricOffsetSurface(sideFinObject, offset);
 	auto sideSpikesOffsetObject = ParametricOffsetSurface(sideSpikes, offset);
-	
+
 #pragma region Calculate intersections
 	// Intersect the models that should be intersected
 	auto bodyXbackFinIntersection = m_intersectionFinder->FindIntersectionWithCursor(
@@ -95,17 +95,17 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	auto normalizedBackFin = NormalizeParameters(bodyXbackFinIntersection.surfPParams, backFinObject);
 	auto backFinPathPointsParams = PrepareBackFin(normalizedBackFin);
 	auto denormalizedBackFinPathPointParams = DenormalizeParameters(backFinPathPointsParams, backFinObject);
-	//VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
+	auto backFinEndPath = VisualizeCurve(&backFinOffsetObject, denormalizedBackFinPathPointParams);
 
 	auto normalizedSideFin = NormalizeParameters(bodyXsideFinIntersection.surfPParams, sideFinObject);
 	auto sideFinPathPointsParams = PrepareSideFin(normalizedSideFin);
 	auto denormalizedSideFinPathPointParams = DenormalizeParameters(sideFinPathPointsParams, sideFinObject);
-	//VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
+	auto sideFinEndPath = VisualizeCurve(&sideFinOffsetObject, denormalizedSideFinPathPointParams);
 
 	auto normalizedEye = NormalizeParameters(bodyXeyeIntersection.surfPParams, eyeObject);
 	auto eyePathPointsParams = PrepareEye(normalizedEye);
 	auto denomarlizedEyePathPointParams = DenormalizeParameters(eyePathPointsParams, eyeObject);
-	//VisualizeCurve(&eyeOffsetObject, denomarlizedEyePathPointParams);
+	auto eyeEndPath = VisualizeCurve(&eyeOffsetObject, denomarlizedEyePathPointParams);
 
 	auto normalizeBodySideFin = NormalizeParameters(bodyXsideFinIntersection.surfQParams, bodyObject);
 	auto normalizeBodyBackFin = NormalizeParameters(bodyXbackFinIntersection.surfQParams, bodyObject);
@@ -132,10 +132,10 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		normalizeBodySpikes
 	);
 	auto denormalizedBodyPathPointParams = DenormalizeParameters(bodyPathPointsParams, bodyObject);
-	VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
+	auto bodyEndPath = VisualizeCurve(&bodyOffsetObject, denormalizedBodyPathPointParams);
 #pragma endregion
 
-	
+
 	auto normalizeHair = NormalizeParameters(bodyXhairIntersection.surfPParams, hairObject);
 	auto normalizeHair2 = NormalizeParameters(bodyXhairIntersection2.surfPParams, hairObject);
 	auto hairPathPointParams = PrepareHair(
@@ -143,7 +143,7 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 		normalizeHair2
 	);
 	auto denormalizedHairPathPointParams = DenormalizeParameters(hairPathPointParams, hairObject);
-	VisualizeCurve(&hairOffsetObject, denormalizedHairPathPointParams);
+	auto hairEndPath = VisualizeCurve(&hairOffsetObject, denormalizedHairPathPointParams);
 
 
 
@@ -156,13 +156,35 @@ void DetailPathsCreationManager::CreateDetailPaths(PathModel* model)
 	*/
 	//VisualizeCurve(&bodyOffsetObject, spikeParams);
 #pragma endregion
+	float safeHeight = 5.0f;
+	std::vector<DirectX::XMFLOAT3> wholePath;
+	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
+	wholePath.push_back({ 0.0f, 0.0f, -safeHeight }); //dummy pt 
+	wholePath.insert(wholePath.end(), backFinEndPath.begin(), backFinEndPath.end());
+	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	wholePath.insert(wholePath.end(), bodyEndPath.begin(), bodyEndPath.end());
+	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	wholePath.insert(wholePath.end(), eyeEndPath.begin(), eyeEndPath.end());
+	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	wholePath.insert(wholePath.end(), sideFinEndPath.begin(), sideFinEndPath.end());
+	wholePath.push_back({ -1.0f, -1.0f, -1.0f });
+	wholePath.insert(wholePath.end(), hairEndPath.begin(), hairEndPath.end());
+	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
+	wholePath.push_back({ 0.0f, 0.0f, -safeHeight });
 
+	auto endPath = RemoveSpecialPoints(wholePath);
+	endPath[1] = endPath[2];
+	endPath[1].z = -safeHeight;
 
+	endPath[endPath.size() - 2] = endPath[endPath.size() - 3];
+	endPath[endPath.size() - 2].z = -safeHeight;
 
+	// Export path
 }
 
-void DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params)
+std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, const std::vector<DirectX::XMFLOAT2>& params)
 {
+	std::vector<DirectX::XMFLOAT3> endPoints;
 	float safeHeight = 5.0f;
 
 	std::vector<ObjectRef> points;
@@ -183,6 +205,7 @@ void DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, con
 			point->SetIsVirtual(true);
 			m_scene->AttachObject(point);
 			points.push_back(point);
+			endPoints.push_back(pos1);
 
 			pos2.z = -safeHeight;
 			ptTransform.SetPosition(pos2);
@@ -190,6 +213,7 @@ void DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, con
 			point->SetIsVirtual(true);
 			m_scene->AttachObject(point);
 			points.push_back(point);
+			endPoints.push_back(pos2);
 		}
 		else
 		{
@@ -201,10 +225,13 @@ void DetailPathsCreationManager::VisualizeCurve(IParametricSurface* surface, con
 			point->SetIsVirtual(true);
 			m_scene->AttachObject(point);
 			points.push_back(point);
+			endPoints.push_back(pos);
 		}
 	}
 
 	m_scene->AttachObject(m_factory.CreateInterpolBezierCurveC2(points));
+
+	return endPoints;
 }
 
 bool DetailPathsCreationManager::SavePathToFile(const std::vector<DirectX::XMFLOAT3>& positions, std::string name)
@@ -1160,4 +1187,30 @@ std::vector<DirectX::XMFLOAT2> DetailPathsCreationManager::PrepareHair(
 	pathPoints.insert(pathPoints.end(), outlinePoints.begin(), outlinePoints.end());
 
 	return pathPoints;
+}
+
+std::vector<DirectX::XMFLOAT3> DetailPathsCreationManager::RemoveSpecialPoints(const std::vector<DirectX::XMFLOAT3>& endPathPoints)
+{
+	float safeHeight = 5;
+	std::vector<DirectX::XMFLOAT3> res;
+	for (size_t ptIdx = 0; ptIdx < endPathPoints.size(); ptIdx++)
+	{
+		auto pt = endPathPoints[ptIdx];
+		if (pt.x == -1.0f && pt.y == -1.0f && pt.z == -1.0f)
+		{
+			auto prev = endPathPoints[ptIdx - 1];
+			prev.z = -safeHeight;
+			auto next = endPathPoints[ptIdx + 1];
+			next.z = -safeHeight;
+
+			res.push_back(prev);
+			res.push_back(next);
+		}
+		else
+		{
+			res.push_back(pt);
+		}
+	}
+
+	return res;
 }
